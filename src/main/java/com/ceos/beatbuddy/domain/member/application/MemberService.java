@@ -49,12 +49,12 @@ public class MemberService {
     private final HeartbeatRepository heartbeatRepository;
     private final ArchiveRepository archiveRepository;
     private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9가-힣._]*$");
-
-    @Value("${iamport.api.key}")
-    private String imp_key;
-
-    @Value("${iamport.api.secret}")
-    private String imp_secret;
+//
+//    @Value("${iamport.api.key}")
+//    private String imp_key;
+//
+//    @Value("${iamport.api.secret}")
+//    private String imp_secret;
 
     /**
      * loginId로 유저 식별자 조회 유저가 존재하면 식별자 반환 유저가 존재하지 않으면 회원가입 처리 후 식별자 반환
@@ -161,60 +161,60 @@ public class MemberService {
                 .build();
     }
 
-    @Transactional
-    public String getToken() {
-        RestTemplate restTemplate = new RestTemplate();
-        String tokenUrl = "https://api.iamport.kr/users/getToken";
-        Map<String, String> tokenRequest = new HashMap<>();
-        tokenRequest.put("imp_key", imp_key);
-        tokenRequest.put("imp_secret", imp_secret);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
-
-        HttpEntity<Map<String, String>> tokenEntity = new HttpEntity<>(tokenRequest, headers);
-        ResponseEntity<Map> tokenResponse = restTemplate.exchange(tokenUrl, HttpMethod.POST, tokenEntity, Map.class);
-
-        Map body = tokenResponse.getBody();
-        Map response = (Map) body.get("response");
-        return response.get("access_token").toString();
-    }
-
-    public ResponseEntity<Map> getUserData(String token, String imp_uid) {
-        RestTemplate restTemplate = new RestTemplate();
-        String certificationUrl = UriComponentsBuilder.fromHttpUrl("https://api.iamport.kr/certifications/{imp_uid}")
-                .buildAndExpand(imp_uid)
-                .toUriString();
-
-        HttpHeaders certificationHeaders = new HttpHeaders();
-        certificationHeaders.set("Authorization", "Bearer " + token);
-
-        HttpEntity<String> certificationEntity = new HttpEntity<>(certificationHeaders);
-        ResponseEntity<Map> exchange = restTemplate.exchange(certificationUrl, HttpMethod.GET, certificationEntity,
-                Map.class);
-
-        return exchange;
-    }
-
-    public void verifyUserData(ResponseEntity<Map> userData, Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String userName = userData.getBody().get("name").toString();
-        if (!userName.equals(member.getNickname())) {
-            throw new CustomException(MemberErrorCode.USERNAME_NOT_MATCH);
-        }
-
-        String userBirth = userData.getBody().get("birth").toString();
-        LocalDate userBirthDate = LocalDate.parse(userBirth, formatter);
-
-        if (Period.between(userBirthDate, LocalDate.now()).getYears() >= 19) {
-            member.setAdultUser();
-        } else {
-            throw new CustomException(MemberErrorCode.MEMBER_NOT_ADULT);
-        }
-
-    }
+//    @Transactional
+//    public String getToken() {
+//        RestTemplate restTemplate = new RestTemplate();
+//        String tokenUrl = "https://api.iamport.kr/users/getToken";
+//        Map<String, String> tokenRequest = new HashMap<>();
+//        tokenRequest.put("imp_key", imp_key);
+//        tokenRequest.put("imp_secret", imp_secret);
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.set("Content-Type", "application/json");
+//
+//        HttpEntity<Map<String, String>> tokenEntity = new HttpEntity<>(tokenRequest, headers);
+//        ResponseEntity<Map> tokenResponse = restTemplate.exchange(tokenUrl, HttpMethod.POST, tokenEntity, Map.class);
+//
+//        Map body = tokenResponse.getBody();
+//        Map response = (Map) body.get("response");
+//        return response.get("access_token").toString();
+//    }
+//
+//    public ResponseEntity<Map> getUserData(String token, String imp_uid) {
+//        RestTemplate restTemplate = new RestTemplate();
+//        String certificationUrl = UriComponentsBuilder.fromHttpUrl("https://api.iamport.kr/certifications/{imp_uid}")
+//                .buildAndExpand(imp_uid)
+//                .toUriString();
+//
+//        HttpHeaders certificationHeaders = new HttpHeaders();
+//        certificationHeaders.set("Authorization", "Bearer " + token);
+//
+//        HttpEntity<String> certificationEntity = new HttpEntity<>(certificationHeaders);
+//        ResponseEntity<Map> exchange = restTemplate.exchange(certificationUrl, HttpMethod.GET, certificationEntity,
+//                Map.class);
+//
+//        return exchange;
+//    }
+//
+//    public void verifyUserData(ResponseEntity<Map> userData, Long memberId) {
+//        Member member = memberRepository.findById(memberId)
+//                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//        String userName = userData.getBody().get("name").toString();
+//        if (!userName.equals(member.getNickname())) {
+//            throw new CustomException(MemberErrorCode.USERNAME_NOT_MATCH);
+//        }
+//
+//        String userBirth = userData.getBody().get("birth").toString();
+//        LocalDate userBirthDate = LocalDate.parse(userBirth, formatter);
+//
+//        if (Period.between(userBirthDate, LocalDate.now()).getYears() >= 19) {
+//            member.setAdultUser();
+//        } else {
+//            throw new CustomException(MemberErrorCode.MEMBER_NOT_ADULT);
+//        }
+//
+//    }
 
     public OnboardingResponseDto isOnboarding(Long memberId) {
         Member member = memberRepository.findById(memberId)
