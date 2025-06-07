@@ -12,9 +12,9 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 @Configuration
 public class CustomClientRegistrationRepo {
 
-    @Value("${KAKAO_CLIENT_ID}")
+    @Value("${kakao.client-id}")
     private String clientId;
-    @Value("${KAKAO_CLIENT_SECRET}")
+    @Value("${kakao.client-secret}")
     private String clientSecret;
 
     @Bean
