@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "post")  // 추가
+@Table(name = "Post")  // 추가
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn
 @NoArgsConstructor(access = PROTECTED)
@@ -43,7 +43,7 @@ public abstract class Post extends BaseTimeEntity {
     private List<String> imageUrls;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "memberId")
     private Member member;
 
     protected Post(String title, String content, Boolean anonymous,

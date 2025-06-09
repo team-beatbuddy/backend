@@ -32,15 +32,15 @@ public class Comment extends BaseTimeEntity {
 
     @ManyToOne
     @Nullable
-    @JoinColumn(name = "reply_id")
+    @JoinColumn(name = "replyId")
     private Comment reply;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "memberId")
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "postId")
     private Post post;
 
     private int likes;

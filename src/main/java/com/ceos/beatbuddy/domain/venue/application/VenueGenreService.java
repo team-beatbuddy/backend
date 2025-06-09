@@ -34,8 +34,8 @@ public class VenueGenreService {
         venueGenreRepository.save(venueGenre);
         return VenueVectorResponseDTO.builder()
                 .vectorString(venueGenre.getGenreVectorString())
-                .venueId(venue.getVenueId())
-                .vectorId(venueGenre.getVenueGenreId())
+                .venueId(venue.getId())
+                .vectorId(venueGenre.getId())
                 .englishName(venue.getEnglishName())
                 .koreanName(venue.getKoreanName())
                 .region(venue.getRegion())
@@ -52,8 +52,8 @@ public class VenueGenreService {
         venueGenreRepository.save(venueGenre);
         return VenueVectorResponseDTO.builder()
                 .vectorString(venueGenre.getGenreVectorString())
-                .venueId(venue.getVenueId())
-                .vectorId(venueGenre.getVenueGenreId())
+                .venueId(venue.getId())
+                .vectorId(venueGenre.getId())
                 .englishName(venue.getEnglishName())
                 .koreanName(venue.getKoreanName())
                 .region(venue.getRegion())

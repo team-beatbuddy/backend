@@ -13,7 +13,7 @@ import org.springframework.data.redis.core.RedisHash;
 public class Search {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long searchId;
+    public Long id;
 
     public String searchTerm;
 
