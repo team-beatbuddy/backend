@@ -5,8 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Category {
     TYPE1(0, "USER"),
-    TYPE2(1, "MD"),
-    TYPE3(2, "OWNER");
+    TYPE2(1, "BUSINESS");
 
     private Integer idx;
     private String text;

@@ -60,6 +60,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .refreshToken(refresh)
                 .build();
 
+        log.info("saved: " + access);
+
+
         ResponseCookie cookie = ResponseCookie.from("refresh", refresh)
                 .path("/")
                 .httpOnly(true)
