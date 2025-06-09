@@ -12,16 +12,16 @@ import java.util.List;
 
 
 public interface VenueRepository extends JpaRepository<Venue, Long> {
-    @Query("SELECT v.venueId FROM Venue v WHERE v.koreanName = :koreanName")
+    @Query("SELECT v.id FROM Venue v WHERE v.koreanName = :koreanName")
     Long findVenueIdByKoreanName(@Param("koreanName") String koreanName);
 
-    @Query("SELECT v.venueId FROM Venue v")
+    @Query("SELECT v.id FROM Venue v")
     List<Long> findAllIds();
 
     @Query("SELECT v FROM Venue v ORDER BY v.heartbeatNum DESC LIMIT 10")
     List<Venue> sortByHeartbeatCount();
 
-    @Query("SELECT v FROM Venue v WHERE v.venueId = :venueId")
+    @Query("SELECT v FROM Venue v WHERE v.id = :venueId")
     Long deleteByVenueId(@Param("venueId")Long venueId);
 
     @Query("SELECT v FROM Venue v WHERE v.region IN :regions")

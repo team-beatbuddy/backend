@@ -91,7 +91,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
-        if (!comment.getMember().getMemberId().equals(memberId)) {
+        if (!comment.getMember().getId().equals(memberId)) {
             throw new CustomException(CommentErrorCode.NOT_COMMENT_OWNER);
         }
 
@@ -113,7 +113,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
-        if (!comment.getMember().getMemberId().equals(memberId)) {
+        if (!comment.getMember().getId().equals(memberId)) {
             throw new CustomException(CommentErrorCode.NOT_COMMENT_OWNER);
         }
 

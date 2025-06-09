@@ -125,7 +125,7 @@ public class SearchRepository {
 
     public List<SearchQueryResponseDTO> keywordFilter(SearchDTO.RequestDTO searchRequestDto, Long memberId) {
 
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(
+        Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         QVenue venue = QVenue.venue;
         QVenueGenre venueGenre = QVenueGenre.venueGenre;
@@ -135,7 +135,7 @@ public class SearchRepository {
         List<SearchQueryResponseDTO> result = queryFactory
                 .select(Projections.constructor(SearchDTO.mediumDTO.class,
                         Expressions.constant(LocalDateTime.now()),
-                        venue.venueId,
+                        venue.id,
                         venue.englishName,
                         venue.koreanName,
                         venue.heartbeatNum,
@@ -223,7 +223,7 @@ public class SearchRepository {
 
             // Fetch genre and mood vectors from database and create filters
             List<Tuple> genreMoodTuples = queryFactory
-                    .select(venue.venueId, venueGenre.genreVectorString, venueMood.moodVectorString)
+                    .select(venue.id, venueGenre.genreVectorString, venueMood.moodVectorString)
                     .from(venue)
                     .leftJoin(venueGenre).on(venueGenre.venue.eq(venue))
                     .leftJoin(venueMood).on(venueMood.venue.eq(venue))
@@ -239,13 +239,13 @@ public class SearchRepository {
 
                 for (String genre : trueGenreElements) {
                     if (genre.equalsIgnoreCase(keywordEnglish)) {
-                        genreFilter = genreFilter.or(venue.venueId.eq(tuple.get(venue.venueId)));
+                        genreFilter = genreFilter.or(venue.id.eq(tuple.get(venue.id)));
                     }
                 }
 
                 for (String mood : trueMoodElements) {
                     if (mood.equalsIgnoreCase(keywordEnglish)) {
-                        moodFilter = moodFilter.or(venue.venueId.eq(tuple.get(venue.venueId)));
+                        moodFilter = moodFilter.or(venue.id.eq(tuple.get(venue.id)));
                     }
                 }
             }
