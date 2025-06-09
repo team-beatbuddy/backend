@@ -22,7 +22,12 @@ import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@OpenAPIDefinition(servers = {@Server(url = "https://api.beatbuddy.world")})
+@OpenAPIDefinition(
+        servers = {
+                @Server(url = "https://api.beatbuddy.world"),
+                @Server(url = "http://localhost:8080") // 👈 로컬 서버 추가
+        }
+)
 @Configuration
 public class SwaggerConfig {
     @Bean
