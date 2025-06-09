@@ -18,7 +18,7 @@ import org.springframework.lang.Nullable;
 public class FreePost extends Post{
     @ManyToOne(fetch = FetchType.LAZY)
     @Nullable
-    @JoinColumn(name = "venue_id")
+    @JoinColumn(name = "venueId")
     private Venue venue;
 
     @Builder

@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Entity
 @Builder
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 public class MemberMood extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long memberMoodId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberId")
@@ -35,8 +36,7 @@ public class MemberMood extends BaseTimeEntity {
 
     public Vector getMoodVector() {
         if (moodVector == null && moodVectorString != null) {
-            List<Double> elements = List.of(moodVectorString.replace("[", "").replace("]", "").split(","))
-                    .stream().map(String::trim).map(Double::parseDouble).collect(Collectors.toList());
+            List<Double> elements = Stream.of(moodVectorString.replace("[", "").replace("]", "").split(",")).map(String::trim).map(Double::parseDouble).collect(Collectors.toList());
             moodVector = new Vector(elements);
         }
         return moodVector;

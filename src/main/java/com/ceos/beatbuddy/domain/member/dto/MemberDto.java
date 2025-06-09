@@ -19,7 +19,7 @@ public class MemberDto {
     public static MemberDto of(Member member){
         return MemberDto.builder()
                 //.name(member.getName())
-                .memberId(member.getMemberId())
+                .memberId(member.getId())
                 .loginId(member.getLoginId())
                 .nickname(member.getNickname())
                 .role(member.getRole())

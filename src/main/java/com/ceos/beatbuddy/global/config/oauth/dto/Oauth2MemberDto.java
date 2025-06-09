@@ -18,7 +18,7 @@ public class Oauth2MemberDto {
 
     public static Oauth2MemberDto of(Member member){
         return Oauth2MemberDto.builder()
-                .memberId(member.getMemberId())
+                .memberId(member.getId())
                 .name(member.getRealName())
                 .loginId(member.getLoginId())
                 .nickname(member.getNickname())

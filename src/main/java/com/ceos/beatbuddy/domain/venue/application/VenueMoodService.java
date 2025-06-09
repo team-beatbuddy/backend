@@ -35,8 +35,8 @@ public class VenueMoodService {
         venueMoodRepository.save(venueMood);
         return VenueVectorResponseDTO.builder()
                 .vectorString(venueMood.getMoodVectorString())
-                .venueId(venue.getVenueId())
-                .vectorId(venueMood.getVenueMoodId())
+                .venueId(venue.getId())
+                .vectorId(venueMood.getId())
                 .englishName(venue.getEnglishName())
                 .koreanName(venue.getKoreanName())
                 .region(venue.getRegion())
@@ -53,8 +53,8 @@ public class VenueMoodService {
         venueMoodRepository.save(venueMood);
         return VenueVectorResponseDTO.builder()
                 .vectorString(venueMood.getMoodVectorString())
-                .venueId(venue.getVenueId())
-                .vectorId(venueMood.getVenueMoodId())
+                .venueId(venue.getId())
+                .vectorId(venueMood.getId())
                 .englishName(venue.getEnglishName())
                 .koreanName(venue.getKoreanName())
                 .region(venue.getRegion())

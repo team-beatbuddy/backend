@@ -17,11 +17,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PiecePost extends Post{
     @ManyToOne
-    @JoinColumn(name = "piece_id")
+    @JoinColumn(name = "pieceId")
     private Piece piece;
 
     @ManyToOne
-    @JoinColumn(name = "venue_id")
+    @JoinColumn(name = "venueId")
     private Venue venue;
 
     @Builder

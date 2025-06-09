@@ -36,8 +36,8 @@ public class MemberGenreService {
         memberGenreRepository.save(memberGenre);
         return MemberVectorResponseDTO.builder()
                 .vectorString(memberGenre.getGenreVectorString())
-                .memberId(member.getMemberId())
-                .vectorId(memberGenre.getMemberGenreId())
+                .memberId(member.getId())
+                .vectorId(memberGenre.getId())
                 .loginId(member.getLoginId())
                 .nickname(member.getNickname())
                 .realName(member.getRealName())
@@ -59,8 +59,8 @@ public class MemberGenreService {
 
         return MemberVectorResponseDTO.builder()
                 .vectorString(memberGenre.getGenreVectorString())
-                .memberId(member.getMemberId())
-                .vectorId(memberGenre.getMemberGenreId())
+                .memberId(member.getId())
+                .vectorId(memberGenre.getId())
                 .loginId(member.getLoginId())
                 .nickname(member.getNickname())
                 .realName(member.getRealName())
@@ -72,8 +72,8 @@ public class MemberGenreService {
         List<MemberGenre> memberGenres = memberGenreRepository.findAllByMember(member);
         return memberGenres.stream()
                 .map(memberGenre -> MemberVectorResponseDTO.builder()
-                        .memberId(member.getMemberId())
-                        .vectorId(memberGenre.getMemberGenreId())
+                        .memberId(member.getId())
+                        .vectorId(memberGenre.getId())
                         .loginId(member.getLoginId())
                         .nickname(member.getNickname())
                         .realName(member.getRealName())
@@ -87,8 +87,8 @@ public class MemberGenreService {
         MemberGenre memberGenre = memberGenreRepository.findLatestGenreByMember(member).orElseThrow(()-> new CustomException((MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST)));
         return MemberVectorResponseDTO.builder()
                 .vectorString(memberGenre.getGenreVectorString())
-                .memberId(member.getMemberId())
-                .vectorId(memberGenre.getMemberGenreId())
+                .memberId(member.getId())
+                .vectorId(memberGenre.getId())
                 .loginId(member.getLoginId())
                 .nickname(member.getNickname())
                 .realName(member.getRealName())

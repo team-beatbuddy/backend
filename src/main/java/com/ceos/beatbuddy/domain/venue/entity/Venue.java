@@ -17,7 +17,7 @@ import java.util.List;
 public class Venue extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long venueId;
+    private Long id;
 
     private String englishName;
     private String koreanName;

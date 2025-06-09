@@ -78,7 +78,7 @@ public class PostService {
     public void deletePost(String type, Long postId, Long memberId) {
         Post post = readPost(type, postId);
 
-        if (!post.getMember().getMemberId().equals(memberId)) {
+        if (!post.getMember().getId().equals(memberId)) {
             throw new CustomException(PostErrorCode.MEMBER_NOT_MATCH);
         }
 
