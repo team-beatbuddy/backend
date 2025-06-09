@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.member.entity;
 
+import com.ceos.beatbuddy.domain.archive.entity.Archive;
 import com.ceos.beatbuddy.domain.vector.entity.Vector;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -28,6 +29,9 @@ public class MemberMood extends BaseTimeEntity {
 
     @Lob
     private String moodVectorString;
+
+    @OneToMany(mappedBy = "memberMood", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Archive> archives;
 
     public void setMoodVector(Vector vector) {
         this.moodVector = vector;
