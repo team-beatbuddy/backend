@@ -50,6 +50,7 @@ public class Member extends BaseTimeEntity {
     private Long latestArchiveId;
 
     private String phoneNumber;
+    private Boolean isVerified = false; // 본인인증이 되었는지
 
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -92,5 +93,46 @@ public class Member extends BaseTimeEntity {
     }
 
     public void saveLatestArchiveId(Long latestArchiveId) {this.latestArchiveId = latestArchiveId;}
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setBusinessMember() {
+        this.role = "BUSINESS";
+    }
+
+    public void setRealName(String realName){
+        this.realName = realName;
+    }
+    public void setDateOfBirthAndGender(String residentRegistration) {
+        if (residentRegistration == null || residentRegistration.length() < 7) {
+            throw new IllegalArgumentException("유효하지 않은 주민등록번호입니다.");
+        }
+
+        String birth = residentRegistration.substring(0, 6);
+        char genderCode = residentRegistration.charAt(6);
+
+        int yearPrefix;
+        switch (genderCode) {
+            case '1': case '2': yearPrefix = 1900; break;
+            case '3': case '4': yearPrefix = 2000; break;
+            case '5': case '6': yearPrefix = 1900; break; // 외국인
+            case '7': case '8': yearPrefix = 2000; break; // 외국인
+            default:
+                throw new IllegalArgumentException("유효하지 않은 성별 코드입니다.");
+        }
+
+        int year = yearPrefix + Integer.parseInt(birth.substring(0, 2));
+        int month = Integer.parseInt(birth.substring(2, 4));
+        int day = Integer.parseInt(birth.substring(4, 6));
+
+        this.dateOfBirth = LocalDate.of(year, month, day);
+        this.gender = (genderCode % 2 == 1) ? Gender.TYPE1 : Gender.TYPE2;
+    }
+
+    public void saveVerify() {
+        this.isVerified = true;
+    }
 
 }

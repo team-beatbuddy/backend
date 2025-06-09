@@ -20,7 +20,9 @@ public enum MemberErrorCode {
     NICKNAME_SYMBOL_EXIST(HttpStatus.NOT_FOUND, "닉네임에 특수문자가 있습니다"),
     USERNAME_NOT_MATCH(HttpStatus.BAD_REQUEST, "인증한 성명과 유저의 이름이 일치하지 않습니다."),
     MEMBER_NOT_ADULT(HttpStatus.BAD_REQUEST, "인증한 유저는 성인이 아닙니다."),
-    NOT_ADMIN(HttpStatus.BAD_REQUEST, "해당 계정은 어드민이 아닙니다.");
+    NOT_ADMIN(HttpStatus.BAD_REQUEST, "해당 계정은 어드민이 아닙니다."),
+    INVALID_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "인증번호가 올바르지 않습니다."),
+    ;
 
     private final HttpStatus httpStatus;
     private final String message;
