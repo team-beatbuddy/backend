@@ -56,9 +56,9 @@ public class HeartbeatService {
         venue.addHeartbeatNum();
         venueRepository.save(venue);
         return HeartbeatResponseDTO.builder()
-                .memberId(member.getMemberId())
-                .venueId(venue.getVenueId())
-                .heartId(heartbeat.getHeartId())
+                .memberId(member.getId())
+                .venueId(venue.getId())
+                .heartId(heartbeat.getId())
                 .build();
     }
 
@@ -74,9 +74,9 @@ public class HeartbeatService {
         venueRepository.save(venue);
 
         return HeartbeatResponseDTO.builder()
-                .memberId(member.getMemberId())
-                .venueId(venue.getVenueId())
-                .heartId(heartbeat.getHeartId())
+                .memberId(member.getId())
+                .venueId(venue.getId())
+                .heartId(heartbeat.getId())
                 .build();
     }
 
@@ -104,7 +104,7 @@ public class HeartbeatService {
                             .isHeartbeat(true)
                             .koreanName(heartBeat.getVenue().getKoreanName())
                             .englishName(heartBeat.getVenue().getEnglishName())
-                            .venueId(heartBeat.getVenue().getVenueId())
+                            .venueId(heartBeat.getVenue().getId())
                             .logoUrl(venue.getLogoUrl())
                             .backgroundUrl(venue.getBackgroundUrl())
                             .tagList(tagList)
@@ -121,9 +121,9 @@ public class HeartbeatService {
         Heartbeat heartbeat = heartbeatRepository.findByMemberVenue(member, venue).orElseThrow(()->new CustomException(HeartbeatErrorCode.HEARTBEAT_NOT_EXIST));
 
         return HeartbeatResponseDTO.builder()
-                .memberId(member.getMemberId())
-                .venueId(venue.getVenueId())
-                .heartId(heartbeat.getHeartId())
+                .memberId(member.getId())
+                .venueId(venue.getId())
+                .heartId(heartbeat.getId())
                 .build();
     }
 
@@ -146,7 +146,7 @@ public class HeartbeatService {
 
                     return VenueResponseDTO.builder()
                             .tagList(tagList)
-                            .venueId(venue.getVenueId())
+                            .venueId(venue.getId())
                             .koreanName(venue.getKoreanName())
                             .englishName(venue.getEnglishName())
                             .heartbeatNum(venue.getHeartbeatNum())

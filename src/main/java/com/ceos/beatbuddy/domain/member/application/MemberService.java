@@ -85,7 +85,7 @@ public class MemberService {
     }
 
     public Boolean isDuplicate(Long memberId, NicknameDTO nicknameDTO) {
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         String nickname = nicknameDTO.getNickname();
         if (memberRepository.existsDistinctByNickname(nickname)) {
@@ -95,7 +95,7 @@ public class MemberService {
     }
 
     public Boolean isValidate(Long memberId, NicknameDTO nicknameDTO) {
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         String nickname = nicknameDTO.getNickname();
         if (nickname.length() > 12) {
@@ -112,13 +112,13 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDTO saveMemberConsent(Long memberId, MemberConsentRequestDTO memberConsentRequestDTO) {
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         member.saveConsents(memberConsentRequestDTO.getIsLocationConsent(),
                 memberConsentRequestDTO.getIsMarketingConsent());
         memberRepository.save(member);
         return MemberResponseDTO.builder()
-                .memberId(member.getMemberId())
+                .memberId(member.getId())
                 .loginId(member.getLoginId())
                 .nickname(member.getNickname())
                 .isLocationConsent(member.getIsLocationConsent())
@@ -128,13 +128,13 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDTO saveNickname(Long memberId, NicknameDTO nicknameDTO) {
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         String nickname = nicknameDTO.getNickname();
         member.saveNickname(nickname);
         memberRepository.save(member);
         return MemberResponseDTO.builder()
-                .memberId(member.getMemberId())
+                .memberId(member.getId())
                 .loginId(member.getLoginId())
                 .nickname(member.getNickname())
                 .isLocationConsent(member.getIsLocationConsent())
@@ -145,7 +145,7 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDTO saveRegions(Long memberId, RegionRequestDTO regionRequestDTO) {
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         List<Region> regions = Arrays.stream(regionRequestDTO.getRegions().split(","))
                 .map(Region::fromText)
@@ -153,7 +153,7 @@ public class MemberService {
         member.saveRegions(regions);
         memberRepository.save(member);
         return MemberResponseDTO.builder()
-                .memberId(member.getMemberId())
+                .memberId(member.getId())
                 .loginId(member.getLoginId())
                 .nickname(member.getNickname())
                 .isLocationConsent(member.getIsLocationConsent())
@@ -237,7 +237,7 @@ public class MemberService {
             responseDto.setMood();
         }
 
-        if (memberRepository.existsRegionsByMemberId(member.getMemberId())) {
+        if (memberRepository.existsRegionsById(member.getId())) {
             responseDto.setRegion();
         }
         return responseDto;
@@ -253,25 +253,25 @@ public class MemberService {
     }
 
     public Boolean getNicknameSet(Long memberId) {
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         return member.getSetNewNickname();
     }
 
     public NicknameDTO getNickname(Long memberId) {
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         return NicknameDTO.builder()
                 .nickname(member.getNickname()).build();
     }
 
     public Member getUser(Long memberId) {
-        return memberRepository.findByMemberId(memberId)
+        return memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
     }
 
     public Boolean getCertification(Long memberId) {
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(
+        Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
         return member.getIsAdult();
@@ -279,14 +279,14 @@ public class MemberService {
 
     @Transactional
     public void tempVerify(Long memberId) {
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(
+        Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         member.setAdultUser();
         memberRepository.save(member);
     }
 
     public List<String> getPreferences(Long memberId) {
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(
+        Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
         MemberGenre memberGenre = memberGenreRepository.findLatestGenreByMember(member)
@@ -297,8 +297,8 @@ public class MemberService {
         List<String> trueMoodElements = Vector.getTrueMoodElements(memberMood.getMoodVector());
 
         List<String> memberRegion =  member.getRegions().stream()
-                .map(region -> region.getText())
-                .collect(Collectors.toList());
+                .map(Region::getText)
+                .toList();
 
         if(memberRegion.isEmpty()){
             throw new CustomException(MemberErrorCode.REGION_FIELD_EMPTY);
@@ -311,7 +311,7 @@ public class MemberService {
     }
 
     public String deleteMember(Long memberId) {
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(
+        Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         memberMoodRepository.deleteByMember(member);
         memberGenreRepository.deleteByMember(member);

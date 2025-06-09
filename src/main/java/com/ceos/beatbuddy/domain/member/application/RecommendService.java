@@ -52,7 +52,7 @@ public class RecommendService {
     private final ArchiveRepository archiveRepository;
 
     public List<VenueResponseDTO> recommendVenuesByGenre(Long memberId, Long num) {
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         MemberGenre latestMemberGenre = memberGenreRepository.findLatestGenreByMember(member).orElseThrow(() -> new CustomException(MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST));
 
         if(member.getRegions().isEmpty()){
@@ -89,7 +89,7 @@ public class RecommendService {
 
                     return VenueResponseDTO.builder()
                             .tagList(tagList)
-                            .venueId(venue.getVenueId())
+                            .venueId(venue.getId())
                             .koreanName(venue.getKoreanName())
                             .englishName(venue.getEnglishName())
                             .heartbeatNum(venue.getHeartbeatNum())
@@ -101,7 +101,7 @@ public class RecommendService {
 
 
     public List<VenueResponseDTO> recommendVenuesByMood(Long memberId, Long num) {
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         MemberMood latestMemberMood = memberMoodRepository.findLatestMoodByMember(member).orElseThrow(() -> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));
 
         if(member.getRegions().isEmpty()){
@@ -119,7 +119,7 @@ public class RecommendService {
                     }
                 }))
                 .limit(num)
-                .collect(Collectors.toList());
+                .toList();
 
         return recommendVenueMoods.stream()
                 .map(venueMood -> {
@@ -137,7 +137,7 @@ public class RecommendService {
 
                     return VenueResponseDTO.builder()
                             .tagList(tagList)
-                            .venueId(venue.getVenueId())
+                            .venueId(venue.getId())
                             .koreanName(venue.getKoreanName())
                             .englishName(venue.getEnglishName())
                             .heartbeatNum(venue.getHeartbeatNum())
@@ -150,22 +150,22 @@ public class RecommendService {
 
     @Transactional
     public List<VenueResponseDTO> recommendVenues(Long memberId, Long num) {
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         MemberMood memberMood;
         MemberGenre memberGenre;
         Archive archive;
 
         if(member.getLatestArchiveId()==null){
             archive = archiveRepository.findLatestArchiveByMember(member).orElseThrow(()->new CustomException(ArchiveErrorCode.ARCHIVE_NOT_EXIST));
-            member.saveLatestArchiveId(archive.getArchiveId());
+            member.saveLatestArchiveId(archive.getId());
             memberRepository.save(member);
             memberGenre= memberGenreRepository.findLatestGenreByMember(member).orElseThrow(() -> new CustomException(MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST));
             memberMood= memberMoodRepository.findLatestMoodByMember(member).orElseThrow(() -> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));
         }
         else{
             archive = archiveRepository.findById(member.getLatestArchiveId()).orElseThrow(()->new CustomException(ArchiveErrorCode.ARCHIVE_NOT_EXIST));
-            memberGenre = memberGenreRepository.findById(archive.getMemberGenre().getMemberGenreId()).orElseThrow(() -> new CustomException(MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST));
-            memberMood = memberMoodRepository.findById(archive.getMemberMood().getMemberMoodId()).orElseThrow(() -> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));
+            memberGenre = memberGenreRepository.findById(archive.getMemberGenre().getId()).orElseThrow(() -> new CustomException(MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST));
+            memberMood = memberMoodRepository.findById(archive.getMemberMood().getId()).orElseThrow(() -> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));
         }
 
         Vector memberVector = Vector.mergeVectors(memberGenre.getGenreVector(), memberMood.getMoodVector());
@@ -193,7 +193,7 @@ public class RecommendService {
                     }
                 }))
                 .limit(num)
-                .collect(Collectors.toList());
+                .toList();
 
         return recommendVenueVectors.stream()
                 .map(venueVector -> {
@@ -216,7 +216,7 @@ public class RecommendService {
 
                     return VenueResponseDTO.builder()
                             .tagList(tagList)
-                            .venueId(venue.getVenueId())
+                            .venueId(venue.getId())
                             .koreanName(venue.getKoreanName())
                             .englishName(venue.getEnglishName())
                             .heartbeatNum(venue.getHeartbeatNum())
@@ -241,7 +241,7 @@ public class RecommendService {
         List<String> regionTags = recommendFilterDTO.getRegionTags();
         if(genreTags.isEmpty() && moodTags.isEmpty() && regionTags.isEmpty()) throw new CustomException(VectorErrorCode.TAGS_EMPTY);
 
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         MemberMood latestMemberMood = memberMoodRepository.findLatestMoodByMember(member).orElseThrow(() -> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));
         MemberGenre latestMemberGenre = memberGenreRepository.findLatestGenreByMember(member).orElseThrow(() -> new CustomException(MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST));
         Vector memberVector = Vector.mergeVectors(latestMemberGenre.getGenreVector(), latestMemberMood.getMoodVector());
@@ -329,7 +329,7 @@ public class RecommendService {
 
                     return VenueResponseDTO.builder()
                             .tagList(tagList)
-                            .venueId(venue.getVenueId())
+                            .venueId(venue.getId())
                             .koreanName(venue.getKoreanName())
                             .englishName(venue.getEnglishName())
                             .heartbeatNum(venue.getHeartbeatNum())
@@ -343,10 +343,10 @@ public class RecommendService {
     }
 
     public List<VenueResponseDTO> recommendVenuesByArchive(Long memberId, Long num, Long archiveId) {
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         Archive archive = archiveRepository.findById(archiveId).orElseThrow(()->new CustomException(ArchiveErrorCode.ARCHIVE_NOT_EXIST));
-        MemberMood archiveMood = memberMoodRepository.findById(archive.getMemberMood().getMemberMoodId()).orElseThrow(() -> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));
-        MemberGenre archiveGenre = memberGenreRepository.findById(archive.getMemberGenre().getMemberGenreId()).orElseThrow(() -> new CustomException(MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST));
+        MemberMood archiveMood = memberMoodRepository.findById(archive.getMemberMood().getId()).orElseThrow(() -> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));
+        MemberGenre archiveGenre = memberGenreRepository.findById(archive.getMemberGenre().getId()).orElseThrow(() -> new CustomException(MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST));
         Vector memberVector = Vector.mergeVectors(archiveGenre.getGenreVector(), archiveMood.getMoodVector());
 
         if(archive.getRegions().isEmpty()){
@@ -395,7 +395,7 @@ public class RecommendService {
 
                     return VenueResponseDTO.builder()
                             .tagList(tagList)
-                            .venueId(venue.getVenueId())
+                            .venueId(venue.getId())
                             .koreanName(venue.getKoreanName())
                             .englishName(venue.getEnglishName())
                             .heartbeatNum(venue.getHeartbeatNum())

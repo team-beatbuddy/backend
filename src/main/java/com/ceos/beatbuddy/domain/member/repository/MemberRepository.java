@@ -9,10 +9,10 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByLoginId(String loginId);
-    Optional<Member> findByMemberId(Long memberId);
+//    Optional<Member> findById(Long Id);
     Boolean existsDistinctByNickname(String nickname);
     Optional<Member> findByNickname(String nickname);
-    Boolean existsRegionsByMemberId(Long memberId);
+    Boolean existsRegionsById(Long memberId);
 
     boolean existsByLoginId(String id);
 }

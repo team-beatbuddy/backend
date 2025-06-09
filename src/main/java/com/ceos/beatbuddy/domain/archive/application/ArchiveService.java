@@ -60,18 +60,17 @@ public class ArchiveService {
                 .regions(member.getRegions())
                 .build();
         Archive newArchive = archiveRepository.save(archive);
-        member.saveLatestArchiveId(newArchive.getArchiveId());
+        member.saveLatestArchiveId(newArchive.getId());
         memberRepository.save(member);
 
-        ArchiveDTO newarchive = ArchiveDTO.builder()
+        return ArchiveDTO.builder()
                 .memberGenreList(Vector.getTrueGenreElements(archive.getMemberGenre().getGenreVector()))
                 .memberMoodList(Vector.getTrueMoodElements(archive.getMemberMood().getMoodVector()))
                 .updatedAt(archive.getUpdatedAt())
                 .regions(archive.getRegions())
-                .memberId(member.getMemberId())
-                .archiveId(archive.getArchiveId())
+                .memberId(member.getId())
+                .archiveId(archive.getId())
                 .build();
-        return newarchive;
     }
 
     @Transactional
@@ -87,8 +86,8 @@ public class ArchiveService {
                 .memberMoodList(Vector.getTrueMoodElements(archive.getMemberMood().getMoodVector()))
                 .regions(archive.getRegions())
                 .updatedAt(archive.getUpdatedAt())
-                .memberId(archive.getMember().getMemberId())
-                .archiveId(archive.getArchiveId())
+                .memberId(archive.getMember().getId())
+                .archiveId(archive.getId())
                 .build();
     }
 
@@ -129,8 +128,8 @@ public class ArchiveService {
                 .memberMoodList(Vector.getTrueMoodElements(archive.getMemberMood().getMoodVector()))
                 .regions(archive.getRegions())
                 .updatedAt(archive.getUpdatedAt())
-                .memberId(archive.getMember().getMemberId())
-                .archiveId(archive.getArchiveId())
+                .memberId(archive.getMember().getId())
+                .archiveId(archive.getId())
                 .build();
     }
 
@@ -146,15 +145,15 @@ public class ArchiveService {
                     List<Region> regionElements = archive.getRegions();
                     List<String> regionStrings = regionElements.stream()
                             .map(Region::getText)
-                            .collect(Collectors.toList());
+                            .toList();
                     List<String> preferenceList = new ArrayList<>(trueGenreElements);
                     preferenceList.addAll(trueMoodElements);
                     preferenceList.addAll(regionStrings);
 
                     return ArchiveResponseDTO.builder()
                             .preferenceList(preferenceList)
-                            .memberId(archive.getMember().getMemberId())
-                            .archiveId(archive.getArchiveId())
+                            .memberId(archive.getMember().getId())
+                            .archiveId(archive.getId())
                             .updatedAt(archive.getUpdatedAt())
                             .build();
                 })
@@ -165,7 +164,7 @@ public class ArchiveService {
     public Long toGetHistory(Long memberId, Long archiveId){
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         Archive archive = archiveRepository.findById(archiveId).orElseThrow(()->new CustomException(ArchiveErrorCode.ARCHIVE_NOT_EXIST));
-        if(archive.getMember().getMemberId() != member.getMemberId()) throw new CustomException(ArchiveErrorCode.ARCHIVE_MEMBER_NOT_MATCH);
+        if(archive.getMember().getId() != member.getId()) throw new CustomException(ArchiveErrorCode.ARCHIVE_MEMBER_NOT_MATCH);
 
         archive.updateToGetHistory(LocalDateTime.now());
         archiveRepository.save(archive);

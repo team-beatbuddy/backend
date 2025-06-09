@@ -48,7 +48,7 @@ public class AdminController {
                                               @RequestParam(value = "file", required = false) List<MultipartFile> backgroundImage)
             throws IOException {
         return ResponseEntity.ok(
-                venueInfoService.addVenueInfo(venueRequestDTO, logoImage, backgroundImage).getVenueId());
+                venueInfoService.addVenueInfo(venueRequestDTO, logoImage, backgroundImage).getId());
     }
 
     @DeleteMapping("/{venueId}")
@@ -79,7 +79,7 @@ public class AdminController {
                                                 @RequestParam(value = "file", required = false) List<MultipartFile> backgroundImage)
             throws IOException {
         return ResponseEntity.ok(
-                venueInfoService.updateVenueInfo(venueId, venueRequestDTO, logoImage, backgroundImage).getVenueId());
+                venueInfoService.updateVenueInfo(venueId, venueRequestDTO, logoImage, backgroundImage).getId());
     }
 
     @PostMapping("/join")

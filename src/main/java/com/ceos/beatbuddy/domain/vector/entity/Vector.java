@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Getter
 @AllArgsConstructor
@@ -46,8 +47,7 @@ public class Vector {
     }
 
     public static Vector fromString(String vectorString) {
-        List<Double> elements = List.of(vectorString.replace("[", "").replace("]", "").split(","))
-                .stream().map(String::trim).map(Double::parseDouble).collect(Collectors.toList());
+        List<Double> elements = Stream.of(vectorString.replace("[", "").replace("]", "").split(",")).map(String::trim).map(Double::parseDouble).collect(Collectors.toList());
         return new Vector(elements);
     }
 

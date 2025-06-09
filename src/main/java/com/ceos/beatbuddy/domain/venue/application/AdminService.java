@@ -35,7 +35,7 @@ public class AdminService {
                 .build();
 
         Member savedMember = memberRepository.save(member);
-        return savedMember.getMemberId();
+        return savedMember.getId();
     }
 
     @Transactional
@@ -78,6 +78,6 @@ public class AdminService {
             throw new CustomException(MemberErrorCode.NOT_ADMIN);
         }
 
-        return member.getMemberId();
+        return member.getId();
     }
 }

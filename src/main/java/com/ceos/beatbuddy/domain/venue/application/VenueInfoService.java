@@ -49,7 +49,7 @@ public class VenueInfoService {
     }
 
     public VenueInfoResponseDTO getVenueInfo(Long venueId, Long memberId) {
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(
+        Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         Venue venue = venueRepository.findById(venueId)
                 .orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));

@@ -38,8 +38,8 @@ public class MemberMoodService {
         memberMoodRepository.save(memberMood);
         return MemberVectorResponseDTO.builder()
                 .vectorString(memberMood.getMoodVectorString())
-                .memberId(member.getMemberId())
-                .vectorId(memberMood.getMemberMoodId())
+                .memberId(member.getId())
+                .vectorId(memberMood.getId())
                 .loginId(member.getLoginId())
                 .nickname(member.getNickname())
                 .realName(member.getRealName())
@@ -60,8 +60,8 @@ public class MemberMoodService {
 
         return MemberVectorResponseDTO.builder()
                 .vectorString(memberMood.getMoodVectorString())
-                .memberId(member.getMemberId())
-                .vectorId(memberMood.getMemberMoodId())
+                .memberId(member.getId())
+                .vectorId(memberMood.getId())
                 .loginId(member.getLoginId())
                 .nickname(member.getNickname())
                 .realName(member.getRealName())
@@ -73,8 +73,8 @@ public class MemberMoodService {
         List<MemberMood> memberMoods = memberMoodRepository.findAllByMember(member);
         return memberMoods.stream()
                 .map(memberGenre -> MemberVectorResponseDTO.builder()
-                        .memberId(member.getMemberId())
-                        .vectorId(memberGenre.getMemberMoodId())
+                        .memberId(member.getId())
+                        .vectorId(memberGenre.getId())
                         .loginId(member.getLoginId())
                         .nickname(member.getNickname())
                         .realName(member.getRealName())
@@ -88,8 +88,8 @@ public class MemberMoodService {
         MemberMood memberMood = memberMoodRepository.findLatestMoodByMember(member).orElseThrow(()-> new CustomException((MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST)));
         return MemberVectorResponseDTO.builder()
                 .vectorString(memberMood.getMoodVectorString())
-                .memberId(member.getMemberId())
-                .vectorId(memberMood.getMemberMoodId())
+                .memberId(member.getId())
+                .vectorId(memberMood.getId())
                 .loginId(member.getLoginId())
                 .nickname(member.getNickname())
                 .realName(member.getRealName())

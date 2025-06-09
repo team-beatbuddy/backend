@@ -135,7 +135,7 @@ public class SearchService {
         int genreIndex;
         Region region;
 
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         String genreTag = searchDropDownDTO.getGenreTag();
         String regionTag = searchDropDownDTO.getRegionTag();
@@ -184,7 +184,7 @@ public class SearchService {
                         tagList.add(venue.getRegion().getText());
                         return new SearchQueryResponseDTO(
                                 LocalDateTime.now(),
-                                venue.getVenueId(),
+                                venue.getId(),
                                 venue.getEnglishName(),
                                 venue.getKoreanName(),
                                 tagList,
@@ -249,7 +249,7 @@ public class SearchService {
         int genreIndex;
         Region region;
 
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         String genreTag = searchMapDTO.getGenreTag();
         String regionTag = searchMapDTO.getRegionTag();
@@ -292,7 +292,7 @@ public class SearchService {
                         tagList.add(venue.getRegion().getText());
                         return new SearchQueryResponseDTO(
                                 LocalDateTime.now(),
-                                venue.getVenueId(),
+                                venue.getId(),
                                 venue.getEnglishName(),
                                 venue.getKoreanName(),
                                 tagList,
