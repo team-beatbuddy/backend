@@ -49,6 +49,9 @@ public class Member extends BaseTimeEntity {
 
     private Long latestArchiveId;
 
+    private String phoneNumber;
+
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MemberGenre> memberGenres;
 
