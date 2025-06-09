@@ -1,8 +1,12 @@
 package com.ceos.beatbuddy.domain.member.entity;
 
+import com.ceos.beatbuddy.domain.archive.entity.Archive;
+import com.ceos.beatbuddy.domain.comment.entity.Comment;
+import com.ceos.beatbuddy.domain.heartbeat.entity.Heartbeat;
 import com.ceos.beatbuddy.domain.member.constant.Category;
 import com.ceos.beatbuddy.domain.member.constant.Gender;
 import com.ceos.beatbuddy.domain.member.constant.Region;
+import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -44,6 +48,27 @@ public class Member extends BaseTimeEntity {
     private Boolean isMarketingConsent = false;
 
     private Long latestArchiveId;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MemberGenre> memberGenres;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MemberMood> memberMoods;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Archive> archives;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Heartbeat> heartbeats;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Post> posts;
+
+
+
 
     public void saveConsents(Boolean isLocationConsent, Boolean isMarketingConsent) {
         this.isLocationConsent = isLocationConsent;
