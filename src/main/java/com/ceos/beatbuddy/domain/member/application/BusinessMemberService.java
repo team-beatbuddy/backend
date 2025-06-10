@@ -23,6 +23,7 @@ import static com.ceos.beatbuddy.domain.member.exception.MemberErrorCode.*;
 @RequiredArgsConstructor
 public class BusinessMemberService {
     private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisTemplate<String, BusinessMemberDTO> businessMemberTempRedisTemplate;
     @Transactional
@@ -79,5 +80,18 @@ public class BusinessMemberService {
         String savedCode = redisTemplate.opsForValue().get("verification_code:" + memberId);
         log.info("Redis: Retrieved code for memberId: {}. Stored code: {}, Provided code: {}", memberId, savedCode, inputCode);
         return savedCode != null && savedCode.equals(inputCode);
+    }
+
+    public BusinessMemberResponseDTO setNicknameAndBusinessName(Long memberId, NicknameAndBusinessNameDTO dto) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_EXIST));
+
+        // 닉네임 중복과 가능한 닉네임인지 확인
+        if ((memberService.isDuplicate(memberId, NicknameDTO.builder().nickname(dto.getNickname()).build())) && (memberService.isValidate(memberId, NicknameDTO.builder().nickname(dto.getNickname()).build()))) {
+            member.saveNickname(dto.getNickname());
+            member.saveBusinessName(dto.getBusinessName());
+        }
+
+        return BusinessMemberResponseDTO.toSetNicknameDTO(member);
     }
 }

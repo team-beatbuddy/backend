@@ -52,4 +52,16 @@ public class BusinessMemberController implements BusinessMemberApiDocs{
                 .status(SuccessCode.SUCCESS_BUSINESS_VERIFY.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUSINESS_VERIFY, result));
     }
+
+    @Override
+    @PostMapping("/settings")
+    public ResponseEntity<ResponseDTO<BusinessMemberResponseDTO>> setNicknameAndBusinessName(@Valid @RequestBody NicknameAndBusinessNameDTO dto) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        BusinessMemberResponseDTO result = businessMemberService.setNicknameAndBusinessName(memberId, dto);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_BUSINESS_SETTINGS.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUSINESS_SETTINGS, result));
+    }
+
 }

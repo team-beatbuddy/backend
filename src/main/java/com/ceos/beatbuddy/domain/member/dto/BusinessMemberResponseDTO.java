@@ -13,12 +13,22 @@ public class BusinessMemberResponseDTO {
     private String realName;
     private String phoneNumber;
     private String role;
+    private String nickname;
 
     public static BusinessMemberResponseDTO toDTO(Member member) {
         return BusinessMemberResponseDTO.builder()
                 .realName(member.getRealName())
                 .phoneNumber(member.getPhoneNumber())
                 .role(member.getRole())
+                .build();
+    }
+
+    public static BusinessMemberResponseDTO toSetNicknameDTO(Member member){
+        return BusinessMemberResponseDTO.builder()
+                .realName(member.getRealName())
+                .phoneNumber(member.getPhoneNumber())
+                .role(member.getRole())
+                .nickname(member.getNickname())
                 .build();
     }
 }
