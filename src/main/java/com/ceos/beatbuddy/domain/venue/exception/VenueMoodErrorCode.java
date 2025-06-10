@@ -1,11 +1,12 @@
 package com.ceos.beatbuddy.domain.venue.exception;
 
 import com.ceos.beatbuddy.domain.venue.dto.VenueMoodErrorCodeResponse;
+import com.ceos.beatbuddy.global.ApiErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public enum VenueMoodErrorCode {
+public enum VenueMoodErrorCode implements ApiErrorCode {
 
     INVALID_VENUE_MOOD_INFO(HttpStatus.BAD_REQUEST, "잘못된 베뉴 무드 정보입니다."),
     VENUE_MOOD_NOT_EXIST(HttpStatus.NOT_FOUND, "베뉴 무드가 존재하지 않습니다.");
@@ -19,7 +20,13 @@ public enum VenueMoodErrorCode {
         this.message = message;
     }
 
-    public VenueMoodErrorCodeResponse toResponse() {
-        return new VenueMoodErrorCodeResponse(this.httpStatus, this.message);
+    @Override
+    public HttpStatus getHttpStatus() {
+        return this.httpStatus;
+    }
+
+    @Override
+    public String getMessage() {
+        return this.message;
     }
 }

@@ -1,11 +1,12 @@
 package com.ceos.beatbuddy.domain.archive.exception;
 
 import com.ceos.beatbuddy.domain.archive.dto.ArchiveErrorCodeResponse;
+import com.ceos.beatbuddy.global.ApiErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public enum ArchiveErrorCode {
+public enum ArchiveErrorCode implements ApiErrorCode {
 
     ARCHIVE_MEMBER_NOT_MATCH(HttpStatus.BAD_REQUEST, "현재 유저는 해당 archiveId를 갖는 archive를 소유하고 있지 않습니다."),
     ARCHIVE_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 해당 조합의 아카이브가 존재합니다."),
@@ -20,7 +21,14 @@ public enum ArchiveErrorCode {
         this.message = message;
     }
 
-    public ArchiveErrorCodeResponse toResponse() {
-        return new ArchiveErrorCodeResponse(this.httpStatus, this.message);
+    @Override
+    public HttpStatus getHttpStatus() {
+        return this.httpStatus;
     }
+
+    @Override
+    public String getMessage() {
+        return this.message;
+    }
+
 }

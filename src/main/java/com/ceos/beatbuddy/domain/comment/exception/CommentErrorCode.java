@@ -1,10 +1,11 @@
 package com.ceos.beatbuddy.domain.comment.exception;
 
+import com.ceos.beatbuddy.global.ApiErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public enum CommentErrorCode {
+public enum CommentErrorCode implements ApiErrorCode {
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 댓글입니다."),
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 게시글입니다."),
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
@@ -16,5 +17,15 @@ public enum CommentErrorCode {
     CommentErrorCode(HttpStatus httpStatus, String message) {
         this.httpStatus = httpStatus;
         this.message = message;
+    }
+
+    @Override
+    public HttpStatus getHttpStatus() {
+        return this.httpStatus;
+    }
+
+    @Override
+    public String getMessage() {
+        return this.message;
     }
 }
