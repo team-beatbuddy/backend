@@ -82,6 +82,7 @@ public class BusinessMemberService {
         return savedCode != null && savedCode.equals(inputCode);
     }
 
+    @Transactional
     public BusinessMemberResponseDTO setNicknameAndBusinessName(Long memberId, NicknameAndBusinessNameDTO dto) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_EXIST));
