@@ -1,4 +1,4 @@
-package com.ceos.beatbuddy.domain.venue.application;
+package com.ceos.beatbuddy.domain.admin.application;
 
 import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
 import com.ceos.beatbuddy.domain.member.entity.Member;

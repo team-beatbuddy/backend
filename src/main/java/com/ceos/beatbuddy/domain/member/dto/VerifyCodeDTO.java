@@ -8,8 +8,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VerifyPhoneNumberDTO {
-    @Schema(description = "핸드폰 번호", example = "010-0000-0000")
-    @NotNull(message = "핸드폰 번호는 필수입니다.")
-    private String phoneNumber;
+public class VerifyCodeDTO {
+    @Schema(description = "인증번호", example = "123456")
+    @NotNull(message = "인증번호는 필수입니다.")
+    private String code;
 }

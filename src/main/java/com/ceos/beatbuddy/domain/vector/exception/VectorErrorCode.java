@@ -1,11 +1,12 @@
 package com.ceos.beatbuddy.domain.vector.exception;
 
 import com.ceos.beatbuddy.domain.vector.dto.VectorErrorCodeResponse;
+import com.ceos.beatbuddy.global.ApiErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public enum VectorErrorCode {
+public enum VectorErrorCode implements ApiErrorCode {
 
     NOT_SAME_LENGTH(HttpStatus.BAD_REQUEST, "두 벡터의 길이가 다릅니다."),
     GENRE_INDEX_NOT_EXIST(HttpStatus.NOT_FOUND, "해당 문자열의 장르는 리스트에 없습니다."),
@@ -23,8 +24,13 @@ public enum VectorErrorCode {
         this.httpStatus = httpStatus;
         this.message = message;
     }
+    @Override
+    public HttpStatus getHttpStatus() {
+        return this.httpStatus;
+    }
 
-    public VectorErrorCodeResponse toResponse() {
-        return new VectorErrorCodeResponse(this.httpStatus, this.message);
+    @Override
+    public String getMessage() {
+        return this.message;
     }
 }
