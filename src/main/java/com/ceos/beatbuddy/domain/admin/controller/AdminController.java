@@ -21,17 +21,13 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
-public class AdminController {
+public class AdminController implements AdminApiDocs {
     private final VenueInfoService venueInfoService;
     private final AdminService adminService;
 
+
+    @Override
     @PostMapping
-    @Operation(summary = "베뉴 정보 등록", description = "베뉴 정보를 등록합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "베뉴 정보 등록 성공"),
-            @ApiResponse(responseCode = "400", description = "틀린 이미지 형식"),
-            @ApiResponse(responseCode = "500", description = "이미지 업로드 실패")
-    })
     public ResponseEntity<Long> PostVenueInfo(@RequestBody VenueRequestDTO venueRequestDTO,
                                               @Parameter(description = "로고 이미지", required = false,
                                                       content = @Content(mediaType = "multipart/form-data"))
@@ -44,24 +40,16 @@ public class AdminController {
                 venueInfoService.addVenueInfo(venueRequestDTO, logoImage, backgroundImage).getId());
     }
 
+
+    @Override
     @DeleteMapping("/{venueId}")
-    @Operation(summary = "베뉴 정보 삭제", description = "베뉴 정보를 삭제합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "베뉴 정보 삭제 성공"),
-            @ApiResponse(responseCode = "404", description = "베뉴 정보가 존재하지 않음")
-    })
     public ResponseEntity<Long> DeleteVenueInfo(@PathVariable Long venueId) {
         return ResponseEntity.ok(venueInfoService.deleteVenueInfo(venueId));
     }
 
+
+    @Override
     @PutMapping("/{venueId}")
-    @Operation(summary = "베뉴 정보 수정", description = "베뉴 정보를 수정합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "베뉴 정보 수정 성공"),
-            @ApiResponse(responseCode = "400", description = "틀린 이미지 형식"),
-            @ApiResponse(responseCode = "404", description = "베뉴 정보가 존재하지 않음"),
-            @ApiResponse(responseCode = "500", description = "이미지 업로드 실패")
-    })
     public ResponseEntity<Long> updateVenueInfo(@PathVariable Long venueId,
                                                 @RequestBody VenueRequestDTO venueRequestDTO,
                                                 @Parameter(description = "로고 이미지", required = false,
@@ -75,6 +63,7 @@ public class AdminController {
                 venueInfoService.updateVenueInfo(venueId, venueRequestDTO, logoImage, backgroundImage).getId());
     }
 
+
     @PostMapping("/join")
     public ResponseEntity<String> join(@RequestBody String id) {
         Long adminId = adminService.createAdmin(id);
@@ -83,14 +72,9 @@ public class AdminController {
         return ResponseEntity.ok(result + "\n join success!\n");
     }
 
+
+    @Override
     @PostMapping("/login")
-    @Operation(summary = "id를 통한 토큰 발급", description = "기존에 생성된 id를 통해 토큰을 발급받습니다.")
-    @Parameter(description = "미리 생성된 id"
-            , content = @Content(mediaType = "text/plain")
-            , schema = @Schema(implementation = LoginRequest.class))
-    @ApiResponse(responseCode = "200", description = "로그인 성공",
-            content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = AdminResponseDto.class)))
     public ResponseEntity<AdminResponseDto> login(@RequestBody LoginRequest request) {
         Long adminId = adminService.findAdmin(request.getId());
         return adminService.createAdminToken(adminId, request.getId());
