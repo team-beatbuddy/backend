@@ -3,11 +3,12 @@ package com.ceos.beatbuddy.domain.member.dto;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 @Builder
-@Getter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class BusinessMemberDTO {
     @Schema(description = "실명", example = "홍길동")
     @NotNull(message = "실명은 필수입니다.")

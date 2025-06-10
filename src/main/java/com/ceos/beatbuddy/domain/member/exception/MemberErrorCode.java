@@ -24,7 +24,7 @@ public enum MemberErrorCode implements ApiErrorCode {
     NOT_ADMIN(HttpStatus.BAD_REQUEST, "해당 계정은 어드민이 아닙니다."),
     INVALID_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "인증번호가 올바르지 않습니다."),
     TEMPORARY_MEMBER_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "임시저장된 정보를 찾을 수 없습니다."),
-
+    VERIFICATION_CODE_EXPIRED(HttpStatus.EXPECTATION_FAILED, "인증번호가 만료되었습니다. 다시 생성해주세요."),
     ;
 
     private final HttpStatus httpStatus;
