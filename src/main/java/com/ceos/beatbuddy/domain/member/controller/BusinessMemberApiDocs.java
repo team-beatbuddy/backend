@@ -25,7 +25,7 @@ public interface BusinessMemberApiDocs {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "인증번호 반환",
+                    description = "인증번호 반환, 인증번호 유효기간은 3분입니다.",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ResponseDTO.class),
@@ -62,7 +62,6 @@ public interface BusinessMemberApiDocs {
                         """)
                     )
             )
-
     })
     ResponseEntity<ResponseDTO<VerificationCodeResponseDTO>> verifyCodeForBusiness(@Valid @RequestBody BusinessMemberDTO dto);
 
@@ -72,7 +71,18 @@ public interface BusinessMemberApiDocs {
                     description = "본인 인증 성공",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class)
+                            examples = @ExampleObject(value= """
+                                    {
+                                        "status": 200,
+                                        "code": "SUCCESS_BUSINESS_VERIFY",
+                                        "message": "성공적으로 인증되었습니다",
+                                        "data": {
+                                            "realName": "이규민",
+                                            "phoneNumber": "010-6875-5844",
+                                            "role": "BUSINESS"
+                                        }
+                                    }
+                                    """)
                     )
             ),
             @ApiResponse(
@@ -90,6 +100,38 @@ public interface BusinessMemberApiDocs {
                             "code": "인증번호는 필수입니다."
                           }
                         }
+                        """)
+                    )
+            ),
+
+            @ApiResponse(
+            responseCode = "400",
+            description = "잘못된 인증번호 입력 시",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(value = """
+                            {
+                                "status": 400,
+                                "error": "BAD_REQUEST",
+                                "code": "INVALID_VERIFICATION_CODE",
+                                "message": "인증번호가 올바르지 않습니다."
+                            }
+                        """)
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "417",
+                    description = "인증번호가 만료되었을 때. 인증번호 유효기간은 3분입니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                            {
+                                "status": 417,
+                                "error": "EXPECTATION_FAILED",
+                                "code": "VERIFICATION_CODE_EXPIRED",
+                                "message": "인증번호가 만료되었습니다. 다시 생성해주세요."
+                            }
                         """)
                     )
             ),

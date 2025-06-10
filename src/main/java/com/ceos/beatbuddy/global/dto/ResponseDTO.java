@@ -16,4 +16,10 @@ public class ResponseDTO<T> {
         this.message = successCode.getMessage();
         this.data = data;
     }
+
+    public ResponseDTO(SuccessCode successCode) {
+        this.status = successCode.getStatus().value();
+        this.code = successCode.name();
+        this.message = successCode.getMessage();
+    }
 }
