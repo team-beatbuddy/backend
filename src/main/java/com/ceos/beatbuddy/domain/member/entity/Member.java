@@ -51,6 +51,8 @@ public class Member extends BaseTimeEntity {
 
     private String phoneNumber;
     private Boolean isVerified = false; // 본인인증이 되었는지
+    private Boolean isApproved = false; // 관리자 승인을 받앗는지 (비즈니스만)
+    private String businessName;
 
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -82,6 +84,10 @@ public class Member extends BaseTimeEntity {
     public void saveNickname(String nickname) {
         this.nickname = nickname;
         this.setNewNickname = true;
+    }
+
+    public void saveBusinessName(String businessName) {
+        this.businessName = businessName;
     }
 
     public void saveRegions(List<Region> regions) {

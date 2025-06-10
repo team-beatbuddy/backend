@@ -88,9 +88,11 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         String nickname = nicknameDTO.getNickname();
+
         if (memberRepository.existsDistinctByNickname(nickname)) {
             throw new CustomException(MemberErrorCode.NICKNAME_ALREADY_EXIST);
         }
+
         return true;
     }
 
@@ -101,7 +103,7 @@ public class MemberService {
         if (nickname.length() > 12) {
             throw new CustomException(MemberErrorCode.NICKNAME_OVER_LENGTH);
         }
-        if (nickname.contains(" ")) {
+        if (nickname.matches(".*\\s+.*")) {
             throw new CustomException(MemberErrorCode.NICKNAME_SPACE_EXIST);
         }
         if (!NICKNAME_PATTERN.matcher(nickname).matches()) {

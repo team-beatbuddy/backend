@@ -7,6 +7,7 @@ import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,29 +23,33 @@ import static com.ceos.beatbuddy.domain.member.exception.MemberErrorCode.*;
 @RequiredArgsConstructor
 public class BusinessMemberService {
     private final MemberRepository memberRepository;
-    private final RedisTemplate<Long, String> redisTemplate;
-    private final RedisTemplate<Long, BusinessMemberDTO> businessMemberTempRedisTemplate;
-
+    private final MemberService memberService;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, BusinessMemberDTO> businessMemberTempRedisTemplate;
     @Transactional
-    public BusinessMemberResponseDTO businessMemberSignup(Long memberId, VerifyCodeDTO  dto) {
-        //인증번호 확인
-        boolean verified = verifyCode(memberId, dto.getCode());
+    public BusinessMemberResponseDTO businessMemberSignup(Long memberId, VerifyCodeDTO dto) {
+        String key = "verification_code:" + memberId;
+        String savedCode = redisTemplate.opsForValue().get(key);
 
-        if (!verified) {
+        if (savedCode == null) {
+            throw new CustomException(VERIFICATION_CODE_EXPIRED);  // 새 예외코드 필요
+        }
+
+        if (!verifyCode(memberId, dto.getCode())) {
             throw new CustomException(INVALID_VERIFICATION_CODE);
         }
 
-        BusinessMemberDTO tempBusinessMemberDTO = businessMemberTempRedisTemplate.opsForValue().get(memberId);
+        // 임시저장한 인증번호 키
+        String tempKey = "temp_business_member:" + memberId;
+        BusinessMemberDTO tempBusinessMemberDTO = businessMemberTempRedisTemplate.opsForValue().get(tempKey);
 
         if (tempBusinessMemberDTO == null) {
             throw new CustomException(TEMPORARY_MEMBER_INFO_NOT_FOUND);
         }
 
-        //회원 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_EXIST));
 
-        //회원 정보 업데이트
         member.saveVerify();
         member.setRealName(tempBusinessMemberDTO.getRealName());
         member.setBusinessMember();
@@ -54,27 +59,39 @@ public class BusinessMemberService {
         return BusinessMemberResponseDTO.toDTO(member);
     }
 
-    // 임시로 비즈니스 회원 정보 저장
     public void saveTempMemberInfo(BusinessMemberDTO dto, Long memberId) {
-        // redis 에 임시저장
-        businessMemberTempRedisTemplate.opsForValue().set(memberId, dto, Duration.ofMinutes(5));
+        businessMemberTempRedisTemplate.opsForValue().set(
+                "temp_business_member:" + memberId, dto, Duration.ofMinutes(5));
     }
 
-    // 인증번호 전송
     public VerificationCodeResponseDTO sendVerificationCode(BusinessMemberDTO dto, Long memberId) {
         String code = String.format("%06d", new Random().nextInt(999999));
-        redisTemplate.opsForValue().set(memberId, code, Duration.ofMinutes(5));
-        log.info("전송된 인증 코드: " + code); // 테스트용 출력
 
-        // 임시 정보 저장
+        redisTemplate.opsForValue().set(
+                "verification_code:" + memberId, code, Duration.ofMinutes(1));
+
         saveTempMemberInfo(dto, memberId);
 
+        log.info("Redis: Saved verification code for memberId: {} with code: {}", memberId, code);
         return new VerificationCodeResponseDTO(code);
     }
 
-    // 인증번호 검증
     public boolean verifyCode(Long memberId, String inputCode) {
-        String savedCode = redisTemplate.opsForValue().get(memberId);
+        String savedCode = redisTemplate.opsForValue().get("verification_code:" + memberId);
+        log.info("Redis: Retrieved code for memberId: {}. Stored code: {}, Provided code: {}", memberId, savedCode, inputCode);
         return savedCode != null && savedCode.equals(inputCode);
+    }
+
+    public BusinessMemberResponseDTO setNicknameAndBusinessName(Long memberId, NicknameAndBusinessNameDTO dto) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_EXIST));
+
+        // 닉네임 중복과 가능한 닉네임인지 확인
+        if ((memberService.isDuplicate(memberId, NicknameDTO.builder().nickname(dto.getNickname()).build())) && (memberService.isValidate(memberId, NicknameDTO.builder().nickname(dto.getNickname()).build()))) {
+            member.saveNickname(dto.getNickname());
+            member.saveBusinessName(dto.getBusinessName());
+        }
+
+        return BusinessMemberResponseDTO.toSetNicknameDTO(member);
     }
 }
