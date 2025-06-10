@@ -1,6 +1,14 @@
 package com.ceos.beatbuddy.global.dto;
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import com.ceos.beatbuddy.global.ErrorCode;
+=======
+=======
+>>>>>>> Stashed changes
+import com.ceos.beatbuddy.global.ApiErrorCode;
+import com.ceos.beatbuddy.global.code.ErrorCode;
+>>>>>>> Stashed changes
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
@@ -16,23 +24,23 @@ public class ErrorResponseDTO {
     private Map<String, String> errors;
 
 
-    public ErrorResponseDTO(ErrorCode errorCode) {
-        this.status = errorCode.getStatus().value();
-        this.error = errorCode.getStatus().name();
+    public ErrorResponseDTO(ApiErrorCode errorCode) {
+        this.status = errorCode.getHttpStatus().value();
+        this.error = errorCode.getHttpStatus().name();
         this.code = errorCode.name();
         this.message = errorCode.getMessage();
     }
 
-    public ErrorResponseDTO(ErrorCode errorCode, String message) {
-        this.status = errorCode.getStatus().value();
-        this.error = errorCode.getStatus().name();
+    public ErrorResponseDTO(ApiErrorCode errorCode, String message) {
+        this.status = errorCode.getHttpStatus().value();
+        this.error = errorCode.getHttpStatus().name();
         this.code = errorCode.name();
         this.message = message;
     }
 
-    public ErrorResponseDTO(ErrorCode errorCode, Map<String, String> errors) {
-        this.status = errorCode.getStatus().value();
-        this.error = errorCode.getStatus().name();
+    public ErrorResponseDTO(ApiErrorCode errorCode, Map<String, String> errors) {
+        this.status = errorCode.getHttpStatus().value();
+        this.error = errorCode.getHttpStatus().name();
         this.code = errorCode.name();
         this.message = errorCode.getMessage();
         this.errors = errors;

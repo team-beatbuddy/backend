@@ -1,5 +1,9 @@
 package com.ceos.beatbuddy.global.config;
 
+import com.ceos.beatbuddy.domain.member.dto.BusinessMemberDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurer;
@@ -14,9 +18,7 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializationContext;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.serializer.*;
 
 import java.time.Duration;
 
@@ -51,6 +53,31 @@ public class RedisConfig implements CachingConfigurer {
         redisTemplate.setValueSerializer(new StringRedisSerializer());
         return redisTemplate;
     }
+
+    @Bean
+    public RedisTemplate<Long, BusinessMemberDTO> businessMemberTempRedisTemplate(
+            RedisConnectionFactory connectionFactory,
+            ObjectMapper objectMapper) { // Inject the ObjectMapper
+        RedisTemplate<Long, BusinessMemberDTO> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(connectionFactory);
+        redisTemplate.setKeySerializer(new GenericToStringSerializer<>(Long.class));
+
+        // Pass the pre-configured ObjectMapper directly into the constructor
+        Jackson2JsonRedisSerializer<BusinessMemberDTO> serializer = new Jackson2JsonRedisSerializer<>(objectMapper, BusinessMemberDTO.class);
+
+        redisTemplate.setValueSerializer(serializer);
+        return redisTemplate;
+    }
+
+    @Bean
+    public RedisTemplate<Long, String> verificationCodeRedisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<Long, String> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(connectionFactory);
+        redisTemplate.setKeySerializer(new GenericToStringSerializer<>(Long.class)); // Serialize Long to String
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
+        return redisTemplate;
+    }
+
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory cf) {
