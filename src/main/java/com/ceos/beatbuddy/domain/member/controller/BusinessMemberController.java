@@ -27,6 +27,23 @@ import org.springframework.web.bind.annotation.RestController;
 public class BusinessMemberController {
     private final BusinessMemberService businessMemberService;
 
+    @PostMapping("/verify-code")
+    @Operation(summary = "비즈니스 사용자 전화번호 확인, 인증번호 요청", description = "테스트 과정입니다. 인증번호를 응답합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "인증번호 반환",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = VerificationCodeResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청입니다. 필드 누락 상태이며, 누락된 필드가 보여집니다.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseTemplate.class)))
+    })
+    public ResponseEntity<VerificationCodeResponseDTO> verifyPhoneNumber(@Valid @RequestBody VerifyPhoneNumberDTO dto) {
+        //Long memberId = SecurityUtils.getCurrentMemberId();
+        VerificationCodeResponseDTO result = businessMemberService.sendVerificationCode(dto.getPhoneNumber());
+
+        return ResponseEntity.ok(result);
+    }
+
     @PostMapping("/verify")
     @Operation(summary = "비즈니스 사용자 본인 확인", description = "번호, 주민번호 7자리, 실명으로 본인 인증 요청을 진행하는 과정입니다. \n 현재는 테스트 과정이므로 인증번호 없이 바로 통과됩니다.")
     @ApiResponses(value = {
@@ -40,24 +57,6 @@ public class BusinessMemberController {
     public ResponseEntity<BusinessMemberResponseDTO> verifyBusinessMember(@Valid @RequestBody BusinessMemberDTO dto) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         BusinessMemberResponseDTO result = businessMemberService.businessMemberSignup(memberId, dto);
-
-        return ResponseEntity.ok(result);
-    }
-
-    @PostMapping("/verify-code")
-    @Operation(summary = "비즈니스 사용자 전화번호 확인, 인증번호 요청", description = "테스트 과정입니다. 인증번호를 응답합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "인증번호 반환",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = VerificationCodeResponseDTO.class))),
-            @ApiResponse(responseCode = "404", description = "요청한 유저가 존재하지 않습니다",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseTemplate.class)))
-    })
-    public ResponseEntity<VerificationCodeResponseDTO> verifyPhoneNumber(@Valid @RequestBody VerifyPhoneNumberDTO dto) {
-        //Long memberId = SecurityUtils.getCurrentMemberId();
-        System.out.println("현재 여기");
-        VerificationCodeResponseDTO result = businessMemberService.sendVerificationCode(dto.getPhoneNumber());
 
         return ResponseEntity.ok(result);
     }

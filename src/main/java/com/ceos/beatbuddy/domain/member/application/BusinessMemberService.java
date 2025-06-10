@@ -49,7 +49,6 @@ public class BusinessMemberService {
     // 인증번호 전송
     public VerificationCodeResponseDTO sendVerificationCode(String phoneNumber) {
         String code = String.format("%06d", new Random().nextInt(999999));
-        System.out.println("현재 여기2");
         redisTemplate.opsForValue().set("VERIF:" + phoneNumber, code, Duration.ofMinutes(5));
         log.info("전송된 인증 코드: " + code); // 테스트용 출력
         return new VerificationCodeResponseDTO(code);
