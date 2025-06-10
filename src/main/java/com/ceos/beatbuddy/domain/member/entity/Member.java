@@ -3,7 +3,6 @@ package com.ceos.beatbuddy.domain.member.entity;
 import com.ceos.beatbuddy.domain.archive.entity.Archive;
 import com.ceos.beatbuddy.domain.comment.entity.Comment;
 import com.ceos.beatbuddy.domain.heartbeat.entity.Heartbeat;
-import com.ceos.beatbuddy.domain.member.constant.Category;
 import com.ceos.beatbuddy.domain.member.constant.Gender;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.post.entity.Post;
@@ -29,7 +28,6 @@ public class Member extends BaseTimeEntity {
     private String realName;
 
     private Gender gender;
-    private Category category;
 
     @Convert(converter = RegionConverter.class)
     private List<Region> regions;
@@ -50,7 +48,9 @@ public class Member extends BaseTimeEntity {
     private Long latestArchiveId;
 
     private String phoneNumber;
+    @Builder.Default
     private Boolean isVerified = false; // 본인인증이 되었는지
+    @Builder.Default
     private Boolean isApproved = false; // 관리자 승인을 받앗는지 (비즈니스만)
     private String businessName;
 
