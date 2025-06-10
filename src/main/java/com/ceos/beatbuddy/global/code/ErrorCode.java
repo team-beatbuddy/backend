@@ -1,4 +1,4 @@
-package com.ceos.beatbuddy.global;
+package com.ceos.beatbuddy.global.code;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

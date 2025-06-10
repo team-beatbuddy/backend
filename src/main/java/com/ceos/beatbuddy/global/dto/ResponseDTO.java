@@ -1,6 +1,6 @@
 package com.ceos.beatbuddy.global.dto;
 
-import com.ceos.beatbuddy.global.SuccessCode;
+import com.ceos.beatbuddy.global.code.SuccessCode;
 import lombok.Data;
 
 @Data
