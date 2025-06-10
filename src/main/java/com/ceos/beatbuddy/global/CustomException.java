@@ -12,59 +12,64 @@ import com.ceos.beatbuddy.domain.vector.exception.VectorErrorCode;
 import com.ceos.beatbuddy.domain.venue.exception.VenueErrorCode;
 import com.ceos.beatbuddy.domain.venue.exception.VenueGenreErrorCode;
 import com.ceos.beatbuddy.domain.venue.exception.VenueMoodErrorCode;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.config.oauth.exception.OauthErrorCode;
 
 public class CustomException extends ResponseException {
 
     public CustomException(MemberErrorCode memberErrorCode) {
-        super(memberErrorCode.getMessage(), memberErrorCode.getHttpStatus());
+        super(memberErrorCode);
     }
 
     public CustomException(MemberMoodErrorCode memberMoodErrorCode) {
-        super(memberMoodErrorCode.getMessage(), memberMoodErrorCode.getHttpStatus());
+        super(memberMoodErrorCode);
     }
 
     public CustomException(MemberGenreErrorCode memberMoodErrorCode) {
-        super(memberMoodErrorCode.getMessage(), memberMoodErrorCode.getHttpStatus());
+        super(memberMoodErrorCode);
     }
 
     public CustomException(VenueErrorCode venueErrorCode) {
-        super(venueErrorCode.getMessage(), venueErrorCode.getHttpStatus());
+        super(venueErrorCode);
     }
 
     public CustomException(VenueGenreErrorCode venueGenreErrorCode) {
-        super(venueGenreErrorCode.getMessage(), venueGenreErrorCode.getHttpStatus());
+        super(venueGenreErrorCode);
     }
 
     public CustomException(VenueMoodErrorCode venueMoodErrorCode) {
-        super(venueMoodErrorCode.getMessage(), venueMoodErrorCode.getHttpStatus());
+        super(venueMoodErrorCode);
     }
 
     public CustomException(HeartbeatErrorCode heartbeatErrorCode) {
-        super(heartbeatErrorCode.getMessage(), heartbeatErrorCode.getHttpStatus());
+        super(heartbeatErrorCode);
     }
 
     public CustomException(ArchiveErrorCode archiveErrorCode) {
-        super(archiveErrorCode.getMessage(), archiveErrorCode.getHttpStatus());
+        super(archiveErrorCode);
     }
 
     public CustomException(VectorErrorCode vectorErrorCode){
-        super(vectorErrorCode.getMessage(), vectorErrorCode.getHttpStatus());
+        super(vectorErrorCode);
     }
 
     public CustomException(SearchErrorCode searchErrorCode){
-        super(searchErrorCode.getMessage(), searchErrorCode.getHttpStatus());
+        super(searchErrorCode);
     }
 
     public CustomException(OauthErrorCode oauthErrorCode) {
-        super(oauthErrorCode.getMessage(), oauthErrorCode.getHttpStatus());
+        super(oauthErrorCode);
     }
 
     public CustomException(PostErrorCode postErrorCode) {
-        super(postErrorCode.getMessage(), postErrorCode.getHttpStatus());
+        super(postErrorCode);
     }
 
     public CustomException(CommentErrorCode commentErrorCode){
-        super(commentErrorCode.getMessage(), commentErrorCode.getHttpStatus());
+        super(commentErrorCode);
+    }
+
+    public CustomException(ApiErrorCode apiErrorCode) {
+        super(apiErrorCode);
     }
 }

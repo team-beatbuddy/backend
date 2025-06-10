@@ -1,10 +1,11 @@
 package com.ceos.beatbuddy.global.config.oauth.exception;
 
+import com.ceos.beatbuddy.global.ApiErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public enum OauthErrorCode {
+public enum OauthErrorCode implements ApiErrorCode {
 
     LOGOUT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "로그아웃에 실패했습니다"),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 Token입니다."),
@@ -18,6 +19,16 @@ public enum OauthErrorCode {
     OauthErrorCode(HttpStatus httpStatus, String message) {
         this.httpStatus = httpStatus;
         this.message = message;
+    }
+
+    @Override
+    public HttpStatus getHttpStatus() {
+        return this.httpStatus;
+    }
+
+    @Override
+    public String getMessage() {
+        return this.message;
     }
 
 }

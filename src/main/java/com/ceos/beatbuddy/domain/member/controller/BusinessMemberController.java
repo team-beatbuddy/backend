@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class BusinessMemberController {
     private final BusinessMemberService businessMemberService;
 
+<<<<<<< Updated upstream
     @PostMapping("/verify")
     @Operation(summary = "비즈니스 사용자 본인 확인", description = "번호, 주민번호 7자리, 실명으로 본인 인증 요청을 진행하는 과정입니다. \n 현재는 테스트 과정이므로 인증번호 없이 바로 통과됩니다.")
     @ApiResponses(value = {
@@ -38,6 +39,25 @@ public class BusinessMemberController {
                             schema = @Schema(implementation = ResponseTemplate.class)))
     })
     public ResponseEntity<BusinessMemberResponseDTO> verifyBusinessMember(@Valid @RequestBody BusinessMemberDTO dto) {
+=======
+    @Override
+    @PostMapping("/verify-code")
+    public ResponseEntity<ResponseDTO<VerificationCodeResponseDTO>> verifyCodeForBusiness(@Valid @RequestBody BusinessMemberDTO dto) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        VerificationCodeResponseDTO result = businessMemberService.sendVerificationCode(dto, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_BUSINESS_VERIFY_CODE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUSINESS_VERIFY_CODE, result));
+    }
+
+    @Override
+    @PostMapping("/verify")
+    public ResponseEntity<ResponseDTO<BusinessMemberResponseDTO>> verifyBusinessMember (@Valid @RequestBody VerifyCodeDTO dto) {
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
         Long memberId = SecurityUtils.getCurrentMemberId();
         BusinessMemberResponseDTO result = businessMemberService.businessMemberSignup(memberId, dto);
 
