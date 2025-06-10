@@ -1,14 +1,7 @@
 package com.ceos.beatbuddy.global.dto;
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-import com.ceos.beatbuddy.global.ErrorCode;
-=======
-=======
->>>>>>> Stashed changes
+
 import com.ceos.beatbuddy.global.ApiErrorCode;
-import com.ceos.beatbuddy.global.code.ErrorCode;
->>>>>>> Stashed changes
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 

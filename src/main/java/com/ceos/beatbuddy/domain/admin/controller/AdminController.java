@@ -5,13 +5,8 @@ import com.ceos.beatbuddy.domain.admin.application.AdminService;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.dto.LoginRequest;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
-import com.ceos.beatbuddy.global.dto.ResponseDTO;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -80,7 +75,9 @@ public class AdminController implements AdminApiDocs {
         Long adminId = adminService.findAdmin(request.getId());
         return adminService.createAdminToken(adminId, request.getId());
     }
+
 //
 //    @GetMapping("/business/approved")
 //    public ResponseEntity<ResponseDTO<?>>
+
 }
