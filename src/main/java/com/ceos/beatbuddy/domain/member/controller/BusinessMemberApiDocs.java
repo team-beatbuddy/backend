@@ -66,12 +66,6 @@ public interface BusinessMemberApiDocs {
     })
     ResponseEntity<ResponseDTO<VerificationCodeResponseDTO>> verifyCodeForBusiness(@Valid @RequestBody BusinessMemberDTO dto);
 
-    @Operation(
-            summary = "비즈니스 사용자 본인 확인",
-            description = """
-                verify-code 에서 받은 응답코드를 넣으면 인증됩니다.
-        """
-    )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",

@@ -63,16 +63,7 @@ public class BusinessMemberService {
     // 인증번호 전송
     public VerificationCodeResponseDTO sendVerificationCode(BusinessMemberDTO dto, Long memberId) {
         String code = String.format("%06d", new Random().nextInt(999999));
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        System.out.println("현재 여기2");
-        redisTemplate.opsForValue().set("VERIF:" + phoneNumber, code, Duration.ofMinutes(5));
-=======
         redisTemplate.opsForValue().set(memberId, code, Duration.ofMinutes(5));
->>>>>>> Stashed changes
-=======
-        redisTemplate.opsForValue().set(memberId, code, Duration.ofMinutes(5));
->>>>>>> Stashed changes
         log.info("전송된 인증 코드: " + code); // 테스트용 출력
 
         // 임시 정보 저장
