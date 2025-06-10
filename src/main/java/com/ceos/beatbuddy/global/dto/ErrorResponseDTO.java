@@ -1,6 +1,6 @@
 package com.ceos.beatbuddy.global.dto;
 
-import com.ceos.beatbuddy.global.ErrorCode;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
