@@ -148,6 +148,7 @@ public class RecommendService {
     }
 
 
+
     @Transactional
     public List<VenueResponseDTO> recommendVenues(Long memberId, Long num) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
@@ -155,7 +156,7 @@ public class RecommendService {
         MemberGenre memberGenre;
         Archive archive;
 
-        if(member.getLatestArchiveId()==null){
+        if(member.getLatestArchiveId() == null){
             archive = archiveRepository.findLatestArchiveByMember(member).orElseThrow(()->new CustomException(ArchiveErrorCode.ARCHIVE_NOT_EXIST));
             member.saveLatestArchiveId(archive.getId());
             memberRepository.save(member);
