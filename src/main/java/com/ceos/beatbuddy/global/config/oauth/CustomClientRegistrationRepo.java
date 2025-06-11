@@ -13,19 +13,18 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 public class CustomClientRegistrationRepo {
 
     @Value("${kakao.client-id}")
-    private String clientId;
+    private String kakaoClientId;
     @Value("${kakao.client-secret}")
-    private String clientSecret;
+    private String kakaoClientSecret;
+    @Value("${google.client-id}")
+    private String googleClientId;
+    @Value("${google.client-secret}")
+    private String googleClientSecret;
 
-    @Bean
-    public ClientRegistrationRepository clientRegistrationRepository() {
-        return new InMemoryClientRegistrationRepository(this.kakaoClientRegistration());
-    }
-
-    private ClientRegistration kakaoClientRegistration() {
+    public ClientRegistration kakaoClientRegistration() {
         return ClientRegistration.withRegistrationId("kakao")
-                .clientId(clientId)
-                .clientSecret(clientSecret)
+                .clientId(kakaoClientId)
+                .clientSecret(kakaoClientSecret)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUri("https://api.beatbuddy.world/login/oauth2/code/kakao")
@@ -33,5 +32,28 @@ public class CustomClientRegistrationRepo {
                 .tokenUri("https://kauth.kakao.com/oauth/token")
                 .userInfoUri("https://kapi.kakao.com/v2/user/me")
                 .userNameAttributeName("kakao_account").build();
+    }
+
+    public ClientRegistration googleClientRegistration() {
+        return ClientRegistration.withRegistrationId("google")
+                .clientId(googleClientId)
+                .clientSecret(googleClientSecret)
+                .clientAuthenticationMethod(org.springframework.security.oauth2.core.ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri("http://localhost:8080/login/oauth2/code/google")
+                .scope("email", "profile")
+                .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
+                .tokenUri("https://oauth2.googleapis.com/token")
+                .userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
+                .userNameAttributeName("sub")
+                .clientName("Google")
+                .build();
+    }
+
+    public ClientRegistrationRepository clientRegistrationRepository() {
+        return new InMemoryClientRegistrationRepository(
+                googleClientRegistration(),
+                kakaoClientRegistration()
+        );
     }
 }
