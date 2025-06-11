@@ -22,4 +22,8 @@ public interface ArchiveRepository extends JpaRepository<Archive, Long> {
 
     @Query("SELECT a FROM Archive a WHERE a.member = :member ORDER BY a.updatedAt DESC LIMIT 1")
     Optional<Archive> findLatestArchiveByMember(@Param("member") Member member);
+
+    @Query("SELECT a FROM Archive a WHERE a.member = :member ORDER BY a.updatedAt DESC LIMIT 1")
+    Archive findLatestArchiveByMemberNonOptional(@Param("member") Member member);
+
 }

@@ -31,7 +31,7 @@ public enum SuccessCode {
      * home
      * */
     SUCCESS_GET_MY_KEYWORD(HttpStatus.OK, "내가 선택한 키워드를 조회했습니다."),
-
+    SUCCESS_GET_RECOMMEND_WITH_FAVORITE(HttpStatus.OK, "나의 취향에 맞는 베뉴 5개를 불러왔습니다."),
 
 
     ;
