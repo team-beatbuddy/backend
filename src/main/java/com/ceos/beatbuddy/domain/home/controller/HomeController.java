@@ -4,6 +4,7 @@ import com.ceos.beatbuddy.domain.home.application.HomeService;
 import com.ceos.beatbuddy.domain.home.dto.KeywordResponseDTO;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.application.RecommendService;
+import com.ceos.beatbuddy.domain.venue.dto.RecommendFilterDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueResponseDTO;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
@@ -11,10 +12,7 @@ import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -48,5 +46,16 @@ public class HomeController implements HomeApiDocs{
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_RECOMMEND_WITH_FAVORITE.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_RECOMMEND_WITH_FAVORITE, result));
+    }
+
+    @Override
+    @PostMapping("/recommend-venue/filter")
+    public ResponseEntity<ResponseDTO<List<VenueResponseDTO>>> recommendVenuesByFilter(@RequestBody RecommendFilterDTO recommendFilterDTO) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        List<VenueResponseDTO> result = recommendService.recommendVenuesByFilter(memberId, 5L, recommendFilterDTO);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_RECOMMEND_WITH_FAVORITE_AND_FILTER.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_RECOMMEND_WITH_FAVORITE_AND_FILTER, result));
     }
 }
