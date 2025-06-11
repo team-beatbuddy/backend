@@ -17,6 +17,9 @@ public interface MemberGenreRepository extends JpaRepository<MemberGenre, Long> 
     @Query("SELECT mg FROM MemberGenre mg WHERE mg.member = :member ORDER BY mg.createdAt DESC")
     List<MemberGenre> findAllByMember(@Param("member") Member member);
 
+    @Query("SELECT m.id FROM MemberGenre m WHERE m.member = :member")
+    List<Long> findIdsByMember(Member member);
+
     boolean existsByMember(Member member);
 
     void deleteByMember(Member member);
