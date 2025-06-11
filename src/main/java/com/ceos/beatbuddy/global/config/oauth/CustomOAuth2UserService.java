@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.global.config.oauth;
 
 import com.ceos.beatbuddy.domain.member.application.MemberService;
+import com.ceos.beatbuddy.global.config.oauth.dto.GoogleResponse;
 import com.ceos.beatbuddy.global.config.oauth.dto.Oauth2MemberDto;
 import com.ceos.beatbuddy.global.config.oauth.dto.KakaoResponse;
 import com.ceos.beatbuddy.global.config.oauth.dto.OAuth2Response;
@@ -28,9 +29,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             e.printStackTrace();
         }
 
-        switch (request.getClientRegistration().getRegistrationId().toUpperCase()) {
-            case "KAKAO":
+        switch (request.getClientRegistration().getRegistrationId().toLowerCase()) {
+            case "kakao":
                 oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
+                break;
+            case "google":
+                oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
                 break;
             default:
                 throw new IllegalArgumentException("지원하지 않는 OAuth2 공급자입니다.");
