@@ -7,10 +7,11 @@ import com.ceos.beatbuddy.domain.member.entity.MemberMood;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-
+@Repository
 public interface ArchiveRepository extends JpaRepository<Archive, Long> {
 
     @Query("SELECT a FROM Archive a WHERE a.member = :member ORDER BY a.updatedAt DESC")
@@ -22,6 +23,8 @@ public interface ArchiveRepository extends JpaRepository<Archive, Long> {
 
     @Query("SELECT a FROM Archive a WHERE a.member = :member ORDER BY a.updatedAt DESC LIMIT 1")
     Optional<Archive> findLatestArchiveByMember(@Param("member") Member member);
+
+    Optional<Archive> findFirstByMemberOrderByUpdatedAtDesc(Member member);
 
     @Query("SELECT a FROM Archive a WHERE a.member = :member ORDER BY a.updatedAt DESC LIMIT 1")
     Archive findLatestArchiveByMemberNonOptional(@Param("member") Member member);

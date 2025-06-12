@@ -35,6 +35,11 @@ public enum SuccessCode {
     SUCCESS_GET_RECOMMEND_WITH_FAVORITE_AND_FILTER(HttpStatus.OK, "선호도와 필터 조건에 맞는 베뉴 5개를 불러왔습니다."),
 
 
+    /**
+     * Magazine
+     * */
+    SUCCESS_CREATED_MAGAZINE(HttpStatus.CREATED, "매거진이 성공적으로 작성되었습니다."),
+
     ;
     private final HttpStatus status;
     private final String message;

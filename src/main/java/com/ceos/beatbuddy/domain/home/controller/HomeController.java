@@ -26,9 +26,11 @@ public class HomeController implements HomeApiDocs{
     private final RecommendService recommendService;
 
     @Override
-    @GetMapping("/venue-for-me")
+    @GetMapping("/venue-for-me/keyword")
     public ResponseEntity<ResponseDTO<List<String>>> getMyKeyword() {
         Long memberId = SecurityUtils.getCurrentMemberId();
+        System.out.println(memberId);
+
         List<String> result = memberService.getPreferences(memberId);
         //KeywordResponseDTO result = homeService.getKeyword(memberId);
 
@@ -41,6 +43,8 @@ public class HomeController implements HomeApiDocs{
     @GetMapping("/recommend-venue")
     public ResponseEntity<ResponseDTO<List<VenueResponseDTO>>> recommendVenues() {
         Long memberId = SecurityUtils.getCurrentMemberId();
+        System.out.println(memberId);
+
         List<VenueResponseDTO> result = homeService.saveArchiveAndRecommendVenues(memberId, 5L);
 
         return ResponseEntity
@@ -52,6 +56,8 @@ public class HomeController implements HomeApiDocs{
     @PostMapping("/recommend-venue/filter")
     public ResponseEntity<ResponseDTO<List<VenueResponseDTO>>> recommendVenuesByFilter(@RequestBody RecommendFilterDTO recommendFilterDTO) {
         Long memberId = SecurityUtils.getCurrentMemberId();
+        System.out.println(memberId);
+
         List<VenueResponseDTO> result = recommendService.recommendVenuesByFilter(memberId, 5L, recommendFilterDTO);
 
         return ResponseEntity

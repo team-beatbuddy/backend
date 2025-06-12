@@ -157,13 +157,14 @@ public class RecommendService {
         Archive archive;
 
         if(member.getLatestArchiveId() == null){
-            archive = archiveRepository.findLatestArchiveByMember(member).orElseThrow(()->new CustomException(ArchiveErrorCode.ARCHIVE_NOT_EXIST));
+            archive = archiveRepository.findFirstByMemberOrderByUpdatedAtDesc(member).orElseThrow(()->new CustomException(ArchiveErrorCode.ARCHIVE_NOT_EXIST));
             member.saveLatestArchiveId(archive.getId());
             memberRepository.save(member);
             memberGenre= memberGenreRepository.findLatestGenreByMember(member).orElseThrow(() -> new CustomException(MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST));
             memberMood= memberMoodRepository.findLatestMoodByMember(member).orElseThrow(() -> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));
         }
         else{
+            System.out.println(member.getLatestArchiveId());
             archive = archiveRepository.findById(member.getLatestArchiveId()).orElseThrow(()->new CustomException(ArchiveErrorCode.ARCHIVE_NOT_EXIST));
             memberGenre = memberGenreRepository.findById(archive.getMemberGenre().getId()).orElseThrow(() -> new CustomException(MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST));
             memberMood = memberMoodRepository.findById(archive.getMemberMood().getId()).orElseThrow(() -> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));

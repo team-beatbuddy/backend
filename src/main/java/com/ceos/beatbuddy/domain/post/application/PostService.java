@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +40,9 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final VenueRepository venueRepository;
     private final PieceRepository pieceRepository;
+
+    @Autowired
+    private UploadUtil uploadUtil;
 
     @Transactional
     public Post addPost(String type, PostRequestDto requestDto) {
@@ -97,7 +101,7 @@ public class PostService {
         return images.stream()
                 .map(image -> {
                     try {
-                        return UploadUtil.upload(image);
+                        return uploadUtil.upload(image, UploadUtil.BucketType.MEDIA);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }

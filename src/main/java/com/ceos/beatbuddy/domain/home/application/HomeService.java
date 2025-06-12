@@ -43,6 +43,7 @@ public class HomeService {
     private final ArchiveRepository archiveRepository;
 
     public List<VenueResponseDTO> saveArchiveAndRecommendVenues(Long memberId, long l) {
+        System.out.println(memberId);
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
         List<Archive> archive = archiveRepository.findByMember(member);

@@ -36,7 +36,7 @@ public abstract class Post extends BaseTimeEntity {
     private boolean anonymous;
     private int likes;
     private int views;
-    private int scraps;
+    private int reposts;
     private int comments;
 
     @ElementCollection
@@ -55,7 +55,7 @@ public abstract class Post extends BaseTimeEntity {
         this.member = member;
         this.likes = 0;
         this.views = 0;
-        this.scraps = 0;
+        this.reposts = 0;
         this.comments = 0;
     }
 
@@ -72,11 +72,11 @@ public abstract class Post extends BaseTimeEntity {
     }
 
     public void increaseScrap() {
-        scraps++;
+        reposts++;
     }
 
     public void decreaseScrap() {
-        scraps--;
+        reposts--;
     }
 
     public void increaseComments() {
