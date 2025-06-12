@@ -19,65 +19,38 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface MagazineApiDocs {
-    @Operation(summary = "베뉴 추천 결과에서 필터링 작업\n",
-            description = "사용자의 선호도에 의해 추출된 추천 베뉴에서 사용자가 선택한 요소에 의해 필터링한 결과를 반환합니다.\n"
-                    + "현재는 5개의 베뉴를 추천하도록 설정했습니다.(추후 변경 가능)")
+    @Operation(summary = "홈에 보이는 매거진, 작성 기능\n",
+            description = "admin과 business 멤버에 한해서만 매거진을 작성할 수 있도록 해두었습니다. (추후 변경 가능)")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "추천 베뉴를 조회하는데 성공했습니다.",
+            @ApiResponse(responseCode = "201", description = "매거진이 성공적으로 작성되었습니다.",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ResponseDTO.class),
                             examples = @ExampleObject(value = """
                                         {
-                                            "status": 200,
-                                            "code": "SUCCESS_GET_MY_KEYWORD",
-                                            "message": "내가 선택한 키워드를 조회했습니다.",
-                                            "data": {
-                                            
-                                            }
+                                          "status": 201,
+                                          "code": "SUCCESS_CREATED_MAGAZINE",
+                                          "message": "매거진이 성공적으로 작성되었습니다.",
+                                          "data": {
+                                            "magazineId": 1,
+                                            "title": "제목",
+                                            "content": "내용",
+                                            "imageUrls": [
+                                              "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png"
+                                            ],
+                                            "createdAt": "2025-06-12T14:05:40.216235",
+                                            "writerId": 156
+                                          }
                                         }
                                     """)
                     )
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "잘못된 요청 (존재하지 않는 지역/무드/장르/유저 등)",
+                    description = "존재하지 않는 유저",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(
-                                            name = "존재하지 않는 지역",
-                                            value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "REGION_NOT_EXIST",
-                                  "message": "존재하지 않는 지역입니다."
-                                }
-                            """
-                                    ),
-                                    @ExampleObject(
-                                            name = "존재하지 않는 무드",
-                                            value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MOOD_INDEX_NOT_EXIST",
-                                  "message": "해당 문자열의 분위기는 리스트에 없습니다."
-                                }
-                            """
-                                    ),
-                                    @ExampleObject(
-                                            name = "존재하지 않는 장르",
-                                            value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "GENRE_INDEX_NOT_EXIST",
-                                  "message": "해당 문자열의 장르는 리스트에 없습니다."
-                                }
-                            """
-                                    ),
+                            examples =
                                     @ExampleObject(
                                             name = "존재하지 않는 유저",
                                             value = """
@@ -89,23 +62,26 @@ public interface MagazineApiDocs {
                                 }
                             """
                                     )
-                            }
                     )
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = "사전에 정해둔 리스트에 없는 무드/장르/지역명 전달 시 발생",
+                    responseCode = "403",
+                    description = "잘못된 요청 (권한이 없는 일반 유저)",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class),
-                            examples = @ExampleObject(value = """
-                            {
-                              "status": 400,
-                              "error": "BAD_REQUEST",
-                              "code": "INVALID_TAG",
-                              "message": "태그 값이 올바르지 않습니다."
+                            examples = {
+                                    @ExampleObject(
+                                            name = "권한 없는 유저",
+                                            value = """
+                                {
+                                  "status": 403,
+                                  "error": "UNAUTHORIZED",
+                                  "code": "CANNOT_ADD_MAGAZINE_UNAUTHORIZED_MEMBER",
+                                  "message": "글을 작성할 수 없는 유저입니다."
+                                }
+                            """
+                                    )
                             }
-                        """)
                     )
             )
     })
