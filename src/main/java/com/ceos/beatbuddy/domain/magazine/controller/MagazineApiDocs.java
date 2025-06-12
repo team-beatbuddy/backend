@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.magazine.controller;
 
+import com.ceos.beatbuddy.domain.magazine.dto.MagazineDetailDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineHomeResponseDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineResponseDTO;
@@ -13,7 +14,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.websocket.server.PathParam;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
@@ -148,5 +151,75 @@ public interface MagazineApiDocs {
             )
     })
     ResponseEntity<ResponseDTO<List<MagazineHomeResponseDTO>>> readMagazineList();
+
+
+    @Operation(summary = "매거진 상세 조회\n",
+            description = "매거진 상세 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "매거진 리스트를 성공적으로 조회했습니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                            {
+                              "status": 200,
+                              "code": "SUCCESS_GET_MAGAZINE_LIST",
+                              "message": "매거진이 성공적으로 불러왔습니다.",
+                              "data": {
+                                "magazineId": 1,
+                                "title": "제목",
+                                "content": "내용",
+                                "memberId": 156,
+                                "imageUrls": [
+                                  "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png"
+                                ],
+                                "scraps": 0,
+                                "views": 0,
+                                "likes": 0
+                              }
+                            }
+                                    """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "존재하지 않는 유저",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples =
+                            @ExampleObject(
+                                    name = "존재하지 않는 유저",
+                                    value = """
+                                {
+                                  "status": 404,
+                                  "error": "NOT_FOUND",
+                                  "code": "MEMBER_NOT_EXIST",
+                                  "message": "요청한 유저가 존재하지 않습니다."
+                                }
+                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "존재하지 않는 매거진",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples =
+                            @ExampleObject(
+                                    name = "존재하지 않는 매거진",
+                                    value = """
+                                {
+                                  "status": 404,
+                                  "error": "NOT_FOUND",
+                                  "code": "MAGAZINE_NOT_EXIST",
+                                  "message": "해당 매거진을 찾을 수 없습니다."
+                                }
+                            """
+                            )
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<MagazineDetailDTO>> readDetailMagazine(@PathVariable Long magazineId);
 
 }
