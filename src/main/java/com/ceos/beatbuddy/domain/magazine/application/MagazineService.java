@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.magazine.application;
 
+import com.ceos.beatbuddy.domain.magazine.dto.MagazineDetailDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineHomeResponseDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineResponseDTO;
@@ -62,9 +63,21 @@ public class MagazineService {
                 .collect(Collectors.toList());
     }
 
-    public List<MagazineHomeResponseDTO> readHomeMagazine() {
+    public List<MagazineHomeResponseDTO> readHomeMagazines(Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
         List<Magazine> magazines = magazineRepository.findMagazinesByIsVisibleTrue();
 
         return magazines.stream().map((MagazineHomeResponseDTO::toDTO)).toList();
+    }
+
+    public MagazineDetailDTO readDetailMagazine(Long memberId, Long magazineId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        Magazine magazine = magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
+                new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
+        );
+
+        return MagazineDetailDTO.toDTO(magazine);
     }
 }
