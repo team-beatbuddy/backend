@@ -60,13 +60,21 @@ public class PostService {
     }
 
     public Post readPost(String type, Long postId) {
-        return switch (type) {
-            case "free" -> freePostRepository.findById(postId)
-                    .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
-            case "piece" -> piecePostRepository.findById(postId)
-                    .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
+        switch (type) {
+            case "free" -> {
+                FreePost post = freePostRepository.findById(postId)
+                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
+                post.increaseView();  // 예: 조회수 증가
+                return post;
+            }
+            case "piece" -> {
+                PiecePost post = piecePostRepository.findById(postId)
+                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
+                post.increaseView();  // 예: 조회수 증가
+                return post;
+            }
             default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
-        };
+        }
     }
 
     public Page<ResponsePostDto> readAllPosts(String type, int page, int size) {

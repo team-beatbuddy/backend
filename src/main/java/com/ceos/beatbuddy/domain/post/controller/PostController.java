@@ -1,4 +1,4 @@
-package com.ceos.beatbuddy.domain.post.presentation;
+package com.ceos.beatbuddy.domain.post.controller;
 
 import com.ceos.beatbuddy.domain.post.dto.PostRequestDto;
 import com.ceos.beatbuddy.domain.post.dto.ResponsePostDto;
