@@ -68,29 +68,23 @@ public interface HomeApiDocs {
                                 "status": 200,
                                 "code": "SUCCESS_GET_RECOMMEND_WITH_FAVORITE",
                                 "message": "나의 취향에 맞는 베뉴 5개를 불러왔습니다.",
-                                "data": [
-                                            {
-                                              "venueId": 154,
-                                              "englishName": "ZENBAR",
-                                              "koreanName": "젠바",
-                                              "tagList": [
-                                                "HIPHOP",
-                                                "LATIN",
-                                                "K-POP",
-                                                "POP",
-                                                "CLUB",
-                                                "COMMERCIAL",
-                                                "EXOTIC",
-                                                "HONGDAE"
-                                              ],
-                                              "heartbeatNum": 1,
-                                              "logoUrl": "https://beatbuddy-venue.s3.ap-northeast-2.amazonaws.com/466ecab3-5%EC%A0%A0%EB%B0%94_%EB%A1%9C%EA%B3%A0.jpg",
-                                              "backgroundUrl": [
-                                                "https://beatbuddy-venue.s3.ap-northeast-2.amazonaws.com/0d70a9d8-c%EC%A0%A0%EB%B0%94_%EC%82%AC%EC%A7%841.mp4"
-                                              ],
-                                              "isHeartbeat": false
-                                            }, ...
-                                          ]
+                                 "data": [
+                                    {
+                                      "venueId": 154,
+                                      "englishName": "ZENBAR",
+                                      "koreanName": "젠바",
+                                      "tagList": [
+                                        "HIPHOP",
+                                        "LATIN"
+                                      ],
+                                      "heartbeatNum": 1,
+                                      "logoUrl": "https://example.com/logo.jpg",
+                                      "backgroundUrl": [
+                                        "https://example.com/bg.mp4"
+                                      ],
+                                      "isHeartbeat": false
+                                    }
+                                 ]
                             }
                         """)
                     )
@@ -119,33 +113,25 @@ public interface HomeApiDocs {
                             examples = @ExampleObject(value = """
                                         {
                                             "status": 200,
-                                            "code": "SUCCESS_GET_MY_KEYWORD",
-                                            "message": "내가 선택한 키워드를 조회했습니다.",
-                                            "data": {
-                                                [
-                                                              {
-                                                                "venueId": 88,
-                                                                "englishName": "Casa Corona Seoul",
-                                                                "koreanName": "카사 코로나 서울",
-                                                                "tagList": [
-                                                                  "HOUSE",
-                                                                  "SOUL&FUNK",
-                                                                  "ROOFTOP",
-                                                                  "CHILL",
-                                                                  "EXOTIC",
-                                                                  "ITAEWON"
-                                                                ],
-                                                                "heartbeatNum": 3,
-                                                                "logoUrl": "https://beatbuddy-venue.s3.ap-northeast-2.amazonaws.com/bfa2939f-6%EC%B9%B4%EC%82%AC%20%EC%BD%94%EB%A1%9C%EB%82%98%20%EC%84%9C%EC%9A%B8_%EB%A1%9C%EA%B3%A0.jpg",
-                                                                "backgroundUrl": [
-                                                                  "https://beatbuddy-venue.s3.ap-northeast-2.amazonaws.com/052ebd9e-d%EC%B9%B4%EC%82%AC%20%EC%BD%94%EB%A1%9C%EB%82%98%20%EC%84%9C%EC%9A%B8_%EC%82%AC%EC%A7%841.jpg",
-                                                                  "https://beatbuddy-venue.s3.ap-northeast-2.amazonaws.com/54a970f5-d%EC%B9%B4%EC%82%AC%20%EC%BD%94%EB%A1%9C%EB%82%98%20%EC%84%9C%EC%9A%B8_%EC%82%AC%EC%A7%842.jpg"
-                                                                ],
-                                                                "isHeartbeat": false
-                                                              } 
-                                                              ...
-                                                            ]
-                                            }
+                                            "code": "SUCCESS_GET_RECOMMEND_WITH_FAVORITE_AND_FILTER",
+                                            "message": "선호도와 필터 조건에 맞는 베뉴 5개를 불러왔습니다.",
+                                            "data": [
+                                                {
+                                                  "venueId": 154,
+                                                  "englishName": "ZENBAR",
+                                                  "koreanName": "젠바",
+                                                  "tagList": [
+                                                    "HIPHOP",
+                                                    "LATIN"
+                                                  ],
+                                                  "heartbeatNum": 1,
+                                                  "logoUrl": "https://example.com/logo.jpg",
+                                                  "backgroundUrl": [
+                                                    "https://example.com/bg.mp4"
+                                                  ],
+                                                  "isHeartbeat": false
+                                                }
+                                             ]
                                         }
                                     """)
                     )

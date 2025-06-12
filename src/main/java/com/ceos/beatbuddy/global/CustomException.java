@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.global;
 import com.ceos.beatbuddy.domain.archive.exception.ArchiveErrorCode;
 import com.ceos.beatbuddy.domain.comment.exception.CommentErrorCode;
 import com.ceos.beatbuddy.domain.heartbeat.exception.HeartbeatErrorCode;
+import com.ceos.beatbuddy.domain.magazine.exception.MagazineErrorCode;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.exception.MemberGenreErrorCode;
 import com.ceos.beatbuddy.domain.member.exception.MemberMoodErrorCode;
@@ -68,6 +69,10 @@ public class CustomException extends ResponseException {
     public CustomException(CommentErrorCode commentErrorCode){
         super(commentErrorCode);
     }
+    public CustomException(MagazineErrorCode magazineErrorCode){
+        super(magazineErrorCode);
+    }
+
 
     public CustomException(ApiErrorCode apiErrorCode) {
         super(apiErrorCode);
