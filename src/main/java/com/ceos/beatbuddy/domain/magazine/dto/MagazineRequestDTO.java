@@ -19,6 +19,7 @@ public class MagazineRequestDTO {
                 .likes(0)
                 .views(0)
                 .reposts(0)
+                .isVisible(true)
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .imageUrls(imageUrls)

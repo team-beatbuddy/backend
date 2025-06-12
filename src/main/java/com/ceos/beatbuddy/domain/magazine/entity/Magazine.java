@@ -28,6 +28,7 @@ public class Magazine extends BaseTimeEntity {
     private int likes;
     private int views;
     private int reposts;
+    private boolean isVisible = true; // 띄워줄 매거진만
 
     @ElementCollection
     private List<String> imageUrls;
