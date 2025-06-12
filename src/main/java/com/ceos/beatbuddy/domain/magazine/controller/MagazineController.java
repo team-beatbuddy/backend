@@ -6,6 +6,7 @@ import com.ceos.beatbuddy.domain.magazine.dto.MagazineResponseDTO;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -18,6 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/magazines")
 @RequiredArgsConstructor
+@Tag(name = "Magazine Controller", description = "매거진 기능\n")
 public class MagazineController implements MagazineApiDocs{
     private final MagazineService magazineService;
 
