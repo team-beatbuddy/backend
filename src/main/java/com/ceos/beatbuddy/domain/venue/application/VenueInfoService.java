@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +44,9 @@ public class VenueInfoService {
     private final VenueMoodRepository venueMoodRepository;
 
     private final AmazonS3 amazonS3;
+
+    @Autowired
+    private UploadUtil uploadUtil;
 
     public List<Venue> getVenueInfoList() {
         return venueRepository.findAll();
@@ -92,12 +96,12 @@ public class VenueInfoService {
         List<String> backgroundImageUrls = new ArrayList<>();
 
         if (logoImage != null) {
-            logoImageUrl = UploadUtil.upload(logoImage);
+            logoImageUrl = uploadUtil.upload(logoImage, UploadUtil.BucketType.VENUE);
         }
 
         if (!backgroundImage.isEmpty()) {
             for (MultipartFile multipartFile : backgroundImage) {
-                backgroundImageUrls.add(UploadUtil.upload(multipartFile));
+                backgroundImageUrls.add(uploadUtil.upload(multipartFile, UploadUtil.BucketType.VENUE));
             }
         }
 
@@ -138,14 +142,14 @@ public class VenueInfoService {
 
         if (logoImage != null) {
             this.deleteImage(logoImageUrl);
-            logoImageUrl = UploadUtil.upload(logoImage);
+            logoImageUrl = uploadUtil.upload(logoImage, UploadUtil.BucketType.VENUE);
         }
 
         if (!backgroundImage.isEmpty()) {
             this.deleteImage(backgroundImageUrls);
             backgroundImageUrls = new ArrayList<>();
             for (MultipartFile multipartFile : backgroundImage) {
-                backgroundImageUrls.add(UploadUtil.upload(multipartFile));
+                backgroundImageUrls.add(uploadUtil.upload(multipartFile, UploadUtil.BucketType.VENUE));
             }
         }
 

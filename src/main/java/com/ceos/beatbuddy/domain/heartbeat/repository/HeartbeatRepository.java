@@ -6,10 +6,11 @@ import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-
+@Repository
 public interface HeartbeatRepository extends JpaRepository<Heartbeat, Long> {
     @Query("SELECT hb FROM Heartbeat hb WHERE hb.member = :member AND hb.venue = :venue")
     Optional<Heartbeat> findByMemberVenue(@Param("member") Member member, @Param("venue") Venue venue);

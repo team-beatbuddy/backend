@@ -5,10 +5,11 @@ import com.ceos.beatbuddy.domain.member.entity.MemberMood;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-
+@Repository
 public interface MemberMoodRepository extends JpaRepository<MemberMood, Long> {
     @Query("SELECT mm FROM MemberMood mm WHERE mm.member = :member ORDER BY mm.createdAt DESC LIMIT 1")
     Optional<MemberMood> findLatestMoodByMember(@Param("member") Member member);
