@@ -1,11 +1,11 @@
 package com.ceos.beatbuddy.domain.post.exception;
 
-import com.ceos.beatbuddy.global.ApiErrorCode;
+import com.ceos.beatbuddy.global.ApiCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public enum PostErrorCode implements ApiErrorCode {
+public enum PostErrorCode implements ApiCode {
     POST_NOT_EXIST(HttpStatus.NOT_FOUND, "존재하지 않는 포스트입니다."),
     MEMBER_NOT_MATCH(HttpStatus.BAD_REQUEST, "게시물의 생성자가 아닙니다."),
     MEMBER_NOT_EXIST(HttpStatus.NOT_FOUND, "존재하지 않는 유저입니다."),
@@ -22,7 +22,7 @@ public enum PostErrorCode implements ApiErrorCode {
     }
 
     @Override
-    public HttpStatus getHttpStatus() {
+    public HttpStatus getStatus() {
         return this.httpStatus;
     }
 

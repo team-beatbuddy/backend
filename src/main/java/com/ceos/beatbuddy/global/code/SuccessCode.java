@@ -1,12 +1,13 @@
 package com.ceos.beatbuddy.global.code;
 
+import com.ceos.beatbuddy.global.ApiCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
 @Getter
-public enum SuccessCode {
+public enum SuccessCode implements ApiCode {
     /**
      * User
      */
@@ -39,8 +40,26 @@ public enum SuccessCode {
      * Magazine
      * */
     SUCCESS_CREATED_MAGAZINE(HttpStatus.CREATED, "매거진이 성공적으로 작성되었습니다."),
+    SUCCESS_GET_MAGAZINE_LIST(HttpStatus.OK, "매거진이 성공적으로 불러왔습니다."),
+
+
+    /**
+     * empty
+     * */
+    SUCCESS_BUT_EMPTY_LIST(HttpStatus.OK,"성공적으로 조회했으나 리스트가 비었습니다."),
+
 
     ;
-    private final HttpStatus status;
+    private final HttpStatus httpStatus;
     private final String message;
+
+    @Override
+    public HttpStatus getStatus() {
+        return this.httpStatus;
+    }
+
+    @Override
+    public String getMessage() {
+        return this.message;
+    }
 }

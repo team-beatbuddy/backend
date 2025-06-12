@@ -1,11 +1,11 @@
 package com.ceos.beatbuddy.domain.search.exception;
 
-import com.ceos.beatbuddy.global.ApiErrorCode;
+import com.ceos.beatbuddy.global.ApiCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public enum SearchErrorCode implements ApiErrorCode {
+public enum SearchErrorCode implements ApiCode {
 
     KEYWORD_IS_EMPTY(HttpStatus.BAD_REQUEST,"검색어가 입력되지 않았습니다." ),
     SORT_CRITERIA_EMPTY(HttpStatus.BAD_REQUEST,"정렬 기준이 입력되지 않았습니다." ),
@@ -21,7 +21,7 @@ public enum SearchErrorCode implements ApiErrorCode {
     }
 
     @Override
-    public HttpStatus getHttpStatus() {
+    public HttpStatus getStatus() {
         return this.httpStatus;
     }
 

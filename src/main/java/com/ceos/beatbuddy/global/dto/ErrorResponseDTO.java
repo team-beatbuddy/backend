@@ -1,7 +1,7 @@
 package com.ceos.beatbuddy.global.dto;
 
 
-import com.ceos.beatbuddy.global.ApiErrorCode;
+import com.ceos.beatbuddy.global.ApiCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
@@ -17,23 +17,23 @@ public class ErrorResponseDTO {
     private Map<String, String> errors;
 
 
-    public ErrorResponseDTO(ApiErrorCode errorCode) {
-        this.status = errorCode.getHttpStatus().value();
-        this.error = errorCode.getHttpStatus().name();
+    public ErrorResponseDTO(ApiCode errorCode) {
+        this.status = errorCode.getStatus().value();
+        this.error = errorCode.getStatus().name();
         this.code = errorCode.name();
         this.message = errorCode.getMessage();
     }
 
-    public ErrorResponseDTO(ApiErrorCode errorCode, String message) {
-        this.status = errorCode.getHttpStatus().value();
-        this.error = errorCode.getHttpStatus().name();
+    public ErrorResponseDTO(ApiCode errorCode, String message) {
+        this.status = errorCode.getStatus().value();
+        this.error = errorCode.getStatus().name();
         this.code = errorCode.name();
         this.message = message;
     }
 
-    public ErrorResponseDTO(ApiErrorCode errorCode, Map<String, String> errors) {
-        this.status = errorCode.getHttpStatus().value();
-        this.error = errorCode.getHttpStatus().name();
+    public ErrorResponseDTO(ApiCode errorCode, Map<String, String> errors) {
+        this.status = errorCode.getStatus().value();
+        this.error = errorCode.getStatus().name();
         this.code = errorCode.name();
         this.message = errorCode.getMessage();
         this.errors = errors;
