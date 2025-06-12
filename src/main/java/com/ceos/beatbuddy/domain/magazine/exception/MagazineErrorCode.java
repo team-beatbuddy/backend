@@ -1,11 +1,11 @@
 package com.ceos.beatbuddy.domain.magazine.exception;
 
-import com.ceos.beatbuddy.global.ApiErrorCode;
+import com.ceos.beatbuddy.global.ApiCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public enum MagazineErrorCode implements ApiErrorCode {
+public enum MagazineErrorCode implements ApiCode {
     CANNOT_ADD_MAGAZINE_UNAUTHORIZED_MEMBER(HttpStatus.UNAUTHORIZED, "글을 작성할 수 없는 유저입니다."),
     ;
 //    POST_NOT_EXIST(HttpStatus.NOT_FOUND, "존재하지 않는 포스트입니다."),
@@ -24,7 +24,7 @@ public enum MagazineErrorCode implements ApiErrorCode {
     }
 
     @Override
-    public HttpStatus getHttpStatus() {
+    public HttpStatus getStatus() {
         return this.httpStatus;
     }
 

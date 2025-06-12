@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.magazine.application;
 
+import com.ceos.beatbuddy.domain.magazine.dto.MagazineHomeResponseDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineResponseDTO;
 import com.ceos.beatbuddy.domain.magazine.entity.Magazine;
@@ -10,6 +11,7 @@ import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
+import com.ceos.beatbuddy.global.code.SuccessCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,8 +28,7 @@ public class MagazineService {
     private final MagazineRepository magazineRepository;
     private final MemberRepository memberRepository;
 
-    @Autowired
-    private UploadUtil uploadUtil;
+    private final UploadUtil uploadUtil;
 
     public MagazineResponseDTO addMagazine(Long memberId, MagazineRequestDTO dto, List<MultipartFile> images) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
@@ -41,6 +42,8 @@ public class MagazineService {
 
         // 엔티티로 변경
         Magazine entity = MagazineRequestDTO.toEntity(dto, member, imageUrls);
+        // 썸네일 이미지 세팅
+        entity.setThumbImage(imageUrls.get(0));
 
         magazineRepository.save(entity);
 
@@ -57,5 +60,11 @@ public class MagazineService {
                     }
                 })
                 .collect(Collectors.toList());
+    }
+
+    public List<MagazineHomeResponseDTO> readHomeMagazine() {
+        List<Magazine> magazines = magazineRepository.findMagazinesByIsVisibleTrue();
+
+        return magazines.stream().map((MagazineHomeResponseDTO::toDTO)).toList();
     }
 }

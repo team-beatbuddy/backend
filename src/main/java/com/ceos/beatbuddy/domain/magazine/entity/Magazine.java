@@ -32,4 +32,10 @@ public class Magazine extends BaseTimeEntity {
 
     @ElementCollection
     private List<String> imageUrls;
+
+    private String thumbImage;
+
+    public void setThumbImage(String imageUrl) {
+        this.thumbImage = imageUrl;
+    }
 }
