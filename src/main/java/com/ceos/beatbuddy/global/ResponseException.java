@@ -1,24 +1,23 @@
 package com.ceos.beatbuddy.global;
 
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 public class ResponseException  extends RuntimeException {
-    private final HttpStatus status; // This will be derived from apiErrorCode
-    private final ApiErrorCode apiErrorCode; // <-- NEW: Store the generic API error code
+    private final HttpStatus status; // This will be derived from apiCode
+    private final ApiCode apiCode; // <-- NEW: Store the generic API error code
 
 
-    protected ResponseException(ApiErrorCode apiErrorCode) {
-        super(apiErrorCode.getMessage()); // Use the message from the ApiErrorCode
-        this.status = apiErrorCode.getHttpStatus();
-        this.apiErrorCode = apiErrorCode;
+    protected ResponseException(ApiCode apiCode) {
+        super(apiCode.getMessage()); // Use the message from the ApiCode
+        this.status = apiCode.getStatus();
+        this.apiCode = apiCode;
     }
 
     public HttpStatus getStatus() {
         return status;
     }
 
-    public ApiErrorCode getApiErrorCode() {
-        return apiErrorCode;
+    public ApiCode getApiCode() {
+        return apiCode;
     }
 }

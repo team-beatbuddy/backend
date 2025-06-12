@@ -1,12 +1,12 @@
 package com.ceos.beatbuddy.domain.member.exception;
 
 import com.ceos.beatbuddy.domain.member.dto.error.MemberErrorCodeResponse;
-import com.ceos.beatbuddy.global.ApiErrorCode;
+import com.ceos.beatbuddy.global.ApiCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public enum MemberErrorCode implements ApiErrorCode {
+public enum MemberErrorCode implements ApiCode {
 
     NICKNAME_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."),
     LOGINID_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 존재하는 로그인 ID입니다."),
@@ -37,7 +37,7 @@ public enum MemberErrorCode implements ApiErrorCode {
     }
 
     @Override
-    public HttpStatus getHttpStatus() {
+    public HttpStatus getStatus() {
         return this.httpStatus;
     }
 

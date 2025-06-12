@@ -2,9 +2,9 @@ package com.ceos.beatbuddy.global;
 
 import org.springframework.http.HttpStatus;
 
-public interface ApiErrorCode {
+public interface ApiCode {
     // This method will provide the HTTP status associated with the error
-    HttpStatus getHttpStatus();
+    HttpStatus getStatus();
 
     // This method will provide the human-readable message for the error
     String getMessage();
