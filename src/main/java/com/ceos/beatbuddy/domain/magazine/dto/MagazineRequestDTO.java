@@ -18,7 +18,7 @@ public class MagazineRequestDTO {
         return Magazine.builder()
                 .likes(0)
                 .views(0)
-                .scraps(0)
+                .scraps(null)
                 .isVisible(true)
                 .title(dto.getTitle())
                 .content(dto.getContent())

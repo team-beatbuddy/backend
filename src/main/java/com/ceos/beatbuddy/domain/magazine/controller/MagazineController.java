@@ -68,7 +68,8 @@ public class MagazineController implements MagazineApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
     }
 
-    @PostMapping("/{magazineId}")
+    @Override
+    @PostMapping("/{magazineId}/scrap")
     public ResponseEntity<ResponseDTO<MagazineDetailDTO>> scrapMagazine(@PathVariable Long magazineId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         MagazineDetailDTO result = magazineService.scrapMagazine(memberId, magazineId);
@@ -77,4 +78,14 @@ public class MagazineController implements MagazineApiDocs{
                 .status(SuccessCode.SUCCESS_GET_MAGAZINE_LIST.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
     }
+
+//    @PostMapping("/{magazineId}")
+//    public ResponseEntity<ResponseDTO<MagazineDetailDTO>> scrapMagazine(@PathVariable Long magazineId) {
+//        Long memberId = SecurityUtils.getCurrentMemberId();
+//        MagazineDetailDTO result = magazineService.scrapMagazine(memberId, magazineId);
+//
+//        return ResponseEntity
+//                .status(SuccessCode.SUCCESS_GET_MAGAZINE_LIST.getStatus().value())
+//                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
+//    }
 }
