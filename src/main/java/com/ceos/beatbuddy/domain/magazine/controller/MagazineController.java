@@ -75,11 +75,12 @@ public class MagazineController implements MagazineApiDocs{
         MagazineDetailDTO result = magazineService.scrapMagazine(memberId, magazineId);
 
         return ResponseEntity
-                .status(SuccessCode.SUCCESS_GET_MAGAZINE_LIST.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
+                .status(SuccessCode.SUCCESS_SCRAP_MAGAZINE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_SCRAP_MAGAZINE, result));
     }
 
-    @GetMapping("scrap/")
+    @Override
+    @GetMapping("/scrap")
     public ResponseEntity<ResponseDTO<List<MagazineHomeResponseDTO>>> getScrapMagazineList() {
         Long memberId = SecurityUtils.getCurrentMemberId();
         List<MagazineHomeResponseDTO> result = magazineService.getScrapMagazines(memberId);
@@ -94,4 +95,16 @@ public class MagazineController implements MagazineApiDocs{
                 .status(SuccessCode.SUCCESS_GET_MAGAZINE_LIST.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
     }
+
+    @Override
+    @PostMapping("/{magazineId}/like")
+    public ResponseEntity<ResponseDTO<MagazineDetailDTO>> likeMagazine(@PathVariable Long magazineId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        MagazineDetailDTO result = magazineService.likeMagazine(magazineId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_LIKE_MAGAZINE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_MAGAZINE, result));
+    }
+
 }
