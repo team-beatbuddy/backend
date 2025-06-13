@@ -11,12 +11,14 @@ import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.scrap.entity.MagazineScrap;
+import com.ceos.beatbuddy.domain.scrap.repository.MagazineScrapRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 public class MagazineService {
     private final MagazineRepository magazineRepository;
     private final MemberRepository memberRepository;
+    private final MagazineScrapRepository magazineScrapRepository;
 
     private final UploadUtil uploadUtil;
 
@@ -84,6 +87,7 @@ public class MagazineService {
         return MagazineDetailDTO.toDTO(magazine);
     }
 
+    @Transactional
     public MagazineDetailDTO scrapMagazine(Long memberId, Long magazineId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
@@ -95,5 +99,16 @@ public class MagazineService {
         magazine.getScraps().add(magazineScrap);
 
         return MagazineDetailDTO.toDTO(magazine);
+    }
+
+    public List<MagazineHomeResponseDTO> getScrapMagazines(Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        List<MagazineScrap> magazineScraps = magazineScrapRepository.findMagazineScrapByMember(member);
+        List<Magazine> magazines = magazineScraps.stream().map((magazineScrap -> {
+            return magazineRepository.findById(magazineScrap.getMagazine().getId()).orElseThrow(() -> new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST));
+        })).toList();
+
+        return magazines.stream().map((MagazineHomeResponseDTO::toScrapDTO)).toList();
     }
 }
