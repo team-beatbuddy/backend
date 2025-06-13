@@ -222,4 +222,72 @@ public interface MagazineApiDocs {
     })
     ResponseEntity<ResponseDTO<MagazineDetailDTO>> readDetailMagazine(@PathVariable Long magazineId);
 
+    @Operation(summary = "매거진 스크랩\n",
+            description = "매거진을 스크랩합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "매거진을 스크랩합니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                            {
+                              "status": 200,
+                              "code": "SUCCESS_GET_MAGAZINE_LIST",
+                              "message": "매거진이 성공적으로 불러왔습니다.",
+                              "data": {
+                                "magazineId": 1,
+                                "title": "제목",
+                                "content": "내용",
+                                "memberId": 156,
+                                "imageUrls": [
+                                  "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png"
+                                ],
+                                "scraps": 1,
+                                "views": 0,
+                                "likes": 0
+                              }
+                            }
+                                    """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "존재하지 않는 유저",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples =
+                            @ExampleObject(
+                                    name = "존재하지 않는 유저",
+                                    value = """
+                                {
+                                  "status": 404,
+                                  "error": "NOT_FOUND",
+                                  "code": "MEMBER_NOT_EXIST",
+                                  "message": "요청한 유저가 존재하지 않습니다."
+                                }
+                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "존재하지 않는 매거진",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples =
+                            @ExampleObject(
+                                    name = "존재하지 않는 매거진",
+                                    value = """
+                                {
+                                  "status": 404,
+                                  "error": "NOT_FOUND",
+                                  "code": "MAGAZINE_NOT_EXIST",
+                                  "message": "해당 매거진을 찾을 수 없습니다."
+                                }
+                            """
+                            )
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<MagazineDetailDTO>> scrapMagazine(@PathVariable Long magazineId);
 }

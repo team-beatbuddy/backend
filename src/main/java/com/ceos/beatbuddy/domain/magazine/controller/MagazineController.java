@@ -11,6 +11,7 @@ import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -66,4 +67,25 @@ public class MagazineController implements MagazineApiDocs{
                 .status(SuccessCode.SUCCESS_GET_MAGAZINE_LIST.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
     }
+
+    @Override
+    @PostMapping("/{magazineId}/scrap")
+    public ResponseEntity<ResponseDTO<MagazineDetailDTO>> scrapMagazine(@PathVariable Long magazineId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        MagazineDetailDTO result = magazineService.scrapMagazine(memberId, magazineId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_MAGAZINE_LIST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
+    }
+
+//    @PostMapping("/{magazineId}")
+//    public ResponseEntity<ResponseDTO<MagazineDetailDTO>> scrapMagazine(@PathVariable Long magazineId) {
+//        Long memberId = SecurityUtils.getCurrentMemberId();
+//        MagazineDetailDTO result = magazineService.scrapMagazine(memberId, magazineId);
+//
+//        return ResponseEntity
+//                .status(SuccessCode.SUCCESS_GET_MAGAZINE_LIST.getStatus().value())
+//                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
+//    }
 }
