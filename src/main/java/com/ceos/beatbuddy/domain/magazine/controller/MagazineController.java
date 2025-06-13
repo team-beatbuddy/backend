@@ -79,13 +79,19 @@ public class MagazineController implements MagazineApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
     }
 
-//    @PostMapping("/{magazineId}")
-//    public ResponseEntity<ResponseDTO<MagazineDetailDTO>> scrapMagazine(@PathVariable Long magazineId) {
-//        Long memberId = SecurityUtils.getCurrentMemberId();
-//        MagazineDetailDTO result = magazineService.scrapMagazine(memberId, magazineId);
-//
-//        return ResponseEntity
-//                .status(SuccessCode.SUCCESS_GET_MAGAZINE_LIST.getStatus().value())
-//                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
-//    }
+    @GetMapping("scrap/")
+    public ResponseEntity<ResponseDTO<List<MagazineHomeResponseDTO>>> getScrapMagazineList() {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        List<MagazineHomeResponseDTO> result = magazineService.getScrapMagazines(memberId);
+
+        if (result.isEmpty()) {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
+        }
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_MAGAZINE_LIST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
+    }
 }
