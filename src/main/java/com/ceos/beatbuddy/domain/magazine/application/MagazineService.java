@@ -111,4 +111,19 @@ public class MagazineService {
 
         return magazines.stream().map((MagazineHomeResponseDTO::toScrapDTO)).toList();
     }
+
+    @Transactional
+    public MagazineDetailDTO likeMagazine(Long magazineId, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        
+        // 엔티티 검색
+        Magazine magazine = magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
+                new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
+        );
+
+        // 좋아요 증가
+        magazine.increaseLike();
+
+        return MagazineDetailDTO.toDTO(magazine);
+    }
 }
