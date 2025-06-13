@@ -8,6 +8,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
@@ -18,6 +19,7 @@ import lombok.experimental.SuperBuilder;
 public class MagazineScrap extends AbstractScrap{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "magazineId")
+    @Getter
     private Magazine magazine;
 
     public static MagazineScrap toEntity(Member member, Magazine magazine) {
