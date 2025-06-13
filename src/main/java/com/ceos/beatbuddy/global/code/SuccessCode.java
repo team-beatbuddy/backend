@@ -43,10 +43,17 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_GET_MAGAZINE_LIST(HttpStatus.OK, "매거진이 성공적으로 불러왔습니다."),
 
 
+
     /**
      * empty
      * */
     SUCCESS_BUT_EMPTY_LIST(HttpStatus.OK,"성공적으로 조회했으나 리스트가 비었습니다."),
+
+
+    /**
+     * scrap
+     * */
+
 
 
     ;

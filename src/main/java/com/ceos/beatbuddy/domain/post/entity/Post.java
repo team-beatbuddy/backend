@@ -3,19 +3,11 @@ package com.ceos.beatbuddy.domain.post.entity;
 import static lombok.AccessLevel.PROTECTED;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.scrap.entity.PostScrap;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
-import jakarta.persistence.DiscriminatorColumn;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,7 +28,10 @@ public abstract class Post extends BaseTimeEntity {
     private boolean anonymous;
     private int likes;
     private int views;
-    private int reposts;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostScrap> scraps = new ArrayList<>();
+
     private int comments;
 
     @ElementCollection
@@ -55,7 +50,6 @@ public abstract class Post extends BaseTimeEntity {
         this.member = member;
         this.likes = 0;
         this.views = 0;
-        this.reposts = 0;
         this.comments = 0;
     }
 
@@ -69,14 +63,6 @@ public abstract class Post extends BaseTimeEntity {
 
     public void decreaseLike() {
         likes--;
-    }
-
-    public void increaseScrap() {
-        reposts++;
-    }
-
-    public void decreaseScrap() {
-        reposts--;
     }
 
     public void increaseComments() {
