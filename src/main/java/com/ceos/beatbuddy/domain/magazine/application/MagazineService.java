@@ -104,7 +104,7 @@ public class MagazineService {
     public List<MagazineHomeResponseDTO> getScrapMagazines(Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
-        List<MagazineScrap> magazineScraps = magazineScrapRepository.findMagazineScrapByMember(member);
+        List<MagazineScrap> magazineScraps = magazineScrapRepository.findAllByMember(member);
         List<Magazine> magazines = magazineScraps.stream().map((magazineScrap -> {
             return magazineRepository.findById(magazineScrap.getMagazine().getId()).orElseThrow(() -> new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST));
         })).toList();
