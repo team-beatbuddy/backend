@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -290,4 +291,82 @@ public interface MagazineApiDocs {
             )
     })
     ResponseEntity<ResponseDTO<MagazineDetailDTO>> scrapMagazine(@PathVariable Long magazineId);
+
+    @Operation(summary = "매거진 스크랩\n",
+            description = "매거진을 스크랩합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "매거진을 스크랩합니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                            {
+                              "status": 200,
+                              "code": "SUCCESS_GET_MAGAZINE_LIST",
+                              "message": "매거진이 성공적으로 불러왔습니다.",
+                              "data": [
+                                {
+                                  "magazineId": 1,
+                                  "thumbImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png",
+                                  "title": "제목"
+                                }
+                              ]
+                            }
+                                    """)
+                    )
+            ),
+            @ApiResponse(responseCode = "200", description = "매거진 리스트를 성공적으로 조회했습니다. 하지만 비어있음.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                            {
+                              "status": 200,
+                              "code": "SUCCESS_BUT_EMPTY_LIST",
+                              "message": "성공적으로 조회했으나 리스트가 비었습니다.",
+                              "data": []
+                            }
+                                    """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "존재하지 않는 유저",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples =
+                            @ExampleObject(
+                                    name = "존재하지 않는 유저",
+                                    value = """
+                                {
+                                  "status": 404,
+                                  "error": "NOT_FOUND",
+                                  "code": "MEMBER_NOT_EXIST",
+                                  "message": "요청한 유저가 존재하지 않습니다."
+                                }
+                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "존재하지 않는 매거진",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples =
+                            @ExampleObject(
+                                    name = "존재하지 않는 매거진",
+                                    value = """
+                                {
+                                  "status": 404,
+                                  "error": "NOT_FOUND",
+                                  "code": "MAGAZINE_NOT_EXIST",
+                                  "message": "해당 매거진을 찾을 수 없습니다."
+                                }
+                            """
+                            )
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<List<MagazineHomeResponseDTO>>> getScrapMagazineList();
 }
