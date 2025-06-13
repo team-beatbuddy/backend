@@ -10,6 +10,7 @@ import com.ceos.beatbuddy.domain.magazine.repository.MagazineRepository;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
+import com.ceos.beatbuddy.domain.scrap.entity.MagazineScrap;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
 import com.ceos.beatbuddy.global.code.SuccessCode;
@@ -77,6 +78,21 @@ public class MagazineService {
         Magazine magazine = magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
                 new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
         );
+
+        magazine.increaseView();
+
+        return MagazineDetailDTO.toDTO(magazine);
+    }
+
+    public MagazineDetailDTO scrapMagazine(Long memberId, Long magazineId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        Magazine magazine = magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
+                new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
+        );
+
+        MagazineScrap magazineScrap = MagazineScrap.toEntity(member, magazine);
+        magazine.getScraps().add(magazineScrap);
 
         return MagazineDetailDTO.toDTO(magazine);
     }

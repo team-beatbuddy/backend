@@ -6,11 +6,13 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @MappedSuperclass
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@SuperBuilder
 public abstract class AbstractScrap extends BaseTimeEntity {
 
     @Id
