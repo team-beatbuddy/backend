@@ -27,7 +27,10 @@ public class Magazine extends BaseTimeEntity {
     private String content;
     private int likes;
     private int views;
-    private int scraps;
+
+    @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MagazineScrap> scraps;
+
     private boolean isVisible = true; // 띄워줄 매거진만
 
     @ElementCollection
@@ -35,7 +38,23 @@ public class Magazine extends BaseTimeEntity {
 
     private String thumbImage;
 
+    // 이후 이벤트 글 연동..........
+
     public void setThumbImage(String imageUrl) {
         this.thumbImage = imageUrl;
     }
+
+
+    public void increaseView() {
+        views++;
+    }
+
+    public void increaseLike() {
+        likes++;
+    }
+
+    public void decreaseLike() {
+        likes--;
+    }
+
 }
