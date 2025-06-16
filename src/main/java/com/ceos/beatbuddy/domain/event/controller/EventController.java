@@ -75,8 +75,8 @@ public class EventController implements EventApiDocs {
         EventAttendanceExportListDTO result = eventAttendanceService.getAttendanceList(eventId, memberId);
 
         return ResponseEntity
-                .status(SuccessCode.SUCCESS_GET_UPCOMING_EVENT.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_UPCOMING_EVENT, result));
+                .status(SuccessCode.SUCCESS_GET_EVENT_ATTENDANCE_LIST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_EVENT_ATTENDANCE_LIST, result));
     }
 
 
