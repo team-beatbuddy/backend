@@ -4,6 +4,7 @@ import com.ceos.beatbuddy.domain.event.dto.EventCreateRequestDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
+import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
@@ -13,11 +14,13 @@ import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.EventInteractionId;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.EventScrap;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.exception.VenueErrorCode;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,6 +114,32 @@ public class EventService {
                 .eventResponseDTOS(dto)
                 .build();
     }
+
+    @Transactional
+    public EventResponseDTO scrapEvent(Long memberId, Long eventId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+
+        EventInteractionId id = EventInteractionId.builder()
+                .memberId(memberId)
+                .eventId(eventId)
+                .build();
+
+        if (eventScrapRepository.existsById(id)) {
+            throw new CustomException(EventErrorCode.ALREADY_SCRAPPED_EVENT);
+        }
+
+        EventScrap eventScrap = EventScrap.toEntity(member, event);
+        event.getScraps().add(eventScrap);
+        eventScrapRepository.save(eventScrap);
+
+        return EventResponseDTO.toDTO(event);
+    }
+
+
 
 //    boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, event.getId()));
 //    boolean scrapped = eventScrapRepository.existsById(new EventInteractionId(memberId, event.getId()));

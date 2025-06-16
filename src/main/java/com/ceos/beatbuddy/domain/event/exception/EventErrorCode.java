@@ -16,6 +16,7 @@ public enum EventErrorCode implements ApiCode {
     MISSING_SNS_ID_OR_TYPE(HttpStatus.BAD_REQUEST, "SNS ID 또는 TYPE 입력은 필수입니다."),
     FORBIDDEN_EVENT_ACCESS(HttpStatus.FORBIDDEN, "해당 이벤트에 대한 접근 권한이 없습니다."),
 
+    ALREADY_SCRAPPED_EVENT(HttpStatus.CONFLICT, "해당 이벤트는 이미 스크랩 되었습니다."),
     ;
     private final HttpStatus httpStatus;
     private final String message;
