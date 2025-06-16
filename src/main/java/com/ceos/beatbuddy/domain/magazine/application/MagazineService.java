@@ -182,7 +182,6 @@ public class MagazineService {
         );
 
         magazineScrapRepository.delete(magazineScrap);
-        magazine.decreaseLike();
 
         return MagazineDetailDTO.toDTO(magazine);
 
