@@ -10,6 +10,7 @@ import com.ceos.beatbuddy.domain.magazine.repository.MagazineRepository;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineInteractionId;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineLike;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineScrap;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.MagazineLikeRepository;
@@ -123,7 +124,8 @@ public class MagazineService {
         );
 
         // 좋아요 증가 (이미 좋아요가 있으면 예외처리
-        boolean alreadyLiked = magazineLikeRepository.existsByMemberAndMagazine(member, magazine);
+        boolean alreadyLiked = magazineLikeRepository.existsById(
+                MagazineInteractionId.builder().memberId(memberId).magazineId(magazineId).build());
 
         if (alreadyLiked) {
             throw new CustomException(MagazineErrorCode.ALREADY_LIKE_MAGAZINE);
