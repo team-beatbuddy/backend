@@ -85,6 +85,18 @@ public class MagazineController implements MagazineApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_SCRAP_MAGAZINE, result));
     }
 
+    @Override
+    @DeleteMapping("/{magazineId}/scrap")
+    public ResponseEntity<ResponseDTO<MagazineDetailDTO>> deleteScrapMagazine(@PathVariable Long magazineId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        MagazineDetailDTO result = magazineService.deleteScrapMagazine(magazineId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_LIKE_MAGAZINE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_MAGAZINE, result));
+    }
+
+
     // 내가 스크랩한 매거진 리스트 (admin 이 안 보이게 해둔 것도, 내가 스크랩한 거면 보임 - 홈에는 안 보임)
     @Override
     @GetMapping("/scrap")
