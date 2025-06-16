@@ -9,14 +9,22 @@ import com.ceos.beatbuddy.domain.magazine.dto.MagazineResponseDTO;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
+import io.micrometer.core.instrument.MultiGauge;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Objects;
 
@@ -69,7 +77,7 @@ public class EventController implements EventApiDocs {
 
 
     @Override
-    @GetMapping("/{eventId}/attendance-list")
+    @GetMapping("/{eventId}/attendances")
     public ResponseEntity<ResponseDTO<EventAttendanceExportListDTO>> getEventAttendanceList(@PathVariable Long eventId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         EventAttendanceExportListDTO result = eventAttendanceService.getAttendanceList(eventId, memberId);
@@ -77,6 +85,52 @@ public class EventController implements EventApiDocs {
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_EVENT_ATTENDANCE_LIST.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_EVENT_ATTENDANCE_LIST, result));
+    }
+
+    @Override
+    @GetMapping("/{eventId}/attendances/excel")
+    public void downloadAttendanceExcel(
+            @PathVariable Long eventId,
+            HttpServletResponse response
+    ) throws IOException {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        List<EventAttendanceExportDTO> dtoList = eventAttendanceService.getAttendanceListForExcel(eventId, memberId);
+
+        response.setContentType("application/vnd.ms-excel");
+        response.setHeader("Content-Disposition", "attachment; filename=attendances.xlsx");
+
+        try (Workbook workbook = new XSSFWorkbook(); OutputStream os = response.getOutputStream()) {
+            Sheet sheet = workbook.createSheet("참석자 명단");
+
+            // 헤더
+            Row headerRow = sheet.createRow(0);
+            headerRow.createCell(0).setCellValue("이름");
+            headerRow.createCell(1).setCellValue("성별");
+            headerRow.createCell(2).setCellValue("전화번호");
+            headerRow.createCell(3).setCellValue("SNS 타입");
+            headerRow.createCell(4).setCellValue("SNS 아이디");
+            headerRow.createCell(5).setCellValue("참가비 납부 여부");
+            headerRow.createCell(6).setCellValue("총 동행 인원");
+
+            // 데이터
+            for (int i = 0; i < dtoList.size(); i++) {
+                Row row = sheet.createRow(i + 1);
+                EventAttendanceExportDTO dto = dtoList.get(i);
+                row.createCell(0).setCellValue(nullToHyphen(dto.getName()));
+                row.createCell(1).setCellValue(nullToHyphen(dto.getGender()));
+                row.createCell(2).setCellValue(nullToHyphen(dto.getPhoneNumber()));
+                row.createCell(3).setCellValue(nullToHyphen(dto.getSnsType()));
+                row.createCell(4).setCellValue(nullToHyphen(dto.getSnsId()));
+                row.createCell(5).setCellValue(dto.getIsPaid() != null ? (dto.getIsPaid() ? "예" : "아니오") : "-");
+                row.createCell(6).setCellValue(dto.getTotalMember() != null ? dto.getTotalMember() : 0);
+            }
+
+            workbook.write(os);
+        }
+    }
+
+    private String nullToHyphen(String value) {
+        return value == null || value.isBlank() ? "-" : value;
     }
 
 

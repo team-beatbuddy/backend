@@ -97,4 +97,21 @@ public class EventAttendanceService {
                 .eventAttendanceExportDTOS(eventAttendanceExportDTOS)
                 .build();
     }
+
+
+    public List<EventAttendanceExportDTO> getAttendanceListForExcel(Long eventId, Long memberId) {
+        Member host = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+
+        if (!Objects.equals(event.getHost().getId(), memberId)) {
+            throw new CustomException(EventErrorCode.FORBIDDEN_EVENT_ACCESS);
+        }
+
+        List<EventAttendance> attendances = eventAttendanceRepository.findAllByEventId(eventId);
+        return attendances.stream()
+                .map(EventAttendanceExportDTO::toDTOForExcel)
+                .toList();
+    }
 }
