@@ -17,6 +17,7 @@ import com.ceos.beatbuddy.domain.scrapandlike.repository.MagazineLikeRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.MagazineScrapRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +37,7 @@ public class MagazineService {
     private final MagazineLikeRepository magazineLikeRepository;
 
     private final UploadUtil uploadUtil;
-
+    @Transactional
     public MagazineResponseDTO addMagazine(Long memberId, MagazineRequestDTO dto, List<MultipartFile> images) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
@@ -144,6 +145,7 @@ public class MagazineService {
         return MagazineDetailDTO.toDTO(magazine);
     }
 
+    @Transactional
     public MagazineDetailDTO deleteLikeMagazine(Long magazineId, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
@@ -152,15 +154,37 @@ public class MagazineService {
                 new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
         );
 
-        // 좋아요 증가 (이미 좋아요가 없으면
+        // 좋아요 삭제
         MagazineLike magazineLike = magazineLikeRepository.findById(
                 MagazineInteractionId.builder().memberId(memberId).magazineId(magazineId).build()).orElseThrow(
-                () -> new CustomException(MagazineErrorCode.NOT_FOUND_LIKE)
+                () -> new CustomException(ErrorCode.NOT_FOUND_LIKE)
         );
 
         magazineLikeRepository.delete(magazineLike);
         magazine.decreaseLike();
 
         return MagazineDetailDTO.toDTO(magazine);
+    }
+
+    @Transactional
+    public MagazineDetailDTO deleteScrapMagazine(Long magazineId, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        // 엔티티 검색
+        Magazine magazine = magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
+                new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
+        );
+
+        // 스크랩 삭제
+        MagazineScrap magazineScrap = magazineScrapRepository.findById(
+                MagazineInteractionId.builder().memberId(memberId).magazineId(magazineId).build()).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_FOUND_SCRAP)
+        );
+
+        magazineScrapRepository.delete(magazineScrap);
+        magazine.decreaseLike();
+
+        return MagazineDetailDTO.toDTO(magazine);
+
     }
 }
