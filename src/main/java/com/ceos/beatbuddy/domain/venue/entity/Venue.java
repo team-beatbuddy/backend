@@ -1,5 +1,7 @@
 package com.ceos.beatbuddy.domain.venue.entity;
 
+import com.ceos.beatbuddy.domain.comment.entity.Comment;
+import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
@@ -40,6 +42,9 @@ public class Venue extends BaseTimeEntity {
 
     @Builder.Default
     private Long heartbeatNum = 0L;
+
+    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Event> events;
 
     public void addHeartbeatNum() {
         if(this.heartbeatNum==null) {
