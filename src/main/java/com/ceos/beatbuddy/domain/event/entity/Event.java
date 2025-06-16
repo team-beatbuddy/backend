@@ -37,7 +37,7 @@ public class Event extends BaseTimeEntity {
     private LocalDate startDate;
     @Getter
     private LocalDate endDate;
-
+    @Getter
     private String location;
 
     @Getter
