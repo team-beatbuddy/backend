@@ -1,4 +1,4 @@
-package com.ceos.beatbuddy.domain.scrap.entity;
+package com.ceos.beatbuddy.domain.scrapandlike.entity;
 
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import jakarta.persistence.Entity;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PostScrap extends AbstractScrap{
+public class PostLike extends AbstractScrap{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "postId")
     private Post post;

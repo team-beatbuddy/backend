@@ -10,13 +10,13 @@ import com.ceos.beatbuddy.domain.magazine.repository.MagazineRepository;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
-import com.ceos.beatbuddy.domain.scrap.entity.MagazineScrap;
-import com.ceos.beatbuddy.domain.scrap.repository.MagazineScrapRepository;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineLike;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineScrap;
+import com.ceos.beatbuddy.domain.scrapandlike.repository.MagazineLikeRepository;
+import com.ceos.beatbuddy.domain.scrapandlike.repository.MagazineScrapRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
-import com.ceos.beatbuddy.global.code.SuccessCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,6 +32,7 @@ public class MagazineService {
     private final MagazineRepository magazineRepository;
     private final MemberRepository memberRepository;
     private final MagazineScrapRepository magazineScrapRepository;
+    private final MagazineLikeRepository magazineLikeRepository;
 
     private final UploadUtil uploadUtil;
 
@@ -91,7 +92,7 @@ public class MagazineService {
     public MagazineDetailDTO scrapMagazine(Long memberId, Long magazineId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
-        Magazine magazine = magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
+        Magazine magazine = magazineRepository.findById(magazineId).orElseThrow(() ->
                 new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
         );
 
@@ -122,6 +123,8 @@ public class MagazineService {
         );
 
         // 좋아요 증가
+        MagazineLike magazineLike = MagazineLike.toEntity(member, magazine);
+        magazineLikeRepository.save(magazineLike);
         magazine.increaseLike();
 
         return MagazineDetailDTO.toDTO(magazine);
