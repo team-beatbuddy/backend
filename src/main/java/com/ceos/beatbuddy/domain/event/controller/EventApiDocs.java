@@ -262,7 +262,8 @@ public interface EventApiDocs {
                             "scraps": 0,
                             "startDate": "2025-06-17",
                             "endDate": "2025-06-17",
-                            "dday": "D-0"
+                            "dday": "D-0",
+                            "location": "경기도 파주"
                           },
                           {
                             "eventId": 2,
@@ -274,7 +275,9 @@ public interface EventApiDocs {
                             "scraps": 0,
                             "startDate": "2025-06-18",
                             "endDate": "2025-06-23",
-                            "dday": "D-1"
+                            "dday": "D-1",
+                            "location": "서울시"
+                            
                           }
                         ]
                       }
