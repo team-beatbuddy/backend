@@ -288,6 +288,25 @@ public interface MagazineApiDocs {
                             """
                             )
                     )
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "이미 스크랩을 한 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples =
+                            @ExampleObject(
+                                    name = "이미 스크랩을 한 경우",
+                                    value = """
+                                {
+                                  "status": 409,
+                                  "error": "CONFLICT",
+                                  "code": "ALREADY_SCRAP_MAGAZINE",
+                                  "message": "이미 스크랩한 매거진입니다."
+                                }
+                            """
+                            )
+                    )
             )
     })
     ResponseEntity<ResponseDTO<MagazineDetailDTO>> scrapMagazine(@PathVariable Long magazineId);
