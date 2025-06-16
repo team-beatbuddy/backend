@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface MagazineScrapRepository extends JpaRepository<MagazineScrap, MagazineInteractionId> {
     List<MagazineScrap> findAllByMember(Member member);
+    boolean existsById(MagazineInteractionId id);
 }

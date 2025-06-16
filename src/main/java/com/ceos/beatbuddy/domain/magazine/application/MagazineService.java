@@ -97,6 +97,12 @@ public class MagazineService {
                 new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
         );
 
+        boolean alreadyScrapped = magazineScrapRepository.existsById(MagazineInteractionId.builder().magazineId(magazineId).memberId(memberId).build());
+
+        if (alreadyScrapped) {
+            throw new CustomException(MagazineErrorCode.ALREADY_SCRAP_MAGAZINE);
+        }
+
         MagazineScrap magazineScrap = MagazineScrap.toEntity(member, magazine);
         magazine.getScraps().add(magazineScrap);
 
