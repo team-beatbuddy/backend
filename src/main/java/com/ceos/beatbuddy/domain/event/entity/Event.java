@@ -74,6 +74,7 @@ public class Event extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberId")
+    @Getter
     private Member host;
 
     @ManyToOne(fetch = FetchType.LAZY)

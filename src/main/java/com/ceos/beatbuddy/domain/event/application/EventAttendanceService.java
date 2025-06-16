@@ -1,5 +1,7 @@
 package com.ceos.beatbuddy.domain.event.application;
 
+import com.ceos.beatbuddy.domain.event.dto.EventAttendanceExportDTO;
+import com.ceos.beatbuddy.domain.event.dto.EventAttendanceExportListDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventAttendanceRequestDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventAttendanceResponseDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
@@ -15,6 +17,9 @@ import com.ceos.beatbuddy.global.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -70,5 +75,26 @@ public class EventAttendanceService {
 
     private boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
+    }
+
+    public EventAttendanceExportListDTO getAttendanceList(Long eventId, Long memberId) {
+        Member host = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+
+        if (Objects.equals(event.getHost().getId(), memberId)) {
+            throw new CustomException(EventErrorCode.FORBIDDEN_EVENT_ACCESS);
+        }
+
+        List<EventAttendance> attendances = eventAttendanceRepository.findAllByEventId(eventId);
+        List<EventAttendanceExportDTO> eventAttendanceExportDTOS = attendances.stream()
+                .map(EventAttendanceExportDTO::toDTO)
+                .toList();
+
+        return EventAttendanceExportListDTO.builder()
+                .totalMember(eventAttendanceExportDTOS.size())
+                .eventAttendanceExportDTOS(eventAttendanceExportDTOS)
+                .build();
     }
 }

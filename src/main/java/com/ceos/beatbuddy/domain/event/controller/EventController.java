@@ -68,4 +68,16 @@ public class EventController implements EventApiDocs {
     }
 
 
+    @Override
+    @GetMapping("/{eventId}/attendance-list")
+    public ResponseEntity<ResponseDTO<EventAttendanceExportListDTO>> getEventAttendanceList(@PathVariable Long eventId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        EventAttendanceExportListDTO result = eventAttendanceService.getAttendanceList(eventId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_UPCOMING_EVENT.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_UPCOMING_EVENT, result));
+    }
+
+
 }
