@@ -1,11 +1,12 @@
 package com.ceos.beatbuddy.global.code;
 
+import com.ceos.beatbuddy.global.ApiCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 @Getter
-public enum ErrorCode {
+public enum ErrorCode implements ApiCode {
     /**
      * 400
      */
@@ -24,6 +25,8 @@ public enum ErrorCode {
     /**
      * 404
      */
+    NOT_FOUND_SCRAP(HttpStatus.NOT_FOUND, "기존에 스크랩하지 않았습니다. 스크랩을 취소할 수 없습니다."),
+    NOT_FOUND_LIKE(HttpStatus.NOT_FOUND, "기존에 좋아요를 누르지 않았습니다. 좋아요를 취소할 수 없습니다."),
 //    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
 //    PET_NOT_FOUND(HttpStatus.NOT_FOUND, "반려동물 정보를 찾을 수 없습니다."),
 //    PARENT_MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "이전 메시지가 존재하지 않습니다."),

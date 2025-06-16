@@ -77,4 +77,8 @@ public class CustomException extends ResponseException {
     public CustomException(ApiCode apiCode) {
         super(apiCode);
     }
+
+    public CustomException(ErrorCode errorCode) {
+        super(errorCode);
+    }
 }
