@@ -1,5 +1,7 @@
 package com.ceos.beatbuddy.domain.member.constant;
 
+import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
+import com.ceos.beatbuddy.global.CustomException;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -24,7 +26,7 @@ public enum Gender {
                 return gender;
             }
         }
-        return null;
+        throw new CustomException(EventErrorCode.INVALID_GENDER);
     }
 
     public Integer getIdx() {
