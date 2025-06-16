@@ -348,6 +348,18 @@ public interface EventApiDocs {
                         """)
                     }
             )),
+            @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "이벤트 없음", value = """
+                                    {
+                                      "status": 404,
+                                      "error": "NOT_FOUND",
+                                      "code": "NOT_FOUND_EVENT",
+                                      "message": "존재하지 않는 이벤트입니다."
+                                    }
+                                    """)
+                    })),
             @ApiResponse(responseCode = "403", description = "이벤트를 작성한 유저가 아님", content = @Content(
                     mediaType = "application/json",
                     examples = {
@@ -370,4 +382,78 @@ public interface EventApiDocs {
             @PathVariable Long eventId,
             HttpServletResponse response
     ) throws IOException;
+
+    @Operation(summary = "이벤트 스크랩",
+            description = "이벤트 스크랩")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "이벤트 스크랩", content = @Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(name = "이벤트 스크랩", value = """
+                                {
+                                  "status": 201,
+                                  "code": "SUCCESS_SCRAP_EVENT",
+                                  "message": "이벤트가 성공적으로 스크랩되었습니다.",
+                                  "data": {
+                                    "eventId": 2,
+                                    "title": "string",
+                                    "content": "string",
+                                    "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
+                                    "receiveInfo": true,
+                                    "receiveName": true,
+                                    "receiveGender": true,
+                                    "receivePhoneNumber": true,
+                                    "receiveTotalCount": false,
+                                    "receiveSNSId": true,
+                                    "receiveMoney": true
+                                  }
+                                }
+             """)
+            )),
+            @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "유저 없음", value = """
+                        {
+                          "status": 404,
+                          "error": "NOT_FOUND",
+                          "code": "MEMBER_NOT_EXIST",
+                          "message": "요청한 유저가 존재하지 않습니다."
+                        }
+                        """)
+                    }
+            )),
+            @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "이벤트 없음", value = """
+                                    {
+                                      "status": 404,
+                                      "error": "NOT_FOUND",
+                                      "code": "NOT_FOUND_EVENT",
+                                      "message": "존재하지 않는 이벤트입니다."
+                                    }
+                                    """)
+                    })),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "이미 스크랩을 한 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples =
+                            @ExampleObject(
+                                    name = "이미 스크랩을 한 경우",
+                                    value = """
+                                {
+                                  "status": 409,
+                                  "error": "CONFLICT",
+                                  "code": "ALREADY_SCRAP_EVENT",
+                                  "message": "이미 스크랩한 이벤트입니다."
+                                }
+                            """
+                            )
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<EventResponseDTO>> scrapEvent(@PathVariable Long eventId);
+
 }
