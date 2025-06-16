@@ -133,7 +133,7 @@ public class EventService {
         }
 
         EventScrap eventScrap = EventScrap.toEntity(member, event);
-        event.getScraps().add(eventScrap);
+        //event.getScraps().add(eventScrap);
         eventScrapRepository.save(eventScrap);
 
         return EventResponseDTO.toDTO(event);
