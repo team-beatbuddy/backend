@@ -14,6 +14,8 @@ public enum EventErrorCode implements ApiCode {
     MISSING_TOTAL_COUNT(HttpStatus.BAD_REQUEST, "동행인원 입력은 필수입니다."),
     MISSING_PAYMENT(HttpStatus.BAD_REQUEST, "지불 완료 입력은 필수입니다."),
     MISSING_SNS_ID_OR_TYPE(HttpStatus.BAD_REQUEST, "SNS ID 또는 TYPE 입력은 필수입니다."),
+    FORBIDDEN_EVENT_ACCESS(HttpStatus.FORBIDDEN, "해당 이벤트에 대한 접근 권한이 없습니다."),
+
     ;
     private final HttpStatus httpStatus;
     private final String message;
