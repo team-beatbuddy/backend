@@ -462,12 +462,12 @@ public interface EventApiDocs {
             @ApiResponse(responseCode = "200", description = "이벤트 스크랩 츼소", content = @Content(
                     mediaType = "application/json",
                     examples = @ExampleObject(name = "이벤트 스크랩 취소", value = """
-                                {
-                                  "status": 200
-                                  "code": "SUCCESS_DELETE_SCRAP",
-                                  "message": "스크랩을 취소했습니다.",
-                                  "data": { "스크랩 취소 완료" }
-                                }
+                    {
+                      "status": 200,
+                      "code": "SUCCESS_DELETE_SCRAP",
+                      "message": "스크랩을 취소했습니다.",
+                      "data": "스크랩 취소 완료"
+                    }
              """)
             )),
             @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
