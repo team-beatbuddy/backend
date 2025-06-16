@@ -25,7 +25,7 @@ public class MagazineDetailDTO {
                 .content(magazine.getContent())
                 .imageUrls(magazine.getImageUrls())
                 .memberId(magazine.getMember().getId())
-                .likes(magazine.getLikes().size())
+                .likes(magazine.getLikes())
                 .views(magazine.getViews())
                 .scraps(magazine.getScraps().size())
                 .build();
