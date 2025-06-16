@@ -435,6 +435,25 @@ public interface MagazineApiDocs {
                             """
                             )
                     )
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "이미 좋아요를 누른 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples =
+                            @ExampleObject(
+                                    name = "이미 좋아요를 누른 경우",
+                                    value = """
+                                {
+                                  "status": 409,
+                                  "error": "CONFLICT",
+                                  "code": "ALREADY_LIKE_MAGAZINE",
+                                  "message": "이미 좋아요를 누른 매거진입니다."
+                                }
+                            """
+                            )
+                    )
             )
     })
     ResponseEntity<ResponseDTO<MagazineDetailDTO>> likeMagazine(@PathVariable Long magazineId);
