@@ -364,6 +364,8 @@ public interface EventApiDocs {
     })
     ResponseEntity<ResponseDTO<EventAttendanceExportListDTO>> getEventAttendanceList(@PathVariable Long eventId);
 
+    @Operation(summary = "이벤트 신청자 명단 엑셀 다운로드",
+            description = "신청자 명단이 엑셀 다운받을 수 잇는 링크로 반환됩니다. Download file을 누르면 됩니다.")
     void downloadAttendanceExcel(
             @PathVariable Long eventId,
             HttpServletResponse response
