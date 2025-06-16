@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
 public class EventAttendance extends BaseTimeEntity {
 
     @EmbeddedId
@@ -32,13 +33,13 @@ public class EventAttendance extends BaseTimeEntity {
     private String name;
 
     private Gender gender;
+    private String phoneNumber;
 
-    private String phone;
     private Integer totalMember; // 동행인원 (본인 포함)
 
     private String snsType; // 인스타그램, 페이스북, X
     private String snsId;
 
     private boolean hasPaid;
-    private Integer paymentAmount;
+    //private Integer paymentAmount;
 }

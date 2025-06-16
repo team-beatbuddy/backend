@@ -50,6 +50,8 @@ public enum SuccessCode implements ApiCode {
      * Event
      * */
     SUCCESS_CREATED_EVENT(HttpStatus.CREATED, "이벤트가 성공적으로 작성되었습니다."),
+    SUCCESS_CREATED_EVENT_ATTENDANCE(HttpStatus.CREATED, "이벤트 참여 폼이 성공적으로 작성되었습니다."),
+    
 //    SUCCESS_GET_MAGAZINE_LIST(HttpStatus.OK, "매거진을 성공적으로 불러왔습니다."),
 //    SUCCESS_SCRAP_MAGAZINE(HttpStatus.CREATED, "매거진이 성공적으로 스크랩되었습니다."),
 //    SUCCESS_DELETE_SCRAP(HttpStatus.OK, "스크랩을 취소했습니다."),
