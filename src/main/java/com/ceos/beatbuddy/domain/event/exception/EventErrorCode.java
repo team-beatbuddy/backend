@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 
 public enum EventErrorCode implements ApiCode {
     NOT_FOUND_EVENT(HttpStatus.NOT_FOUND, "존재하지 않는 이벤트입니다."),
+    INVALID_GENDER(HttpStatus.BAD_REQUEST, "성별 값이 올바르지 않습니다. (MALE, FEMALE, NONE 중 하나여야 합니다.)"),
     ALREADY_ATTENDANCE_EVENT(HttpStatus.CONFLICT, "이미 참여 신청한 이벤트입니다."),
     MISSING_NAME(HttpStatus.BAD_REQUEST, "이름 입력은 필수입니다."),
     MISSING_GENDER(HttpStatus.BAD_REQUEST, "성별 입력은 필수입니다."),
