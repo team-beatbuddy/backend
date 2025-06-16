@@ -16,7 +16,7 @@ public class Vector {
             "HIPHOP", "R&B", "EDM", "HOUSE", "TECHNO", "SOUL&FUNK", "ROCK", "LATIN", "K-POP", "POP"
     );
     private static final List<String> ALL_MOODS = Arrays.asList(
-            "CLUB", "PUB", "ROOFTOP", "DEEP", "COMMERCIAL", "CHILL", "EXOTIC", "HUNTING"
+            "CLUB", "PUB", "ROOFTOP", "DEEP", "COMMERCIAL", "CHILL", "EXOTIC", "HUNTING", "BAR&CAFE"
     );
     private final List<Double> elements;
 

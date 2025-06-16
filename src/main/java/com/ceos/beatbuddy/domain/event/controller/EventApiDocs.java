@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
 
 public interface EventApiDocs {
     @Operation(summary = "이벤트 작성 기능\n",
@@ -301,4 +305,69 @@ public interface EventApiDocs {
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventUpcomingPopular (@PathVariable String sort,
                                                                                 @RequestParam(defaultValue = "1") Integer page,
                                                                                 @RequestParam(defaultValue = "10") Integer size);
+
+    @Operation(summary = "이벤트 신청자 명단 조회",
+            description = "이벤트 신청자 명단 조화")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "이벤트 신청자 명단 조화", content = @Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(name = "이벤트 신청자 명단 조화 성공", value = """
+                    {
+                      "status": 200,
+                      "code": "SUCCESS_GET_EVENT_ATTENDANCE_LIST",
+                      "message": "이벤트 참여자 명단을 조회했습니다.",
+                      "data": {
+                        "eventId": null,
+                        "totalMember": 2,
+                        "eventAttendanceExportDTOS": [
+                          {
+                            "name": "string",
+                            "gender": "None",
+                            "phoneNumber": null
+                          },
+                          {
+                            "name": "string",
+                            "gender": "None",
+                            "phoneNumber": "string"
+                          }
+                        ]
+                      }
+                    }
+             """)
+            )),
+            @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "유저 없음", value = """
+                        {
+                          "status": 404,
+                          "error": "NOT_FOUND",
+                          "code": "MEMBER_NOT_EXIST",
+                          "message": "요청한 유저가 존재하지 않습니다."
+                        }
+                        """)
+                    }
+            )),
+            @ApiResponse(responseCode = "403", description = "이벤트를 작성한 유저가 아님", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "유저 권한 없음", value = """
+                        {
+                          "status": 403,
+                          "error": "FORBIDDEN",
+                          "code": "FORBIDDEN_EVENT_ACCESS",
+                          "message": "해당 이벤트에 대한 접근 권한이 없습니다."
+                        }
+                        """)
+                    }
+            ))
+    })
+    ResponseEntity<ResponseDTO<EventAttendanceExportListDTO>> getEventAttendanceList(@PathVariable Long eventId);
+
+    @Operation(summary = "이벤트 신청자 명단 엑셀 다운로드",
+            description = "신청자 명단이 엑셀 다운받을 수 잇는 링크로 반환됩니다. Download file을 누르면 됩니다.")
+    void downloadAttendanceExcel(
+            @PathVariable Long eventId,
+            HttpServletResponse response
+    ) throws IOException;
 }
