@@ -143,5 +143,13 @@ public class EventController implements EventApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_SCRAP_EVENT, result));
     }
 
-
+    @Override
+    @DeleteMapping("/{eventId}/scrap")
+    public ResponseEntity<ResponseDTO<String>> deleteScrapEvent(@PathVariable Long eventId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        eventService.deleteScrapEvent(memberId, eventId);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_DELETE_SCRAP.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_SCRAP, "스크랩 취소 완료"));
+    }
 }
