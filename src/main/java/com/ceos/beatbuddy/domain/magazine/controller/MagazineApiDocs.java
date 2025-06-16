@@ -331,7 +331,7 @@ public interface MagazineApiDocs {
                                 "imageUrls": [
                                   "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png"
                                 ],
-                                "scraps": 1,
+                                "scraps": 0,
                                 "views": 0,
                                 "likes": 0
                               }
@@ -379,12 +379,12 @@ public interface MagazineApiDocs {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "기존에 좋아요를 누르지 않았던 경우",
+                    description = "기존에 스크랩하지 않았던 경우",
                     content = @Content(
                             mediaType = "application/json",
                             examples =
                             @ExampleObject(
-                                    name = "기존에 좋아요를 누르지 않았던 경우",
+                                    name = "기존에 스크랩하지 않았던 경우",
                                     value = """
                                 {
                                   "status": 404,
