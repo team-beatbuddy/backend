@@ -304,48 +304,29 @@ public interface EventApiDocs {
                                                                                 @RequestParam(defaultValue = "1") Integer page,
                                                                                 @RequestParam(defaultValue = "10") Integer size);
 
-    @Operation(summary = "곧 진행될 이벤트",
-            description = "오늘부터 앞으로의 이벤트를 보여줍니다. sort 에는 popular / latest / region을 넣을 수 있으나 현재는 region은 구현되어있지 않습니다.")
+    @Operation(summary = "이벤트 신청자 명단 조회",
+            description = "이벤트 신청자 명단 조화")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "곧 다가올 이벤트", content = @Content(
+            @ApiResponse(responseCode = "200", description = "이벤트 신청자 명단 조화", content = @Content(
                     mediaType = "application/json",
-                    examples = @ExampleObject(name = "곧 다가올 이벤트 조회 성공", value = """
+                    examples = @ExampleObject(name = "이벤트 신청자 명단 조화 성공", value = """
                     {
                       "status": 200,
-                      "code": "SUCCESS_GET_UPCOMING_EVENT",
-                      "message": "이벤트가 성공적으로 조회되었습니다.",
+                      "code": "SUCCESS_GET_EVENT_ATTENDANCE_LIST",
+                      "message": "이벤트 참여자 명단을 조회했습니다.",
                       "data": {
-                        "sort": "popular",
-                        "page": 1,
-                        "size": 10,
-                        "totalSize": 2,
-                        "eventResponseDTOS": [
+                        "eventId": null,
+                        "totalMember": 2,
+                        "eventAttendanceExportDTOS": [
                           {
-                            "eventId": 1,
-                            "title": "이벤트 시작",
-                            "content": "이게 바로 이트",
-                            "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
-                            "likes": 5,
-                            "views": 0,
-                            "scraps": 0,
-                            "startDate": "2025-06-17",
-                            "endDate": "2025-06-17",
-                            "dday": "D-0",
-                            "location": "경기도 파주"
+                            "name": "string",
+                            "gender": "None",
+                            "phoneNumber": null
                           },
                           {
-                            "eventId": 2,
-                            "title": "string",
-                            "content": "string",
-                            "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
-                            "likes": 1,
-                            "views": 0,
-                            "scraps": 0,
-                            "startDate": "2025-06-18",
-                            "endDate": "2025-06-23",
-                            "dday": "D-1",
-                            "location": "서울시"
-                            
+                            "name": "string",
+                            "gender": "None",
+                            "phoneNumber": "string"
                           }
                         ]
                       }
