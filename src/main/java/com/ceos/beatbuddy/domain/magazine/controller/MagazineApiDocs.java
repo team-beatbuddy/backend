@@ -26,7 +26,8 @@ import java.util.List;
 
 public interface MagazineApiDocs {
     @Operation(summary = "홈에 보이는 매거진, 작성 기능\n",
-            description = "admin과 business 멤버에 한해서만 매거진을 작성할 수 있도록 해두었습니다. (추후 변경 가능)")
+            description = "admin과 business 멤버에 한해서만 매거진을 작성할 수 있도록 해두었습니다. (추후 변경 가능), 데이터 전달은 multipart/form-data이며, \n" +
+                    "        'magazineRequestDTO'는 JSON 문자열 형태로 전송해야 합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "매거진이 성공적으로 작성되었습니다.",
                     content = @Content(
