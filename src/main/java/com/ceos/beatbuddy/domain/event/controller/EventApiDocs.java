@@ -456,4 +456,65 @@ public interface EventApiDocs {
     })
     ResponseEntity<ResponseDTO<EventResponseDTO>> scrapEvent(@PathVariable Long eventId);
 
-}
+    @Operation(summary = "이벤트 스크랩 취소",
+            description = "이벤트 스크랩 취소")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "이벤트 스크랩 츼소", content = @Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(name = "이벤트 스크랩 취소", value = """
+                                {
+                                  "status": 200
+                                  "code": "SUCCESS_DELETE_SCRAP",
+                                  "message": "스크랩을 취소했습니다.",
+                                  "data": { "스크랩 취소 완료" }
+                                }
+             """)
+            )),
+            @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "유저 없음", value = """
+                        {
+                          "status": 404,
+                          "error": "NOT_FOUND",
+                          "code": "MEMBER_NOT_EXIST",
+                          "message": "요청한 유저가 존재하지 않습니다."
+                        }
+                        """)
+                    }
+            )),
+            @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "이벤트 없음", value = """
+                                    {
+                                      "status": 404,
+                                      "error": "NOT_FOUND",
+                                      "code": "NOT_FOUND_EVENT",
+                                      "message": "존재하지 않는 이벤트입니다."
+                                    }
+                                    """)
+                    })),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "기존에 스크랩하지 않았던 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples =
+                            @ExampleObject(
+                                    name = "기존에 스크랩하지 않았던 경우",
+                                    value = """
+                                {
+                                  "status": 404,
+                                  "error": "NOT_FOUND",
+                                  "code": "NOT_FOUND_SCRAP",
+                                  "message": "스크랩 내역이 존재하지 않습니다."
+                                }
+                            """
+                            )
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<String>> deleteScrapEvent(@PathVariable Long eventId);
+
+    }

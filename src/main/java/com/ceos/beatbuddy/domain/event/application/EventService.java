@@ -139,6 +139,24 @@ public class EventService {
         return EventResponseDTO.toDTO(event);
     }
 
+    @Transactional
+    public void deleteScrapEvent(Long memberId, Long eventId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+
+        EventInteractionId id = EventInteractionId.builder()
+                .memberId(memberId)
+                .eventId(eventId)
+                .build();
+
+        EventScrap scrap = eventScrapRepository.findById(id)
+                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_SCRAP));
+
+        eventScrapRepository.delete(scrap);
+    }
 
 
 //    boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, event.getId()));

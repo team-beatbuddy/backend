@@ -17,6 +17,7 @@ public enum EventErrorCode implements ApiCode {
     FORBIDDEN_EVENT_ACCESS(HttpStatus.FORBIDDEN, "해당 이벤트에 대한 접근 권한이 없습니다."),
 
     ALREADY_SCRAPPED_EVENT(HttpStatus.CONFLICT, "해당 이벤트는 이미 스크랩 되었습니다."),
+    NOT_FOUND_SCRAP(HttpStatus.NOT_FOUND, "스크랩 내역이 존재하지 않습니다."),
     ;
     private final HttpStatus httpStatus;
     private final String message;
