@@ -27,6 +27,7 @@ import java.util.List;
 public class MagazineController implements MagazineApiDocs{
     private final MagazineService magazineService;
 
+    // 매거진 작성
     @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO<MagazineResponseDTO>> addMagazine(
@@ -40,6 +41,7 @@ public class MagazineController implements MagazineApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATED_MAGAZINE, result));
     }
 
+    // 매거진 불러오기 (admin 이 가능하게 한 것만)
     @Override
     @GetMapping()
     public ResponseEntity<ResponseDTO<List<MagazineHomeResponseDTO>>> readMagazineList() {
@@ -57,6 +59,9 @@ public class MagazineController implements MagazineApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
     }
 
+    // 매거진 전체 불러오기도 필요함.
+
+    // 매거진 상세 보기
     @Override
     @GetMapping("/{magazineId}")
     public ResponseEntity<ResponseDTO<MagazineDetailDTO>> readDetailMagazine(@PathVariable Long magazineId) {
@@ -68,6 +73,7 @@ public class MagazineController implements MagazineApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
     }
 
+    // 매거진 스크랩 하기
     @Override
     @PostMapping("/{magazineId}/scrap")
     public ResponseEntity<ResponseDTO<MagazineDetailDTO>> scrapMagazine(@PathVariable Long magazineId) {
@@ -79,6 +85,7 @@ public class MagazineController implements MagazineApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_SCRAP_MAGAZINE, result));
     }
 
+    // 내가 스크랩한 매거진 리스트 (admin 이 안 보이게 해둔 것도, 내가 스크랩한 거면 보임 - 홈에는 안 보임)
     @Override
     @GetMapping("/scrap")
     public ResponseEntity<ResponseDTO<List<MagazineHomeResponseDTO>>> getScrapMagazineList() {
@@ -96,6 +103,7 @@ public class MagazineController implements MagazineApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
     }
 
+    // 매거진에 좋아요 표시하기
     @Override
     @PostMapping("/{magazineId}/like")
     public ResponseEntity<ResponseDTO<MagazineDetailDTO>> likeMagazine(@PathVariable Long magazineId) {
@@ -107,6 +115,7 @@ public class MagazineController implements MagazineApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_MAGAZINE, result));
     }
 
+    // 매거진 좋아요 삭제
     @Override
     @DeleteMapping("/{magazineId}/like")
     public ResponseEntity<ResponseDTO<MagazineDetailDTO>> deleteLikeMagazine(@PathVariable Long magazineId) {
