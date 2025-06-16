@@ -48,7 +48,7 @@ public class EventController implements EventApiDocs {
     @PostMapping("/{eventId}")
     public ResponseEntity<ResponseDTO<EventAttendanceResponseDTO>> addEventAttendance (@PathVariable Long eventId, @RequestBody EventAttendanceRequestDTO dto) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        EventAttendanceResponseDTO result = eventAttendanceService.addEventAttendance(memberId, dto);
+        EventAttendanceResponseDTO result = eventAttendanceService.addEventAttendance(memberId, dto, eventId);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_CREATED_EVENT_ATTENDANCE.getStatus().value())

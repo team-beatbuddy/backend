@@ -17,31 +17,28 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventAttendanceRequestDTO {
-
-    @Schema(description = "이벤트 아이디")
-    @NotNull(message = "이벤트 아이디는 필수입니다.")
-    private Long eventId;
     private String name;
+    @Schema(description = "성별 (MALE, FEMALE, None)")
     private String gender;
     private String phoneNumber;
     private Integer totalNumber;
-    private boolean isPaid;
+    private Boolean isPaid;
     private String snsType;
     private String snsId;
 
     public static EventAttendance toEntity(EventAttendanceRequestDTO dto, Member member, Event event) {
         EventAttendance.EventAttendanceBuilder builder = EventAttendance.builder()
-                .id(new EventAttendanceId(dto.getEventId(), member.getId()))
+                .id(new EventAttendanceId(event.getId(), member.getId()))
                 .event(event)
                 .member(member);
 
         if (dto.getName() != null) builder.name(dto.getName());
-        if (dto.getGender() != null) builder.gender(Gender.valueOf(dto.getGender()));
+        if (dto.getGender() != null) builder.gender(Gender.fromText(dto.getGender()));
         if (dto.getPhoneNumber() != null) builder.phoneNumber(dto.getPhoneNumber());
         if (dto.getTotalNumber() != null) builder.totalMember(dto.getTotalNumber());
         if (dto.getSnsType() != null) builder.snsType(dto.getSnsType());
         if (dto.getSnsId() != null) builder.snsId(dto.getSnsId());
-        builder.hasPaid(dto.isPaid());
+        builder.hasPaid(dto.getIsPaid());
 
         return builder.build();
     }

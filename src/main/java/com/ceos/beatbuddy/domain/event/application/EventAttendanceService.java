@@ -24,10 +24,10 @@ public class EventAttendanceService {
     private final EventAttendanceRepository eventAttendanceRepository;
 
     @Transactional
-    public EventAttendanceResponseDTO addEventAttendance(Long memberId, EventAttendanceRequestDTO dto) {
+    public EventAttendanceResponseDTO addEventAttendance(Long memberId, EventAttendanceRequestDTO dto, Long eventId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
-        Event event = eventRepository.findById(dto.getEventId()).orElseThrow(
+        Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new CustomException(EventErrorCode.NOT_FOUND_EVENT)
         );
 
@@ -62,7 +62,7 @@ public class EventAttendanceService {
             if (event.isReceiveSNSId() && (isBlank(dto.getSnsType()) || isBlank(dto.getSnsId()))) {
                 throw new CustomException(EventErrorCode.MISSING_SNS_ID_OR_TYPE);
             }
-            if (event.isReceiveMoney() && !dto.isPaid()) {
+            if (event.isReceiveMoney() && dto.getIsPaid() == null) {
                 throw new CustomException(EventErrorCode.MISSING_PAYMENT);
             }
         }
