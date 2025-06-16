@@ -2,10 +2,7 @@ package com.ceos.beatbuddy.domain.event.controller;
 
 import com.ceos.beatbuddy.domain.event.application.EventAttendanceService;
 import com.ceos.beatbuddy.domain.event.application.EventService;
-import com.ceos.beatbuddy.domain.event.dto.EventAttendanceRequestDTO;
-import com.ceos.beatbuddy.domain.event.dto.EventAttendanceResponseDTO;
-import com.ceos.beatbuddy.domain.event.dto.EventCreateRequestDTO;
-import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
+import com.ceos.beatbuddy.domain.event.dto.*;
 import com.ceos.beatbuddy.domain.magazine.controller.MagazineApiDocs;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineResponseDTO;
@@ -21,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -53,6 +51,20 @@ public class EventController implements EventApiDocs {
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_CREATED_EVENT_ATTENDANCE.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATED_EVENT_ATTENDANCE, result));
+    }
+
+    @Override
+    @GetMapping("/upcoming/{sort}")
+    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventUpcomingPopular (        @PathVariable String sort,
+                                                                                               @RequestParam(defaultValue = "1") Integer page,
+                                                                                               @RequestParam(defaultValue = "10") Integer size) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+
+        EventListResponseDTO result = eventService.getUpcomingEvents(sort, page, size, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_UPCOMING_EVENT.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_UPCOMING_EVENT, result));
     }
 
 
