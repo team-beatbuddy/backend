@@ -54,7 +54,9 @@ public class Magazine extends BaseTimeEntity {
     }
 
     public void decreaseLike() {
-        likes--;
+        if (likes > 0) {
+            likes--;
+        }
     }
 
 }
