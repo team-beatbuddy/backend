@@ -1,7 +1,6 @@
 package com.ceos.beatbuddy.domain.magazine.dto;
 
 import com.ceos.beatbuddy.domain.magazine.entity.Magazine;
-import com.ceos.beatbuddy.domain.scrap.entity.MagazineScrap;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;

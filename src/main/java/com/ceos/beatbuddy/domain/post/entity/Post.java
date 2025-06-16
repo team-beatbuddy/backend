@@ -3,7 +3,7 @@ package com.ceos.beatbuddy.domain.post.entity;
 import static lombok.AccessLevel.PROTECTED;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.scrap.entity.PostScrap;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.PostScrap;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
 
