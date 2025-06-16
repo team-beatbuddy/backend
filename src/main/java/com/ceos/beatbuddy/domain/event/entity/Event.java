@@ -42,7 +42,24 @@ public class Event extends BaseTimeEntity {
     private int views;
     private int likes;
 
+    @Getter
     private boolean receiveInfo; // 참석자 정보 수집 여부
+    @Getter
+    private boolean receiveName = false; // 이름 받을 건지
+    @Getter
+    private boolean receiveGender = false;; // 성별 받을 건지
+    @Getter
+    private boolean receivePhoneNumber= false;; // 전화번호 받을 건지
+    @Getter
+    private boolean receiveTotalCount= false;; // 동행 인원 받을 건지
+    @Getter
+    private boolean receiveSNSId= false;; // sns id 받을 건지
+    @Getter
+    private boolean receiveMoney= false;; // 예약금 받을 건지
+
+    private String depositAccount; // 사전 예약금 계좌번호
+    private Integer depositAmount; // 사전 예약금 금액
+
     private boolean isVisible = true;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -56,8 +73,7 @@ public class Event extends BaseTimeEntity {
     @JoinColumn(name = "venueId")
     private Venue venue;  // 비트버디 등록된 장소
 
-    private String depositAccount; // 사전 예약금 계좌번호
-    private Integer depositAmount; // 사전 예약금 금액
+
 
     public void increaseView() {
         this.views++;
