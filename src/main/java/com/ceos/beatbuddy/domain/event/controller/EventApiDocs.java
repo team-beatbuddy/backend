@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface EventApiDocs {
     @Operation(summary = "이벤트 작성 기능\n",
             description = "admin과 business 멤버에 한해서만 이벤트를 작성할 수 있도록 해두었습니다. (추후 변경 가능), 데이터 전달은 multipart/form-data이며 'eventCreateRequestDTO'는 JSON 문자열 형태로 전송해야 합니다.")
+
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "이벤트가 성공적으로 작성되었습니다.",
                     content = @Content(
@@ -28,10 +29,17 @@ public interface EventApiDocs {
                                   "code": "SUCCESS_CREATED_EVENT",
                                   "message": "이벤트가 성공적으로 작성되었습니다.",
                                   "data": {
-                                    "eventId": 1,
-                                    "title": "이벤트 시작",
-                                    "content": "이게 바로 이트",
-                                    "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png"
+                                    "eventId": 2,
+                                    "title": "string",
+                                    "content": "string",
+                                    "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
+                                    "receiveInfo": true,
+                                    "receiveName": true,
+                                    "receiveGender": true,
+                                    "receivePhoneNumber": true,
+                                    "receiveTotalCount": false,
+                                    "receiveSNSId": true,
+                                    "receiveMoney": true
                                   }
                                 }
                                     """)
