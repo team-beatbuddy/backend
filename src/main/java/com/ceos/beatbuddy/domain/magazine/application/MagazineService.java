@@ -137,4 +137,24 @@ public class MagazineService {
 
         return MagazineDetailDTO.toDTO(magazine);
     }
+
+    public MagazineDetailDTO deleteLikeMagazine(Long magazineId, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        // 엔티티 검색
+        Magazine magazine = magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
+                new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
+        );
+
+        // 좋아요 증가 (이미 좋아요가 없으면
+        MagazineLike magazineLike = magazineLikeRepository.findById(
+                MagazineInteractionId.builder().memberId(memberId).magazineId(magazineId).build()).orElseThrow(
+                () -> new CustomException(MagazineErrorCode.NOT_FOUND_LIKE)
+        );
+
+        magazineLikeRepository.delete(magazineLike);
+        magazine.decreaseLike();
+
+        return MagazineDetailDTO.toDTO(magazine);
+    }
 }
