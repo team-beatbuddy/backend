@@ -122,9 +122,15 @@ public class MagazineService {
                 new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
         );
 
-        // 좋아요 증가
-        MagazineLike magazineLike = MagazineLike.toEntity(member, magazine);
-        magazineLikeRepository.save(magazineLike);
+        // 좋아요 증가 (이미 좋아요가 있으면 예외처리
+        boolean alreadyLiked = magazineLikeRepository.existsByMemberAndMagazine(member, magazine);
+
+        if (alreadyLiked) {
+            throw new CustomException(MagazineErrorCode.ALREADY_LIKE_MAGAZINE);
+        }
+
+        MagazineLike entity = MagazineLike.toEntity(member, magazine);
+        magazineLikeRepository.save(entity);
         magazine.increaseLike();
 
         return MagazineDetailDTO.toDTO(magazine);
