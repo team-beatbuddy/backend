@@ -1,6 +1,8 @@
 package com.ceos.beatbuddy.domain.event.entity;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.EventScrap;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineScrap;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -10,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Builder
@@ -22,13 +25,18 @@ public class Event extends BaseTimeEntity {
     @Getter
     private Long id;
 
+    @Getter
     private String title;
-    private String description;
+
+    @Getter
+    @Lob
+    private String content;
     private LocalDate startDate;
     private LocalDate endDate;
 
     private String location;
-    private String locationDetail; // 예: "비트버디 홍대점"
+
+    @Getter
     private String thumbImage;
 
     private int views;
@@ -36,6 +44,9 @@ public class Event extends BaseTimeEntity {
 
     private boolean receiveInfo; // 참석자 정보 수집 여부
     private boolean isVisible = true;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EventScrap> scraps;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberId")
@@ -58,5 +69,13 @@ public class Event extends BaseTimeEntity {
 
     public void decreaseLike() {
         if (this.likes > 0) this.likes--;
+    }
+
+    public void setThumbImage(String imageUrl) {
+        this.thumbImage = imageUrl;
+    }
+
+    public void setVenue(Venue venue) {
+        this.venue = venue;
     }
 }
