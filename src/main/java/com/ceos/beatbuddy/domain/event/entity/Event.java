@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.event.entity;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.EventLike;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.EventScrap;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineScrap;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
@@ -31,7 +32,10 @@ public class Event extends BaseTimeEntity {
     @Getter
     @Lob
     private String content;
+
+    @Getter
     private LocalDate startDate;
+    @Getter
     private LocalDate endDate;
 
     private String location;
@@ -39,7 +43,9 @@ public class Event extends BaseTimeEntity {
     @Getter
     private String thumbImage;
 
+    @Getter
     private int views;
+    @Getter
     private int likes;
 
     @Getter
@@ -63,6 +69,7 @@ public class Event extends BaseTimeEntity {
     private boolean isVisible = true;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Getter
     private List<EventScrap> scraps;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -71,6 +78,7 @@ public class Event extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venueId")
+    @Getter
     private Venue venue;  // 비트버디 등록된 장소
 
 

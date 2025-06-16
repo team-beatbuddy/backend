@@ -1,13 +1,18 @@
 package com.ceos.beatbuddy.domain.event.application;
 
 import com.ceos.beatbuddy.domain.event.dto.EventCreateRequestDTO;
+import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
+import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
+import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
+import com.ceos.beatbuddy.domain.event.repository.EventScrapRepository;
 import com.ceos.beatbuddy.domain.magazine.exception.MagazineErrorCode;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.EventInteractionId;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.exception.VenueErrorCode;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
@@ -30,6 +35,9 @@ public class EventService {
     private final MemberRepository memberRepository;
     private final VenueRepository venueRepository;
     private final EventRepository eventRepository;
+    private final EventQueryRepository eventQueryRepository;
+    private final EventLikeRepository eventLikeRepository;
+    private final EventScrapRepository eventScrapRepository;
 
     @Transactional
     public EventResponseDTO addEvent(Long memberId, EventCreateRequestDTO eventCreateRequestDTO, MultipartFile image) {
@@ -81,5 +89,30 @@ public class EventService {
             throw new RuntimeException(e);
         }
     }
+
+    public EventListResponseDTO getUpcomingEvents(String sort, Integer page, Integer size, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        int offset = (page - 1) * size;
+
+        List<Event> events = eventQueryRepository.findUpcomingEvents(sort, offset, size);
+
+        List<EventResponseDTO> dto = events.stream()
+                .map(EventResponseDTO::toUpcomingListDTO)
+                .toList();
+
+        int totalSize = eventQueryRepository.countUpcomingEvents(); // 총 개수 (페이지네이션용)
+
+        return EventListResponseDTO.builder()
+                .sort(sort)
+                .page(page)
+                .size(size)
+                .totalSize(totalSize)
+                .eventResponseDTOS(dto)
+                .build();
+    }
+
+//    boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, event.getId()));
+//    boolean scrapped = eventScrapRepository.existsById(new EventInteractionId(memberId, event.getId()));
 
 }
