@@ -1,7 +1,7 @@
 package com.ceos.beatbuddy.domain.magazine.entity;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.scrap.entity.MagazineScrap;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineScrap;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
