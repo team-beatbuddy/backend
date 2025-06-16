@@ -1,4 +1,4 @@
-package com.ceos.beatbuddy.domain.scrap.entity;
+package com.ceos.beatbuddy.domain.scrapandlike.entity;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
