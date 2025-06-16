@@ -107,4 +107,15 @@ public class MagazineController implements MagazineApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_MAGAZINE, result));
     }
 
+    @Override
+    @DeleteMapping("/{magazineId}/like")
+    public ResponseEntity<ResponseDTO<MagazineDetailDTO>> deleteLikeMagazine(@PathVariable Long magazineId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        MagazineDetailDTO result = magazineService.deleteLikeMagazine(magazineId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_LIKE_MAGAZINE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_MAGAZINE, result));
+    }
+
 }
