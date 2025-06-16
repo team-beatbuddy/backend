@@ -19,6 +19,7 @@ public class EventResponseDTO {
     private String dDay;
     private Boolean liked;
     private Boolean scrapped;
+    private String location;
 
     private Integer likes;
     private Integer views;
@@ -63,6 +64,7 @@ public class EventResponseDTO {
                 .likes(event.getLikes())
                 .scraps(event.getScraps().size())
                 .views(event.getViews())
+                .location(event.getLocation())
                 .build();
     }
 
