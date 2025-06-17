@@ -19,7 +19,8 @@ public enum EventErrorCode implements ApiCode {
     ALREADY_SCRAPPED_EVENT(HttpStatus.CONFLICT, "해당 이벤트는 이미 스크랩 되었습니다."),
     NOT_FOUND_SCRAP(HttpStatus.NOT_FOUND, "스크랩 내역이 존재하지 않습니다."),
     ALREADY_LIKE_EVENT(HttpStatus.CONFLICT, "해당 이벤트는 이미 좋아요를 표시하였습니다."),
-    NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다.");
+    NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다."),
+    NOT_COMMENT_OWNER(HttpStatus.UNAUTHORIZED, "본인이 작성한 댓글이 아닙니다.");
     private final HttpStatus httpStatus;
     private final String message;
 
