@@ -67,7 +67,6 @@ public class EventCreateRequestDTO {
                 .likes(0)
                 .isVisible(true)
                 .views(0)
-                .scraps(null)
                 .receiveInfo(eventCreateRequestDTO.isReceiveInfo())
                 .depositAccount(eventCreateRequestDTO.getDepositAccount())
                 .depositAmount(eventCreateRequestDTO.getDepositAmount())

@@ -37,17 +37,15 @@ public class EventResponseDTO {
     private Boolean receiveMoney; // 예약금 받을 건지
 
 
-    public static EventResponseDTO toDTO(Event event, Boolean liked, Boolean scrapped) {
+    public static EventResponseDTO toDTO(Event event, Boolean liked) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
                 .content(event.getContent())
                 .image(event.getThumbImage())
-                .scraps(event.getScraps().size())
                 .views(event.getViews())
                 .likes(event.getLikes())
                 .liked(liked)
-                .scrapped(scrapped)
                 .receiveInfo(event.isReceiveInfo())
                 .receiveName(event.isReceiveName())
                 .receiveGender(event.isReceiveGender())
@@ -67,13 +65,12 @@ public class EventResponseDTO {
                 .endDate(event.getEndDate())
                 .image(event.getThumbImage())
                 .likes(event.getLikes())
-                .scraps(event.getScraps().size())
                 .views(event.getViews())
                 .location(event.getLocation())
                 .build();
     }
 
-    public static EventResponseDTO toUpcomingDTO(Event event, boolean liked, boolean scrapped) {
+    public static EventResponseDTO toUpcomingDTO(Event event, boolean liked) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
@@ -84,8 +81,6 @@ public class EventResponseDTO {
                 .image(event.getThumbImage())
                 .likes(event.getLikes())
                 .liked(liked)
-                .scrapped(scrapped)
-                .scraps(event.getScraps().size())
                 .views(event.getViews())
                 .build();
     }
