@@ -72,6 +72,22 @@ public class EventController implements EventApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_UPCOMING_EVENT, result));
     }
 
+    @Override
+    @GetMapping("/past/{sort}")
+    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventPastSorted(
+            @PathVariable String sort,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+
+        Long memberId = SecurityUtils.getCurrentMemberId();
+
+        EventListResponseDTO result = eventService.getPastEvents(sort, page, size, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_PAST_EVENT.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_PAST_EVENT, result));
+    }
+
 
     @Override
     @GetMapping("/{eventId}/attendances")
