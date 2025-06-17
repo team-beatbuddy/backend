@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.event.application;
 
 import com.ceos.beatbuddy.domain.event.dto.EventCommentCreateRequestDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventCommentResponseDTO;
+import com.ceos.beatbuddy.domain.event.dto.EventCommentTreeResponseDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventComment;
 import com.ceos.beatbuddy.domain.event.entity.EventCommentId;
@@ -15,6 +16,9 @@ import com.ceos.beatbuddy.global.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -82,5 +86,37 @@ public class EventCommentService {
             // 대댓글이면 해당 댓글만 삭제
             eventCommentRepository.deleteByIdAndLevel(commentId, level);
         }
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<EventCommentTreeResponseDTO> getSortedEventComments(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+
+        List<EventComment> all = eventCommentRepository.findAllByEvent(event);
+
+        // commentId 기준 그룹핑
+        Map<Long, List<EventComment>> grouped = all.stream()
+                .collect(Collectors.groupingBy(EventComment::getId));
+
+        // level == 0만 추출해서 최신순 정렬, 나머지는 오래된 순으로 정렬
+        return grouped.values().stream()
+                .map(list -> {
+                    EventComment parent = list.stream()
+                            .filter(c -> c.getLevel() == 0)
+                            .findFirst()
+                            .orElseThrow();
+
+                    List<EventCommentResponseDTO> replies = list.stream()
+                            .filter(c -> c.getLevel() > 0)
+                            .sorted(Comparator.comparing(EventComment::getCreatedAt))
+                            .map(EventCommentResponseDTO::toDTO)
+                            .toList();
+
+                    return EventCommentTreeResponseDTO.toDTO(parent, replies);
+                })
+                .sorted(Comparator.comparing((EventCommentTreeResponseDTO dto) -> dto.getCreatedAt()).reversed())
+                .toList();
     }
 }

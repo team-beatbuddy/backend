@@ -58,6 +58,7 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_CREATED_COMMENT(HttpStatus.CREATED, "성공적으로 댓글을 작성했습니다."),
     SUCCESS_DELETE_COMMENT(HttpStatus.OK, "성공적으로 댓글을 삭제했습니다."),
     SUCCESS_GET_EVENT(HttpStatus.OK, "성공적으로 이벤트를 조회했습니다." ),
+    SUCCESS_GET_EVENT_COMMENTS(HttpStatus.OK, "성공적으로 댓글을 조회했습니다."),
 
 
 
@@ -74,9 +75,8 @@ public enum SuccessCode implements ApiCode {
      * empty
      * */
     SUCCESS_BUT_EMPTY_LIST(HttpStatus.OK,"성공적으로 조회했으나 리스트가 비었습니다."),
-
-
     ;
+
 
     private final HttpStatus httpStatus;
     private final String message;
