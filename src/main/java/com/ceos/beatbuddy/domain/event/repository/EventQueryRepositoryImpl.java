@@ -58,4 +58,38 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
                         .fetchOne())
                 .intValue();
     }
+
+
+    @Override
+    public List<Event> findPastEvents(String sort, int offset, int limit) {
+        QEvent event = QEvent.event;
+
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(event.endDate.lt(LocalDate.now()));
+
+        OrderSpecifier<?> orderBy = switch (sort) {
+            case "popular" -> event.likes.desc();
+            case "latest" -> event.endDate.desc();
+            default -> event.endDate.desc();
+        };
+
+        return queryFactory
+                .selectFrom(event)
+                .leftJoin(event.venue, QVenue.venue).fetchJoin()
+                .where(builder)
+                .orderBy(orderBy)
+                .offset(offset)
+                .limit(limit)
+                .fetch();
+    }
+
+    @Override
+    public int countPastEvents() {
+        QEvent event = QEvent.event;
+        return Objects.requireNonNull(queryFactory
+                .select(event.count())
+                .from(event)
+                .where(event.endDate.lt(LocalDate.now()))
+                .fetchOne()).intValue();
+    }
 }
