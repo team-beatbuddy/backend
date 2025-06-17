@@ -15,7 +15,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -195,9 +194,9 @@ public class EventController implements EventApiDocs {
 
     @Override
     @GetMapping("/{eventId}/comments")
-    public ResponseEntity<ResponseDTO<List<EventCommentResponseDTO>>> getEventComments(@PathVariable Long eventId) {
+    public ResponseEntity<ResponseDTO<List<EventCommentTreeResponseDTO>>> getEventComments(@PathVariable Long eventId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        List<EventCommentResponseDTO> result = eventCommentService.getCommentsByEvent(eventId);
+        List<EventCommentTreeResponseDTO> result = eventCommentService.getSortedEventComments(eventId);
 
         if (result.isEmpty()) {
             return ResponseEntity
