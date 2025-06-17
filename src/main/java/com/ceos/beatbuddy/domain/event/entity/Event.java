@@ -1,9 +1,6 @@
 package com.ceos.beatbuddy.domain.event.entity;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.EventLike;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.EventScrap;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineScrap;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -13,7 +10,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Builder
@@ -68,9 +64,6 @@ public class Event extends BaseTimeEntity {
 
     private boolean isVisible = true;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Getter
-    private List<EventScrap> scraps;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberId")
