@@ -39,6 +39,11 @@ public interface EventApiDocs {
                                     "title": "string",
                                     "content": "string",
                                     "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
+                                    "likes": 1,
+                                    "views": 1,
+                                    "scraps": 1,
+                                    "liked": true,
+                                    "scrapped": true,
                                     "receiveInfo": true,
                                     "receiveName": true,
                                     "receiveGender": true,
@@ -142,6 +147,7 @@ public interface EventApiDocs {
                         "phoneNumber": "010-0000-0000",
                         "paid": true
                       }
+                    }
              """)
             )),
             @ApiResponse(responseCode = "400", description = "입력값 누락 또는 잘못된 요청", content = @Content(
@@ -298,7 +304,15 @@ public interface EventApiDocs {
                           "code": "MEMBER_NOT_EXIST",
                           "message": "요청한 유저가 존재하지 않습니다."
                         }
-                        """)
+                        """),
+                            @ExampleObject(name = "이벤트 없음", value = """
+            {
+              "status": 404,
+              "error": "NOT_FOUND",
+              "code": "NOT_FOUND_EVENT",
+              "message": "존재하지 않는 이벤트입니다."
+            }
+            """)
                     }
             ))
     })
@@ -306,73 +320,80 @@ public interface EventApiDocs {
                                                                                 @RequestParam(defaultValue = "1") Integer page,
                                                                                 @RequestParam(defaultValue = "10") Integer size);
 
-    @Operation(summary = "이벤트 신청자 명단 조회",
-            description = "이벤트 신청자 명단 조화")
+    @Operation(summary = "이벤트 신청자 명단 조회", description = "이벤트 신청자 명단을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "이벤트 신청자 명단 조화", content = @Content(
-                    mediaType = "application/json",
-                    examples = @ExampleObject(name = "이벤트 신청자 명단 조화 성공", value = """
-                    {
-                      "status": 200,
-                      "code": "SUCCESS_GET_EVENT_ATTENDANCE_LIST",
-                      "message": "이벤트 참여자 명단을 조회했습니다.",
-                      "data": {
-                        "eventId": null,
-                        "totalMember": 2,
-                        "eventAttendanceExportDTOS": [
-                          {
-                            "name": "string",
-                            "gender": "None",
-                            "phoneNumber": null
-                          },
-                          {
-                            "name": "string",
-                            "gender": "None",
-                            "phoneNumber": "string"
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "이벤트 신청자 명단 조회 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(name = "이벤트 신청자 명단 조화 성공", value = """
+                        {
+                          "status": 200,
+                          "code": "SUCCESS_GET_EVENT_ATTENDANCE_LIST",
+                          "message": "이벤트 참여자 명단을 조회했습니다.",
+                          "data": {
+                            "eventId": null,
+                            "totalMember": 2,
+                            "eventAttendanceExportDTOS": [
+                              {
+                                "name": "string",
+                                "gender": "None",
+                                "phoneNumber": null
+                              },
+                              {
+                                "name": "string",
+                                "gender": "None",
+                                "phoneNumber": "string"
+                              }
+                            ]
                           }
-                        ]
-                      }
-                    }
-             """)
-            )),
-            @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "유저 없음", value = """
-                        {
-                          "status": 404,
-                          "error": "NOT_FOUND",
-                          "code": "MEMBER_NOT_EXIST",
-                          "message": "요청한 유저가 존재하지 않습니다."
                         }
                         """)
-                    }
-            )),
-            @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "이벤트 없음", value = """
-                                    {
-                                      "status": 404,
-                                      "error": "NOT_FOUND",
-                                      "code": "NOT_FOUND_EVENT",
-                                      "message": "존재하지 않는 이벤트입니다."
-                                    }
-                                    """)
-                    })),
-            @ApiResponse(responseCode = "403", description = "이벤트를 작성한 유저가 아님", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "유저 권한 없음", value = """
-                        {
-                          "status": 403,
-                          "error": "FORBIDDEN",
-                          "code": "FORBIDDEN_EVENT_ACCESS",
-                          "message": "해당 이벤트에 대한 접근 권한이 없습니다."
-                        }
-                        """)
-                    }
-            ))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "이벤트 또는 유저 정보 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "유저 없음", value = """
+                                {
+                                  "status": 404,
+                                  "error": "NOT_FOUND",
+                                  "code": "MEMBER_NOT_EXIST",
+                                  "message": "요청한 유저가 존재하지 않습니다."
+                                }
+                                """),
+                                    @ExampleObject(name = "이벤트 없음", value = """
+                                {
+                                  "status": 404,
+                                  "error": "NOT_FOUND",
+                                  "code": "NOT_FOUND_EVENT",
+                                  "message": "존재하지 않는 이벤트입니다."
+                                }
+                                """)
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "이벤트를 작성한 유저가 아님",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "유저 권한 없음", value = """
+                                {
+                                  "status": 403,
+                                  "error": "FORBIDDEN",
+                                  "code": "FORBIDDEN_EVENT_ACCESS",
+                                  "message": "해당 이벤트에 대한 접근 권한이 없습니다."
+                                }
+                                """)
+                            }
+                    )
+            )
     })
     ResponseEntity<ResponseDTO<EventAttendanceExportListDTO>> getEventAttendanceList(@PathVariable Long eventId);
 
@@ -383,138 +404,295 @@ public interface EventApiDocs {
             HttpServletResponse response
     ) throws IOException;
 
-    @Operation(summary = "이벤트 스크랩",
-            description = "이벤트 스크랩")
+    @Operation(summary = "이벤트 스크랩", description = "이벤트를 스크랩합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "이벤트 스크랩", content = @Content(
-                    mediaType = "application/json",
-                    examples = @ExampleObject(name = "이벤트 스크랩", value = """
-                                {
-                                  "status": 201,
-                                  "code": "SUCCESS_SCRAP_EVENT",
-                                  "message": "이벤트가 성공적으로 스크랩되었습니다.",
-                                  "data": {
-                                    "eventId": 2,
-                                    "title": "string",
-                                    "content": "string",
-                                    "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
-                                    "receiveInfo": true,
-                                    "receiveName": true,
-                                    "receiveGender": true,
-                                    "receivePhoneNumber": true,
-                                    "receiveTotalCount": false,
-                                    "receiveSNSId": true,
-                                    "receiveMoney": true
-                                  }
-                                }
-             """)
-            )),
-            @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "유저 없음", value = """
-                        {
-                          "status": 404,
-                          "error": "NOT_FOUND",
-                          "code": "MEMBER_NOT_EXIST",
-                          "message": "요청한 유저가 존재하지 않습니다."
-                        }
-                        """)
-                    }
-            )),
-            @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "이벤트 없음", value = """
-                                    {
-                                      "status": 404,
-                                      "error": "NOT_FOUND",
-                                      "code": "NOT_FOUND_EVENT",
-                                      "message": "존재하지 않는 이벤트입니다."
-                                    }
-                                    """)
-                    })),
             @ApiResponse(
-                    responseCode = "409",
-                    description = "이미 스크랩을 한 경우",
+                    responseCode = "201",
+                    description = "이벤트 스크랩 성공",
                     content = @Content(
                             mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
-                                    name = "이미 스크랩을 한 경우",
-                                    value = """
+                            examples = @ExampleObject(name = "이벤트 스크랩", value = """
+                        {
+                          "status": 201,
+                          "code": "SUCCESS_SCRAP_EVENT",
+                          "message": "이벤트가 성공적으로 스크랩되었습니다.",
+                          "data": {
+                            "eventId": 2,
+                            "title": "string",
+                            "content": "string",
+                            "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
+                            "likes": 1,
+                            "views": 1,
+                            "scraps": 1,
+                            "liked": true,
+                            "scrapped": true,
+                            "receiveInfo": true,
+                            "receiveName": true,
+                            "receiveGender": true,
+                            "receivePhoneNumber": true,
+                            "receiveTotalCount": false,
+                            "receiveSNSId": true,
+                            "receiveMoney": true
+                          }
+                        }
+                        """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "이벤트 또는 유저 정보 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "유저 없음", value = """
                                 {
-                                  "status": 409,
-                                  "error": "CONFLICT",
-                                  "code": "ALREADY_SCRAP_EVENT",
-                                  "message": "이미 스크랩한 이벤트입니다."
+                                  "status": 404,
+                                  "error": "NOT_FOUND",
+                                  "code": "MEMBER_NOT_EXIST",
+                                  "message": "요청한 유저가 존재하지 않습니다."
                                 }
-                            """
-                            )
+                                """),
+                                    @ExampleObject(name = "이벤트 없음", value = """
+                                {
+                                  "status": 404,
+                                  "error": "NOT_FOUND",
+                                  "code": "NOT_FOUND_EVENT",
+                                  "message": "존재하지 않는 이벤트입니다."
+                                }
+                                """)
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "이미 스크랩한 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(name = "이미 스크랩한 경우", value = """
+                        {
+                          "status": 409,
+                          "error": "CONFLICT",
+                          "code": "ALREADY_SCRAP_EVENT",
+                          "message": "이미 스크랩한 이벤트입니다."
+                        }
+                        """)
                     )
             )
     })
     ResponseEntity<ResponseDTO<EventResponseDTO>> scrapEvent(@PathVariable Long eventId);
 
-    @Operation(summary = "이벤트 스크랩 취소",
-            description = "이벤트 스크랩 취소")
+    @Operation(summary = "이벤트 스크랩 취소", description = "이벤트를 스크랩한 내역을 취소합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "이벤트 스크랩 츼소", content = @Content(
-                    mediaType = "application/json",
-                    examples = @ExampleObject(name = "이벤트 스크랩 취소", value = """
-                    {
-                      "status": 200,
-                      "code": "SUCCESS_DELETE_SCRAP",
-                      "message": "스크랩을 취소했습니다.",
-                      "data": "스크랩 취소 완료"
-                    }
-             """)
-            )),
-            @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "유저 없음", value = """
-                        {
-                          "status": 404,
-                          "error": "NOT_FOUND",
-                          "code": "MEMBER_NOT_EXIST",
-                          "message": "요청한 유저가 존재하지 않습니다."
-                        }
-                        """)
-                    }
-            )),
-            @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "이벤트 없음", value = """
-                                    {
-                                      "status": 404,
-                                      "error": "NOT_FOUND",
-                                      "code": "NOT_FOUND_EVENT",
-                                      "message": "존재하지 않는 이벤트입니다."
-                                    }
-                                    """)
-                    })),
             @ApiResponse(
-                    responseCode = "404",
-                    description = "기존에 스크랩하지 않았던 경우",
+                    responseCode = "200",
+                    description = "이벤트 스크랩 취소 성공",
                     content = @Content(
                             mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
-                                    name = "기존에 스크랩하지 않았던 경우",
-                                    value = """
+                            examples = @ExampleObject(name = "이벤트 스크랩 취소", value = """
+                        {
+                          "status": 200,
+                          "code": "SUCCESS_DELETE_SCRAP",
+                          "message": "스크랩을 취소했습니다.",
+                          "data": "스크랩 취소 완료"
+                        }
+                        """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "유저, 이벤트, 또는 스크랩 내역이 존재하지 않음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "유저 없음", value = """
+                                {
+                                  "status": 404,
+                                  "error": "NOT_FOUND",
+                                  "code": "MEMBER_NOT_EXIST",
+                                  "message": "요청한 유저가 존재하지 않습니다."
+                                }
+                                """),
+                                    @ExampleObject(name = "이벤트 없음", value = """
+                                {
+                                  "status": 404,
+                                  "error": "NOT_FOUND",
+                                  "code": "NOT_FOUND_EVENT",
+                                  "message": "존재하지 않는 이벤트입니다."
+                                }
+                                """),
+                                    @ExampleObject(name = "스크랩 없음", value = """
                                 {
                                   "status": 404,
                                   "error": "NOT_FOUND",
                                   "code": "NOT_FOUND_SCRAP",
                                   "message": "스크랩 내역이 존재하지 않습니다."
                                 }
-                            """
-                            )
+                                """)
+                            }
                     )
             )
     })
     ResponseEntity<ResponseDTO<String>> deleteScrapEvent(@PathVariable Long eventId);
+
+    @Operation(summary = "이벤트 좋아요", description = "이벤트에 좋아요를 표시합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "이벤트 좋아요 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(name = "이벤트 좋아요", value = """
+                        {
+                          "status": 201,
+                          "code": "SUCCESS_LIKE_EVENT",
+                          "message": "이벤트에 성공적으로 좋아요 표시하였습니다.",
+                          "data": {
+                            "eventId": 2,
+                            "title": "string",
+                            "content": "string",
+                            "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
+                            "likes": 1,
+                            "views": 1,
+                            "scraps": 1,
+                            "liked": true,
+                            "scrapped": true,
+                            "receiveInfo": true,
+                            "receiveName": true,
+                            "receiveGender": true,
+                            "receivePhoneNumber": true,
+                            "receiveTotalCount": false,
+                            "receiveSNSId": true,
+                            "receiveMoney": true
+                          }
+                        }
+                        """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "유저 또는 이벤트가 존재하지 않음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "유저 없음", value = """
+                                {
+                                  "status": 404,
+                                  "error": "NOT_FOUND",
+                                  "code": "MEMBER_NOT_EXIST",
+                                  "message": "요청한 유저가 존재하지 않습니다."
+                                }
+                                """),
+                                    @ExampleObject(name = "이벤트 없음", value = """
+                                {
+                                  "status": 404,
+                                  "error": "NOT_FOUND",
+                                  "code": "NOT_FOUND_EVENT",
+                                  "message": "존재하지 않는 이벤트입니다."
+                                }
+                                """)
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "이미 좋아요한 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "이미 좋아요한 경우",
+                                    value = """
+                                {
+                                  "status": 409,
+                                  "error": "CONFLICT",
+                                  "code": "ALREADY_LIKE_EVENT",
+                                  "message": "해당 이벤트는 이미 좋아요를 표시하였습니다."
+                                }
+                                """
+                            )
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<EventResponseDTO>> likeEvent(@PathVariable Long eventId);
+
+    @Operation(summary = "이벤트 좋아요 취소\n",
+            description = "이벤트에 좋아요를 취소합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "이벤트에 좋아요를 취소합니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "status": 201,
+                                      "code": "SUCCESS_DELETE_LIKE",
+                                      "message": "좋아요를 취소했습니다.",
+                                      "data": {
+                                        "eventId": 2,
+                                        "title": "string",
+                                        "content": "string",
+                                        "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
+                                        "likes": 1,
+                                        "views": 1,
+                                        "scraps": 1,
+                                        "liked": true,
+                                        "scrapped": true,
+                                        "receiveInfo": true,
+                                        "receiveName": true,
+                                        "receiveGender": true,
+                                        "receivePhoneNumber": true,
+                                        "receiveTotalCount": false,
+                                        "receiveSNSId": true,
+                                        "receiveMoney": true
+                                      }
+                                    }
+                                        """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "유저 또는 이벤트가 존재하지 않거나, 좋아요 정보가 없습니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "존재하지 않는 유저",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "error": "NOT_FOUND",
+                                                      "code": "MEMBER_NOT_EXIST",
+                                                      "message": "요청한 유저가 존재하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "존재하지 않는 이벤트",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "error": "NOT_FOUND",
+                                                      "code": "NOT_FOUND_EVENT",
+                                                      "message": "존재하지 않는 이벤트입니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "기존에 좋아요를 누르지 않았던 경우",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "error": "NOT_FOUND",
+                                                      "code": "NOT_FOUND_LIKE",
+                                                      "message": "기존에 좋아요를 누르지 않았습니다. 좋아요를 취소할 수 없습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<EventResponseDTO>> deleteLikeEvent(@PathVariable Long eventId);
+
+
 
     }

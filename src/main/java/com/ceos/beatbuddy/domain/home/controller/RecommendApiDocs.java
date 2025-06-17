@@ -50,57 +50,57 @@ public interface RecommendApiDocs {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "요청한 유저가 존재하지 않음",
+                    description = "다양한 404 에러 응답",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseTemplate.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 지역 입력",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(value = """
-                            {
-                              "status": 404,
-                              "error": "NOT_FOUND",
-                              "code": "REGION_NOT_EXIST",
-                              "message": "존재하지 않는 지역입니다."
+                            examples = {
+                                    @ExampleObject(
+                                            name = "요청한 유저가 존재하지 않음",
+                                            value = """
+                {
+                  "status": 404,
+                  "error": "NOT_FOUND",
+                  "code": "MEMBER_NOT_EXIST",
+                  "message": "요청한 유저가 존재하지 않습니다."
+                }
+                """
+                                    ),
+                                    @ExampleObject(
+                                            name = "존재하지 않는 지역 입력",
+                                            value = """
+                {
+                  "status": 404,
+                  "error": "NOT_FOUND",
+                  "code": "REGION_NOT_EXIST",
+                  "message": "존재하지 않는 지역입니다."
+                }
+                """
+                                    ),
+                                    @ExampleObject(
+                                            name = "존재하지 않는 무드 입력",
+                                            value = """
+                {
+                  "status": 404,
+                  "error": "NOT_FOUND",
+                  "code": "MOOD_INDEX_NOT_EXIST",
+                  "message": "해당 문자열의 분위기는 리스트에 없습니다."
+                }
+                """
+                                    ),
+                                    @ExampleObject(
+                                            name = "존재하지 않는 장르 입력",
+                                            value = """
+                {
+                  "status": 404,
+                  "error": "NOT_FOUND",
+                  "code": "GENRE_INDEX_NOT_EXIST",
+                  "message": "해당 문자열의 장르는 리스트에 없습니다."
+                }
+                """
+                                    )
                             }
-                        """)
                     )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 무드 입력",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(value = """
-                            {
-                              "status": 404,
-                              "error": "NOT_FOUND",
-                              "code": "MOOD_INDEX_NOT_EXIST",
-                              "message": "해당 문자열의 분위기는 리스트에 없습니다."
-                            }
-                        """)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 장르 입력",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(value = """
-                            {
-                              "status": 404,
-                              "error": "NOT_FOUND",
-                              "code": "GENRE_INDEX_NOT_EXIST",
-                              "message": "해당 문자열의 장르는 리스트에 없습니다."
-                            }
-                        """)
-                    )
-            ),
+            )
 
 
     })
