@@ -37,12 +37,17 @@ public class EventResponseDTO {
     private Boolean receiveMoney; // 예약금 받을 건지
 
 
-    public static EventResponseDTO toDTO(Event event) {
+    public static EventResponseDTO toDTO(Event event, Boolean liked, Boolean scrapped) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
                 .content(event.getContent())
                 .image(event.getThumbImage())
+                .scraps(event.getScraps().size())
+                .views(event.getViews())
+                .likes(event.getLikes())
+                .liked(liked)
+                .scrapped(scrapped)
                 .receiveInfo(event.isReceiveInfo())
                 .receiveName(event.isReceiveName())
                 .receiveGender(event.isReceiveGender())

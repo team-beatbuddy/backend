@@ -152,4 +152,26 @@ public class EventController implements EventApiDocs {
                 .status(SuccessCode.SUCCESS_DELETE_SCRAP.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_SCRAP, "스크랩 취소 완료"));
     }
+
+    @Override
+    @PostMapping("/{eventId}/like")
+    public ResponseEntity<ResponseDTO<EventResponseDTO>> likeEvent(@PathVariable Long eventId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        EventResponseDTO result = eventService.likeEvent(eventId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_LIKE_EVENT.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_EVENT, result));
+    }
+
+    @Override
+    @DeleteMapping("/{eventId}/like")
+    public ResponseEntity<ResponseDTO<EventResponseDTO>> deleteLikeEvent(@PathVariable Long eventId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        EventResponseDTO result = eventService.deleteLikeEvent(eventId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_DELETE_LIKE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_LIKE, result));
+    }
 }

@@ -88,11 +88,11 @@ public class Event extends BaseTimeEntity {
         this.views++;
     }
 
-    public void increaseLike() {
+    public synchronized void increaseLike() {
         this.likes++;
     }
 
-    public void decreaseLike() {
+    public synchronized void decreaseLike() {
         if (this.likes > 0) this.likes--;
     }
 
