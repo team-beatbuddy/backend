@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.event.repository;
 
+import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventComment;
 import com.ceos.beatbuddy.domain.event.entity.EventCommentId;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -26,4 +28,6 @@ public interface EventCommentRepository extends JpaRepository<EventComment, Even
     @Modifying
     @Query("DELETE FROM EventComment c WHERE c.id = :id AND c.level = :level")
     void deleteByIdAndLevel(@Param("id") Long id, @Param("level") Integer level);
+
+    List<EventComment> findAllByEvent(Event event);
 }

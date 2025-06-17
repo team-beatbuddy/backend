@@ -796,4 +796,111 @@ public interface EventApiDocs {
 
     })
     ResponseEntity<ResponseDTO<EventResponseDTO>> getEventDetail(@PathVariable Long eventId);
+
+    @Operation(
+            summary = "이벤트 댓글 전체 조회\n",
+            description = "이벤트 댓글 전체 조회입니다. id 0 - level 0 은 본문, id 0 - level - 1 이면 id 0 에 대한 댓글의 대댓글"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "이벤트 댓글 조회 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = {
+                                    @ExampleObject(
+                                            name = "이벤트 댓글 조회 성공",
+                                            value = """
+                                    {
+                                      "status": 200,
+                                      "code": "SUCCESS_GET_EVENT_COMMENTS",
+                                      "message": "성공적으로 댓글을 조회했습니다.",
+                                      "data": [
+                                        {
+                                          "commentId": 2,
+                                          "commentLevel": 0,
+                                          "content": "string",
+                                          "authorNickname": "BeatBuddy",
+                                          "anonymous": false,
+                                          "createdAt": "2025-06-18T02:28:19.423835",
+                                          "replies": []
+                                        },
+                                        {
+                                          "commentId": 1,
+                                          "commentLevel": 0,
+                                          "content": "댓글 써봄",
+                                          "authorNickname": "익명",
+                                          "anonymous": true,
+                                          "createdAt": "2025-06-18T02:08:31.418543",
+                                          "replies": [
+                                            {
+                                              "commentId": 1,
+                                              "commentLevel": 1,
+                                              "content": "대댓",
+                                              "authorNickname": "익명",
+                                              "anonymous": true,
+                                              "createdAt": "2025-06-18T02:56:10.818788"
+                                            },
+                                            {
+                                              "commentId": 1,
+                                              "commentLevel": 2,
+                                              "content": "string",
+                                              "authorNickname": "익명",
+                                              "anonymous": true,
+                                              "createdAt": "2025-06-18T03:03:16.206686"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "빈 이벤트 댓글",
+                                            value = """
+                                        {
+                                          "status": 200,
+                                          "code": "SUCCESS_BUT_EMPTY_LIST",
+                                          "message": "성공적으로 조회했으나 리스트가 비었습니다.",
+                                          "data": []
+                                        }
+                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "유저 또는 이벤트가 존재하지 않거나, 좋아요 정보가 없습니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "존재하지 않는 유저",
+                                            value = """
+                    {
+                      "status": 404,
+                      "error": "NOT_FOUND",
+                      "code": "MEMBER_NOT_EXIST",
+                      "message": "요청한 유저가 존재하지 않습니다."
+                    }
+                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "존재하지 않는 이벤트",
+                                            value = """
+                    {
+                      "status": 404,
+                      "error": "NOT_FOUND",
+                      "code": "NOT_FOUND_EVENT",
+                      "message": "존재하지 않는 이벤트입니다."
+                    }
+                    """
+                                    )
+                            }
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<List<EventCommentTreeResponseDTO>>> getEventComments(@PathVariable Long eventId);
 }
