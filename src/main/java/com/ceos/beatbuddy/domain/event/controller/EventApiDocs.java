@@ -727,4 +727,73 @@ public interface EventApiDocs {
             @PathVariable Long eventId,
             @PathVariable Long commentId,
             @PathVariable Integer commentLevel);
+
+
+
+
+    @Operation(summary = "이벤트 상세 조회\n",
+            description = "이벤트 상세 조회입니다. liked는 좋아요를 눌렀는지에 대한 여부입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공적으로 이벤트를 조회했습니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                            {
+                              "status": 200,
+                              "code": "SUCCESS_GET_EVENT",
+                              "message": "성공적으로 이벤트를 조회했습니다.",
+                              "data": {
+                                "eventId": 2,
+                                "title": "string",
+                                "content": "string",
+                                "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
+                                "liked": true,
+                                "likes": 2,
+                                "views": 1,
+                                "receiveInfo": true,
+                                "receiveName": true,
+                                "receiveGender": true,
+                                "receivePhoneNumber": true,
+                                "receiveSNSId": true,
+                                "receiveMoney": true
+                              }
+                            }
+                                        """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "유저 또는 이벤트가 존재하지 않거나, 좋아요 정보가 없습니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "존재하지 않는 유저",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "error": "NOT_FOUND",
+                                                      "code": "MEMBER_NOT_EXIST",
+                                                      "message": "요청한 유저가 존재하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "존재하지 않는 이벤트",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "error": "NOT_FOUND",
+                                                      "code": "NOT_FOUND_EVENT",
+                                                      "message": "존재하지 않는 이벤트입니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            )
+
+    })
+    ResponseEntity<ResponseDTO<EventResponseDTO>> getEventDetail(@PathVariable Long eventId);
 }
