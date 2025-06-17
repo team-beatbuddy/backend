@@ -112,6 +112,30 @@ public class EventService {
                 .eventResponseDTOS(dto)
                 .build();
     }
+
+    public EventListResponseDTO getPastEvents(String sort, Integer page, Integer size, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        int offset = (page - 1) * size;
+        // 지난 이벤트 조회
+        List<Event> events = eventQueryRepository.findPastEvents(sort, offset, size);
+
+        List<EventResponseDTO> dto = events.stream()
+                .map(EventResponseDTO::toPastListDTO)
+                .toList();
+
+        int totalSize = eventQueryRepository.countPastEvents();
+
+        return EventListResponseDTO.builder()
+                .sort(sort)
+                .page(page)
+                .size(size)
+                .totalSize(totalSize)
+                .eventResponseDTOS(dto)
+                .build();
+    }
+
     @Transactional
     public EventResponseDTO likeEvent(Long eventId, Long memberId) {
         Member member = memberRepository.findById(memberId)
