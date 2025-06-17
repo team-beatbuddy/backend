@@ -177,7 +177,18 @@ public class EventController implements EventApiDocs {
         eventCommentService.deleteComment(eventId, commentId, commentLevel, memberId);
 
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(SuccessCode.SUCCESS_DELETE_COMMENT.getHttpStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_COMMENT, "댓글 삭제 완료"));
+    }
+
+    @Override
+    @GetMapping("/{eventId}")
+    public ResponseEntity<ResponseDTO<EventResponseDTO>> getEventDetail(@PathVariable Long eventId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        EventResponseDTO result = eventService.getEventDetail(eventId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_EVENT.getHttpStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_EVENT, result));
     }
 }
