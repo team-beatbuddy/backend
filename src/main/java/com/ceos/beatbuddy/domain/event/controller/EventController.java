@@ -191,4 +191,23 @@ public class EventController implements EventApiDocs {
                 .status(SuccessCode.SUCCESS_GET_EVENT.getHttpStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_EVENT, result));
     }
+
+
+    @Override
+    @GetMapping("/{eventId}/comments")
+    public ResponseEntity<ResponseDTO<List<EventCommentResponseDTO>>> getEventComments(@PathVariable Long eventId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        List<EventCommentResponseDTO> result = eventCommentService.getCommentsByEvent(eventId);
+
+        if (result.isEmpty()) {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
+        }
+        else {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_GET_EVENT_COMMENTS.getHttpStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_EVENT_COMMENTS, result));
+        }
+    }
 }
