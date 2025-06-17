@@ -4,13 +4,9 @@ import com.ceos.beatbuddy.domain.event.application.EventAttendanceService;
 import com.ceos.beatbuddy.domain.event.application.EventCommentService;
 import com.ceos.beatbuddy.domain.event.application.EventService;
 import com.ceos.beatbuddy.domain.event.dto.*;
-import com.ceos.beatbuddy.domain.magazine.controller.MagazineApiDocs;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineResponseDTO;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
-import io.micrometer.core.instrument.MultiGauge;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -28,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -169,5 +164,20 @@ public class EventController implements EventApiDocs {
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_CREATED_COMMENT.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATED_COMMENT, result));
+    }
+
+    @Override
+    @DeleteMapping("/{eventId}/comments/{commentId}/levels/{commentLevel}")
+    public ResponseEntity<ResponseDTO<String>> deleteComment(
+            @PathVariable Long eventId,
+            @PathVariable Long commentId,
+            @PathVariable Integer commentLevel) {
+
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        eventCommentService.deleteComment(eventId, commentId, commentLevel, memberId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_COMMENT, "댓글 삭제 완료"));
     }
 }

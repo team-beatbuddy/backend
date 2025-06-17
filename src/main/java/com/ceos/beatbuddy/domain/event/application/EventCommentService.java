@@ -4,6 +4,7 @@ import com.ceos.beatbuddy.domain.event.dto.EventCommentCreateRequestDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventCommentResponseDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventComment;
+import com.ceos.beatbuddy.domain.event.entity.EventCommentId;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.event.repository.EventCommentRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
@@ -56,5 +57,30 @@ public class EventCommentService {
 
         EventComment saved = eventCommentRepository.save(comment);
         return EventCommentResponseDTO.toDTO(saved);
+    }
+
+
+    @Transactional
+    public void deleteComment(Long eventId, Long commentId, Integer level, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+
+        EventComment target = eventCommentRepository.findById(new EventCommentId(commentId, level))
+                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_COMMENT));
+
+        if (!target.getAuthor().getId().equals(memberId)) {
+            throw new CustomException(EventErrorCode.NOT_COMMENT_OWNER);
+        }
+
+        if (level == 0) {
+            // 원댓글이면 해당 대댓글도 전체 삭제
+            eventCommentRepository.deleteAllById(commentId);
+        } else {
+            // 대댓글이면 해당 댓글만 삭제
+            eventCommentRepository.deleteByIdAndLevel(commentId, level);
+        }
     }
 }

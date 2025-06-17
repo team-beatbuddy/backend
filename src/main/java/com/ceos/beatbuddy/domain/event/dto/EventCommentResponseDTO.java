@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class EventCommentResponseDTO {
     private Long commentId;
+    private Integer commentLevel;
     private String content;
     private String authorNickname;
     private boolean anonymous;
@@ -22,6 +23,7 @@ public class EventCommentResponseDTO {
     public static EventCommentResponseDTO toDTO(EventComment eventComment) {
         return EventCommentResponseDTO.builder()
                 .commentId(eventComment.getId())
+                .commentLevel(eventComment.getLevel())
                 .content(eventComment.getContent())
                 .authorNickname(eventComment.isAnonymous() ? "익명" : eventComment.getAuthor().getNickname())
                 .anonymous(eventComment.isAnonymous())

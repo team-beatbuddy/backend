@@ -11,10 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -558,7 +555,7 @@ public interface EventApiDocs {
     @Operation(summary = "이벤트 댓글 작성\n",
             description = "이벤트에 댓글을 작성합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "성공적으로 댓글을 작성했습니다. ******부모 댓글이 없는 경우에는 해당 필드를 지우고 작성해주세요.",
+            @ApiResponse(responseCode = "201", description = "성공적으로 댓글을 작성했습니다. ******부모 댓글이 없는 경우에는 해당 필드를 지우고 작성해주세요. 댓글 레벨이 0이면 본인 글입니다. 1부터 대댓글",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ResponseDTO.class),
@@ -569,6 +566,7 @@ public interface EventApiDocs {
                               "message": "성공적으로 댓글을 작성했습니다.",
                               "data": {
                                 "commentId": 1,
+                                "commentLevel": 0,
                                 "content": "댓글 써봄",
                                 "authorNickname": "익명",
                                 "anonymous": true,
@@ -607,17 +605,6 @@ public interface EventApiDocs {
                                                     """
                                     ),
                                     @ExampleObject(
-                                            name = "기존에 좋아요를 누르지 않았던 경우",
-                                            value = """
-                                                    {
-                                                      "status": 404,
-                                                      "error": "NOT_FOUND",
-                                                      "code": "NOT_FOUND_LIKE",
-                                                      "message": "기존에 좋아요를 누르지 않았습니다. 좋아요를 취소할 수 없습니다."
-                                                    }
-                                                    """
-                                    ),
-                                    @ExampleObject(
                                             name = "부모 댓글이 존재하지 않는 경우",
                                             value = """
                                             {
@@ -630,10 +617,114 @@ public interface EventApiDocs {
                                     )
                             }
                     )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "내용을 작성하지 않은 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "댓글 내용 X", value = """
+                                    {
+                                      "status": 400,
+                                      "error": "BAD_REQUEST",
+                                      "code": "BAD_REQUEST_VALIDATION",
+                                      "message": "요청 값이 유효하지 않습니다.",
+                                      "errors": {
+                                        "content": "내용은 필수입니다."
+                                      }
+                                    }
+                                """)
+                            }
+                    )
             )
     })
     ResponseEntity<ResponseDTO<EventCommentResponseDTO>> createComment(
             @PathVariable Long eventId,
             @Valid @RequestBody EventCommentCreateRequestDTO dto);
 
-    }
+
+    @Operation(summary = "이벤트 댓글 삭제\n",
+            description = "이벤트에 댓글을 삭제합니다. level 이 0이면 원댓글부터 대댓글 전체 삭제됩니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공적으로 댓글을 삭제했습니다. level 이 0이면 원댓글부터 대댓글 전체 삭제됩니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                            {
+                              "status": 200,
+                              "code": "SUCCESS_DELETE_COMMENT",
+                              "message": "성공적으로 댓글을 삭제했습니다.",
+                              "data": "댓글 삭제 완료"
+                            }
+                                        """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "유저 또는 이벤트가 존재하지 않거나, 좋아요 정보가 없습니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "존재하지 않는 유저",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "error": "NOT_FOUND",
+                                                      "code": "MEMBER_NOT_EXIST",
+                                                      "message": "요청한 유저가 존재하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "존재하지 않는 이벤트",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "error": "NOT_FOUND",
+                                                      "code": "NOT_FOUND_EVENT",
+                                                      "message": "존재하지 않는 이벤트입니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "댓글이 존재하지 않는 경우",
+                                            value = """
+                                            {
+                                              "status": 404,
+                                              "error": "NOT_FOUND",
+                                              "code": "NOT_FOUND_COMMENT",
+                                              "message": "해당 댓글을 찾을 수 없습니다."
+                                            }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "댓글을 작성한 유저가 아닙니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "유저 권한 없음", value = """
+                                {
+                                  "status": 403,
+                                  "error": "FORBIDDEN",
+                                  "code": "NOT_COMMENT_OWNER",
+                                  "message": "본인이 작성한 댓글이 아닙니다."
+                                }
+                                """)
+                            }
+                    )
+            )
+
+    })
+    @DeleteMapping("/{eventId}/comments/{commentId}/levels/{commentLevel}")
+    ResponseEntity<ResponseDTO<String>> deleteComment(
+            @PathVariable Long eventId,
+            @PathVariable Long commentId,
+            @PathVariable Integer commentLevel);
+}
