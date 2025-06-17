@@ -1,15 +1,12 @@
 package com.ceos.beatbuddy.domain.event.controller;
 
 import com.ceos.beatbuddy.domain.event.application.EventAttendanceService;
+import com.ceos.beatbuddy.domain.event.application.EventCommentService;
 import com.ceos.beatbuddy.domain.event.application.EventService;
 import com.ceos.beatbuddy.domain.event.dto.*;
-import com.ceos.beatbuddy.domain.magazine.controller.MagazineApiDocs;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineResponseDTO;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
-import io.micrometer.core.instrument.MultiGauge;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -18,6 +15,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,6 +32,7 @@ import java.util.Objects;
 public class EventController implements EventApiDocs {
     private final EventService eventService;
     private final EventAttendanceService eventAttendanceService;
+    private final EventCommentService eventCommentService;
 
     @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -134,26 +132,6 @@ public class EventController implements EventApiDocs {
     }
 
     @Override
-    @PostMapping("/{eventId}/scrap")
-    public ResponseEntity<ResponseDTO<EventResponseDTO>> scrapEvent(@PathVariable Long eventId) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        EventResponseDTO result = eventService.scrapEvent(memberId, eventId);
-        return ResponseEntity
-                .status(SuccessCode.SUCCESS_SCRAP_EVENT.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_SCRAP_EVENT, result));
-    }
-
-    @Override
-    @DeleteMapping("/{eventId}/scrap")
-    public ResponseEntity<ResponseDTO<String>> deleteScrapEvent(@PathVariable Long eventId) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        eventService.deleteScrapEvent(memberId, eventId);
-        return ResponseEntity
-                .status(SuccessCode.SUCCESS_DELETE_SCRAP.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_SCRAP, "스크랩 취소 완료"));
-    }
-
-    @Override
     @PostMapping("/{eventId}/like")
     public ResponseEntity<ResponseDTO<EventResponseDTO>> likeEvent(@PathVariable Long eventId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
@@ -173,5 +151,33 @@ public class EventController implements EventApiDocs {
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_DELETE_LIKE.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_LIKE, result));
+    }
+
+    @Override
+    @PostMapping("/events/{eventId}/comments")
+    public ResponseEntity<ResponseDTO<EventCommentResponseDTO>> createComment(
+            @PathVariable Long eventId,
+            @Valid @RequestBody EventCommentCreateRequestDTO dto) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        EventCommentResponseDTO result = eventCommentService.createComment(eventId, memberId, dto, dto.getParentCommentId());
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_CREATED_COMMENT.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATED_COMMENT, result));
+    }
+
+    @Override
+    @DeleteMapping("/{eventId}/comments/{commentId}/levels/{commentLevel}")
+    public ResponseEntity<ResponseDTO<String>> deleteComment(
+            @PathVariable Long eventId,
+            @PathVariable Long commentId,
+            @PathVariable Integer commentLevel) {
+
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        eventCommentService.deleteComment(eventId, commentId, commentLevel, memberId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_COMMENT, "댓글 삭제 완료"));
     }
 }

@@ -5,17 +5,22 @@ import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@IdClass(EventCommentId.class)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 public class EventComment extends BaseTimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; // 댓글 그룹 ID (댓글 thread 기준)
+
+    @Id
+    private Integer level; // 대댓글 깊이
 
     private String content;
 
@@ -27,7 +32,5 @@ public class EventComment extends BaseTimeEntity {
     @JoinColumn(name = "authorId")
     private Member author;
 
-    private boolean anonymous; // 담당자인 경우는 무조건 false
-
-    private Integer level; // 댓글의 경우 0, 추가된 경우 1 씩 늘어남
+    private boolean anonymous;
 }
