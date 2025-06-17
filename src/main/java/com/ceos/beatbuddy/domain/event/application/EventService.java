@@ -14,6 +14,7 @@ import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.EventInteractionId;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.EventLike;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.EventScrap;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.exception.VenueErrorCode;
@@ -68,7 +69,7 @@ public class EventService {
 
         eventRepository.save(event);
 
-        return EventResponseDTO.toDTO(event);
+        return EventResponseDTO.toDTO(event, null, null);
     }
 
 
@@ -136,7 +137,10 @@ public class EventService {
         //event.getScraps().add(eventScrap);
         eventScrapRepository.save(eventScrap);
 
-        return EventResponseDTO.toDTO(event);
+        boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, event.getId()));
+        boolean scrapped = eventScrapRepository.existsById(new EventInteractionId(memberId, event.getId()));
+
+        return EventResponseDTO.toDTO(event, liked, scrapped);
     }
 
     @Transactional
@@ -156,6 +160,51 @@ public class EventService {
                 .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_SCRAP));
 
         eventScrapRepository.delete(scrap);
+    }
+
+    @Transactional
+    public EventResponseDTO likeEvent(Long eventId, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+
+        EventInteractionId id = new EventInteractionId(memberId, eventId);
+
+        if (eventLikeRepository.existsById(id)) {
+            throw new CustomException(EventErrorCode.ALREADY_LIKE_EVENT);
+        }
+
+        EventLike eventLike = EventLike.toEntity(member, event);
+        eventLikeRepository.save(eventLike);
+        event.increaseLike();
+
+        boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, event.getId()));
+        boolean scrapped = eventScrapRepository.existsById(new EventInteractionId(memberId, event.getId()));
+
+        return EventResponseDTO.toDTO(event, liked, scrapped);
+    }
+
+    @Transactional
+    public EventResponseDTO deleteLikeEvent(Long eventId, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+
+        EventInteractionId id = new EventInteractionId(memberId, eventId);
+        EventLike eventLike = eventLikeRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_LIKE));
+
+        eventLikeRepository.delete(eventLike);
+        event.decreaseLike();
+
+        boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, event.getId()));
+        boolean scrapped = eventScrapRepository.existsById(new EventInteractionId(memberId, event.getId()));
+
+        return EventResponseDTO.toDTO(event, liked, scrapped);
     }
 
 

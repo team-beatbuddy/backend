@@ -99,56 +99,72 @@ public interface MagazineApiDocs {
     @Operation(summary = "홈에 보이는 매거진, 조회 기능\n",
             description = "매거진 리스트 조회 기능")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "매거진 리스트를 성공적으로 조회했습니다.",
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "매거진 리스트를 성공적으로 조회했습니다.",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ResponseDTO.class),
-                            examples = @ExampleObject(value = """
-                                {
-                                  "status": 200,
-                                  "code": "SUCCESS_GET_MAGAZINE_LIST",
-                                  "message": "매거진이 성공적으로 불러왔습니다.",
-                                  "data": [
-                                    {
-                                      "magazineId": 1,
-                                      "thumbImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png"
-                                    }
-                                  ]
-                                }
-                                    """)
-                    )
-            ),
-            @ApiResponse(responseCode = "200", description = "매거진 리스트를 성공적으로 조회했습니다. 하지만 비어있음.",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class),
-                            examples = @ExampleObject(value = """
-                            {
-                              "status": 200,
-                              "code": "SUCCESS_BUT_EMPTY_LIST",
-                              "message": "성공적으로 조회했으나 리스트가 비었습니다.",
-                              "data": []
+                            examples = {
+                                    @ExampleObject(
+                                            name = "매거진 리스트 조회 성공",
+                                            value = """
+                {
+                  "status": 200,
+                  "code": "SUCCESS_GET_MAGAZINE_LIST",
+                  "message": "매거진이 성공적으로 불러왔습니다.",
+                  "data": [
+                    {
+                      "magazineId": 1,
+                      "thumbImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png"
+                    }
+                  ]
+                }
+                """
+                                    ),
+                                    @ExampleObject(
+                                            name = "빈 매거진 리스트",
+                                            value = """
+                {
+                  "status": 200,
+                  "code": "SUCCESS_BUT_EMPTY_LIST",
+                  "message": "성공적으로 조회했으나 리스트가 비었습니다.",
+                  "data": []
+                }
+                """
+                                    )
                             }
-                                    """)
                     )
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "존재하지 않는 유저",
+                    description = "리소스를 찾을 수 없음",
                     content = @Content(
                             mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
-                                    name = "존재하지 않는 유저",
-                                    value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MEMBER_NOT_EXIST",
-                                  "message": "요청한 유저가 존재하지 않습니다."
-                                }
-                            """
-                            )
+                            examples = {
+                                    @ExampleObject(
+                                            name = "존재하지 않는 유저",
+                                            value = """
+                {
+                  "status": 404,
+                  "error": "NOT_FOUND",
+                  "code": "MEMBER_NOT_EXIST",
+                  "message": "요청한 유저가 존재하지 않습니다."
+                }
+                """
+                                    ),
+                                    @ExampleObject(
+                                            name = "존재하지 않는 매거진",
+                                            value = """
+                {
+                  "status": 404,
+                  "error": "NOT_FOUND",
+                  "code": "MAGAZINE_NOT_EXIST",
+                  "message": "해당 매거진을 찾을 수 없습니다."
+                }
+                """
+                                    )
+                            }
                     )
             )
     })
@@ -185,40 +201,33 @@ public interface MagazineApiDocs {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "존재하지 않는 유저",
+                    description = "리소스를 찾을 수 없음",
                     content = @Content(
                             mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
-                                    name = "존재하지 않는 유저",
-                                    value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MEMBER_NOT_EXIST",
-                                  "message": "요청한 유저가 존재하지 않습니다."
-                                }
-                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 매거진",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
-                                    name = "존재하지 않는 매거진",
-                                    value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MAGAZINE_NOT_EXIST",
-                                  "message": "해당 매거진을 찾을 수 없습니다."
-                                }
-                            """
-                            )
+                            examples = {
+                                    @ExampleObject(
+                                            name = "존재하지 않는 유저",
+                                            value = """
+                {
+                  "status": 404,
+                  "error": "NOT_FOUND",
+                  "code": "MEMBER_NOT_EXIST",
+                  "message": "요청한 유저가 존재하지 않습니다."
+                }
+                """
+                                    ),
+                                    @ExampleObject(
+                                            name = "존재하지 않는 매거진",
+                                            value = """
+                {
+                  "status": 404,
+                  "error": "NOT_FOUND",
+                  "code": "MAGAZINE_NOT_EXIST",
+                  "message": "해당 매거진을 찾을 수 없습니다."
+                }
+                """
+                                    )
+                            }
                     )
             )
     })
@@ -254,40 +263,33 @@ public interface MagazineApiDocs {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "존재하지 않는 유저",
+                    description = "리소스를 찾을 수 없음",
                     content = @Content(
                             mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
-                                    name = "존재하지 않는 유저",
-                                    value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MEMBER_NOT_EXIST",
-                                  "message": "요청한 유저가 존재하지 않습니다."
-                                }
-                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 매거진",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
-                                    name = "존재하지 않는 매거진",
-                                    value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MAGAZINE_NOT_EXIST",
-                                  "message": "해당 매거진을 찾을 수 없습니다."
-                                }
-                            """
-                            )
+                            examples = {
+                                    @ExampleObject(
+                                            name = "존재하지 않는 유저",
+                                            value = """
+                {
+                  "status": 404,
+                  "error": "NOT_FOUND",
+                  "code": "MEMBER_NOT_EXIST",
+                  "message": "요청한 유저가 존재하지 않습니다."
+                }
+                """
+                                    ),
+                                    @ExampleObject(
+                                            name = "존재하지 않는 매거진",
+                                            value = """
+                {
+                  "status": 404,
+                  "error": "NOT_FOUND",
+                  "code": "MAGAZINE_NOT_EXIST",
+                  "message": "해당 매거진을 찾을 수 없습니다."
+                }
+                """
+                                    )
+                            }
                     )
             ),
             @ApiResponse(
@@ -342,51 +344,35 @@ public interface MagazineApiDocs {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "존재하지 않는 유저",
+                    description = "리소스를 찾을 수 없음",
                     content = @Content(
                             mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
-                                    name = "존재하지 않는 유저",
-                                    value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MEMBER_NOT_EXIST",
-                                  "message": "요청한 유저가 존재하지 않습니다."
-                                }
-                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 매거진",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
-                                    name = "존재하지 않는 매거진",
-                                    value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MAGAZINE_NOT_EXIST",
-                                  "message": "해당 매거진을 찾을 수 없습니다."
-                                }
-                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "기존에 스크랩하지 않았던 경우",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
-                                    name = "기존에 스크랩하지 않았던 경우",
-                                    value = """
+                            examples = {
+                                    @ExampleObject(
+                                            name = "존재하지 않는 유저",
+                                            value = """
+                {
+                  "status": 404,
+                  "error": "NOT_FOUND",
+                  "code": "MEMBER_NOT_EXIST",
+                  "message": "요청한 유저가 존재하지 않습니다."
+                }
+                """
+                                    ),
+                                    @ExampleObject(
+                                            name = "존재하지 않는 매거진",
+                                            value = """
+                {
+                  "status": 404,
+                  "error": "NOT_FOUND",
+                  "code": "MAGAZINE_NOT_EXIST",
+                  "message": "해당 매거진을 찾을 수 없습니다."
+                }
+                """
+                                    ),
+                                    @ExampleObject(
+                                            name = "기존에 스크랩하지 않았던 경우",
+                                            value = """
                                 {
                                   "status": 404,
                                   "error": "NOT_FOUND",
@@ -394,7 +380,8 @@ public interface MagazineApiDocs {
                                   "message": "기존에 스크랩하지 않았습니다. 스크랩을 취소할 수 없습니다."
                                 }
                             """
-                            )
+                                    )
+                            }
                     )
             )
     })
@@ -440,40 +427,33 @@ public interface MagazineApiDocs {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "존재하지 않는 유저",
+                    description = "리소스를 찾을 수 없음",
                     content = @Content(
                             mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
-                                    name = "존재하지 않는 유저",
-                                    value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MEMBER_NOT_EXIST",
-                                  "message": "요청한 유저가 존재하지 않습니다."
-                                }
-                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 매거진",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
-                                    name = "존재하지 않는 매거진",
-                                    value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MAGAZINE_NOT_EXIST",
-                                  "message": "해당 매거진을 찾을 수 없습니다."
-                                }
-                            """
-                            )
+                            examples = {
+                                    @ExampleObject(
+                                            name = "존재하지 않는 유저",
+                                            value = """
+                {
+                  "status": 404,
+                  "error": "NOT_FOUND",
+                  "code": "MEMBER_NOT_EXIST",
+                  "message": "요청한 유저가 존재하지 않습니다."
+                }
+                """
+                                    ),
+                                    @ExampleObject(
+                                            name = "존재하지 않는 매거진",
+                                            value = """
+                {
+                  "status": 404,
+                  "error": "NOT_FOUND",
+                  "code": "MAGAZINE_NOT_EXIST",
+                  "message": "해당 매거진을 찾을 수 없습니다."
+                }
+                """
+                                    )
+                            }
                     )
             )
     })
@@ -495,6 +475,7 @@ public interface MagazineApiDocs {
                                 "magazineId": 1,
                                 "title": "제목",
                                 "content": "내용",
+                                "content": "내용",
                                 "memberId": 156,
                                 "imageUrls": [
                                   "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png"
@@ -509,40 +490,33 @@ public interface MagazineApiDocs {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "존재하지 않는 유저",
+                    description = "리소스를 찾을 수 없음",
                     content = @Content(
                             mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
-                                    name = "존재하지 않는 유저",
-                                    value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MEMBER_NOT_EXIST",
-                                  "message": "요청한 유저가 존재하지 않습니다."
-                                }
-                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 매거진",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
-                                    name = "존재하지 않는 매거진",
-                                    value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MAGAZINE_NOT_EXIST",
-                                  "message": "해당 매거진을 찾을 수 없습니다."
-                                }
-                            """
-                            )
+                            examples = {
+                                    @ExampleObject(
+                                            name = "존재하지 않는 유저",
+                                            value = """
+                {
+                  "status": 404,
+                  "error": "NOT_FOUND",
+                  "code": "MEMBER_NOT_EXIST",
+                  "message": "요청한 유저가 존재하지 않습니다."
+                }
+                """
+                                    ),
+                                    @ExampleObject(
+                                            name = "존재하지 않는 매거진",
+                                            value = """
+                {
+                  "status": 404,
+                  "error": "NOT_FOUND",
+                  "code": "MAGAZINE_NOT_EXIST",
+                  "message": "해당 매거진을 찾을 수 없습니다."
+                }
+                """
+                                    )
+                            }
                     )
             ),
             @ApiResponse(
@@ -550,106 +524,94 @@ public interface MagazineApiDocs {
                     description = "이미 좋아요를 누른 경우",
                     content = @Content(
                             mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
+                            examples = @ExampleObject(
                                     name = "이미 좋아요를 누른 경우",
                                     value = """
-                                {
-                                  "status": 409,
-                                  "error": "CONFLICT",
-                                  "code": "ALREADY_LIKE_MAGAZINE",
-                                  "message": "이미 좋아요를 누른 매거진입니다."
-                                }
-                            """
+            {
+              "status": 409,
+              "error": "CONFLICT",
+              "code": "ALREADY_LIKE_MAGAZINE",
+              "message": "이미 좋아요를 누른 매거진입니다."
+            }
+            """
                             )
                     )
             )
     })
     ResponseEntity<ResponseDTO<MagazineDetailDTO>> likeMagazine(@PathVariable Long magazineId);
 
-    @Operation(summary = "매거진 좋아요 취소\n",
-            description = "매거진에 좋아요를 취소합니다.")
+    @Operation(
+            summary = "매거진 좋아요 취소",
+            description = "매거진에 좋아요를 취소합니다."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "매거진에 좋아요를 취소합니다.",
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "매거진에 좋아요를 취소합니다.",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ResponseDTO.class),
                             examples = @ExampleObject(value = """
-                            {
-                              "status": 200,
-                              "code": "SUCCESS_DELETE_LIKE",
-                              "message": "좋아요를 취소했습니다.",
-                              "data": {
-                                "magazineId": 1,
-                                "title": "제목",
-                                "content": "내용",
-                                "memberId": 156,
-                                "imageUrls": [
-                                  "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png"
-                                ],
-                                "scraps": 1,
-                                "views": 0,
-                                "likes": 0
-                              }
-                            }
+                                        {
+                                          "status": 200,
+                                          "code": "SUCCESS_DELETE_LIKE",
+                                          "message": "좋아요를 취소했습니다.",
+                                          "data": {
+                                            "magazineId": 1,
+                                            "title": "제목",
+                                            "content": "내용",
+                                            "memberId": 156,
+                                            "imageUrls": [
+                                              "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png"
+                                            ],
+                                            "scraps": 1,
+                                            "views": 0,
+                                            "likes": 0
+                                          }
+                                        }
                                     """)
                     )
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "존재하지 않는 유저",
+                    description = "리소스를 찾을 수 없음",
                     content = @Content(
                             mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
-                                    name = "존재하지 않는 유저",
-                                    value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MEMBER_NOT_EXIST",
-                                  "message": "요청한 유저가 존재하지 않습니다."
-                                }
-                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 매거진",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
-                                    name = "존재하지 않는 매거진",
-                                    value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MAGAZINE_NOT_EXIST",
-                                  "message": "해당 매거진을 찾을 수 없습니다."
-                                }
-                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "기존에 좋아요를 누르지 않았던 경우",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples =
-                            @ExampleObject(
-                                    name = "기존에 좋아요를 누르지 않았던 경우",
-                                    value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "NOT_FOUND_LIKE",
-                                  "message": "기존에 좋아요를 누르지 않았습니다. 좋아요를 취소할 수 없습니다."
-                                }
-                            """
-                            )
+                            examples = {
+                                    @ExampleObject(
+                                            name = "존재하지 않는 유저",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "error": "NOT_FOUND",
+                                                      "code": "MEMBER_NOT_EXIST",
+                                                      "message": "요청한 유저가 존재하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "존재하지 않는 매거진",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "error": "NOT_FOUND",
+                                                      "code": "MAGAZINE_NOT_EXIST",
+                                                      "message": "해당 매거진을 찾을 수 없습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "기존에 좋아요를 누르지 않았던 경우",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "error": "NOT_FOUND",
+                                                      "code": "NOT_FOUND_LIKE",
+                                                      "message": "기존에 좋아요를 누르지 않았습니다. 좋아요를 취소할 수 없습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
                     )
             )
     })
