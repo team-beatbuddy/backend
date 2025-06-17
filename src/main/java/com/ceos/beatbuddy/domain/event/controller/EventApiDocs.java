@@ -818,28 +818,39 @@ public interface EventApiDocs {
                                       "message": "성공적으로 댓글을 조회했습니다.",
                                       "data": [
                                         {
-                                          "commentId": 1,
-                                          "commentLevel": 0,
-                                          "content": "댓글 써봄",
-                                          "authorNickname": "익명",
-                                          "anonymous": true,
-                                          "createdAt": "2025-06-18T02:08:31.418543"
-                                        },
-                                        {
-                                          "commentId": 1,
-                                          "commentLevel": 1,
-                                          "content": "대댓",
-                                          "authorNickname": "익명",
-                                          "anonymous": true,
-                                          "createdAt": "2025-06-18T02:56:10.818788"
-                                        },
-                                        {
                                           "commentId": 2,
                                           "commentLevel": 0,
                                           "content": "string",
                                           "authorNickname": "BeatBuddy",
                                           "anonymous": false,
-                                          "createdAt": "2025-06-18T02:28:19.423835"
+                                          "createdAt": "2025-06-18T02:28:19.423835",
+                                          "replies": []
+                                        },
+                                        {
+                                          "commentId": 1,
+                                          "commentLevel": 0,
+                                          "content": "댓글 써봄",
+                                          "authorNickname": "익명",
+                                          "anonymous": true,
+                                          "createdAt": "2025-06-18T02:08:31.418543",
+                                          "replies": [
+                                            {
+                                              "commentId": 1,
+                                              "commentLevel": 1,
+                                              "content": "대댓",
+                                              "authorNickname": "익명",
+                                              "anonymous": true,
+                                              "createdAt": "2025-06-18T02:56:10.818788"
+                                            },
+                                            {
+                                              "commentId": 1,
+                                              "commentLevel": 2,
+                                              "content": "string",
+                                              "authorNickname": "익명",
+                                              "anonymous": true,
+                                              "createdAt": "2025-06-18T03:03:16.206686"
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -891,5 +902,5 @@ public interface EventApiDocs {
                     )
             )
     })
-    ResponseEntity<ResponseDTO<List<EventCommentResponseDTO>>> getEventComments(@PathVariable Long eventId);
+    ResponseEntity<ResponseDTO<List<EventCommentTreeResponseDTO>>> getEventComments(@PathVariable Long eventId);
 }
