@@ -137,12 +137,15 @@ public class EventService {
 
     @Transactional
     public EventResponseDTO deleteLikeEvent(Long eventId, Long memberId) {
+        // 멤버 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
+        // 이벤트 조회
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
 
+        // 좋아요 여부 확인
         EventInteractionId id = new EventInteractionId(memberId, eventId);
         EventLike eventLike = eventLikeRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_LIKE));
@@ -151,6 +154,25 @@ public class EventService {
         event.decreaseLike();
 
         boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, event.getId()));
+
+        return EventResponseDTO.toDTO(event, liked);
+    }
+
+    @Transactional(readOnly = true)
+    public EventResponseDTO getEventDetail(Long eventId, Long memberId) {
+        // 멤버 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        // 이벤트 조회
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+
+        // 조회수 증가
+        event.increaseView();
+
+        // 좋아요 여부 확인
+        boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, eventId));
 
         return EventResponseDTO.toDTO(event, liked);
     }
