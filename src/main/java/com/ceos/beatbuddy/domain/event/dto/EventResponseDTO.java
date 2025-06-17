@@ -70,6 +70,20 @@ public class EventResponseDTO {
                 .build();
     }
 
+    public static EventResponseDTO toPastListDTO(Event event) {
+        return EventResponseDTO.builder()
+                .eventId(event.getId())
+                .title(event.getTitle())
+                .content(event.getContent())
+                .startDate(event.getStartDate())
+                .endDate(event.getEndDate())
+                .image(event.getThumbImage())
+                .likes(event.getLikes())
+                .views(event.getViews())
+                .location(event.getLocation())
+                .build();
+    }
+
     public static EventResponseDTO toUpcomingDTO(Event event, boolean liked) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
