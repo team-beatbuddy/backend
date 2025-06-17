@@ -13,6 +13,7 @@ import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,24 +23,38 @@ public class EventCommentService {
     private final MemberRepository memberRepository;
     private final EventCommentRepository eventCommentRepository;
 
-    // 댓글 작성
-    public EventCommentResponseDTO createEventComment(Long eventId, Long memberId, EventCommentCreateRequestDTO dto) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
-
+    @Transactional
+    public EventCommentResponseDTO createComment(Long eventId, Long memberId, EventCommentCreateRequestDTO dto, Long parentCommentId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+
+        Long commentId;
         int level = 0;
-        if (dto.getParentCommentId() != null) {
-            EventComment parent = eventCommentRepository.findById(dto.getParentCommentId())
+
+        if (parentCommentId == null) {
+            // 원댓글이면 새로운 그룹 ID 생성
+            commentId = eventCommentRepository.getNextCommentGroupId(); // ★ 별도로 시퀀스 또는 max(id)+1 로직 필요
+        } else {
+            // 대댓글이면 부모 댓글 확인
+            EventComment parent = eventCommentRepository.findTopByIdOrderByLevelDesc(parentCommentId)
                     .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_COMMENT));
+            commentId = parent.getId(); // 부모 id 따라감
             level = parent.getLevel() + 1;
         }
 
-        EventComment comment = EventCommentCreateRequestDTO.toEntity(dto, event, member, level);
-        eventCommentRepository.save(comment);
+        EventComment comment = EventComment.builder()
+                .id(commentId)
+                .level(level)
+                .event(event)
+                .author(member)
+                .content(dto.getContent())
+                .anonymous(dto.isAnonymous())
+                .build();
 
-        return EventCommentResponseDTO.toDTO(comment);
+        EventComment saved = eventCommentRepository.save(comment);
+        return EventCommentResponseDTO.toDTO(saved);
     }
 }

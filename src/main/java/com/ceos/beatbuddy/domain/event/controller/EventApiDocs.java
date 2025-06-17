@@ -555,37 +555,26 @@ public interface EventApiDocs {
     })
     ResponseEntity<ResponseDTO<EventResponseDTO>> deleteLikeEvent(@PathVariable Long eventId);
 
-    @Operation(summary = "이벤트 좋아요 취소\n",
-            description = "이벤트에 좋아요를 취소합니다.")
+    @Operation(summary = "이벤트 댓글 작성\n",
+            description = "이벤트에 댓글을 작성합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "이벤트에 좋아요를 취소합니다.",
+            @ApiResponse(responseCode = "201", description = "성공적으로 댓글을 작성했습니다. ******부모 댓글이 없는 경우에는 해당 필드를 지우고 작성해주세요.",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ResponseDTO.class),
                             examples = @ExampleObject(value = """
-                                    {
-                                      "status": 201,
-                                      "code": "SUCCESS_DELETE_LIKE",
-                                      "message": "좋아요를 취소했습니다.",
-                                      "data": {
-                                        "eventId": 2,
-                                        "title": "string",
-                                        "content": "string",
-                                        "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
-                                        "likes": 1,
-                                        "views": 1,
-                                        "scraps": 1,
-                                        "liked": true,
-                                        "scrapped": true,
-                                        "receiveInfo": true,
-                                        "receiveName": true,
-                                        "receiveGender": true,
-                                        "receivePhoneNumber": true,
-                                        "receiveTotalCount": false,
-                                        "receiveSNSId": true,
-                                        "receiveMoney": true
-                                      }
-                                    }
+                            {
+                              "status": 201,
+                              "code": "SUCCESS_CREATED_COMMENT",
+                              "message": "성공적으로 댓글을 작성했습니다.",
+                              "data": {
+                                "commentId": 1,
+                                "content": "댓글 써봄",
+                                "authorNickname": "익명",
+                                "anonymous": true,
+                                "createdAt": "2025-06-18T02:08:31.4185432"
+                              }
+                            }
                                         """)
                     )
             ),
@@ -626,6 +615,17 @@ public interface EventApiDocs {
                                                       "code": "NOT_FOUND_LIKE",
                                                       "message": "기존에 좋아요를 누르지 않았습니다. 좋아요를 취소할 수 없습니다."
                                                     }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "부모 댓글이 존재하지 않는 경우",
+                                            value = """
+                                            {
+                                              "status": 404,
+                                              "error": "NOT_FOUND",
+                                              "code": "NOT_FOUND_COMMENT",
+                                              "message": "해당 댓글을 찾을 수 없습니다."
+                                            }
                                                     """
                                     )
                             }
