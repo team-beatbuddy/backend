@@ -9,16 +9,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@IdClass(EventCommentId.class)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 public class EventComment extends BaseTimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter
-    private Long id;
-    @Getter
+    private Long id; // 댓글 그룹 ID (댓글 thread 기준)
+
+    @Id
+    private Integer level; // 대댓글 깊이
+
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -27,12 +30,7 @@ public class EventComment extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "authorId")
-    @Getter
     private Member author;
 
-    @Getter
-    private boolean anonymous; // 담당자인 경우는 무조건 false
-
-    @Getter
-    private Integer level; // 댓글의 경우 0, 추가된 경우 1 씩 늘어남
+    private boolean anonymous;
 }

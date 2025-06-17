@@ -164,7 +164,7 @@ public class EventController implements EventApiDocs {
             @PathVariable Long eventId,
             @Valid @RequestBody EventCommentCreateRequestDTO dto) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        EventCommentResponseDTO result = eventCommentService.createEventComment(eventId, memberId, dto);
+        EventCommentResponseDTO result = eventCommentService.createComment(eventId, memberId, dto, dto.getParentCommentId());
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_CREATED_COMMENT.getStatus().value())
