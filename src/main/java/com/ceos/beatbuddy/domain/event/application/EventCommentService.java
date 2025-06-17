@@ -16,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class EventCommentService {
@@ -83,4 +86,18 @@ public class EventCommentService {
             eventCommentRepository.deleteByIdAndLevel(commentId, level);
         }
     }
+
+
+    @Transactional(readOnly = true)
+    public List<EventCommentResponseDTO> getCommentsByEvent(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+
+        List<EventComment> comments = eventCommentRepository.findAllByEvent(event);
+
+        return comments.stream()
+                .map(EventCommentResponseDTO::toDTO)
+                .collect(Collectors.toList());
+    }
+
 }
