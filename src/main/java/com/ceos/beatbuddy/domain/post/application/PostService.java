@@ -15,10 +15,17 @@ import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
 import com.ceos.beatbuddy.domain.post.repository.FreePostRepository;
 import com.ceos.beatbuddy.domain.post.repository.PiecePostRepository;
 import com.ceos.beatbuddy.domain.post.repository.PieceRepository;
+import com.ceos.beatbuddy.domain.post.repository.PostRepository;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.PostInteractionId;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.PostLike;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.PostScrap;
+import com.ceos.beatbuddy.domain.scrapandlike.repository.PostLikeRepository;
+import com.ceos.beatbuddy.domain.scrapandlike.repository.PostScrapRepository;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import java.io.IOException;
 import java.util.List;
@@ -43,6 +50,9 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final VenueRepository venueRepository;
     private final PieceRepository pieceRepository;
+    private final PostRepository postRepository;
+    private final PostLikeRepository postLikeRepository;
+    private final PostScrapRepository postScrapRepository;
 
     @Autowired
     private UploadUtil uploadUtil;
@@ -198,4 +208,81 @@ public class PostService {
 
         throw new CustomException(PostErrorCode.POST_NOT_EXIST);
     }
+
+
+    @Transactional
+    public void likePost(Long postId, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+
+
+        Post post = findPostByIdWithDiscriminator(postId);
+
+        PostInteractionId likeId = new PostInteractionId(memberId, post.getId());
+        if (postLikeRepository.existsById(likeId)) {
+            throw new CustomException(PostErrorCode.ALREADY_LIKED);
+        }
+
+        PostLike postLike = PostLike.builder()
+                .post(post)
+                .member(member)
+                .id(likeId)
+                .build();
+
+        postLikeRepository.save(postLike);
+        post.increaseLike();
+    }
+
+
+    @Transactional
+    public void deletePostLike(Long postId, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+
+        Post post = findPostByIdWithDiscriminator(postId);
+
+        PostInteractionId likeId = new PostInteractionId(member.getId(), post.getId());
+        PostLike postLike = postLikeRepository.findById(likeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_LIKE));
+
+        postLikeRepository.delete(postLike);
+        post.decreaseLike();
+    }
+
+    @Transactional
+    public void scrapPost(Long postId, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+
+        Post post = findPostByIdWithDiscriminator(postId);
+
+        PostInteractionId scrapId = new PostInteractionId(memberId, post.getId());
+        if (postScrapRepository.existsById(scrapId)) {
+            throw new CustomException(PostErrorCode.ALREADY_SCRAPPED);
+        }
+
+        PostScrap postScrap = PostScrap.builder()
+                .post(post)
+                .member(member)
+                .id(scrapId)
+                .build();
+
+        postScrapRepository.save(postScrap);
+    }
+
+
+    @Transactional
+    public void deletePostScrap(Long postId, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+
+        Post post = findPostByIdWithDiscriminator(postId);
+
+        PostInteractionId scrapId = new PostInteractionId(memberId, post.getId());
+        PostScrap postScrap = postScrapRepository.findById(scrapId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_SCRAP));
+
+        postScrapRepository.delete(postScrap);
+    }
+
 }
