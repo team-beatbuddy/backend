@@ -54,4 +54,16 @@ public class FollowController implements FollowApiDocs{
                 .status(SuccessCode.SUCCESS_GET_FOLLOWINGS.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_FOLLOWINGS, result));
     }
+
+    // 나를 팔로우한 사람들 목록
+    @Override
+    @GetMapping("/followers")
+    public ResponseEntity<ResponseDTO<List<FollowResponseDTO>>> getFollowers() {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        List<FollowResponseDTO> result = followService.getFollowers(memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_FOLLOWERS.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_FOLLOWERS, result));
+    }
 }

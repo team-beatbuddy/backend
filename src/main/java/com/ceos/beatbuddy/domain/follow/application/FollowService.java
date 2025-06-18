@@ -72,4 +72,16 @@ public class FollowService {
 
         return follows.stream().map((FollowResponseDTO::toDTO)).toList();
     }
+
+
+    // 나를 팔로우한 사람들
+    public List<FollowResponseDTO> getFollowers(Long memberId) {
+        Member follower = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+
+        List<Follow> follows = followRepository.findAllByFollowing(follower);
+
+        return follows.stream().map((FollowResponseDTO::toDTO)).toList();
+    }
 }
