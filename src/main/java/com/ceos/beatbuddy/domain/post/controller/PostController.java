@@ -26,6 +26,7 @@ import com.ceos.beatbuddy.domain.post.application.PostService;
 @Tag(name = "Post Controller", description = "게시물 컨트롤러\n"
         + "사용자가 전반적인 게시물들을 추가, 조회, 삭제하는 로직이 있습니다.")
 @RequestMapping("/post")
+
 public class PostController implements PostApiDocs {
     private final PostService postService;
 
@@ -189,4 +190,17 @@ public class PostController implements PostApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_SCRAP, "스크랩을 취소했습니다."));
     }
 
+
+    @GetMapping("/my-page")
+    public ResponseEntity<ResponseDTO<PostListResponseDTO>> getScrappedPosts(
+            @RequestParam String type,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        PostListResponseDTO result = postService.getScrappedPostsByType(memberId, type, page, size);
+        return ResponseEntity
+                .status(SuccessCode.GET_SCRAPPED_POST_LIST.getStatus())
+                .body(new ResponseDTO<>(SuccessCode.GET_SCRAPPED_POST_LIST, result));
+    }
 }

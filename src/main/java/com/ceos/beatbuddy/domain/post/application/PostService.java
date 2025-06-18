@@ -285,4 +285,26 @@ public class PostService {
         postScrapRepository.delete(postScrap);
     }
 
+    @Transactional(readOnly = true)
+    public PostListResponseDTO getScrappedPostsByType(Long memberId, String type, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Post> postPage = postScrapRepository.findPostsByMemberId(memberId, pageable);
+
+        List<PostPageResponseDTO> dtos = postPage.stream()
+                .filter(post -> {
+                    if (type.equals("free")) return post instanceof FreePost;
+                    else if (type.equals("piece")) return post instanceof PiecePost;
+                    else throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
+                })
+                .map(PostPageResponseDTO::toDTO)
+                .toList();
+
+        return PostListResponseDTO.builder()
+                .totalPost(dtos.size())
+                .page(page)
+                .size(size)
+                .responseDTOS(dtos)
+                .build();
+    }
 }
