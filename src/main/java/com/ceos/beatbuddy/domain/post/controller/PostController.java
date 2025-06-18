@@ -26,7 +26,7 @@ import com.ceos.beatbuddy.domain.post.application.PostService;
 @Tag(name = "Post Controller", description = "게시물 컨트롤러\n"
         + "사용자가 전반적인 게시물들을 추가, 조회, 삭제하는 로직이 있습니다.")
 @RequestMapping("/post")
-public class PostController {
+public class PostController implements PostApiDocs {
     private final PostService postService;
 
     @PostMapping("/{type}")
@@ -145,4 +145,18 @@ public class PostController {
         postService.deletePost(type, postId, memberId);
         return ResponseEntity.ok().build();
     }
+
+    @Override
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<ResponseDTO<String>> addPostLike(@PathVariable Long postId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        postService.likePost(postId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_LIKE_POST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_POST, "좋아요를 눌렀습니다."));
+    }
+
+
+
 }
