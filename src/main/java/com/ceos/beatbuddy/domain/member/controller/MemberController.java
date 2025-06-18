@@ -122,7 +122,7 @@ public class MemberController {
     }
 
     @PostMapping("/onboarding/nickname")
-    @Operation(summary = "사용자 닉네임 저장", description = "사용자가 입력한 닉네임으로 저장")
+    @Operation(summary = "사용자 닉네임 저장 및 닉네임 수정 시 사용", description = "사용자가 입력한 닉네임으로 저장")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "닉네임을 저장에 성공하면 유저의 정보를 반환합니다."
                     , content = @Content(mediaType = "application/json"
