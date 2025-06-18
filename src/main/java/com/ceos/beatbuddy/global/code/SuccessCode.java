@@ -80,6 +80,12 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_LIKE_POST(HttpStatus.CREATED, "좋아요를 눌렀습니다."),
     SUCCESS_SCRAP_POST(HttpStatus.CREATED, "스크랩을 완료했습니다."),
 
+    /**
+     * mypage
+     * */
+    GET_SCRAPPED_POST_LIST(HttpStatus.OK, "스크랩한 글을 불러왔습니다."),
+
+
 
     
 //    SUCCESS_GET_MAGAZINE_LIST(HttpStatus.OK, "매거진을 성공적으로 불러왔습니다."),

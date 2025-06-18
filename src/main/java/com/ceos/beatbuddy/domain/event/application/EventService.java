@@ -4,7 +4,9 @@ import com.ceos.beatbuddy.domain.event.dto.EventCreateRequestDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
+import com.ceos.beatbuddy.domain.event.entity.EventAttendance;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
+import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
@@ -26,8 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +41,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventQueryRepository eventQueryRepository;
     private final EventLikeRepository eventLikeRepository;
+    private final EventAttendanceRepository eventAttendanceRepository;
 
     @Transactional
     public EventResponseDTO addEvent(Long memberId, EventCreateRequestDTO eventCreateRequestDTO, MultipartFile image) throws IOException {
@@ -178,6 +181,50 @@ public class EventService {
         boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, eventId));
 
         return EventResponseDTO.toDTO(event, liked);
+    }
+
+
+    public Map<String, List<EventResponseDTO>> getMyPageEvents(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        LocalDate today = LocalDate.now();
+        Set<Event> myEvents = new HashSet<>();
+
+        if (member.getRole().equals("BUSINESS")) {
+            // 비즈니스 회원: 내가 생성한 이벤트
+            myEvents.addAll(eventRepository.findAllByHost(member));
+        } else {
+            // 일반 회원: 좋아요 + 참석한 이벤트
+            List<Event> likedEvents = eventLikeRepository.findByMember(member).stream()
+                    .map(EventLike::getEvent)
+                    .toList();
+            List<Event> attendedEvents = eventAttendanceRepository.findByMember(member).stream()
+                    .map(EventAttendance::getEvent)
+                    .toList();
+
+            myEvents.addAll(likedEvents);
+            myEvents.addAll(attendedEvents);
+        }
+
+        // 상태별 분리 및 정렬
+        List<EventResponseDTO> upcoming = myEvents.stream()
+                .filter(e -> !e.getStartDate().isBefore(today))
+                .sorted(Comparator.comparing(Event::getStartDate).reversed())
+                .map(EventResponseDTO::toUpcomingListDTO)
+                .toList();
+
+        List<EventResponseDTO> past = myEvents.stream()
+                .filter(e -> e.getStartDate().isBefore(today))
+                .sorted(Comparator.comparing(Event::getStartDate).reversed())
+                .map(EventResponseDTO::toPastListDTO)
+                .toList();
+
+        Map<String, List<EventResponseDTO>> result = new HashMap<>();
+        result.put("upcoming", upcoming);
+        result.put("past", past);
+
+        return result;
     }
 
 
