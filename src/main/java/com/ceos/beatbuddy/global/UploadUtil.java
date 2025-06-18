@@ -109,7 +109,11 @@ public class UploadUtil {
     }
 
     private static String generateFileName(String originalFilename) {
-        return UUID.randomUUID().toString().substring(0, 10) + originalFilename;
+        String sanitized = originalFilename
+                .replaceAll("\\s+", "-")        // 공백 → 하이픈
+                .replaceAll("[^a-zA-Z0-9._-]", ""); // 안전하지 않은 문자 제거 (선택)
+
+        return UUID.randomUUID().toString().substring(0, 10) + "-" + sanitized;
     }
 
     private static ObjectMetadata getObjectMetadata(MultipartFile image) {
@@ -139,11 +143,12 @@ public class UploadUtil {
         String bucketUrl = "https://" + bucketName + ".s3." + region + ".amazonaws.com/";
         String key = imageUrl.replace(bucketUrl, "");
 
+        System.out.println();
+
         try {
             amazonS3.deleteObject(bucketName, key);
         } catch (Exception e) {
-            e.printStackTrace(); // 또는 로그 처리
-            // 삭제 실패 시 로직을 중단하진 않도록 처리
+            e.printStackTrace();
         }
     }
 }
