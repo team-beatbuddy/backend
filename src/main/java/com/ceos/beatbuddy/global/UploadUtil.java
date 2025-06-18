@@ -131,4 +131,19 @@ public class UploadUtil {
             throw new CustomException(VenueErrorCode.INVALID_VENUE_IMAGE);
         }
     }
+
+    public void delete(String imageUrl, BucketType type) {
+        if (imageUrl == null || imageUrl.isBlank()) return;
+
+        String bucketName = getBucketName(type);
+        String bucketUrl = "https://" + bucketName + ".s3." + region + ".amazonaws.com/";
+        String key = imageUrl.replace(bucketUrl, "");
+
+        try {
+            amazonS3.deleteObject(bucketName, key);
+        } catch (Exception e) {
+            e.printStackTrace(); // 또는 로그 처리
+            // 삭제 실패 시 로직을 중단하진 않도록 처리
+        }
+    }
 }
