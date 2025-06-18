@@ -232,4 +232,20 @@ public class PostService {
         post.increaseLike();
     }
 
+
+    @Transactional
+    public void deletePostLike(Long postId, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+
+        Post post = findPostByIdWithDiscriminator(postId);
+
+        PostInteractionId likeId = new PostInteractionId(member.getId(), post.getId());
+        PostLike postLike = postLikeRepository.findById(likeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_LIKE));
+
+        postLikeRepository.delete(postLike);
+        post.decreaseLike();
+    }
+
 }

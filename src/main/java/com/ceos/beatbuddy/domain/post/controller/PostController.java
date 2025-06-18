@@ -157,6 +157,14 @@ public class PostController implements PostApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_POST, "좋아요를 눌렀습니다."));
     }
 
+    @DeleteMapping("/{postId}/like")
+    public ResponseEntity<ResponseDTO<String>> deletePostLike(@PathVariable Long postId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        postService.deletePostLike(postId, memberId);
 
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_DELETE_LIKE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_LIKE, "좋아요를 취소했습니다."));
+    }
 
 }
