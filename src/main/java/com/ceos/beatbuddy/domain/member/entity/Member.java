@@ -55,6 +55,8 @@ public class Member extends BaseTimeEntity {
     private Boolean isApproved = false; // 관리자 승인을 받앗는지 (비즈니스만)
     private String businessName;
 
+    private String profileImage;
+
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MemberGenre> memberGenres;
