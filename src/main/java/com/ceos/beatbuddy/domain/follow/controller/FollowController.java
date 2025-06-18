@@ -9,10 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,6 +27,17 @@ public class FollowController implements FollowApiDocs{
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_FOLLOW.getHttpStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_FOLLOW, result));
+    }
+
+    @Override
+    @DeleteMapping("/{followingId}")
+    public ResponseEntity<ResponseDTO<String>> deleteFollow(@Valid @PathVariable Long followingId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        followService.unfollow(memberId, followingId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_FOLLOW_DELETE.getHttpStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_FOLLOW_DELETE, "팔로우 취소 완료"));
     }
 
 

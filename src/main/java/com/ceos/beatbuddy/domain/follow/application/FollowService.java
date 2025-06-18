@@ -50,4 +50,15 @@ public class FollowService {
         return FollowResponseDTO.toDTO(follow);
     }
 
+    @Transactional
+    public void unfollow(Long followerId, Long followingId) {
+        FollowId followId = new FollowId(followerId, followingId);
+
+        Follow follow = followRepository.findById(followId)
+                .orElseThrow(() -> new CustomException(FollowErrorCode.FOLLOW_NOT_FOUND));
+
+        followRepository.delete(follow);
+    }
+
+
 }

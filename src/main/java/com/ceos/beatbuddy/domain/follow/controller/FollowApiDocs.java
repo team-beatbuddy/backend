@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -103,4 +104,48 @@ public interface FollowApiDocs {
             )
     })
     ResponseEntity<ResponseDTO<FollowResponseDTO>> addFollow(@PathVariable Long followingId);
+
+
+
+
+
+    @Operation(summary ="팔로우 취소 기능\n",
+            description = "다른 사람을 팔로우 했던 것을 취소할 수 있습니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공적으로 팔로우를 취소했습니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                            {
+                              "status": 200,
+                              "code": "SUCCESS_FOLLOW_DELETE",
+                              "message": "성공적으로 팔로우를 취소했습니다.",
+                              "data": "팔로우 취소 완료"
+                            }
+                                    """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "팔로우를 한 적이 없던 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples =
+                                    @ExampleObject(
+                                            name = "팔로우를 한 적이 없던 경우",
+                                            value = """
+                                                        {
+                                                          "status": 404,
+                                                          "error": "NOT_FOUND",
+                                                          "code": "FOLLOW_NOT_FOUND",
+                                                          "message": "팔로우 관계가 존재하지 않습니다."
+                                                        }
+                                                    """
+                                    )
+
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<String>> deleteFollow(@Valid @PathVariable Long followingId);
 }
