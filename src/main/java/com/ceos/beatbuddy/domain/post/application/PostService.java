@@ -270,4 +270,19 @@ public class PostService {
         postScrapRepository.save(postScrap);
     }
 
+
+    @Transactional
+    public void deletePostScrap(Long postId, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+
+        Post post = findPostByIdWithDiscriminator(postId);
+
+        PostInteractionId scrapId = new PostInteractionId(memberId, post.getId());
+        PostScrap postScrap = postScrapRepository.findById(scrapId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_SCRAP));
+
+        postScrapRepository.delete(postScrap);
+    }
+
 }

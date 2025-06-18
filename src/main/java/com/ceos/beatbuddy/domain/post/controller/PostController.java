@@ -178,4 +178,15 @@ public class PostController implements PostApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_SCRAP_POST, "스크랩을 완료했습니다."));
     }
 
+    @Override
+    @DeleteMapping("/{postId}/scrap")
+    public ResponseEntity<ResponseDTO<String>> deleteScrapPost(@PathVariable Long postId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        postService.deletePostScrap(postId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_DELETE_SCRAP.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_SCRAP, "스크랩을 취소했습니다."));
+    }
+
 }
