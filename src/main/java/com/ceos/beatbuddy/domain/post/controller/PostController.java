@@ -50,7 +50,7 @@ public class PostController {
     }
 
     @GetMapping("/{type}")
-    @Operation(summary = "전체 게시물 조회", description = "전체 게시물을 조회합니다 (type: free/piece)")
+    @Operation(summary = "전체 게시물 조회 (role이 추가되었습니다.)", description = "전체 게시물을 조회합니다 (type: free/piece)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "전체 게시물 조회 성공"),
             @ApiResponse(responseCode = "404", description = "게시물이 존재하지 않습니다.")
