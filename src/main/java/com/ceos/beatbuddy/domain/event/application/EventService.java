@@ -41,7 +41,7 @@ public class EventService {
     private final EventLikeRepository eventLikeRepository;
 
     @Transactional
-    public EventResponseDTO addEvent(Long memberId, EventCreateRequestDTO eventCreateRequestDTO, MultipartFile image) {
+    public EventResponseDTO addEvent(Long memberId, EventCreateRequestDTO eventCreateRequestDTO, MultipartFile image) throws IOException {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
         if (!(Objects.equals(member.getRole(), "ADMIN")) && !(Objects.equals(member.getRole(), "BUSINESS"))) {
@@ -61,7 +61,7 @@ public class EventService {
         }
 
         // 이미지 setting
-        String imageUrl = uploadImage(image);
+        String imageUrl = uploadUtil.upload(image, UploadUtil.BucketType.MEDIA, "event");
         event.setThumbImage(imageUrl);
 
         eventRepository.save(event);
@@ -69,27 +69,6 @@ public class EventService {
         return EventResponseDTO.toDTO(event, null);
     }
 
-
-
-    private List<String> uploadImages(List<MultipartFile> images) {
-        return images.stream()
-                .map(image -> {
-                    try {
-                        return uploadUtil.upload(image, UploadUtil.BucketType.MEDIA);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .collect(Collectors.toList());
-    }
-
-    private String uploadImage(MultipartFile image) {
-        try {
-            return uploadUtil.upload(image, UploadUtil.BucketType.MEDIA);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public EventListResponseDTO getUpcomingEvents(String sort, Integer page, Integer size, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));

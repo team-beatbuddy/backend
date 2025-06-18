@@ -37,7 +37,7 @@ public class EventController implements EventApiDocs {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO<EventResponseDTO>> addEvent(
             @Valid @RequestPart("eventCreateRequestDTO") EventCreateRequestDTO eventCreateRequestDTO,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
+            @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
         Long memberId = SecurityUtils.getCurrentMemberId();
         EventResponseDTO result = eventService.addEvent(memberId, eventCreateRequestDTO, image);
 

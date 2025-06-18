@@ -144,4 +144,8 @@ public class Member extends BaseTimeEntity {
         this.isVerified = true;
     }
 
+    public void setProfileImage(String image) {
+        this.profileImage = image;
+    }
+
 }
