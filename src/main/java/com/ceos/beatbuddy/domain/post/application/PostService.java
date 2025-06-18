@@ -18,6 +18,7 @@ import com.ceos.beatbuddy.domain.post.repository.PieceRepository;
 import com.ceos.beatbuddy.domain.post.repository.PostRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostInteractionId;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostLike;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.PostScrap;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostLikeRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostScrapRepository;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
@@ -246,6 +247,27 @@ public class PostService {
 
         postLikeRepository.delete(postLike);
         post.decreaseLike();
+    }
+
+    @Transactional
+    public void scrapPost(Long postId, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+
+        Post post = findPostByIdWithDiscriminator(postId);
+
+        PostInteractionId scrapId = new PostInteractionId(memberId, post.getId());
+        if (postScrapRepository.existsById(scrapId)) {
+            throw new CustomException(PostErrorCode.ALREADY_SCRAPPED);
+        }
+
+        PostScrap postScrap = PostScrap.builder()
+                .post(post)
+                .member(member)
+                .id(scrapId)
+                .build();
+
+        postScrapRepository.save(postScrap);
     }
 
 }

@@ -167,4 +167,15 @@ public class PostController implements PostApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_LIKE, "좋아요를 취소했습니다."));
     }
 
+    @Override
+    @PostMapping("/{postId}/scrap")
+    public ResponseEntity<ResponseDTO<String>> scrapPost(@PathVariable Long postId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        postService.scrapPost(postId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_SCRAP_POST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_SCRAP_POST, "스크랩을 완료했습니다."));
+    }
+
 }
