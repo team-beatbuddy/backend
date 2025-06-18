@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.post.controller;
 
+import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 public interface PostApiDocs {
 
@@ -273,5 +275,76 @@ public interface PostApiDocs {
 
     ResponseEntity<ResponseDTO<String>> deleteScrapPost(@PathVariable Long postId);
 
+    @Operation(summary = "내가 스크랩한 게시글 목록 조회",
+            description = """
+                로그인한 사용자가 스크랩한 게시글 목록을 타입(free/piece)에 따라 조회합니다.
 
+                - type: 게시글 타입. "free" 또는 "piece"
+                - page: 페이지 번호 (0부터 시작)
+                - size: 한 페이지에 포함할 게시글 수
+                """)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "스크랩한 게시글 목록 조회 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(name = "성공 예시", value = """
+                                {
+                                  "status": 200,
+                                  "code": "SUCCESS_GET_SCRAPPED_POST_LIST",
+                                  "message": "스크랩한 글을 불러왔습니다.",
+                                  "data": {
+                                    "totalPost": 3,
+                                    "size": 10,
+                                    "page": 0,
+                                    "responseDTOS": [
+                                      {
+                                        "id": 11,
+                                        "title": "자유 게시판 제목",
+                                        "content": "내용 요약...",
+                                        "thumbImage": "https://example.com/thumb.png",
+                                        "role": "USER",
+                                        "likes": 5,
+                                        "scraps": 2,
+                                        "comments": 1,
+                                        "nickname": "닉네임",
+                                        "createAt": "2025-06-19"
+                                      }
+                                    ]
+                                  }
+                                }
+                                """)
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "잘못된 게시글 타입 요청",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(name = "잘못된 type 예시", value = """
+                                {
+                                  "status": 400,
+                                  "error": "BAD_REQUEST",
+                                  "code": "INVALID_POST_TYPE",
+                                  "message": "포스트의 type이 올바르지 않습니다"
+                                }
+                                """)
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 유저",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(name = "존재하지 않는 유저", value = """
+                                {
+                                  "status": 404,
+                                  "error": "NOT_FOUND",
+                                  "code": "MEMBER_NOT_EXIST",
+                                  "message": "요청한 유저가 존재하지 않습니다."
+                                }
+                                """)
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<PostListResponseDTO>> getScrappedPosts(
+            @RequestParam String type,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size);
 }

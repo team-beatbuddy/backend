@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -223,6 +224,25 @@ public class EventController implements EventApiDocs {
             return ResponseEntity
                     .status(SuccessCode.SUCCESS_GET_EVENT_COMMENTS.getHttpStatus().value())
                     .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_EVENT_COMMENTS, result));
+        }
+    }
+
+
+    @Override
+    @GetMapping("/my-page")
+    public ResponseEntity<ResponseDTO<Map<String, List<EventResponseDTO>>>> getMyEvents() {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        Map<String, List<EventResponseDTO>> result = eventService.getMyPageEvents(memberId);
+
+        if (result.isEmpty()) {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_EVENTS, result));
+        }
+        else {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_GET_MY_EVENTS.getHttpStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_EVENTS, result));
         }
     }
 }
