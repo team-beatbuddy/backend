@@ -67,6 +67,7 @@ public enum SuccessCode implements ApiCode {
      * Follow
      * */
     SUCCESS_FOLLOW(HttpStatus.CREATED, "성공적으로 팔로우했습니다."),
+    SUCCESS_FOLLOW_DELETE(HttpStatus.OK, "성공적으로 팔로우를 취소했습니다."),
 
 
 
