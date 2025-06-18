@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class FollowService {
@@ -60,5 +62,14 @@ public class FollowService {
         followRepository.delete(follow);
     }
 
+    // 내가 팔로잉한 사람들
+    public List<FollowResponseDTO> getFollowings(Long memberId) {
+        Member follower = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
+
+        List<Follow> follows = followRepository.findAllByFollower(follower);
+
+        return follows.stream().map((FollowResponseDTO::toDTO)).toList();
+    }
 }
