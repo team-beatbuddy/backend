@@ -96,12 +96,12 @@ public class VenueInfoService {
         List<String> backgroundImageUrls = new ArrayList<>();
 
         if (logoImage != null) {
-            logoImageUrl = uploadUtil.upload(logoImage, UploadUtil.BucketType.VENUE);
+            logoImageUrl = uploadUtil.upload(logoImage, UploadUtil.BucketType.VENUE, null);
         }
 
         if (!backgroundImage.isEmpty()) {
             for (MultipartFile multipartFile : backgroundImage) {
-                backgroundImageUrls.add(uploadUtil.upload(multipartFile, UploadUtil.BucketType.VENUE));
+                backgroundImageUrls.add(uploadUtil.upload(multipartFile, UploadUtil.BucketType.VENUE, null));
             }
         }
 
@@ -142,14 +142,14 @@ public class VenueInfoService {
 
         if (logoImage != null) {
             this.deleteImage(logoImageUrl);
-            logoImageUrl = uploadUtil.upload(logoImage, UploadUtil.BucketType.VENUE);
+            logoImageUrl = uploadUtil.upload(logoImage, UploadUtil.BucketType.VENUE, null);
         }
 
         if (!backgroundImage.isEmpty()) {
             this.deleteImage(backgroundImageUrls);
             backgroundImageUrls = new ArrayList<>();
             for (MultipartFile multipartFile : backgroundImage) {
-                backgroundImageUrls.add(uploadUtil.upload(multipartFile, UploadUtil.BucketType.VENUE));
+                backgroundImageUrls.add(uploadUtil.upload(multipartFile, UploadUtil.BucketType.VENUE, null));
             }
         }
 

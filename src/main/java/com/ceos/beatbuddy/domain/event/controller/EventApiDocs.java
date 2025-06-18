@@ -115,11 +115,31 @@ public interface EventApiDocs {
                                     )
                             }
                     )
+            ),
+            @ApiResponse(
+            responseCode = "500",
+            description = "S3에 이미지 등록 실패했을 경우",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(
+                                    name = "s3에 이미지 등록을 실패했을 경우",
+                                    value = """
+                                        {
+                                          "status": 500,
+                                          "error": "INTERNAL_SERVER_ERROR",
+                                          "code": "IMAGE_UPLOAD_FAILED",
+                                          "message": "이미지 업로드에 실패했습니다."
+                                        }
+                                            """
+                            )
+                    }
             )
+    )
     })
     ResponseEntity<ResponseDTO<EventResponseDTO>> addEvent(
             @Valid @RequestPart("eventCreateRequestDTO") EventCreateRequestDTO eventCreateRequestDTO,
-            @RequestPart(value = "image", required = false) MultipartFile image);
+            @RequestPart(value = "image", required = false) MultipartFile image) throws IOException;
 
 
     @Operation(summary = "이벤트 참석 신청",

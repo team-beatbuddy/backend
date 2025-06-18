@@ -63,17 +63,19 @@ public class UploadUtil {
                 .build();
     }
 
-    public String upload(MultipartFile image, BucketType type) throws IOException {
+    public String upload(MultipartFile image, BucketType type, String folder) throws IOException {
         if (image.isEmpty() || Objects.isNull(image.getOriginalFilename())) {
             throw new CustomException(VenueErrorCode.INVALID_VENUE_IMAGE);
         }
 
         validationImage(image.getOriginalFilename());
-        return uploadImageS3(image, getBucketName(type));
+        return uploadImageS3(image, getBucketName(type), folder);
     }
 
-    private String uploadImageS3(MultipartFile image, String bucketName) throws IOException {
-        String s3FileName = generateFileName(image.getOriginalFilename());
+    private String uploadImageS3(MultipartFile image, String bucketName, String folder) throws IOException {
+        String s3FileName = (folder != null && !folder.isBlank())
+                ? folder + "/" + generateFileName(image.getOriginalFilename())
+                : generateFileName(image.getOriginalFilename());
 
         InputStream is = image.getInputStream();
         byte[] bytes = IOUtils.toByteArray(is);
@@ -103,7 +105,7 @@ public class UploadUtil {
 
     public enum BucketType {
         VENUE,
-        MEDIA
+        MEDIA,
     }
 
     private static String generateFileName(String originalFilename) {

@@ -38,7 +38,7 @@ public class MagazineService {
 
     private final UploadUtil uploadUtil;
     @Transactional
-    public MagazineResponseDTO addMagazine(Long memberId, MagazineRequestDTO dto, List<MultipartFile> images) {
+    public MagazineResponseDTO addMagazine(Long memberId, MagazineRequestDTO dto, List<MultipartFile> images) throws RuntimeException {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
         if (!(Objects.equals(member.getRole(), "ADMIN")) && !(Objects.equals(member.getRole(), "BUSINESS"))) {
@@ -46,7 +46,13 @@ public class MagazineService {
         }
 
         // 이미지 업로드
-        List<String> imageUrls = uploadImages(images);
+        List<String> imageUrls = images.stream().map((image -> {
+            try {
+                return uploadUtil.upload(image, UploadUtil.BucketType.MEDIA, "magazine");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        })).collect(Collectors.toList());
 
         // 엔티티로 변경
         Magazine entity = MagazineRequestDTO.toEntity(dto, member, imageUrls);
@@ -56,18 +62,6 @@ public class MagazineService {
         magazineRepository.save(entity);
 
         return MagazineResponseDTO.toDTO(entity);
-    }
-
-    private List<String> uploadImages(List<MultipartFile> images) {
-        return images.stream()
-                .map(image -> {
-                    try {
-                        return uploadUtil.upload(image, UploadUtil.BucketType.MEDIA);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .collect(Collectors.toList());
     }
 
     public List<MagazineHomeResponseDTO> readHomeMagazines(Long memberId) {
