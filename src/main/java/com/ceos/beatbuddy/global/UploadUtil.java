@@ -63,17 +63,19 @@ public class UploadUtil {
                 .build();
     }
 
-    public String upload(MultipartFile image, BucketType type) throws IOException {
+    public String upload(MultipartFile image, BucketType type, String folder) throws IOException {
         if (image.isEmpty() || Objects.isNull(image.getOriginalFilename())) {
             throw new CustomException(VenueErrorCode.INVALID_VENUE_IMAGE);
         }
 
         validationImage(image.getOriginalFilename());
-        return uploadImageS3(image, getBucketName(type));
+        return uploadImageS3(image, getBucketName(type), folder);
     }
 
-    private String uploadImageS3(MultipartFile image, String bucketName) throws IOException {
-        String s3FileName = generateFileName(image.getOriginalFilename());
+    private String uploadImageS3(MultipartFile image, String bucketName, String folder) throws IOException {
+        String s3FileName = (folder != null && !folder.isBlank())
+                ? folder + "/" + generateFileName(image.getOriginalFilename())
+                : generateFileName(image.getOriginalFilename());
 
         InputStream is = image.getInputStream();
         byte[] bytes = IOUtils.toByteArray(is);
@@ -103,7 +105,7 @@ public class UploadUtil {
 
     public enum BucketType {
         VENUE,
-        MEDIA
+        MEDIA,
     }
 
     private static String generateFileName(String originalFilename) {
@@ -127,6 +129,21 @@ public class UploadUtil {
     private static void validateImageExtension(String fileName) {
         if (!fileName.contains(".")) {
             throw new CustomException(VenueErrorCode.INVALID_VENUE_IMAGE);
+        }
+    }
+
+    public void delete(String imageUrl, BucketType type) {
+        if (imageUrl == null || imageUrl.isBlank()) return;
+
+        String bucketName = getBucketName(type);
+        String bucketUrl = "https://" + bucketName + ".s3." + region + ".amazonaws.com/";
+        String key = imageUrl.replace(bucketUrl, "");
+
+        try {
+            amazonS3.deleteObject(bucketName, key);
+        } catch (Exception e) {
+            e.printStackTrace(); // 또는 로그 처리
+            // 삭제 실패 시 로직을 중단하진 않도록 처리
         }
     }
 }

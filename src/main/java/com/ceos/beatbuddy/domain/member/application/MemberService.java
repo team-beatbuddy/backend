@@ -6,6 +6,7 @@ import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.dto.MemberConsentRequestDTO;
 import com.ceos.beatbuddy.domain.member.dto.MemberResponseDTO;
 import com.ceos.beatbuddy.domain.member.dto.NicknameDTO;
+import com.ceos.beatbuddy.global.UploadUtil;
 import com.ceos.beatbuddy.global.config.oauth.dto.Oauth2MemberDto;
 import com.ceos.beatbuddy.domain.member.dto.OnboardingResponseDto;
 import com.ceos.beatbuddy.domain.member.dto.RegionRequestDTO;
@@ -20,6 +21,8 @@ import com.ceos.beatbuddy.domain.member.repository.MemberMoodRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.vector.entity.Vector;
 import com.ceos.beatbuddy.global.CustomException;
+
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
@@ -37,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
@@ -48,6 +52,7 @@ public class MemberService {
     private final MemberGenreRepository memberGenreRepository;
     private final HeartbeatRepository heartbeatRepository;
     private final ArchiveRepository archiveRepository;
+    private final UploadUtil uploadUtil;
     private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9가-힣._]*$");
 //
 //    @Value("${iamport.api.key}")
@@ -322,4 +327,23 @@ public class MemberService {
         memberRepository.delete(member);
         return member.getLoginId();
     }
+
+    @Transactional
+    public void uploadProfileImage(Long memberId, MultipartFile image) throws IOException {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        //기존 이미지 삭제
+        if (member.getProfileImage() != null && !member.getProfileImage().isBlank()) {
+            uploadUtil.delete(member.getProfileImage(), UploadUtil.BucketType.MEDIA);
+        }
+
+        // 새 이미지 업로드
+        String imageUrl = uploadUtil.upload(image, UploadUtil.BucketType.MEDIA, "member");
+
+        // 멤버 정보 업데이트
+        member.setProfileImage(imageUrl);
+    }
+
+
 }

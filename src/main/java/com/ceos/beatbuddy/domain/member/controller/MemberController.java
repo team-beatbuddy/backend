@@ -7,18 +7,24 @@ import com.ceos.beatbuddy.domain.member.dto.NicknameDTO;
 import com.ceos.beatbuddy.domain.member.dto.OnboardingResponseDto;
 import com.ceos.beatbuddy.domain.member.dto.RegionRequestDTO;
 import com.ceos.beatbuddy.global.ResponseTemplate;
+import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
+import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -210,6 +216,84 @@ public class MemberController {
     public ResponseEntity<List<String>> getPreferences() {
         Long memberId = SecurityUtils.getCurrentMemberId();
         return ResponseEntity.ok(memberService.getPreferences(memberId));
+    }
+
+    @Operation(
+            summary = "멤버 프로필 사진 업로드\n",
+            description = "멤버 프로필 사진을 업로드합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "프로필 사진 업로드 완료",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples =
+                                    @ExampleObject(
+                                            name = "프로필 사진 업로드 완료",
+                                            value = """
+                                            {
+                                              "status": 200,
+                                              "code": "SUCCESS_UPLOAD_PROFILE_IMAGE",
+                                              "message": "성공적으로 프로필 사진을 추가했습니다.",
+                                              "data": "프로필 사진 업로드 완료"
+                                            }
+                    """
+                                    )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "유저가 존재하지 않습니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "존재하지 않는 유저",
+                                            value = """
+                                            {
+                                              "status": 404,
+                                              "error": "NOT_FOUND",
+                                              "code": "MEMBER_NOT_EXIST",
+                                              "message": "요청한 유저가 존재하지 않습니다."
+                                            }
+                                            """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "S3에 이미지 등록 실패했을 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "s3에 이미지 등록을 실패했을 경우",
+                                            value = """
+{
+  "status": 500,
+  "error": "INTERNAL_SERVER_ERROR",
+  "code": "IMAGE_UPLOAD_FAILED",
+  "message": "이미지 업로드에 실패했습니다."
+}
+                                            """
+                                    )
+                            }
+                    )
+            )
+    })
+    @PatchMapping(value = "/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResponseDTO<String>> uploadProfileImage(
+            @RequestPart("image") MultipartFile image) throws IOException {
+
+        Long memberId = SecurityUtils.getCurrentMemberId(); // 현재 로그인된 사용자 ID
+        memberService.uploadProfileImage(memberId, image);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_UPLOAD_PROFILE_IMAGE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPLOAD_PROFILE_IMAGE, "프로필 사진 업로드 완료"));
     }
 
 }

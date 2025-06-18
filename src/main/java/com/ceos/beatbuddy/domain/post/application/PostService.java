@@ -109,7 +109,7 @@ public class PostService {
         return images.stream()
                 .map(image -> {
                     try {
-                        return uploadUtil.upload(image, UploadUtil.BucketType.MEDIA);
+                        return uploadUtil.upload(image, UploadUtil.BucketType.MEDIA, "post");
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
