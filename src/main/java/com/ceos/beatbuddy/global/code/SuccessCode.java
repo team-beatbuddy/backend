@@ -73,6 +73,10 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_GET_FOLLOWERS(HttpStatus.OK, "나를 팔로우하는 목록을 가져왔습니다."),
 
 
+    /**
+     * post
+     * */
+    SUCCESS_GET_POST_SORT_LIST(HttpStatus.OK, "type 에 맞는 post를 sort 해서 불러왔습니다."),
 
     
 //    SUCCESS_GET_MAGAZINE_LIST(HttpStatus.OK, "매거진을 성공적으로 불러왔습니다."),
@@ -87,8 +91,7 @@ public enum SuccessCode implements ApiCode {
      * empty
      * */
     SUCCESS_BUT_EMPTY_LIST(HttpStatus.OK,"성공적으로 조회했으나 리스트가 비었습니다."),
-
-;
+    ;
     private final HttpStatus httpStatus;
     private final String message;
 
