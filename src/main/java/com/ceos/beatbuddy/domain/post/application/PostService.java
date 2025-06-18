@@ -2,6 +2,8 @@ package com.ceos.beatbuddy.domain.post.application;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
+import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
+import com.ceos.beatbuddy.domain.post.dto.PostPageResponseDTO;
 import com.ceos.beatbuddy.domain.post.dto.PostRequestDto;
 import com.ceos.beatbuddy.domain.post.dto.PostRequestDto.PiecePostRequestDto;
 import com.ceos.beatbuddy.domain.post.dto.ResponsePostDto;
@@ -27,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -83,6 +86,34 @@ public class PostService {
             case "free" -> freePostRepository.findAll(pageable).map(ResponsePostDto::of);
             case "piece" -> piecePostRepository.findAll(pageable).map(ResponsePostDto::of);
             default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
+        };
+    }
+
+    public PostListResponseDTO readAllPostsSort(String type, String sort, int page, int size) {
+        Sort sortOption = getSortOption(sort);
+        Pageable pageable = PageRequest.of(page, size, sortOption);
+
+        Page<PostPageResponseDTO> resultPage = switch (type) {
+            case "free" -> freePostRepository.findAll(pageable)
+                    .map(PostPageResponseDTO::toDTO);
+            case "piece" -> piecePostRepository.findAll(pageable)
+                    .map(PostPageResponseDTO::toDTO);
+            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
+        };
+
+        return PostListResponseDTO.builder()
+                .totalPost((int) resultPage.getTotalElements())
+                .page(resultPage.getNumber())
+                .size(resultPage.getSize())
+                .responseDTOS(resultPage.getContent())
+                .build();
+    }
+
+    private Sort getSortOption(String sort) {
+        return switch (sort) {
+            case "latest" -> Sort.by(Sort.Direction.DESC, "createdAt");
+            case "popular" -> Sort.by(Sort.Direction.DESC, "likes");
+            default -> throw new CustomException(PostErrorCode.INVALID_SORT_TYPE);
         };
     }
 

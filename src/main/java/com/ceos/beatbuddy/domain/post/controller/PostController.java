@@ -1,11 +1,17 @@
 package com.ceos.beatbuddy.domain.post.controller;
 
+import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
 import com.ceos.beatbuddy.domain.post.dto.PostRequestDto;
 import com.ceos.beatbuddy.domain.post.dto.ResponsePostDto;
 import com.ceos.beatbuddy.domain.post.entity.Post;
+import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
+import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -62,6 +68,68 @@ public class PostController {
             @Parameter(description = "페이지 당 요청할 게시물 개수")
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(postService.readAllPosts(type, page, size));
+    }
+
+    @Operation(summary = "전체 게시물 조회, 최신순 / 인기순 정렬이 추가되었습니다.)", description = "전체 게시물을 조회합니다 (type: free/piece), (sort: latest/popular)")
+    @ApiResponse(
+            responseCode = "200",
+            description = "게시글 목록 조회 성공",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ResponseDTO.class),
+                    examples = @ExampleObject(value = """
+            {
+              "status": 200,
+              "code": "SUCCESS_GET_POST_SORT_LIST",
+              "message": "게시글 목록이 성공적으로 조회되었습니다.",
+              "data": {
+                "totalPost": 42,
+                "size": 10,
+                "page": 0,
+                "responseDTOS": [
+                  {
+                    "id": 1,
+                    "title": "게시글 제목",
+                    "content": "게시글 내용입니다.",
+                    "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/thumbnail.jpg",
+                    "role": "USER",
+                    "likes": 12,
+                    "scraps": 5,
+                    "comments": 3,
+                    "nickname": "홍길동",
+                    "createAt": "2024-06-17"
+                  },
+                  {
+                    "id": 2,
+                    "title": "다른 게시글",
+                    "content": "내용입니다.",
+                    "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/another-thumb.jpg",
+                    "role": "BUSINESS",
+                    "likes": 8,
+                    "scraps": 2,
+                    "comments": 1,
+                    "nickname": "비즈회원",
+                    "createAt": "2024-06-16"
+                  }
+                ]
+              }
+            }
+        """)
+            )
+    )
+    @GetMapping("/{type}/sort/{sort}")
+    public ResponseEntity<ResponseDTO<PostListResponseDTO>> readAllPosts(
+            @PathVariable String type,
+            @PathVariable String sort,
+            @Parameter(description = "페이지 번호")
+            @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 당 요청할 게시물 개수")
+            @RequestParam(defaultValue = "10") int size) {
+        PostListResponseDTO result = postService.readAllPostsSort(type, sort, page, size);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_POST_SORT_LIST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_POST_SORT_LIST, result));
     }
 
     @DeleteMapping("/{type}/{postId}")
