@@ -330,11 +330,18 @@ public class MemberService {
 
     @Transactional
     public void uploadProfileImage(Long memberId, MultipartFile image) throws IOException {
-        Member member = memberRepository.findById(memberId).orElseThrow(
-                () -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
+        //기존 이미지 삭제
+        if (member.getProfileImage() != null && !member.getProfileImage().isBlank()) {
+            uploadUtil.delete(member.getProfileImage(), UploadUtil.BucketType.MEDIA);
+        }
+
+        // 새 이미지 업로드
         String imageUrl = uploadUtil.upload(image, UploadUtil.BucketType.MEDIA, "member");
 
+        // 멤버 정보 업데이트
         member.setProfileImage(imageUrl);
     }
 
