@@ -95,6 +95,28 @@ public class EventService {
                 .build();
     }
 
+    public EventListResponseDTO getNowEvents(String sort, Integer page, Integer size, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        int offset = (page - 1) * size;
+
+        List<Event> events = eventQueryRepository.findNowEvents(sort, offset, size);
+
+        List<EventResponseDTO> dto = events.stream()
+                .map(EventResponseDTO::toPastAndNowListDTO)
+                .toList();
+
+        int totalSize = eventQueryRepository.countNowEvents(); // 총 개수 (페이지네이션용)
+
+        return EventListResponseDTO.builder()
+                .sort(sort)
+                .page(page)
+                .size(size)
+                .totalSize(totalSize)
+                .eventResponseDTOS(dto)
+                .build();
+    }
+
     public EventListResponseDTO getPastEvents(String sort, Integer page, Integer size, Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
@@ -104,7 +126,7 @@ public class EventService {
         List<Event> events = eventQueryRepository.findPastEvents(sort, offset, size);
 
         List<EventResponseDTO> dto = events.stream()
-                .map(EventResponseDTO::toPastListDTO)
+                .map(EventResponseDTO::toPastAndNowListDTO)
                 .toList();
 
         int totalSize = eventQueryRepository.countPastEvents();
@@ -217,7 +239,7 @@ public class EventService {
         List<EventResponseDTO> past = myEvents.stream()
                 .filter(e -> e.getStartDate().isBefore(today))
                 .sorted(Comparator.comparing(Event::getStartDate).reversed())
-                .map(EventResponseDTO::toPastListDTO)
+                .map(EventResponseDTO::toPastAndNowListDTO)
                 .toList();
 
         Map<String, List<EventResponseDTO>> result = new HashMap<>();
