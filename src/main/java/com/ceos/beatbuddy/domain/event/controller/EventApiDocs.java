@@ -344,7 +344,7 @@ public interface EventApiDocs {
                     examples = @ExampleObject(name = "진행 중인 이벤트 조회 성공", value = """
                     {
                       "status": 200,
-                      "code": "SUCCESS_GET_PAST_EVENT",
+                      "code": "SUCCESS_GET_NOW_EVENT",
                       "message": "성공적으로 과거 이벤트를 조회했습니다.",
                       "data": {
                         "sort": "latest",
