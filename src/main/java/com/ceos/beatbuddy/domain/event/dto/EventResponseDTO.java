@@ -18,7 +18,6 @@ public class EventResponseDTO {
     private String image;
     private String dDay;
     private Boolean liked;
-    private Boolean scrapped;
     private String location;
 
     private Integer likes;
@@ -70,7 +69,7 @@ public class EventResponseDTO {
                 .build();
     }
 
-    public static EventResponseDTO toPastListDTO(Event event) {
+    public static EventResponseDTO toPastAndNowListDTO(Event event) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())

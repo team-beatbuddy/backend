@@ -263,7 +263,7 @@ public interface EventApiDocs {
     ResponseEntity<ResponseDTO<EventAttendanceResponseDTO>> addEventAttendance (@PathVariable Long eventId, @RequestBody EventAttendanceRequestDTO dto);
 
     @Operation(summary = "곧 진행될 이벤트",
-            description = "오늘부터 앞으로의 이벤트를 보여줍니다. sort 에는 popular / latest / region을 넣을 수 있으나 현재는 region은 구현되어있지 않습니다.")
+            description = "오늘 포함 XXXX 앞으로의 이벤트를 보여줍니다. sort 에는 popular / latest / region을 넣을 수 있으나 현재는 region은 구현되어있지 않습니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "곧 다가올 이벤트", content = @Content(
                     mediaType = "application/json",
@@ -330,11 +330,73 @@ public interface EventApiDocs {
                     }
             ))
     })
-    ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventUpcomingPopular (@PathVariable String sort,
+    ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventUpcomingSorted (@PathVariable String sort,
                                                                                 @RequestParam(defaultValue = "1") Integer page,
                                                                                 @RequestParam(defaultValue = "10") Integer size);
+
+
+
+    @Operation(summary = "진행되는 이벤트",
+            description = "(시작 날짜 기준 >= 오늘 ,종료 날짜 기준 <= 오늘) 진행 중인 이벤트를 보여줍니다. sort 에는 popular / latest / region을 넣을 수 있으나 현재는 region은 구현되어있지 않습니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "진행 중인 이벤트", content = @Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(name = "진행 중인 이벤트 조회 성공", value = """
+                    {
+                      "status": 200,
+                      "code": "SUCCESS_GET_PAST_EVENT",
+                      "message": "성공적으로 과거 이벤트를 조회했습니다.",
+                      "data": {
+                        "sort": "latest",
+                        "page": 1,
+                        "size": 10,
+                        "totalSize": 1,
+                        "eventResponseDTOS": [
+                          {
+                            "eventId": 1,
+                            "title": "이벤트 시작",
+                            "content": "이게 바로 이트",
+                            "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
+                            "location": "경기도 파주",
+                            "likes": 5,
+                            "views": 0,
+                            "startDate": "2025-06-17",
+                            "endDate": "2025-06-17"
+                          }
+                        ]
+                      }
+                    }
+             """)
+            )),
+            @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "유저 없음", value = """
+                        {
+                          "status": 404,
+                          "error": "NOT_FOUND",
+                          "code": "MEMBER_NOT_EXIST",
+                          "message": "요청한 유저가 존재하지 않습니다."
+                        }
+                        """),
+                            @ExampleObject(name = "이벤트 없음", value = """
+            {
+              "status": 404,
+              "error": "NOT_FOUND",
+              "code": "NOT_FOUND_EVENT",
+              "message": "존재하지 않는 이벤트입니다."
+            }
+            """)
+                    }
+            ))
+    })
+    ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventNowSorted (        @PathVariable String sort,
+                                                                                 @RequestParam(defaultValue = "1") Integer page,
+                                                                                 @RequestParam(defaultValue = "10") Integer size);
+
+
     @Operation(summary = "종료된 이벤트",
-            description = "오늘을 기준으로 이전 날짜의 종료가 된 이벤트를 보여줍니다. sort 에는 popular / latest / region을 넣을 수 있으나 현재는 region은 구현되어있지 않습니다.")
+            description = "(종료 날짜 기준 < 오늘) 종료가 된 이벤트를 보여줍니다. sort 에는 popular / latest / region을 넣을 수 있으나 현재는 region은 구현되어있지 않습니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "종료된 이벤트", content = @Content(
                     mediaType = "application/json",
