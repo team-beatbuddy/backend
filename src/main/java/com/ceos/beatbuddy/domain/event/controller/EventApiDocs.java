@@ -337,7 +337,7 @@ public interface EventApiDocs {
 
 
     @Operation(summary = "진행되는 이벤트",
-            description = "(시작 날짜 기준 >= 오늘 ,종료 날짜 기준 <= 오늘) 진행 중인 이벤트를 보여줍니다. sort 에는 popular / latest / region을 넣을 수 있으나 현재는 region은 구현되어있지 않습니다.")
+            description = "(시작 날짜 기준 <= 오늘 ,종료 날짜 기준 >= 오늘) 진행 중인 이벤트를 보여줍니다. sort 에는 popular / latest / region을 넣을 수 있으나 현재는 region은 구현되어있지 않습니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "진행 중인 이벤트", content = @Content(
                     mediaType = "application/json",
