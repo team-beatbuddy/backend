@@ -4,11 +4,11 @@ import static lombok.AccessLevel.PROTECTED;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
+
 import java.util.List;
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
@@ -21,10 +21,14 @@ public class FreePost extends Post{
     @JoinColumn(name = "venueId")
     private Venue venue;
 
+    @ElementCollection
+    private List<String> hashtag;
+
     @Builder
-    public FreePost(String title, String content, Boolean anonymous,
-                    List<String> imageUrls, Member member, Venue venue) {
+    public FreePost(List<String> hashtag, List<String> imageUrls, String title, String content,
+                    Boolean anonymous, Member member, Venue venue) {
         super(title, content, anonymous, imageUrls, member);
         this.venue = venue;
+        this.hashtag = hashtag;
     }
 }

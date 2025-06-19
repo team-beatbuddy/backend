@@ -1,5 +1,8 @@
 package com.ceos.beatbuddy.domain.post.controller;
 
+import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
+import com.ceos.beatbuddy.domain.magazine.dto.MagazineResponseDTO;
+import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
 import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
 import com.ceos.beatbuddy.domain.post.dto.PostRequestDto;
 import com.ceos.beatbuddy.domain.post.dto.ResponsePostDto;
@@ -15,11 +18,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.ceos.beatbuddy.domain.post.application.PostService;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,6 +50,21 @@ public class PostController implements PostApiDocs {
             @PathVariable String type,
             @RequestBody PostRequestDto requestDto) {
         return ResponseEntity.ok(postService.addPost(type, requestDto));
+    }
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/new/{type}")
+    public ResponseEntity<ResponseDTO<ResponsePostDto>> addNewPost(
+            @PathVariable String type,
+            @Valid @RequestPart("postCreateRequestDTO") PostCreateRequestDTO postCreateRequestDTO,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images){
+
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        ResponsePostDto result = postService.addNewPost(type, postCreateRequestDTO, memberId, images);
+
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_CREATE_POST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATE_POST, result));
     }
 
     @GetMapping("/{type}/{postId}")
@@ -191,6 +214,7 @@ public class PostController implements PostApiDocs {
     }
 
 
+    @Override
     @GetMapping("/my-page")
     public ResponseEntity<ResponseDTO<PostListResponseDTO>> getScrappedPosts(
             @RequestParam String type,
@@ -202,5 +226,19 @@ public class PostController implements PostApiDocs {
         return ResponseEntity
                 .status(SuccessCode.GET_SCRAPPED_POST_LIST.getStatus())
                 .body(new ResponseDTO<>(SuccessCode.GET_SCRAPPED_POST_LIST, result));
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<ResponseDTO<PostListResponseDTO>> getMyPosts(
+            @RequestParam String type,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        PostListResponseDTO result = postService.getMyPostsByType(memberId, type, page, size);
+
+        return ResponseEntity
+                .status(SuccessCode.GET_MY_POST_LIST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.GET_MY_POST_LIST, result));
     }
 }
