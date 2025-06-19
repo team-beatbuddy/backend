@@ -1,11 +1,7 @@
 package com.ceos.beatbuddy.domain.member.controller;
 
 import com.ceos.beatbuddy.domain.member.application.MemberService;
-import com.ceos.beatbuddy.domain.member.dto.MemberConsentRequestDTO;
-import com.ceos.beatbuddy.domain.member.dto.MemberResponseDTO;
-import com.ceos.beatbuddy.domain.member.dto.NicknameDTO;
-import com.ceos.beatbuddy.domain.member.dto.OnboardingResponseDto;
-import com.ceos.beatbuddy.domain.member.dto.RegionRequestDTO;
+import com.ceos.beatbuddy.domain.member.dto.*;
 import com.ceos.beatbuddy.global.ResponseTemplate;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
@@ -34,7 +30,7 @@ import java.util.Map;
 @Tag(name = "Member Controller", description = "사용자 컨트롤러\n"
         + "현재는 회원가입 관련 로직만 작성되어 있습니다\n"
         + "추후 사용자 상세 정보, 아카이브를 조회하는 기능이 추가될 수 있습니다")
-public class MemberController {
+public class MemberController implements MemberApiDocs{
     private final MemberService memberService;
 
     @GetMapping("/onboarding")
@@ -217,73 +213,7 @@ public class MemberController {
         Long memberId = SecurityUtils.getCurrentMemberId();
         return ResponseEntity.ok(memberService.getPreferences(memberId));
     }
-
-    @Operation(
-            summary = "멤버 프로필 사진 업로드\n",
-            description = "멤버 프로필 사진을 업로드합니다."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "프로필 사진 업로드 완료",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class),
-                            examples =
-                                    @ExampleObject(
-                                            name = "프로필 사진 업로드 완료",
-                                            value = """
-                                            {
-                                              "status": 200,
-                                              "code": "SUCCESS_UPLOAD_PROFILE_IMAGE",
-                                              "message": "성공적으로 프로필 사진을 추가했습니다.",
-                                              "data": "프로필 사진 업로드 완료"
-                                            }
-                    """
-                                    )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "유저가 존재하지 않습니다.",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(
-                                            name = "존재하지 않는 유저",
-                                            value = """
-                                            {
-                                              "status": 404,
-                                              "error": "NOT_FOUND",
-                                              "code": "MEMBER_NOT_EXIST",
-                                              "message": "요청한 유저가 존재하지 않습니다."
-                                            }
-                                            """
-                                    )
-                            }
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "S3에 이미지 등록 실패했을 경우",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(
-                                            name = "s3에 이미지 등록을 실패했을 경우",
-                                            value = """
-{
-  "status": 500,
-  "error": "INTERNAL_SERVER_ERROR",
-  "code": "IMAGE_UPLOAD_FAILED",
-  "message": "이미지 업로드에 실패했습니다."
-}
-                                            """
-                                    )
-                            }
-                    )
-            )
-    })
+    @Override
     @PatchMapping(value = "/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResponseDTO<String>> uploadProfileImage(
             @RequestPart("image") MultipartFile image) throws IOException {
@@ -294,6 +224,17 @@ public class MemberController {
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_UPLOAD_PROFILE_IMAGE.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPLOAD_PROFILE_IMAGE, "프로필 사진 업로드 완료"));
+    }
+
+    @Override
+    @GetMapping("/profile/summary")
+    public ResponseEntity<ResponseDTO<MemberProfileSummaryDTO>> getProfileSummary() {
+        Long memberId = SecurityUtils.getCurrentMemberId(); // 현재 로그인된 사용자 ID
+        MemberProfileSummaryDTO result = memberService.getProfileSummary(memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_PROFILE_SUMMARY.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_PROFILE_SUMMARY, result));
     }
 
 }
