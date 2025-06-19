@@ -2,11 +2,8 @@ package com.ceos.beatbuddy.domain.post.application;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
-import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
-import com.ceos.beatbuddy.domain.post.dto.PostPageResponseDTO;
-import com.ceos.beatbuddy.domain.post.dto.PostRequestDto;
+import com.ceos.beatbuddy.domain.post.dto.*;
 import com.ceos.beatbuddy.domain.post.dto.PostRequestDto.PiecePostRequestDto;
-import com.ceos.beatbuddy.domain.post.dto.ResponsePostDto;
 import com.ceos.beatbuddy.domain.post.entity.FreePost;
 import com.ceos.beatbuddy.domain.post.entity.Piece;
 import com.ceos.beatbuddy.domain.post.entity.PiecePost;
@@ -22,6 +19,7 @@ import com.ceos.beatbuddy.domain.scrapandlike.entity.PostScrap;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostLikeRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostScrapRepository;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
+import com.ceos.beatbuddy.domain.venue.exception.VenueErrorCode;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
@@ -29,6 +27,7 @@ import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -70,6 +69,45 @@ public class PostService {
             case "piece" -> createPiecePost(member, requestDto, imageUrls);
             default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
         };
+    }
+
+    @Transactional
+    public ResponsePostDto addNewPost(String type, PostCreateRequestDTO dto, Long memberId, List<MultipartFile> images) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+
+
+        // 이미지 s3 올리기
+        List<String> imageUrls = images.stream().map(( image -> {
+            try {
+                return uploadUtil.upload(image, UploadUtil.BucketType.MEDIA, "post");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        })).toList();
+
+        Post savedPost = null;
+
+        switch (type) {
+            case "free" -> {
+                Venue venue = dto.getVenueId() != null ?
+                        venueRepository.findById(dto.getVenueId()).orElseThrow(
+                                () -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST)) :
+                        null;
+
+                FreePost freePost = new FreePost(dto.getHashtag(), imageUrls, dto.getTitle(), dto.getContent(), dto.getAnonymous(), member, venue);
+                savedPost = freePostRepository.save(freePost);
+            }
+
+            case "piece" -> {
+                // 아직 기능이 존재하지 않음.
+
+            }
+
+            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
+        }
+
+        return ResponsePostDto.of(Objects.requireNonNull(savedPost));
     }
 
     public Post readPost(String type, Long postId) {
@@ -287,6 +325,9 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostListResponseDTO getScrappedPostsByType(Long memberId, String type, int page, int size) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<Post> postPage = postScrapRepository.findPostsByMemberId(memberId, pageable);
@@ -304,6 +345,33 @@ public class PostService {
                 .totalPost(dtos.size())
                 .page(page)
                 .size(size)
+                .responseDTOS(dtos)
+                .build();
+    }
+
+
+    @Transactional(readOnly = true)
+    public PostListResponseDTO getMyPostsByType(Long memberId, String type, int page, int size) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Post> postPage;
+
+        switch (type) {
+            case "free" -> postPage = freePostRepository.findByMemberId(memberId, pageable);
+            case "piece" -> postPage = piecePostRepository.findByMemberId(memberId, pageable);
+            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
+        }
+
+        List<PostPageResponseDTO> dtos = postPage
+                .map(PostPageResponseDTO::toDTO)
+                .toList();
+
+        return PostListResponseDTO.builder()
+                .totalPost((int) postPage.getTotalElements())
+                .page(postPage.getNumber())
+                .size(postPage.getSize())
                 .responseDTOS(dtos)
                 .build();
     }
