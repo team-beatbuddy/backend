@@ -11,10 +11,7 @@ import com.ceos.beatbuddy.domain.post.entity.Piece;
 import com.ceos.beatbuddy.domain.post.entity.PiecePost;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
-import com.ceos.beatbuddy.domain.post.repository.FreePostRepository;
-import com.ceos.beatbuddy.domain.post.repository.PiecePostRepository;
-import com.ceos.beatbuddy.domain.post.repository.PieceRepository;
-import com.ceos.beatbuddy.domain.post.repository.PostRepository;
+import com.ceos.beatbuddy.domain.post.repository.*;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostInteractionId;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostLike;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostScrap;
@@ -55,6 +52,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final PostScrapRepository postScrapRepository;
+    private final PostQueryRepository postQueryRepository;
     private final CommentRepository commentRepository;
 
     @Autowired
@@ -227,6 +225,40 @@ public class PostService {
             case "popular" -> Sort.by(Sort.Direction.DESC, "likes");
             default -> throw new CustomException(PostErrorCode.INVALID_SORT_TYPE);
         };
+    }
+
+
+    public List<PostPageResponseDTO> getHotPosts() {
+        List<Post> posts = postQueryRepository.findHotPostsWithin12Hours();
+        Long memberId = SecurityUtils.getCurrentMemberId();
+
+        List<Long> postIds = posts.stream()
+                .map(Post::getId)
+                .toList();
+
+        Set<Long> likedPostIds = postLikeRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+                .stream()
+                .map(PostLike::getPostId)
+                .collect(Collectors.toSet());
+
+        Set<Long> scrappedPostIds = postScrapRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+                .stream()
+                .map(PostScrap::getPostId)
+                .collect(Collectors.toSet());
+
+        Set<Long> commentedPostIds = commentRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+                .stream()
+                .map(Comment::getPostId)
+                .collect(Collectors.toSet());
+
+        return posts.stream()
+                .map(post -> PostPageResponseDTO.toDTO(
+                        post,
+                        likedPostIds.contains(post.getId()),
+                        scrappedPostIds.contains(post.getId()),
+                        commentedPostIds.contains(post.getId())
+                ))
+                .toList();
     }
 
     @Transactional
