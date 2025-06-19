@@ -380,13 +380,13 @@ public interface EventApiDocs {
                         }
                         """),
                             @ExampleObject(name = "이벤트 없음", value = """
-            {
-              "status": 404,
-              "error": "NOT_FOUND",
-              "code": "NOT_FOUND_EVENT",
-              "message": "존재하지 않는 이벤트입니다."
-            }
-            """)
+                        {
+                          "status": 404,
+                          "error": "NOT_FOUND",
+                          "code": "NOT_FOUND_EVENT",
+                          "message": "존재하지 않는 이벤트입니다."
+                        }
+                        """)
                     }
             ))
     })
