@@ -1,18 +1,112 @@
 package com.ceos.beatbuddy.domain.post.controller;
 
+import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
 import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
+import com.ceos.beatbuddy.domain.post.dto.ResponsePostDto;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 public interface PostApiDocs {
+    @Operation(summary = "#####게시물 생성 - 새로운 버전", description = "게시물을 생성합니다 (type: free/piece), 밑의 Post 관련 RequestDto들을 참고해"
+            + "타입에 맞는 request를 채워주세요.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "게시물 생성 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = PostListResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                            {
+                              "status": 201,
+                              "code": "SUCCESS_CREATE_POST",
+                              "message": "포스트를 작성했습니다.",
+                              "data": {
+                                "id": 21,
+                                "title": "string",
+                                "role": "BUSINESS",
+                                "likes": 0,
+                                "comments": 0,
+                                "createAt": "2025-06-19",
+                                "nickname": "길동hong"
+                              }
+                            }
+                    """))
+            ),
+            @ApiResponse(responseCode = "400", description = "잘못된 게시글 타입 요청",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(name = "잘못된 type 예시", value = """
+                                {
+                                  "status": 400,
+                                  "error": "BAD_REQUEST",
+                                  "code": "INVALID_POST_TYPE",
+                                  "message": "포스트의 type이 올바르지 않습니다"
+                                }
+                                """)
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 유저, 베뉴가 존재하지 않는 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {@ExampleObject(name = "존재하지 않는 유저", value = """
+                                    {
+                                      "status": 404,
+                                      "error": "NOT_FOUND",
+                                      "code": "MEMBER_NOT_EXIST",
+                                      "message": "요청한 유저가 존재하지 않습니다."
+                                    }
+                                    """),
+                                    @ExampleObject(name = "존재하지 않는 베뉴", value = """
+                                    {
+                                      "status": 404,
+                                      "error": "NOT_FOUND",
+                                      "code": "VENUE_NOT_EXIST",
+                                      "message": "존재하지 않는 베뉴입니다."
+                                    }
+                                    """)
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "S3에 이미지 등록 실패했을 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "s3에 이미지 등록을 실패했을 경우",
+                                            value = """
+                                        {
+                                          "status": 500,
+                                          "error": "INTERNAL_SERVER_ERROR",
+                                          "code": "IMAGE_UPLOAD_FAILED",
+                                          "message": "이미지 업로드에 실패했습니다."
+                                        }
+                                            """
+                                    )
+                            }
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<ResponsePostDto>> addNewPost(
+            @PathVariable String type,
+            @Valid @RequestPart("postCreateRequestDTO") PostCreateRequestDTO postCreateRequestDTO,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images);
+
+
 
     @Operation(summary = "포스트 좋아요\n",
             description = "포스트 좋아요 눌기")
@@ -347,4 +441,76 @@ public interface PostApiDocs {
             @RequestParam String type,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size);
+
+
+
+    @Operation(summary = "내가 작성한 글 조회", description = "게시글 유형(type: free, piece)과 페이지 정보를 기준으로 사용자가 작성한 글 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "내가 작성한 글 목록 조회 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = PostListResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                            {
+                              "status": 200,
+                              "code": "GET_MY_POST_LIST",
+                              "message": "내가 작성한 글을 불러왔습니다.",
+                              "data": {
+                                "totalPost": 1,
+                                "size": 10,
+                                "page": 0,
+                                "responseDTOS": [
+                                  {
+                                    "id": 21,
+                                    "title": "string",
+                                    "content": "string",
+                                    "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/69196aa6-6--.png",
+                                    "role": "BUSINESS",
+                                    "likes": 0,
+                                    "scraps": 0,
+                                    "comments": 0,
+                                    "nickname": "길동hong",
+                                    "createAt": "2025-06-19"
+                                  }
+                                ]
+                              }
+                            }
+                    """))
+            ),
+            @ApiResponse(responseCode = "400", description = "잘못된 게시글 타입 요청",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(name = "잘못된 type 예시", value = """
+                                {
+                                  "status": 400,
+                                  "error": "BAD_REQUEST",
+                                  "code": "INVALID_POST_TYPE",
+                                  "message": "포스트의 type이 올바르지 않습니다"
+                                }
+                                """)
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 유저",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(name = "존재하지 않는 유저", value = """
+                                {
+                                  "status": 404,
+                                  "error": "NOT_FOUND",
+                                  "code": "MEMBER_NOT_EXIST",
+                                  "message": "요청한 유저가 존재하지 않습니다."
+                                }
+                                """)
+                    )
+            )
+
+    })
+    ResponseEntity<ResponseDTO<PostListResponseDTO>> getMyPosts(
+            @RequestParam String type,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size);
+
+
+
+
 }

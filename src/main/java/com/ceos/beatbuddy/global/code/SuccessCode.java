@@ -79,22 +79,9 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_GET_POST_SORT_LIST(HttpStatus.OK, "type 에 맞는 post를 sort 해서 불러왔습니다."),
     SUCCESS_LIKE_POST(HttpStatus.CREATED, "좋아요를 눌렀습니다."),
     SUCCESS_SCRAP_POST(HttpStatus.CREATED, "스크랩을 완료했습니다."),
-
-    /**
-     * mypage
-     * */
     GET_SCRAPPED_POST_LIST(HttpStatus.OK, "스크랩한 글을 불러왔습니다."),
-
-
-
-    
-//    SUCCESS_GET_MAGAZINE_LIST(HttpStatus.OK, "매거진을 성공적으로 불러왔습니다."),
-//    SUCCESS_SCRAP_MAGAZINE(HttpStatus.CREATED, "매거진이 성공적으로 스크랩되었습니다."),
-//    SUCCESS_DELETE_SCRAP(HttpStatus.OK, "스크랩을 취소했습니다."),
-//    SUCCESS_LIKE_MAGAZINE(HttpStatus.CREATED, "매거진에 성공적으로 좋아요를 표시했습니다."),
-//    SUCCESS_DELETE_LIKE(HttpStatus.OK, "좋아요를 취소했습니다."),
-
-
+    GET_MY_POST_LIST(HttpStatus.OK,"내가 작성한 글을 불러왔습니다."),
+    SUCCESS_CREATE_POST(HttpStatus.CREATED, "포스트를 작성했습니다."),
 
     /**
      * empty
