@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Entity
@@ -35,10 +36,12 @@ public abstract class Post extends BaseTimeEntity {
     private int comments;
 
     @ElementCollection
+    @Setter
     private List<String> imageUrls;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberId")
+    @Setter
     private Member member;
 
     protected Post(String title, String content, Boolean anonymous,
@@ -50,6 +53,7 @@ public abstract class Post extends BaseTimeEntity {
         this.member = member;
         this.likes = 0;
         this.views = 0;
+        this.scraps = null;
         this.comments = 0;
     }
 
