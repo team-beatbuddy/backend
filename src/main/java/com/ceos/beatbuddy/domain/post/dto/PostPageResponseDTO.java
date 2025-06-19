@@ -22,21 +22,27 @@ public class PostPageResponseDTO {
     private Integer likes;
     private Integer scraps;
     private Integer comments;
+    private Boolean liked;
+    private Boolean scrapped;
+    private Boolean hasCommented;
     private String nickname;
     private LocalDate createAt;
 
-    public static PostPageResponseDTO toDTO(Post post) {
+    public static PostPageResponseDTO toDTO(Post post, Boolean liked, Boolean scrapped, Boolean hasCommented) {
         return PostPageResponseDTO.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .thumbImage(post.getImageUrls().isEmpty() ? null : post.getImageUrls().get(0))
-                .comments(post.getComments())
                 .nickname(post.getMember().getNickname())
                 .createAt(post.getCreatedAt().toLocalDate())
                 .likes(post.getLikes())
-                .role(post.getMember().getRole())
                 .scraps(post.getScraps().size())
+                .comments(post.getComments())
+                .liked(liked)
+                .scrapped(scrapped)
+                .hasCommented(hasCommented)
+                .role(post.getMember().getRole())
                 .build();
     }
 }

@@ -2,10 +2,7 @@ package com.ceos.beatbuddy.domain.post.controller;
 
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineResponseDTO;
-import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
-import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
-import com.ceos.beatbuddy.domain.post.dto.PostRequestDto;
-import com.ceos.beatbuddy.domain.post.dto.ResponsePostDto;
+import com.ceos.beatbuddy.domain.post.dto.*;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
@@ -39,7 +36,7 @@ public class PostController implements PostApiDocs {
     private final PostService postService;
 
     @PostMapping("/{type}")
-    @Operation(summary = "게시물 생성", description = "게시물을 생성합니다 (type: free/piece), 밑의 Post 관련 RequestDto들을 참고해"
+    @Operation(summary = "게시물 생성 XXXXXXX 사용 안 함", description = "게시물을 생성합니다 (type: free/piece), 밑의 Post 관련 RequestDto들을 참고해"
             + "타입에 맞는 request를 채워주세요.")
     @Parameter()
     @ApiResponses({
@@ -68,7 +65,7 @@ public class PostController implements PostApiDocs {
     }
 
     @GetMapping("/{type}/{postId}")
-    @Operation(summary = "게시물 조회", description = "게시물을 조회합니다 (type: free/piece)")
+    @Operation(summary = "게시물 조회 XXXXXXXXXXXXXX 사용 안 함", description = "게시물을 조회합니다 (type: free/piece)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "게시물 조회 성공"),
             @ApiResponse(responseCode = "404", description = "게시물이 존재하지 않습니다.")
@@ -79,8 +76,20 @@ public class PostController implements PostApiDocs {
         return ResponseEntity.ok(postService.readPost(type, postId));
     }
 
+    @GetMapping("/{type}/{postId}/new")
+    public ResponseEntity<ResponseDTO<PostPageResponseDTO>> newReadPost(
+            @PathVariable String type,
+            @PathVariable Long postId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        PostPageResponseDTO result = postService.newReadPost(type, postId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_POST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_POST, result));
+    }
+
     @GetMapping("/{type}")
-    @Operation(summary = "전체 게시물 조회 (role이 추가되었습니다.)", description = "전체 게시물을 조회합니다 (type: free/piece)")
+    @Operation(summary = "전체 게시물 조회 XXXXXXXXXXXXx 사용 안 함)", description = "전체 게시물을 조회합니다 (type: free/piece)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "전체 게시물 조회 성공"),
             @ApiResponse(responseCode = "404", description = "게시물이 존재하지 않습니다.")
@@ -102,42 +111,28 @@ public class PostController implements PostApiDocs {
                     mediaType = "application/json",
                     schema = @Schema(implementation = ResponseDTO.class),
                     examples = @ExampleObject(value = """
-            {
-              "status": 200,
-              "code": "SUCCESS_GET_POST_SORT_LIST",
-              "message": "게시글 목록이 성공적으로 조회되었습니다.",
-              "data": {
-                "totalPost": 42,
-                "size": 10,
-                "page": 0,
-                "responseDTOS": [
-                  {
-                    "id": 1,
-                    "title": "게시글 제목",
-                    "content": "게시글 내용입니다.",
-                    "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/thumbnail.jpg",
-                    "role": "USER",
-                    "likes": 12,
-                    "scraps": 5,
-                    "comments": 3,
-                    "nickname": "홍길동",
-                    "createAt": "2024-06-17"
-                  },
-                  {
-                    "id": 2,
-                    "title": "다른 게시글",
-                    "content": "내용입니다.",
-                    "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/another-thumb.jpg",
-                    "role": "BUSINESS",
-                    "likes": 8,
-                    "scraps": 2,
-                    "comments": 1,
-                    "nickname": "비즈회원",
-                    "createAt": "2024-06-16"
-                  }
-                ]
-              }
-            }
+                    {
+                      "status": 200,
+                      "code": "SUCCESS_GET_POST_SORT_LIST",
+                      "message": "type 에 맞는 post를 sort 해서 불러왔습니다.",
+                      "data": [
+                        {
+                          "id": 3,
+                          "title": "string",
+                          "content": "string",
+                          "thumbImage": null,
+                          "role": "ADMIN",
+                          "likes": 1,
+                          "scraps": 0,
+                          "comments": 3,
+                          "liked": true,
+                          "scrapped": false,
+                          "hasCommented": false,
+                          "nickname": "ff",
+                          "createAt": "2025-01-31"
+                        }
+                      ]
+                    }
         """)
             )
     )
