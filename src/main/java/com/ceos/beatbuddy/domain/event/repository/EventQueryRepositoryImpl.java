@@ -23,11 +23,10 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
     public List<Event> findUpcomingEvents(String sort, int offset, int limit) {
         QEvent event = QEvent.event;
 
-        // 오늘 이후의 이벤트만 조회
+        // 오늘 이후의 이벤트만 조회 greater than
         BooleanBuilder builder = new BooleanBuilder()
-                .and(event.startDate.goe(LocalDate.now()));
+                .and(event.startDate.gt(LocalDate.now()));
 
-        // 정렬 조건 분기
         OrderSpecifier<?> orderBy;
 
         switch (sort) {
@@ -54,7 +53,45 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
         return Objects.requireNonNull(queryFactory
                         .select(event.count())
                         .from(event)
-                        .where(event.startDate.goe(LocalDate.now()))
+                        .where(event.startDate.gt(LocalDate.now())) // 오늘보다 큰 거
+                        .fetchOne())
+                .intValue();
+    }
+
+
+    @Override
+    public List<Event> findNowEvents(String sort, int offset, int limit) {
+        QEvent event = QEvent.event;
+
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(event.startDate.loe(LocalDate.now()))
+                .and(event.endDate.goe(LocalDate.now()));
+
+        OrderSpecifier<?> orderBy = switch (sort) {
+            case "popular" -> event.likes.desc();
+            case "latest" -> event.startDate.desc();
+            default -> event.startDate.desc();
+        };
+
+        return queryFactory
+                .selectFrom(event)
+                .leftJoin(event.venue, QVenue.venue).fetchJoin()
+                .where(builder)
+                .orderBy(orderBy)
+                .offset(offset)
+                .limit(limit)
+                .fetch();
+    }
+
+    @Override
+    public int countNowEvents() {
+        QEvent event = QEvent.event;
+
+        return Objects.requireNonNull(queryFactory
+                        .select(event.count())
+                        .from(event)
+                        .where(event.startDate.loe(LocalDate.now())
+                                .and(event.endDate.goe(LocalDate.now())))
                         .fetchOne())
                 .intValue();
     }
