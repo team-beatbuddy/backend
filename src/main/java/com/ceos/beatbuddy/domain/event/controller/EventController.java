@@ -61,7 +61,7 @@ public class EventController implements EventApiDocs {
 
     @Override
     @GetMapping("/upcoming/{sort}")
-    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventUpcomingPopular (        @PathVariable String sort,
+    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventUpcomingSorted (        @PathVariable String sort,
                                                                                                @RequestParam(defaultValue = "1") Integer page,
                                                                                                @RequestParam(defaultValue = "10") Integer size) {
         Long memberId = SecurityUtils.getCurrentMemberId();
@@ -72,6 +72,21 @@ public class EventController implements EventApiDocs {
                 .status(SuccessCode.SUCCESS_GET_UPCOMING_EVENT.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_UPCOMING_EVENT, result));
     }
+
+    @Override
+    @GetMapping("/now/{sort}")
+    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventNowSorted (        @PathVariable String sort,
+                                                                                              @RequestParam(defaultValue = "1") Integer page,
+                                                                                              @RequestParam(defaultValue = "10") Integer size) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+
+        EventListResponseDTO result = eventService.getNowEvents(sort, page, size, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_NOW_EVENT.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_NOW_EVENT, result));
+    }
+
 
     @Override
     @GetMapping("/past/{sort}")

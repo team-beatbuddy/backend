@@ -1,5 +1,7 @@
 package com.ceos.beatbuddy.domain.post.application;
 
+import com.ceos.beatbuddy.domain.comment.entity.Comment;
+import com.ceos.beatbuddy.domain.comment.repository.CommentRepository;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.post.dto.*;
@@ -26,6 +28,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +53,7 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final PostScrapRepository postScrapRepository;
     private final PostQueryRepository postQueryRepository;
+    private final CommentRepository commentRepository;
 
     @Autowired
     private UploadUtil uploadUtil;
@@ -126,6 +130,38 @@ public class PostService {
         }
     }
 
+    @Transactional
+    public PostPageResponseDTO newReadPost(String type, Long postId, Long memberId) {
+        Post post;
+
+        // 1. 게시글 조회 및 조회수 증가
+        switch (type) {
+            case "free" -> {
+                FreePost freePost = freePostRepository.findById(postId)
+                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
+                freePost.increaseView();
+                post = freePost;
+            }
+            case "piece" -> {
+                PiecePost piecePost = piecePostRepository.findById(postId)
+                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
+                piecePost.increaseView();
+                post = piecePost;
+            }
+            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
+        }
+
+        // 2. 사용자가 좋아요 / 스크랩 / 댓글 달았는지 여부
+        PostInteractionId interactionId = new PostInteractionId(memberId, postId);
+
+        boolean isLiked = postLikeRepository.existsById(interactionId);
+        boolean isScrapped = postScrapRepository.existsById(interactionId);
+        boolean hasCommented = commentRepository.existsByPost_IdAndMember_Id(postId, memberId);
+
+        // 3. DTO 변환
+        return PostPageResponseDTO.toDTO(post, isLiked, isScrapped, hasCommented);
+    }
+
     public Page<ResponsePostDto> readAllPosts(String type, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return switch (type) {
@@ -138,22 +174,50 @@ public class PostService {
     public PostListResponseDTO readAllPostsSort(String type, String sort, int page, int size) {
         Sort sortOption = getSortOption(sort);
         Pageable pageable = PageRequest.of(page, size, sortOption);
+        Long memberId = SecurityUtils.getCurrentMemberId();
 
-        Page<PostPageResponseDTO> resultPage = switch (type) {
-            case "free" -> freePostRepository.findAll(pageable)
-                    .map(PostPageResponseDTO::toDTO);
-            case "piece" -> piecePostRepository.findAll(pageable)
-                    .map(PostPageResponseDTO::toDTO);
+        Page<? extends Post> postPage = switch (type) {
+            case "free" -> freePostRepository.findAll(pageable);
+            case "piece" -> piecePostRepository.findAll(pageable);
             default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
         };
 
+        List<? extends Post> posts = postPage.getContent();
+        List<Long> postIds = posts.stream().map(Post::getId).toList();
+
+        // 좋아요/스크랩/댓글 여부를 IN 쿼리로 한 번에 조회
+        Set<Long> likedPostIds = postLikeRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+                .stream()
+                .map(PostLike::getPostId)
+                .collect(Collectors.toSet());
+
+        Set<Long> scrappedPostIds = postScrapRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+                .stream()
+                .map(PostScrap::getPostId)
+                .collect(Collectors.toSet());
+
+        Set<Long> commentedPostIds = commentRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+                .stream()
+                .map(Comment::getPostId)
+                .collect(Collectors.toSet());
+
+        List<PostPageResponseDTO> dtoList = posts.stream()
+                .map(post -> PostPageResponseDTO.toDTO(
+                        post,
+                        likedPostIds.contains(post.getId()),
+                        scrappedPostIds.contains(post.getId()),
+                        commentedPostIds.contains(post.getId())
+                ))
+                .toList();
+
         return PostListResponseDTO.builder()
-                .totalPost((int) resultPage.getTotalElements())
-                .page(resultPage.getNumber())
-                .size(resultPage.getSize())
-                .responseDTOS(resultPage.getContent())
+                .totalPost((int) postPage.getTotalElements())
+                .page(postPage.getNumber())
+                .size(postPage.getSize())
+                .responseDTOS(dtoList)
                 .build();
     }
+
 
     private Sort getSortOption(String sort) {
         return switch (sort) {
@@ -166,10 +230,36 @@ public class PostService {
 
     public List<PostPageResponseDTO> getHotPosts() {
         List<Post> posts = postQueryRepository.findHotPostsWithin12Hours();
+        Long memberId = SecurityUtils.getCurrentMemberId();
 
-        return posts.stream().map((PostPageResponseDTO::toDTO)).toList();
+        List<Long> postIds = posts.stream()
+                .map(Post::getId)
+                .toList();
+
+        Set<Long> likedPostIds = postLikeRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+                .stream()
+                .map(PostLike::getPostId)
+                .collect(Collectors.toSet());
+
+        Set<Long> scrappedPostIds = postScrapRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+                .stream()
+                .map(PostScrap::getPostId)
+                .collect(Collectors.toSet());
+
+        Set<Long> commentedPostIds = commentRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+                .stream()
+                .map(Comment::getPostId)
+                .collect(Collectors.toSet());
+
+        return posts.stream()
+                .map(post -> PostPageResponseDTO.toDTO(
+                        post,
+                        likedPostIds.contains(post.getId()),
+                        scrappedPostIds.contains(post.getId()),
+                        commentedPostIds.contains(post.getId())
+                ))
+                .toList();
     }
-
 
     @Transactional
     public void deletePost(String type, Long postId, Long memberId) {
@@ -336,42 +426,43 @@ public class PostService {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
+        // 1. 스크랩한 게시글 페이징 조회
         Page<Post> postPage = postScrapRepository.findPostsByMemberId(memberId, pageable);
+        List<Post> posts = postPage.getContent();
 
-        List<PostPageResponseDTO> dtos = postPage.stream()
+        // 2. 게시글 타입 필터링
+        List<Post> filteredPosts = posts.stream()
                 .filter(post -> {
                     if (type.equals("free")) return post instanceof FreePost;
                     else if (type.equals("piece")) return post instanceof PiecePost;
                     else throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
                 })
-                .map(PostPageResponseDTO::toDTO)
                 .toList();
 
-        return PostListResponseDTO.builder()
-                .totalPost(dtos.size())
-                .page(page)
-                .size(size)
-                .responseDTOS(dtos)
-                .build();
-    }
+        // 3. 최적화용 postIds 추출
+        List<Long> postIds = filteredPosts.stream()
+                .map(Post::getId)
+                .toList();
 
+        // 4. 연관 정보 bulk 조회
+        Set<Long> likedPostIds = postLikeRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+                .stream()
+                .map(pl -> pl.getPost().getId())
+                .collect(Collectors.toSet());
 
-    @Transactional(readOnly = true)
-    public PostListResponseDTO getMyPostsByType(Long memberId, String type, int page, int size) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+        Set<Long> commentedPostIds = commentRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+                .stream()
+                .map(c -> c.getPost().getId())
+                .collect(Collectors.toSet());
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Post> postPage;
-
-        switch (type) {
-            case "free" -> postPage = freePostRepository.findByMemberId(memberId, pageable);
-            case "piece" -> postPage = piecePostRepository.findByMemberId(memberId, pageable);
-            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
-        }
-
-        List<PostPageResponseDTO> dtos = postPage
-                .map(PostPageResponseDTO::toDTO)
+        // 5. DTO 매핑
+        List<PostPageResponseDTO> dtos = filteredPosts.stream()
+                .map(post -> PostPageResponseDTO.toDTO(
+                        post,
+                        likedPostIds.contains(post.getId()),
+                        true, // 어차피 스크랩된 게시글이니까
+                        commentedPostIds.contains(post.getId())
+                ))
                 .toList();
 
         return PostListResponseDTO.builder()
@@ -381,4 +472,58 @@ public class PostService {
                 .responseDTOS(dtos)
                 .build();
     }
+
+
+
+    @Transactional(readOnly = true)
+    public PostListResponseDTO getMyPostsByType(Long memberId, String type, int page, int size) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<? extends Post> postPage;
+
+        switch (type) {
+            case "free" -> postPage = freePostRepository.findByMemberId(memberId, pageable);
+            case "piece" -> postPage = piecePostRepository.findByMemberId(memberId, pageable);
+            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
+        }
+
+        List<? extends Post> posts = postPage.getContent();
+        List<Long> postIds = posts.stream().map(Post::getId).toList();
+
+        // 연관 정보 bulk 조회
+        Set<Long> likedPostIds = postLikeRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+                .stream()
+                .map(pl -> pl.getPost().getId())
+                .collect(Collectors.toSet());
+
+        Set<Long> scrappedPostIds = postScrapRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+                .stream()
+                .map(ps -> ps.getPost().getId())
+                .collect(Collectors.toSet());
+
+        Set<Long> commentedPostIds = commentRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+                .stream()
+                .map(c -> c.getPost().getId())
+                .collect(Collectors.toSet());
+
+        // DTO 매핑
+        List<PostPageResponseDTO> dtos = posts.stream()
+                .map(post -> PostPageResponseDTO.toDTO(
+                        post,
+                        likedPostIds.contains(post.getId()),
+                        scrappedPostIds.contains(post.getId()),
+                        commentedPostIds.contains(post.getId())
+                ))
+                .toList();
+
+        return PostListResponseDTO.builder()
+                .totalPost((int) postPage.getTotalElements())
+                .page(postPage.getNumber())
+                .size(postPage.getSize())
+                .responseDTOS(dtos)
+                .build();
+    }
+
 }

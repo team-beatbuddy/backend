@@ -37,4 +37,8 @@ public class PostScrap extends BaseTimeEntity {
                 .post(post)
                 .build();
     }
+
+    public Long getPostId() {
+        return this.post.getId();
+    }
 }
