@@ -151,6 +151,15 @@ public class PostController implements PostApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_POST_SORT_LIST, result));
     }
 
+    @GetMapping("/posts/hot")
+    public ResponseEntity<ResponseDTO<List<PostPageResponseDTO>>> getHotPosts() {
+        List<PostPageResponseDTO> result = postService.getHotPosts();
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_HOT_POSTS.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_HOT_POSTS, result));
+    }
+
     @DeleteMapping("/{type}/{postId}")
     @Operation(summary = "게시물 삭제", description = "게시물을 삭제합니다 (type: free/piece)")
     @ApiResponses({
