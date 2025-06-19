@@ -62,6 +62,7 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_GET_EVENT_COMMENTS(HttpStatus.OK, "성공적으로 댓글을 조회했습니다."),
     SUCCESS_GET_PAST_EVENT(HttpStatus.OK, "성공적으로 과거 이벤트를 조회했습니다." ),
     SUCCESS_GET_MY_EVENTS(HttpStatus.OK, "마이페이지의 이벤트를 성공적으로 조회했습니다"),
+    SUCCESS_GET_NOW_EVENT(HttpStatus.OK, "성공적으로 진행되는 이벤트를 조회했습니다."),
 
 
     /**
@@ -83,6 +84,7 @@ public enum SuccessCode implements ApiCode {
     GET_MY_POST_LIST(HttpStatus.OK,"내가 작성한 글을 불러왔습니다."),
     SUCCESS_CREATE_POST(HttpStatus.CREATED, "포스트를 작성했습니다."),
     SUCCESS_GET_HOT_POSTS(HttpStatus.OK, "인기 게시글 상위 2개 조회했습니다."),
+    SUCCESS_GET_POST(HttpStatus.OK, "포스트를 불러왔습니다"),
 
     /**
      * empty

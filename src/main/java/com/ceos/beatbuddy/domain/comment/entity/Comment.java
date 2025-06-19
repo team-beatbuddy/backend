@@ -53,4 +53,7 @@ public class Comment extends BaseTimeEntity {
         likes--;
     }
 
+    public Long getPostId() {
+        return this.post.getId();
+    }
 }
