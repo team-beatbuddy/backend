@@ -44,6 +44,15 @@ public abstract class Post extends BaseTimeEntity {
     @Setter
     private Member member;
 
+    /**
+     * Post 엔티티의 주요 필드를 초기화하는 protected 생성자입니다.
+     *
+     * @param title     게시글의 제목
+     * @param content   게시글의 내용
+     * @param anonymous 익명 여부
+     * @param imageUrls 게시글에 첨부된 이미지 URL 목록
+     * @param member    게시글 작성자
+     */
     protected Post(String title, String content, Boolean anonymous,
                    List<String> imageUrls, Member member) {
         this.title = title;

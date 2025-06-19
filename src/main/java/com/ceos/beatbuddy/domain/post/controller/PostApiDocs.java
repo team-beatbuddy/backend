@@ -21,7 +21,15 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface PostApiDocs {
-    @Operation(summary = "#####게시물 생성 - 새로운 버전", description = "게시물을 생성합니다 (type: free/piece), 밑의 Post 관련 RequestDto들을 참고해"
+    /**
+             * 지정한 타입의 게시물을 생성합니다.
+             *
+             * @param type 생성할 게시물의 타입 ("free" 또는 "piece")
+             * @param postCreateRequestDTO 게시물 생성에 필요한 요청 데이터
+             * @param images 게시물에 첨부할 이미지 파일 목록 (선택 사항)
+             * @return 생성된 게시물의 정보가 포함된 응답
+             */
+            @Operation(summary = "#####게시물 생성 - 새로운 버전", description = "게시물을 생성합니다 (type: free/piece), 밑의 Post 관련 RequestDto들을 참고해"
             + "타입에 맞는 request를 채워주세요.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "게시물 생성 성공",
@@ -108,6 +116,12 @@ public interface PostApiDocs {
 
 
 
+    /**
+     * 지정한 포스트에 좋아요를 추가합니다.
+     *
+     * @param postId 좋아요를 추가할 포스트의 ID
+     * @return 성공 시 확인 메시지를 포함한 응답을 반환합니다.
+     */
     @Operation(summary = "포스트 좋아요\n",
             description = "포스트 좋아요 눌기")
     @ApiResponses(value = {
@@ -369,7 +383,15 @@ public interface PostApiDocs {
 
     ResponseEntity<ResponseDTO<String>> deleteScrapPost(@PathVariable Long postId);
 
-    @Operation(summary = "내가 스크랩한 게시글 목록 조회",
+    /**
+             * 로그인한 사용자가 스크랩한 게시글 목록을 타입별로 페이징하여 조회합니다.
+             *
+             * @param type 조회할 게시글 타입 ("free" 또는 "piece")
+             * @param page 조회할 페이지 번호 (0부터 시작)
+             * @param size 한 페이지에 포함할 게시글 수
+             * @return 스크랩한 게시글 목록과 페이징 정보를 포함한 응답
+             */
+            @Operation(summary = "내가 스크랩한 게시글 목록 조회",
             description = """
                 로그인한 사용자가 스크랩한 게시글 목록을 타입(free/piece)에 따라 조회합니다.
 
@@ -444,7 +466,15 @@ public interface PostApiDocs {
 
 
 
-    @Operation(summary = "내가 작성한 글 조회", description = "게시글 유형(type: free, piece)과 페이지 정보를 기준으로 사용자가 작성한 글 목록을 조회합니다.")
+    /**
+             * 사용자가 작성한 게시글 목록을 유형과 페이지 정보에 따라 조회합니다.
+             *
+             * @param type 조회할 게시글 유형("free" 또는 "piece")
+             * @param page 조회할 페이지 번호(기본값 0)
+             * @param size 한 페이지당 게시글 수(기본값 10)
+             * @return 사용자가 작성한 게시글 목록과 페이징 정보를 포함한 응답
+             */
+            @Operation(summary = "내가 작성한 글 조회", description = "게시글 유형(type: free, piece)과 페이지 정보를 기준으로 사용자가 작성한 글 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "내가 작성한 글 목록 조회 성공",
                     content = @Content(
