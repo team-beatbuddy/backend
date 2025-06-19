@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.post.controller;
 
 import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
 import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
+import com.ceos.beatbuddy.domain.post.dto.PostPageResponseDTO;
 import com.ceos.beatbuddy.domain.post.dto.ResponsePostDto;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -512,5 +513,34 @@ public interface PostApiDocs {
 
 
 
+    @Operation(summary = "인기 게시글 상위 2개 조회", description = "최근 12시간 이내 작성된 게시글 중 좋아요+스크랩 기준으로 상위 2개를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "인기 게시글 상위 2개 조회 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = PostListResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                                            {
+                                              "status": 200,
+                                              "code": "SUCCESS_GET_HOT_POSTS",
+                                              "message": "인기 게시글 상위 2개 조회했습니다.",
+                                              "data":
+                                                  {
+                                                    "id": 21,
+                                                    "title": "string",
+                                                    "content": "string",
+                                                    "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/69196aa6-6--.png",
+                                                    "role": "BUSINESS",
+                                                    "likes": 0,
+                                                    "scraps": 0,
+                                                    "comments": 0,
+                                                    "nickname": "길동hong",
+                                                    "createAt": "2025-06-19"
+                                                  }
+                                            }
+                                    """))
+            )
+    })
+    ResponseEntity<ResponseDTO<List<PostPageResponseDTO>>> getHotPosts();
 
 }
