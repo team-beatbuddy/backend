@@ -38,6 +38,13 @@ import java.util.List;
 public class PostController implements PostApiDocs {
     private final PostService postService;
 
+    /**
+     * 지정한 타입의 게시물을 생성합니다.
+     *
+     * @param type 생성할 게시물의 타입 ("free" 또는 "piece")
+     * @param requestDto 게시물 생성에 필요한 데이터가 담긴 요청 DTO
+     * @return 생성된 게시물 엔티티를 반환합니다.
+     */
     @PostMapping("/{type}")
     @Operation(summary = "게시물 생성", description = "게시물을 생성합니다 (type: free/piece), 밑의 Post 관련 RequestDto들을 참고해"
             + "타입에 맞는 request를 채워주세요.")
@@ -52,6 +59,16 @@ public class PostController implements PostApiDocs {
         return ResponseEntity.ok(postService.addPost(type, requestDto));
     }
 
+    /**
+     * 멀티파트 폼 데이터로 새로운 게시글을 생성합니다.
+     *
+     * 게시글 유형과 게시글 생성 정보, 선택적으로 이미지 파일들을 받아 현재 인증된 사용자의 게시글을 생성합니다.
+     *
+     * @param type 생성할 게시글의 유형 (예: "free", "piece")
+     * @param postCreateRequestDTO 게시글 생성에 필요한 정보가 담긴 DTO
+     * @param images 첨부할 이미지 파일 목록 (선택)
+     * @return 생성된 게시글 정보를 포함한 성공 응답
+     */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/new/{type}")
     public ResponseEntity<ResponseDTO<ResponsePostDto>> addNewPost(
             @PathVariable String type,
@@ -67,6 +84,13 @@ public class PostController implements PostApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATE_POST, result));
     }
 
+    /**
+     * 지정한 유형과 ID에 해당하는 게시물을 조회합니다.
+     *
+     * @param type 게시물 유형 ("free" 또는 "piece")
+     * @param postId 조회할 게시물의 ID
+     * @return 조회된 게시물 엔티티
+     */
     @GetMapping("/{type}/{postId}")
     @Operation(summary = "게시물 조회", description = "게시물을 조회합니다 (type: free/piece)")
     @ApiResponses({
@@ -202,6 +226,12 @@ public class PostController implements PostApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_SCRAP_POST, "스크랩을 완료했습니다."));
     }
 
+    /**
+     * 현재 인증된 사용자가 지정한 게시글의 스크랩을 취소합니다.
+     *
+     * @param postId 스크랩을 취소할 게시글의 ID
+     * @return 스크랩 취소 성공 메시지를 담은 응답 객체
+     */
     @Override
     @DeleteMapping("/{postId}/scrap")
     public ResponseEntity<ResponseDTO<String>> deleteScrapPost(@PathVariable Long postId) {
@@ -214,6 +244,14 @@ public class PostController implements PostApiDocs {
     }
 
 
+    /**
+     * 현재 인증된 사용자가 스크랩한 게시글 목록을 타입별로 페이징하여 조회합니다.
+     *
+     * @param type 조회할 게시글 타입
+     * @param page 페이지 번호 (기본값: 0)
+     * @param size 페이지당 게시글 수 (기본값: 10)
+     * @return 스크랩한 게시글 목록과 관련 메타데이터가 포함된 응답
+     */
     @Override
     @GetMapping("/my-page")
     public ResponseEntity<ResponseDTO<PostListResponseDTO>> getScrappedPosts(
@@ -228,6 +266,14 @@ public class PostController implements PostApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.GET_SCRAPPED_POST_LIST, result));
     }
 
+    /**
+     * 현재 인증된 사용자가 작성한 게시글 목록을 타입별로 페이징하여 조회합니다.
+     *
+     * @param type 조회할 게시글 타입
+     * @param page 페이지 번호 (기본값: 0)
+     * @param size 페이지당 게시글 수 (기본값: 10)
+     * @return 게시글 목록과 성공 코드가 포함된 응답 객체
+     */
     @GetMapping("/my")
     public ResponseEntity<ResponseDTO<PostListResponseDTO>> getMyPosts(
             @RequestParam String type,

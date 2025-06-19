@@ -56,6 +56,14 @@ public class PostService {
     @Autowired
     private UploadUtil uploadUtil;
 
+    /**
+     * 주어진 타입과 요청 정보를 기반으로 게시글을 생성합니다.
+     *
+     * @param type 생성할 게시글의 타입("free" 또는 "piece")
+     * @param requestDto 게시글 생성에 필요한 데이터와 이미지 목록을 포함한 DTO
+     * @return 생성된 게시글 엔티티
+     * @throws CustomException 회원이 존재하지 않거나 게시글 타입이 유효하지 않은 경우 발생
+     */
     @Transactional
     public Post addPost(String type, PostRequestDto requestDto) {
         Long memberId = SecurityUtils.getCurrentMemberId();
@@ -71,6 +79,16 @@ public class PostService {
         };
     }
 
+    /**
+     * 주어진 타입과 데이터로 새로운 게시글을 생성하고 저장합니다.
+     *
+     * @param type 게시글 유형("free" 또는 "piece")
+     * @param dto 게시글 생성 요청 데이터
+     * @param memberId 게시글 작성자 ID
+     * @param images 업로드할 이미지 파일 목록
+     * @return 생성된 게시글의 응답 DTO
+     * @throws CustomException 존재하지 않는 회원, 잘못된 게시글 유형, 또는 존재하지 않는 공연장(venue)일 경우 발생
+     */
     @Transactional
     public ResponsePostDto addNewPost(String type, PostCreateRequestDTO dto, Long memberId, List<MultipartFile> images) {
         Member member = memberRepository.findById(memberId)
@@ -110,6 +128,14 @@ public class PostService {
         return ResponsePostDto.of(Objects.requireNonNull(savedPost));
     }
 
+    /**
+     * 지정된 타입과 ID에 해당하는 게시글을 조회하고 조회수를 1 증가시킵니다.
+     *
+     * @param type   게시글 타입 ("free" 또는 "piece")
+     * @param postId 조회할 게시글의 ID
+     * @return 조회된 게시글 엔티티
+     * @throws CustomException 게시글이 존재하지 않거나 타입이 유효하지 않은 경우 발생
+     */
     public Post readPost(String type, Long postId) {
         switch (type) {
             case "free" -> {
@@ -323,6 +349,16 @@ public class PostService {
         postScrapRepository.delete(postScrap);
     }
 
+    /**
+     * 지정한 회원이 스크랩한 게시글 중에서 주어진 타입("free" 또는 "piece")에 해당하는 게시글 목록을 페이지 단위로 조회합니다.
+     *
+     * @param memberId 조회할 회원의 ID
+     * @param type     게시글 타입("free" 또는 "piece")
+     * @param page     조회할 페이지 번호(0부터 시작)
+     * @param size     페이지당 게시글 수
+     * @return         필터링된 게시글 목록과 페이지 정보를 담은 PostListResponseDTO
+     * @throws CustomException 회원이 존재하지 않거나 게시글 타입이 유효하지 않은 경우 발생
+     */
     @Transactional(readOnly = true)
     public PostListResponseDTO getScrappedPostsByType(Long memberId, String type, int page, int size) {
         Member member = memberRepository.findById(memberId)
@@ -350,6 +386,16 @@ public class PostService {
     }
 
 
+    /**
+     * 지정한 회원이 작성한 게시글을 타입별로 페이징하여 조회합니다.
+     *
+     * @param memberId 조회할 회원의 ID
+     * @param type 게시글 타입 ("free" 또는 "piece")
+     * @param page 조회할 페이지 번호
+     * @param size 페이지당 게시글 수
+     * @return 페이징된 게시글 목록과 메타데이터를 포함한 응답 DTO
+     * @throws CustomException 회원이 존재하지 않거나 게시글 타입이 유효하지 않은 경우 발생
+     */
     @Transactional(readOnly = true)
     public PostListResponseDTO getMyPostsByType(Long memberId, String type, int page, int size) {
         Member member = memberRepository.findById(memberId)
