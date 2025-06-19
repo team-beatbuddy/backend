@@ -10,6 +10,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -36,5 +38,9 @@ public class PostLike extends BaseTimeEntity {
                 .member(member)
                 .post(post)
                 .build();
+    }
+
+    public Long getPostId() {
+        return this.post.getId();
     }
 }

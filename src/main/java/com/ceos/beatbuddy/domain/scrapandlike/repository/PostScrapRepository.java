@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface PostScrapRepository extends JpaRepository<PostScrap, PostInteractionId> {
     boolean existsById(PostInteractionId id);
     void deleteById(PostInteractionId id);
@@ -16,4 +18,5 @@ public interface PostScrapRepository extends JpaRepository<PostScrap, PostIntera
     @Query("SELECT ps.post FROM PostScrap ps WHERE ps.member.id = :memberId")
     Page<Post> findPostsByMemberId(@Param("memberId") Long memberId, Pageable pageable);
 
+    List<PostScrap> findAllByMember_IdAndPost_IdIn(Long memberId, List<Long> postIds);
 }

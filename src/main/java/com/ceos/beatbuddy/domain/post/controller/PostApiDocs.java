@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.post.controller;
 
 import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
 import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
+import com.ceos.beatbuddy.domain.post.dto.PostPageResponseDTO;
 import com.ceos.beatbuddy.domain.post.dto.ResponsePostDto;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -383,30 +384,33 @@ public interface PostApiDocs {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ResponseDTO.class),
                             examples = @ExampleObject(name = "성공 예시", value = """
-                                {
-                                  "status": 200,
-                                  "code": "SUCCESS_GET_SCRAPPED_POST_LIST",
-                                  "message": "스크랩한 글을 불러왔습니다.",
-                                  "data": {
-                                    "totalPost": 3,
-                                    "size": 10,
-                                    "page": 0,
-                                    "responseDTOS": [
-                                      {
-                                        "id": 11,
-                                        "title": "자유 게시판 제목",
-                                        "content": "내용 요약...",
-                                        "thumbImage": "https://example.com/thumb.png",
-                                        "role": "USER",
-                                        "likes": 5,
-                                        "scraps": 2,
-                                        "comments": 1,
-                                        "nickname": "닉네임",
-                                        "createAt": "2025-06-19"
-                                      }
-                                    ]
+                            {
+                              "status": 200,
+                              "code": "GET_SCRAPPED_POST_LIST",
+                              "message": "스크랩한 글을 불러왔습니다.",
+                              "data": {
+                                "totalPost": 510,
+                                "size": 1,
+                                "page": 0,
+                                "responseDTOS": [
+                                  {
+                                    "id": 532,
+                                    "title": "제목 532",
+                                    "content": "내용 532",
+                                    "thumbImage": null,
+                                    "role": "BUSINESS",
+                                    "likes": 0,
+                                    "scraps": 12,
+                                    "comments": 0,
+                                    "liked": true,
+                                    "scrapped": true,
+                                    "hasCommented": false,
+                                    "nickname": "길동hong",
+                                    "createAt": "2025-06-19"
                                   }
-                                }
+                                ]
+                              }
+                            }
                                 """)
                     )
             ),
@@ -451,30 +455,33 @@ public interface PostApiDocs {
                             mediaType = "application/json",
                             schema = @Schema(implementation = PostListResponseDTO.class),
                             examples = @ExampleObject(value = """
-                            {
-                              "status": 200,
-                              "code": "GET_MY_POST_LIST",
-                              "message": "내가 작성한 글을 불러왔습니다.",
-                              "data": {
-                                "totalPost": 1,
-                                "size": 10,
-                                "page": 0,
-                                "responseDTOS": [
-                                  {
-                                    "id": 21,
-                                    "title": "string",
-                                    "content": "string",
-                                    "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/69196aa6-6--.png",
-                                    "role": "BUSINESS",
-                                    "likes": 0,
-                                    "scraps": 0,
-                                    "comments": 0,
-                                    "nickname": "길동hong",
-                                    "createAt": "2025-06-19"
-                                  }
-                                ]
-                              }
-                            }
+                                    {
+                                      "status": 200,
+                                      "code": "GET_MY_POST_LIST",
+                                      "message": "내가 작성한 글을 불러왔습니다.",
+                                      "data": {
+                                        "totalPost": 22,
+                                        "size": 10,
+                                        "page": 0,
+                                        "responseDTOS": [
+                                          {
+                                            "id": 42,
+                                            "title": "string",
+                                            "content": "string",
+                                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/59863c2f-d--.png",
+                                            "role": "BUSINESS",
+                                            "likes": 0,
+                                            "scraps": 12,
+                                            "comments": 0,
+                                            "liked": true,
+                                            "scrapped": true,
+                                            "hasCommented": false,
+                                            "nickname": "길동hong",
+                                            "createAt": "2025-06-19"
+                                          }
+                                        ]
+                                      }
+                                    }
                     """))
             ),
             @ApiResponse(responseCode = "400", description = "잘못된 게시글 타입 요청",
@@ -503,7 +510,6 @@ public interface PostApiDocs {
                                 """)
                     )
             )
-
     })
     ResponseEntity<ResponseDTO<PostListResponseDTO>> getMyPosts(
             @RequestParam String type,
@@ -512,5 +518,78 @@ public interface PostApiDocs {
 
 
 
+
+    @Operation(summary = "게시물 조회", description = "게시물을 조회합니다 (type: free/piece)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "선택한 포스트 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = PostListResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "status": 200,
+                                      "code": "SUCCESS_GET_POST",
+                                      "message": "포스트를 불러왔습니다.",
+                                      "data":
+                                          {
+                                            "id": 42,
+                                            "title": "string",
+                                            "content": "string",
+                                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/59863c2f-d--.png",
+                                            "role": "BUSINESS",
+                                            "likes": 0,
+                                            "scraps": 12,
+                                            "comments": 0,
+                                            "liked": true,
+                                            "scrapped": true,
+                                            "hasCommented": false,
+                                            "nickname": "길동hong",
+                                            "createAt": "2025-06-19"
+                                          }
+                                    }
+                    """))
+            ),
+            @ApiResponse(responseCode = "400", description = "잘못된 게시글 타입 요청",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(name = "잘못된 type 예시", value = """
+                                {
+                                  "status": 400,
+                                  "error": "BAD_REQUEST",
+                                  "code": "INVALID_POST_TYPE",
+                                  "message": "포스트의 type이 올바르지 않습니다"
+                                }
+                                """)
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 유저",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = { @ExampleObject(name = "존재하지 않는 유저", value = """
+                                    {
+                                      "status": 404,
+                                      "error": "NOT_FOUND",
+                                      "code": "MEMBER_NOT_EXIST",
+                                      "message": "요청한 유저가 존재하지 않습니다."
+                                    }
+                                    """),
+                                    @ExampleObject(
+                                            name = "존재하지 않는 포스트",
+                                            value = """
+                                                        {
+                                                          "status": 404,
+                                                          "error": "NOT_FOUND",
+                                                          "code": "POST_NOT_EXIST",
+                                                          "message": "존재하지 않는 포스트입니다."
+                                                        }
+                                                    """
+                                    )}
+                    )
+            )
+
+    })
+    ResponseEntity<ResponseDTO<PostPageResponseDTO>> newReadPost(
+            @PathVariable String type,
+            @PathVariable Long postId);
 
 }
