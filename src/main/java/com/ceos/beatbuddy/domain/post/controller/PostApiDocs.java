@@ -529,7 +529,7 @@ public interface PostApiDocs {
                                               "status": 200,
                                               "code": "SUCCESS_GET_HOT_POSTS",
                                               "message": "인기 게시글 상위 2개 조회했습니다.",
-                                              "data":
+                                              "data": [
                                                   {
                                                     "id": 21,
                                                     "title": "string",
@@ -542,6 +542,7 @@ public interface PostApiDocs {
                                                     "nickname": "길동hong",
                                                     "createAt": "2025-06-19"
                                                   }
+                                              ]
                                             }
                                     """))
             )
