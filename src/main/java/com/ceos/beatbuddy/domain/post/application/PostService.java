@@ -9,10 +9,7 @@ import com.ceos.beatbuddy.domain.post.entity.Piece;
 import com.ceos.beatbuddy.domain.post.entity.PiecePost;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
-import com.ceos.beatbuddy.domain.post.repository.FreePostRepository;
-import com.ceos.beatbuddy.domain.post.repository.PiecePostRepository;
-import com.ceos.beatbuddy.domain.post.repository.PieceRepository;
-import com.ceos.beatbuddy.domain.post.repository.PostRepository;
+import com.ceos.beatbuddy.domain.post.repository.*;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostInteractionId;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostLike;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostScrap;
@@ -52,6 +49,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final PostScrapRepository postScrapRepository;
+    private final PostQueryRepository postQueryRepository;
 
     @Autowired
     private UploadUtil uploadUtil;
@@ -164,6 +162,14 @@ public class PostService {
             default -> throw new CustomException(PostErrorCode.INVALID_SORT_TYPE);
         };
     }
+
+
+    public List<PostPageResponseDTO> getHotPosts() {
+        List<Post> posts = postQueryRepository.findHotPostsWithin12Hours();
+
+        return posts.stream().map((PostPageResponseDTO::toDTO)).toList();
+    }
+
 
     @Transactional
     public void deletePost(String type, Long postId, Long memberId) {

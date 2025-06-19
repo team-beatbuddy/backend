@@ -2,10 +2,7 @@ package com.ceos.beatbuddy.domain.post.controller;
 
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineResponseDTO;
-import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
-import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
-import com.ceos.beatbuddy.domain.post.dto.PostRequestDto;
-import com.ceos.beatbuddy.domain.post.dto.ResponsePostDto;
+import com.ceos.beatbuddy.domain.post.dto.*;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
@@ -154,6 +151,15 @@ public class PostController implements PostApiDocs {
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_POST_SORT_LIST.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_POST_SORT_LIST, result));
+    }
+
+    @GetMapping("/posts/hot")
+    public ResponseEntity<ResponseDTO<List<PostPageResponseDTO>>> getHotPosts() {
+        List<PostPageResponseDTO> result = postService.getHotPosts();
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_HOT_POSTS.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_HOT_POSTS, result));
     }
 
     @DeleteMapping("/{type}/{postId}")

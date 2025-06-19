@@ -82,6 +82,7 @@ public enum SuccessCode implements ApiCode {
     GET_SCRAPPED_POST_LIST(HttpStatus.OK, "스크랩한 글을 불러왔습니다."),
     GET_MY_POST_LIST(HttpStatus.OK,"내가 작성한 글을 불러왔습니다."),
     SUCCESS_CREATE_POST(HttpStatus.CREATED, "포스트를 작성했습니다."),
+    SUCCESS_GET_HOT_POSTS(HttpStatus.OK, "인기 게시글 상위 2개 조회했습니다."),
 
     /**
      * empty
