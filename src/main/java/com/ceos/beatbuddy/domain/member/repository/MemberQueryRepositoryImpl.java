@@ -6,9 +6,12 @@ import com.ceos.beatbuddy.domain.member.entity.QMember;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.post.entity.QPost;
 import com.ceos.beatbuddy.global.CustomException;
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.Objects;
 
 import static com.ceos.beatbuddy.domain.follow.entity.QFollow.follow;
 import static com.ceos.beatbuddy.domain.member.entity.QMember.member;
@@ -23,59 +26,34 @@ public class MemberQueryRepositoryImpl implements MemberQueryRepository{
         QPost p = post;
         QFollow f = follow;
 
-        // 멤버 유효한지 확인 후 예외 처리 진행
-        boolean exists = queryFactory
-                .selectOne()
-                .from(m)
-                .where(m.id.eq(memberId))
-                .fetchFirst() != null;
+        Tuple result = queryFactory
+                .select(
+                        m.id,
+                        m.nickname,
+                        m.role,
+                        p.id.countDistinct(),
+                        f.follower.id.countDistinct(),
+                        f.following.id.countDistinct()
 
-        if (!exists) {
+                )
+                .from(m)
+                .leftJoin(p).on(p.member.id.eq(m.id))
+                .leftJoin(f).on(f.follower.id.eq(m.id))
+                .leftJoin(f).on(f.following.id.eq(m.id))
+                .where(m.id.eq(memberId))
+                .groupBy(m.id, m.nickname, m.profileImage, m.role)
+                .fetchOne();
+
+        if (result == null) {
             throw new CustomException(MemberErrorCode.MEMBER_NOT_EXIST);
+        } else {
+            // null인 경우 0으로 입력되도록 처리
+            int postCount = result.get(p.id.countDistinct()) != null ? result.get(p.id.countDistinct()).intValue() : 0;
+            int followerCount = result.get(f.id.countDistinct()) != null ? result.get(f.id.countDistinct()).intValue() : 0;
+            int followingCount = result.get(f.id.countDistinct()) != null ? result.get(f.id.countDistinct()).intValue() : 0;
+
+            return MemberProfileSummaryDTO.toDTO(result.get(m.id).longValue(), result.get(m.nickname), result.get(m.profileImage), result.get(m.role), postCount, followerCount, followingCount);
+
         }
-
-        String nickname = queryFactory
-                .select(m.nickname)
-                .from(m)
-                .where(m.id.eq(memberId))
-                .fetchOne();
-
-        String profileImageUrl = queryFactory
-                .select(m.profileImage)
-                .from(m)
-                .where(m.id.eq(memberId))
-                .fetchOne();
-
-        String role = queryFactory
-                .select(m.role)
-                .from(m)
-                .where(m.id.eq(memberId))
-                .fetchOne();
-
-        Long postCountRaw = queryFactory
-                .select(p.count())
-                .from(p)
-                .where(p.member.id.eq(memberId))
-                .fetchOne();
-
-        Long followerCountRaw = queryFactory
-                .select(f.count())
-                .from(f)
-                .where(f.following.id.eq(memberId))
-                .fetchOne();
-
-        Long followingCountRaw = queryFactory
-                .select(f.count())
-                .from(f)
-                .where(f.follower.id.eq(memberId))
-                .fetchOne();
-
-
-        // null인 경우 0으로 입력되도록 처리
-        int postCount = postCountRaw != null ? postCountRaw.intValue() : 0;
-        int followerCount = followerCountRaw != null ? followerCountRaw.intValue() : 0;
-        int followingCount = followingCountRaw != null ? followingCountRaw.intValue() : 0;
-
-        return MemberProfileSummaryDTO.toDTO(nickname, profileImageUrl, role, postCount, followerCount, followingCount);
     }
 }
