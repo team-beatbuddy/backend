@@ -104,6 +104,7 @@ public interface MemberApiDocs {
                                       "code": "SUCCESS_GET_PROFILE_SUMMARY",
                                       "message": "프로필 요약 조회를 성공했습니다.",
                                       "data": {
+                                        "memberId": 156,
                                         "nickname": "길동hong",
                                         "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/member/01e2e094-3--.png",
                                         "role": "BUSINESS",
