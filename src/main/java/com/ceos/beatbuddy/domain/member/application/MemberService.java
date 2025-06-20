@@ -3,13 +3,10 @@ package com.ceos.beatbuddy.domain.member.application;
 import com.ceos.beatbuddy.domain.archive.repository.ArchiveRepository;
 import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
 import com.ceos.beatbuddy.domain.member.constant.Region;
-import com.ceos.beatbuddy.domain.member.dto.MemberConsentRequestDTO;
-import com.ceos.beatbuddy.domain.member.dto.MemberResponseDTO;
-import com.ceos.beatbuddy.domain.member.dto.NicknameDTO;
+import com.ceos.beatbuddy.domain.member.dto.*;
+import com.ceos.beatbuddy.domain.member.repository.MemberQueryRepository;
 import com.ceos.beatbuddy.global.UploadUtil;
 import com.ceos.beatbuddy.global.config.oauth.dto.Oauth2MemberDto;
-import com.ceos.beatbuddy.domain.member.dto.OnboardingResponseDto;
-import com.ceos.beatbuddy.domain.member.dto.RegionRequestDTO;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.entity.MemberGenre;
 import com.ceos.beatbuddy.domain.member.entity.MemberMood;
@@ -53,6 +50,7 @@ public class MemberService {
     private final HeartbeatRepository heartbeatRepository;
     private final ArchiveRepository archiveRepository;
     private final UploadUtil uploadUtil;
+    private final MemberQueryRepository memberQueryRepository;
     private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9가-힣._]*$");
 //
 //    @Value("${iamport.api.key}")
@@ -343,6 +341,10 @@ public class MemberService {
 
         // 멤버 정보 업데이트
         member.setProfileImage(imageUrl);
+    }
+
+    public MemberProfileSummaryDTO getProfileSummary(Long memberId) {
+        return memberQueryRepository.getMemberSummary(memberId);
     }
 
 
