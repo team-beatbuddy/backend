@@ -13,6 +13,7 @@ import jakarta.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,6 +71,16 @@ public class UploadUtil {
 
         validationImage(image.getOriginalFilename());
         return uploadImageS3(image, getBucketName(type), folder);
+    }
+
+    public List<String> uploadImages(List<MultipartFile> images, String directory) {
+        return images.stream().map(image -> {
+            try {
+                return this.upload(image, UploadUtil.BucketType.MEDIA, directory);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
     }
 
     private String uploadImageS3(MultipartFile image, String bucketName, String folder) throws IOException {

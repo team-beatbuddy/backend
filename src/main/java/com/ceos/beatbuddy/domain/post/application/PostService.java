@@ -54,14 +54,13 @@ public class PostService {
     private final PostScrapRepository postScrapRepository;
     private final PostQueryRepository postQueryRepository;
     private final CommentRepository commentRepository;
+    private final UploadUtil uploadUtil;
 
-    @Autowired
-    private UploadUtil uploadUtil;
 
     @Transactional
     public Post addPost(Long memberId, String type, PostRequestDto requestDto) {
         Member member = memberService.validateAndGetMember(memberId);
-        List<String> imageUrls = uploadImages(requestDto.images());
+        List<String> imageUrls = uploadUtil.uploadImages(requestDto.images(), "post");
 
         return switch (type) {
             case "free" -> createFreePost(member, requestDto, imageUrls);
@@ -75,13 +74,7 @@ public class PostService {
         Member member = memberService.validateAndGetMember(memberId);
 
         // 이미지 s3 올리기
-        List<String> imageUrls = images.stream().map(( image -> {
-            try {
-                return uploadUtil.upload(image, UploadUtil.BucketType.MEDIA, "post");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        })).toList();
+        List<String> imageUrls = uploadUtil.uploadImages(images, "post");
 
         Post savedPost = null;
 
@@ -277,18 +270,6 @@ public class PostService {
             }
             default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
         }
-    }
-
-    private List<String> uploadImages(List<MultipartFile> images) {
-        return images.stream()
-                .map(image -> {
-                    try {
-                        return uploadUtil.upload(image, UploadUtil.BucketType.MEDIA, "post");
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .collect(Collectors.toList());
     }
 
     private FreePost createFreePost(Member member, PostRequestDto requestDto, List<String> imageUrls) {
