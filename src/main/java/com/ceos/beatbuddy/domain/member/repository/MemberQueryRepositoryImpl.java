@@ -31,6 +31,7 @@ public class MemberQueryRepositoryImpl implements MemberQueryRepository{
                 .select(
                         qMember.id,
                         qMember.nickname,
+                        qMember.profileImage,
                         qMember.role,
                         qPost.id.countDistinct(),
                         qFollowerFollow.follower.id.countDistinct(),
