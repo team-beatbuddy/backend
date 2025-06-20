@@ -2,8 +2,8 @@ package com.ceos.beatbuddy.domain.post.application;
 
 import com.ceos.beatbuddy.domain.comment.entity.Comment;
 import com.ceos.beatbuddy.domain.comment.repository.CommentRepository;
+import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.post.dto.*;
 import com.ceos.beatbuddy.domain.post.dto.PostRequestDto.PiecePostRequestDto;
 import com.ceos.beatbuddy.domain.post.entity.FreePost;
@@ -46,7 +46,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class PostService {
     private final FreePostRepository freePostRepository;
     private final PiecePostRepository piecePostRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final VenueRepository venueRepository;
     private final PieceRepository pieceRepository;
     private final PostRepository postRepository;
@@ -59,11 +59,8 @@ public class PostService {
     private UploadUtil uploadUtil;
 
     @Transactional
-    public Post addPost(String type, PostRequestDto requestDto) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
-
+    public Post addPost(Long memberId, String type, PostRequestDto requestDto) {
+        Member member = memberService.validateAndGetMember(memberId);
         List<String> imageUrls = uploadImages(requestDto.images());
 
         return switch (type) {
@@ -75,9 +72,7 @@ public class PostService {
 
     @Transactional
     public ResponsePostDto addNewPost(String type, PostCreateRequestDTO dto, Long memberId, List<MultipartFile> images) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
-
+        Member member = memberService.validateAndGetMember(memberId);
 
         // 이미지 s3 올리기
         List<String> imageUrls = images.stream().map(( image -> {
@@ -171,10 +166,12 @@ public class PostService {
         };
     }
 
-    public PostListResponseDTO readAllPostsSort(String type, String sort, int page, int size) {
+    public PostListResponseDTO readAllPostsSort(Long memberId, String type, String sort, int page, int size) {
         Sort sortOption = getSortOption(sort);
         Pageable pageable = PageRequest.of(page, size, sortOption);
-        Long memberId = SecurityUtils.getCurrentMemberId();
+
+        Member member = memberService.validateAndGetMember(memberId);
+
 
         Page<? extends Post> postPage = switch (type) {
             case "free" -> freePostRepository.findAll(pageable);
@@ -186,17 +183,17 @@ public class PostService {
         List<Long> postIds = posts.stream().map(Post::getId).toList();
 
         // 좋아요/스크랩/댓글 여부를 IN 쿼리로 한 번에 조회
-        Set<Long> likedPostIds = postLikeRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+        Set<Long> likedPostIds = postLikeRepository.findAllByMember_IdAndPost_IdIn(member.getId(), postIds)
                 .stream()
                 .map(PostLike::getPostId)
                 .collect(Collectors.toSet());
 
-        Set<Long> scrappedPostIds = postScrapRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+        Set<Long> scrappedPostIds = postScrapRepository.findAllByMember_IdAndPost_IdIn(member.getId(), postIds)
                 .stream()
                 .map(PostScrap::getPostId)
                 .collect(Collectors.toSet());
 
-        Set<Long> commentedPostIds = commentRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+        Set<Long> commentedPostIds = commentRepository.findAllByMember_IdAndPost_IdIn(member.getId(), postIds)
                 .stream()
                 .map(Comment::getPostId)
                 .collect(Collectors.toSet());
@@ -263,9 +260,11 @@ public class PostService {
 
     @Transactional
     public void deletePost(String type, Long postId, Long memberId) {
+        Member member = memberService.validateAndGetMember(memberId);
+
         Post post = readPost(type, postId);
 
-        if (!post.getMember().getId().equals(memberId)) {
+        if (!post.getMember().getId().equals(member.getId())) {
             throw new CustomException(PostErrorCode.MEMBER_NOT_MATCH);
         }
 
@@ -346,8 +345,8 @@ public class PostService {
 
     @Transactional
     public void likePost(Long postId, Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
+
 
 
         Post post = findPostByIdWithDiscriminator(postId);
@@ -370,8 +369,8 @@ public class PostService {
 
     @Transactional
     public void deletePostLike(Long postId, Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
+
 
         Post post = findPostByIdWithDiscriminator(postId);
 
@@ -385,8 +384,8 @@ public class PostService {
 
     @Transactional
     public void scrapPost(Long postId, Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
+
 
         Post post = findPostByIdWithDiscriminator(postId);
 
@@ -407,12 +406,12 @@ public class PostService {
 
     @Transactional
     public void deletePostScrap(Long postId, Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
+
 
         Post post = findPostByIdWithDiscriminator(postId);
 
-        PostInteractionId scrapId = new PostInteractionId(memberId, post.getId());
+        PostInteractionId scrapId = new PostInteractionId(member.getId(), post.getId());
         PostScrap postScrap = postScrapRepository.findById(scrapId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_SCRAP));
 
@@ -421,13 +420,13 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostListResponseDTO getScrappedPostsByType(Long memberId, String type, int page, int size) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
+
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // 1. 스크랩한 게시글 페이징 조회
-        Page<Post> postPage = postScrapRepository.findPostsByMemberId(memberId, pageable);
+        Page<Post> postPage = postScrapRepository.findPostsByMemberId(member.getId(), pageable);
         List<Post> posts = postPage.getContent();
 
         // 2. 게시글 타입 필터링
@@ -445,12 +444,12 @@ public class PostService {
                 .toList();
 
         // 4. 연관 정보 bulk 조회
-        Set<Long> likedPostIds = postLikeRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+        Set<Long> likedPostIds = postLikeRepository.findAllByMember_IdAndPost_IdIn(member.getId(), postIds)
                 .stream()
                 .map(pl -> pl.getPost().getId())
                 .collect(Collectors.toSet());
 
-        Set<Long> commentedPostIds = commentRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+        Set<Long> commentedPostIds = commentRepository.findAllByMember_IdAndPost_IdIn(member.getId(), postIds)
                 .stream()
                 .map(c -> c.getPost().getId())
                 .collect(Collectors.toSet());
@@ -477,15 +476,14 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostListResponseDTO getMyPostsByType(Long memberId, String type, int page, int size) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<? extends Post> postPage;
 
         switch (type) {
-            case "free" -> postPage = freePostRepository.findByMemberId(memberId, pageable);
-            case "piece" -> postPage = piecePostRepository.findByMemberId(memberId, pageable);
+            case "free" -> postPage = freePostRepository.findByMemberId(member.getId(), pageable);
+            case "piece" -> postPage = piecePostRepository.findByMemberId(member.getId(), pageable);
             default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
         }
 
@@ -493,17 +491,17 @@ public class PostService {
         List<Long> postIds = posts.stream().map(Post::getId).toList();
 
         // 연관 정보 bulk 조회
-        Set<Long> likedPostIds = postLikeRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+        Set<Long> likedPostIds = postLikeRepository.findAllByMember_IdAndPost_IdIn(member.getId(), postIds)
                 .stream()
                 .map(pl -> pl.getPost().getId())
                 .collect(Collectors.toSet());
 
-        Set<Long> scrappedPostIds = postScrapRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+        Set<Long> scrappedPostIds = postScrapRepository.findAllByMember_IdAndPost_IdIn(member.getId(), postIds)
                 .stream()
                 .map(ps -> ps.getPost().getId())
                 .collect(Collectors.toSet());
 
-        Set<Long> commentedPostIds = commentRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+        Set<Long> commentedPostIds = commentRepository.findAllByMember_IdAndPost_IdIn(member.getId(), postIds)
                 .stream()
                 .map(c -> c.getPost().getId())
                 .collect(Collectors.toSet());

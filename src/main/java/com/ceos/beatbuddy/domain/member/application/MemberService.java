@@ -5,6 +5,7 @@ import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.dto.*;
 import com.ceos.beatbuddy.domain.member.repository.MemberQueryRepository;
+import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
 import com.ceos.beatbuddy.global.UploadUtil;
 import com.ceos.beatbuddy.global.config.oauth.dto.Oauth2MemberDto;
 import com.ceos.beatbuddy.domain.member.entity.Member;
@@ -347,5 +348,8 @@ public class MemberService {
         return memberQueryRepository.getMemberSummary(memberId);
     }
 
-
+    public Member validateAndGetMember(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+    }
 }
