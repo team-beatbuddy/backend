@@ -26,7 +26,7 @@ public enum ErrorCode implements ApiCode {
     /**
      * 403
      * */
-    UNAUTHORIZED_MEMBER(HttpStatus.FORBIDDEN, "글의 작성자가 아닙니다."),
+    UNAUTHORIZED_MEMBER(HttpStatus.FORBIDDEN, "해당 작업에 대한 권한이 없습니다."),
 
 
 
