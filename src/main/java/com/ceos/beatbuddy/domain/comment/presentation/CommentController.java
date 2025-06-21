@@ -37,7 +37,8 @@ public class CommentController {
     public ResponseEntity<CommentResponseDto> createComment(
             @PathVariable Long postId,
             @RequestBody CommentRequestDto requestDto) {
-        return ResponseEntity.ok(commentService.createComment(postId, requestDto));
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        return ResponseEntity.ok(commentService.createComment(memberId, postId, requestDto));
     }
 
     @PostMapping("/{commentId}/reply")
@@ -50,7 +51,8 @@ public class CommentController {
             @PathVariable Long postId,
             @PathVariable Long commentId,
             @RequestBody CommentRequestDto requestDto) {
-        return ResponseEntity.ok(commentService.createReply(postId, commentId, requestDto));
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        return ResponseEntity.ok(commentService.createReply(memberId, postId, commentId, requestDto));
     }
 
     @GetMapping("/{commentId}")

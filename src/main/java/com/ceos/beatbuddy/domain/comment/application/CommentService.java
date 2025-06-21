@@ -5,11 +5,13 @@ import com.ceos.beatbuddy.domain.comment.dto.CommentResponseDto;
 import com.ceos.beatbuddy.domain.comment.entity.Comment;
 import com.ceos.beatbuddy.domain.comment.exception.CommentErrorCode;
 import com.ceos.beatbuddy.domain.comment.repository.CommentRepository;
+import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.post.application.PostService;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.global.CustomException;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,16 +25,14 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final PostService postService;
 
     @Transactional
-    public CommentResponseDto createComment(Long postId, CommentRequestDto requestDto) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(CommentErrorCode.MEMBER_NOT_FOUND));
+    public CommentResponseDto createComment(Long memberId, Long postId, CommentRequestDto requestDto) {
+        Member member = memberService.validateAndGetMember(memberId);
 
-        Post post = postService.findPostByIdWithDiscriminator(postId);
+        Post post = postService.validateAndGetPost(postId);
 
         Comment comment = Comment.builder()
                 .content(requestDto.content())
@@ -49,12 +49,10 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponseDto createReply(Long postId, Long commentId, CommentRequestDto requestDto) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(CommentErrorCode.MEMBER_NOT_FOUND));
+    public CommentResponseDto createReply(Long memberId, Long postId, Long commentId, CommentRequestDto requestDto) {
+        Member member = memberService.validateAndGetMember(memberId);
 
-        Post post = postService.findPostByIdWithDiscriminator(postId);
+        Post post = postService.validateAndGetPost(postId);
 
         Comment parentComment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
@@ -92,7 +90,7 @@ public class CommentService {
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
         if (!comment.getMember().getId().equals(memberId)) {
-            throw new CustomException(CommentErrorCode.NOT_COMMENT_OWNER);
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
 
         Comment updatedComment = Comment.builder()
@@ -114,7 +112,7 @@ public class CommentService {
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
         if (!comment.getMember().getId().equals(memberId)) {
-            throw new CustomException(CommentErrorCode.NOT_COMMENT_OWNER);
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
 
         comment.getPost().decreaseComments();
