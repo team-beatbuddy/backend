@@ -10,7 +10,6 @@ import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
-import com.ceos.beatbuddy.domain.magazine.exception.MagazineErrorCode;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.EventInteractionId;
@@ -45,7 +44,7 @@ public class EventService {
         Member member = memberService.validateAndGetMember(memberId);
 
         if (!(Objects.equals(member.getRole(), "ADMIN")) && !(Objects.equals(member.getRole(), "BUSINESS"))) {
-            throw new CustomException(MagazineErrorCode.CANNOT_ADD_MAGAZINE_UNAUTHORIZED_MEMBER);
+            throw new CustomException(EventErrorCode.CANNOT_ADD_EVENT_UNAUTHORIZED_MEMBER);
         }
 
         // 엔티티 생성
@@ -147,11 +146,13 @@ public class EventService {
 
         EventLike eventLike = EventLike.toEntity(member, event);
         eventLikeRepository.save(eventLike);
-        event.increaseLike();
+        eventRepository.increaseLike(eventId);
 
-        boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, event.getId()));
+        // 반영된 값까지 포함해 다시 조회
+        Event updated = this.validateAndGet(eventId);
 
-        return EventResponseDTO.toDTO(event, liked);
+        boolean liked = true;
+        return EventResponseDTO.toDTO(updated, liked);
     }
 
     @Transactional
@@ -169,11 +170,13 @@ public class EventService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_LIKE));
 
         eventLikeRepository.delete(eventLike);
-        event.decreaseLike();
+        eventRepository.decreaseLike(eventId);
 
-        boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, event.getId()));
+        Event updated = this.validateAndGet(eventId);
 
-        return EventResponseDTO.toDTO(event, liked);
+        boolean liked = false;
+
+        return EventResponseDTO.toDTO(updated, liked);
     }
 
     @Transactional(readOnly = true)

@@ -8,6 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 
@@ -79,14 +82,6 @@ public class Event extends BaseTimeEntity {
 
     public void increaseView() {
         this.views++;
-    }
-
-    public synchronized void increaseLike() {
-        this.likes++;
-    }
-
-    public synchronized void decreaseLike() {
-        if (this.likes > 0) this.likes--;
     }
 
     public void setThumbImage(String imageUrl) {

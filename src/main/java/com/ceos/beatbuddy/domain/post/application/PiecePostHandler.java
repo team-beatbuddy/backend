@@ -8,6 +8,7 @@ import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
 import com.ceos.beatbuddy.domain.post.repository.PiecePostRepository;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.global.CustomException;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -61,7 +62,7 @@ public class PiecePostHandler implements PostTypeHandler{
     @Override
     public void validateWriter(Post post, Member member) {
         if (!post.getMember().equals(member)) {
-            throw new CustomException(PostErrorCode.MEMBER_NOT_MATCH);
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
     }
 }
