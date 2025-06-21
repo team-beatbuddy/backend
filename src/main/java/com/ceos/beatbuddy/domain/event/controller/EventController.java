@@ -162,7 +162,7 @@ public class EventController implements EventApiDocs {
     }
 
     @Override
-    @PostMapping("/events/{eventId}/comments")
+    @PostMapping("/{eventId}/comments")
     public ResponseEntity<ResponseDTO<EventCommentResponseDTO>> createComment(
             @PathVariable Long eventId,
             @Valid @RequestBody EventCommentCreateRequestDTO dto) {
