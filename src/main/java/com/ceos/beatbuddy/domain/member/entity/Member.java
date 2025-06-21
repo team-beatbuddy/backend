@@ -97,6 +97,9 @@ public class Member extends BaseTimeEntity {
         int month = Integer.parseInt(birth.substring(2, 4));
         int day = Integer.parseInt(birth.substring(4, 6));
 
+        if (this.businessInfo == null) {
+            this.businessInfo = new BusinessInfo();
+        }
         this.businessInfo.saveBirth(LocalDate.of(year, month, day));
         this.gender = (genderCode % 2 == 1) ? Gender.TYPE1 : Gender.TYPE2;
     }
