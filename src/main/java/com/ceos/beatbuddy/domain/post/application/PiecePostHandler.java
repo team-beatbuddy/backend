@@ -50,9 +50,8 @@ public class PiecePostHandler implements PostTypeHandler{
     @Override
     public void deletePost(Long postId, Member member) {
         Post post = validateAndGetPost(postId);
-        if (isWriter(post, member)) {
-            piecePostRepository.deleteById(post.getId());
-        }
+        isWriter(post, member);
+        piecePostRepository.deleteById(post.getId());
     }
 
     public Post validateAndGetPost(Long postId) {
@@ -61,10 +60,9 @@ public class PiecePostHandler implements PostTypeHandler{
     }
 
     @Override
-    public Boolean isWriter(Post post, Member member) {
-        if (post.getMember().equals(member)) {
+    public void isWriter(Post post, Member member) {
+        if (!post.getMember().equals(member)) {
             throw new CustomException(PostErrorCode.MEMBER_NOT_MATCH);
         }
-        return true;
     }
 }
