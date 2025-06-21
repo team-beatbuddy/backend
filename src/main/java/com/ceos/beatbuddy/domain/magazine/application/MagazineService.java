@@ -62,7 +62,6 @@ public class MagazineService {
     public List<MagazineHomeResponseDTO> readHomeMagazines(Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
 
-
         List<Magazine> magazines = magazineRepository.findMagazinesByIsVisibleTrue();
 
         return magazines.stream().map((MagazineHomeResponseDTO::toDTO)).toList();
