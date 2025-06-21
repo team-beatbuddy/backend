@@ -83,7 +83,7 @@ public class MemberMoodService {
 
     public MemberVectorResponseDTO getLatestMoodVector(Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
-        MemberMood memberMood = memberMoodRepository.findLatestMoodByMember(member).orElseThrow(()-> new CustomException((MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST)));
+        MemberMood memberMood = memberMoodRepository.findLatestMoodByMember(member).orElseThrow(()-> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));
         return MemberVectorResponseDTO.builder()
                 .vectorString(memberMood.getMoodVectorString())
                 .memberId(member.getId())
