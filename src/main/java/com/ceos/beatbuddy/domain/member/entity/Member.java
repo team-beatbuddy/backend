@@ -33,14 +33,10 @@ public class Member extends BaseTimeEntity {
     @Convert(converter = RegionConverter.class)
     private List<Region> regions;
 
-    private LocalDate dateOfBirth;
-
     private String role;
 
     @Builder.Default
     private Boolean setNewNickname = false;
-    @Builder.Default
-    private Boolean isAdult= false;
     @Builder.Default
     private Boolean isLocationConsent = false;
     @Builder.Default
@@ -48,35 +44,11 @@ public class Member extends BaseTimeEntity {
 
     private Long latestArchiveId;
 
-    private String phoneNumber;
-    @Builder.Default
-    private Boolean isVerified = false; // 본인인증이 되었는지
-    @Builder.Default
-    private Boolean isApproved = false; // 관리자 승인을 받앗는지 (비즈니스만)
-    private String businessName;
-
     private String profileImage;
 
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MemberGenre> memberGenres;
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MemberMood> memberMoods;
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Archive> archives;
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments;
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Heartbeat> heartbeats;
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Post> posts;
-
-
+    @Embedded
+    @Builder.Default
+    private BusinessInfo businessInfo = new BusinessInfo();
 
 
     public void saveConsents(Boolean isLocationConsent, Boolean isMarketingConsent) {
@@ -89,23 +61,11 @@ public class Member extends BaseTimeEntity {
         this.setNewNickname = true;
     }
 
-    public void saveBusinessName(String businessName) {
-        this.businessName = businessName;
-    }
-
     public void saveRegions(List<Region> regions) {
         this.regions = regions;
     }
 
-    public void setAdultUser(){
-        this.isAdult = true;
-    }
-
     public void saveLatestArchiveId(Long latestArchiveId) {this.latestArchiveId = latestArchiveId;}
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
 
     public void setBusinessMember() {
         this.role = "BUSINESS";
@@ -114,6 +74,7 @@ public class Member extends BaseTimeEntity {
     public void setRealName(String realName){
         this.realName = realName;
     }
+
     public void setDateOfBirthAndGender(String residentRegistration) {
         if (residentRegistration == null || residentRegistration.length() < 7) {
             throw new IllegalArgumentException("유효하지 않은 주민등록번호입니다.");
@@ -136,12 +97,8 @@ public class Member extends BaseTimeEntity {
         int month = Integer.parseInt(birth.substring(2, 4));
         int day = Integer.parseInt(birth.substring(4, 6));
 
-        this.dateOfBirth = LocalDate.of(year, month, day);
+        this.businessInfo.saveBirth(LocalDate.of(year, month, day));
         this.gender = (genderCode % 2 == 1) ? Gender.TYPE1 : Gender.TYPE2;
-    }
-
-    public void saveVerify() {
-        this.isVerified = true;
     }
 
     public void setProfileImage(String image) {

@@ -3,10 +3,8 @@ package com.ceos.beatbuddy.domain.member.application;
 import com.ceos.beatbuddy.domain.member.dto.MemberVectorResponseDTO;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.entity.MemberGenre;
-import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.exception.MemberGenreErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberGenreRepository;
-import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.vector.entity.Vector;
 import com.ceos.beatbuddy.global.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +19,12 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MemberGenreService {
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final MemberGenreRepository memberGenreRepository;
 
     @Transactional
     public MemberVectorResponseDTO addGenreVector(Long memberId, Map<String, Double> genres) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         Vector preferenceVector = Vector.fromGenres(genres);
 
@@ -48,7 +46,7 @@ public class MemberGenreService {
 
     @Transactional
     public MemberVectorResponseDTO deleteGenreVector(Long memberId, Long memberGenreId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
         MemberGenre memberGenre = memberGenreRepository.findById(memberGenreId).orElseThrow(()->new CustomException((MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST)));
         List<MemberGenre> memberGenres = memberGenreRepository.findAllByMember(member);
 
@@ -69,7 +67,7 @@ public class MemberGenreService {
     }
 
     public List<MemberVectorResponseDTO> getAllGenreVector(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
         List<MemberGenre> memberGenres = memberGenreRepository.findAllByMember(member);
         return memberGenres.stream()
                 .map(memberGenre -> MemberVectorResponseDTO.builder()
@@ -84,7 +82,7 @@ public class MemberGenreService {
     }
 
     public MemberVectorResponseDTO getLatestGenreVector(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
         MemberGenre memberGenre = memberGenreRepository.findLatestGenreByMember(member).orElseThrow(()-> new CustomException((MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST)));
         return MemberVectorResponseDTO.builder()
                 .vectorString(memberGenre.getGenreVectorString())

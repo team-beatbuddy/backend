@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.member.controller;
 
 import com.ceos.beatbuddy.domain.member.application.MemberService;
+import com.ceos.beatbuddy.domain.member.application.OnboardingService;
 import com.ceos.beatbuddy.domain.member.dto.*;
 import com.ceos.beatbuddy.global.ResponseTemplate;
 import com.ceos.beatbuddy.global.code.SuccessCode;
@@ -32,6 +33,7 @@ import java.util.Map;
         + "추후 사용자 상세 정보, 아카이브를 조회하는 기능이 추가될 수 있습니다")
 public class MemberController implements MemberApiDocs{
     private final MemberService memberService;
+    private final OnboardingService onboardingService;
 
     @GetMapping("/onboarding")
     @Operation(summary = "사용자 온보딩 완료 현황 조회", description = "사용자의 완료한 온보딩 단계를 조회합니다.")
@@ -48,7 +50,7 @@ public class MemberController implements MemberApiDocs{
     })
     public ResponseEntity<OnboardingResponseDto> getOnboardingSet() {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(memberService.isOnboarding(memberId));
+        return ResponseEntity.ok(onboardingService.isOnboarding(memberId));
     }
 
     @PostMapping("/onboarding/consent")
@@ -63,7 +65,7 @@ public class MemberController implements MemberApiDocs{
     })
     public ResponseEntity<MemberResponseDTO> saveTermConsent(@RequestBody MemberConsentRequestDTO memberConsentRequestDTO) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(memberService.saveMemberConsent(memberId, memberConsentRequestDTO));
+        return ResponseEntity.ok(onboardingService.saveMemberConsent(memberId, memberConsentRequestDTO));
     }
 
     @GetMapping("/onboarding/consent")
@@ -78,7 +80,7 @@ public class MemberController implements MemberApiDocs{
     })
     public ResponseEntity<Boolean> getTermConsentSet() {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(memberService.isTermConsent(memberId));
+        return ResponseEntity.ok(onboardingService.isTermConsent(memberId));
     }
 
     @PostMapping("/onboarding/nickname/duplicate")
@@ -96,7 +98,7 @@ public class MemberController implements MemberApiDocs{
     })
     public ResponseEntity<Boolean> isNicknameDuplicate(@RequestBody NicknameDTO nicknameDTO) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(memberService.isDuplicate(memberId, nicknameDTO));
+        return ResponseEntity.ok(onboardingService.isDuplicate(memberId, nicknameDTO));
     }
 
     @PostMapping("/onboarding/nickname/validate")
@@ -114,7 +116,7 @@ public class MemberController implements MemberApiDocs{
     })
     public ResponseEntity<Boolean> isNicknameValidate(@RequestBody NicknameDTO nicknameDTO) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(memberService.isValidate(memberId, nicknameDTO));
+        return ResponseEntity.ok(onboardingService.isValidate(memberId, nicknameDTO));
     }
 
     @PostMapping("/onboarding/nickname")
@@ -129,7 +131,7 @@ public class MemberController implements MemberApiDocs{
     })
     public ResponseEntity<MemberResponseDTO> saveNickname(@RequestBody NicknameDTO nicknameDTO) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(memberService.saveNickname(memberId, nicknameDTO));
+        return ResponseEntity.ok(onboardingService.saveNickname(memberId, nicknameDTO));
     }
 
     @GetMapping("/onboarding/nickname")
@@ -159,7 +161,7 @@ public class MemberController implements MemberApiDocs{
     })
     public ResponseEntity<MemberResponseDTO> saveRegions(@RequestBody RegionRequestDTO regionRequestDTO) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(memberService.saveRegions(memberId, regionRequestDTO));
+        return ResponseEntity.ok(onboardingService.saveRegions(memberId, regionRequestDTO));
     }
 
     @GetMapping("/nickname")
@@ -175,28 +177,6 @@ public class MemberController implements MemberApiDocs{
     public ResponseEntity<NicknameDTO> getNickname() {
         Long memberId = SecurityUtils.getCurrentMemberId();
         return ResponseEntity.ok(memberService.getNickname(memberId));
-    }
-
-    @PostMapping("/certification")
-    @Operation(summary = "사용자 성인인증 로직", description = "사용자의 성인 여부를 검사합니다.",
-            externalDocs = @ExternalDocumentation(description = "성인인증을 위임한 서드파티인 포트원의 document입니다."
-                    + "통합인증 탭에서 준비하기, 요청하기, 완료정보 전달하기까지 구현해주시면 됩니다.", url = "https://developers.portone.io/docs/ko/etc/all/readme?v=v1"))
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "성인인증 성공"
-                    , content = @Content(mediaType = "application/json"
-                    , schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "400", description = "성인인증 실패, 실패한 사유 메시지가 전달됩니다."
-                    , content = @Content(mediaType = "application/json"
-                    , schema = @Schema(implementation = ResponseTemplate.class)))
-    })
-    public ResponseEntity<String> certification(@RequestBody String imp_uid) {
-//        String token = memberService.getToken();
-//        ResponseEntity<Map> userData = memberService.getUserData(token, imp_uid);
-//        memberService.verifyUserData(userData, SecurityUtils.getCurrentMemberId());
-        // 테스트 환경에서는 성인인증을 통과하도록 설정
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        memberService.tempVerify(memberId);
-        return ResponseEntity.ok("성인인증 성공!~");
     }
 
     @GetMapping("/preferences")
