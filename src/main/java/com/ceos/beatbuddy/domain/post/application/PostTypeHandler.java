@@ -16,7 +16,7 @@ public interface PostTypeHandler {
     Post readPost(Long postId);
     void deletePost(Long postId, Member member);
     Post validateAndGetPost(Long postId);
-    Boolean isWriter(Post post, Member member);
+    void isWriter(Post post, Member member);
     Page<? extends Post> readAllPosts(Pageable pageable);
     boolean supports(Post post);
 }
