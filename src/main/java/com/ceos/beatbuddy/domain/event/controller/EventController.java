@@ -228,7 +228,7 @@ public class EventController implements EventApiDocs {
     @GetMapping("/{eventId}/comments")
     public ResponseEntity<ResponseDTO<List<EventCommentTreeResponseDTO>>> getEventComments(@PathVariable Long eventId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        List<EventCommentTreeResponseDTO> result = eventCommentService.getSortedEventComments(eventId);
+        List<EventCommentTreeResponseDTO> result = eventCommentService.getSortedEventComments(memberId, eventId);
 
         if (result.isEmpty()) {
             return ResponseEntity
