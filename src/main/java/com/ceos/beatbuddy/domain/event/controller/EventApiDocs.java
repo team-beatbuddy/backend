@@ -858,7 +858,7 @@ public interface EventApiDocs {
                                   "status": 403,
                                   "error": "FORBIDDEN",
                                   "code": "UNAUTHORIZED_MEMBER",
-                                  "message": "글의 작성자가 아닙니다."
+                                  "message": "해당 작업에 대한 권한이 없습니다."
                                 }
                                 """)
                             }
@@ -866,7 +866,6 @@ public interface EventApiDocs {
             )
 
     })
-    @DeleteMapping("/{eventId}/comments/{commentId}/levels/{commentLevel}")
     ResponseEntity<ResponseDTO<String>> deleteComment(
             @PathVariable Long eventId,
             @PathVariable Long commentId,

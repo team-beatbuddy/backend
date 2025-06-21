@@ -445,4 +445,10 @@ public class PostService {
         }
     }
 
+    public Post validateAndGetPost(Long postId) {
+        return  postRepository.findById(postId).orElseThrow(
+                () -> new CustomException(PostErrorCode.POST_NOT_EXIST)
+        );
+    }
+
 }
