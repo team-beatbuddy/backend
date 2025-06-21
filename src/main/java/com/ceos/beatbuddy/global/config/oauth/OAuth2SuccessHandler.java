@@ -52,6 +52,18 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         saveRefreshToken(memberId, refresh);
 
+        String uri = request.getRequestURI(); // ex: /login/oauth2/code/google
+        String[] segments = uri.split("/");
+        String provider = segments.length > 0 ? segments[segments.length - 1] : "unknown";
+
+        // 지원하는 provider인지 검증
+        if (!provider.equals("google") && !provider.equals("kakao")) {
+            log.warn("Unsupported OAuth2 provider: {}", provider);
+            provider = "kakao"; // 기본값
+        }
+
+        String redirectUrl = "https://beatbuddy.world/login/oauth2/callback/" + provider + "?access=" + access;
+
         LoginResponseDto loginResponseDto = LoginResponseDto.builder()
                 .memberId(oAuth2User.getMemberId())
                 .loginId(oAuth2User.getUsername())
@@ -82,7 +94,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         session.setMaxInactiveInterval(600);
 
         if (!response.isCommitted()) {
-            response.sendRedirect("https://beatbuddy.world/login/oauth2/callback/kakao?access=" + access);
+            response.sendRedirect(redirectUrl);
         }
     }
 
