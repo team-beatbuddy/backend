@@ -42,7 +42,6 @@ public class PostService {
     private final FreePostRepository freePostRepository;
     private final PiecePostRepository piecePostRepository;
     private final MemberService memberService;
-    private final VenueInfoService venueInfoService;
     private final PieceService pieceService;
     private final PostLikeRepository postLikeRepository;
     private final PostScrapRepository postScrapRepository;

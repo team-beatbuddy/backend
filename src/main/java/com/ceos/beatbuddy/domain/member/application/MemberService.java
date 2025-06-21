@@ -350,6 +350,6 @@ public class MemberService {
 
     public Member validateAndGetMember(Long memberId) {
         return memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
     }
 }
