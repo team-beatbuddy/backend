@@ -25,6 +25,11 @@ public class FreePostHandler implements PostTypeHandler{
     private final VenueInfoService venueInfoService;
 
     @Override
+    public boolean supports(Post post) {
+        return post instanceof FreePost;
+    }
+
+    @Override
     public Post createPost(PostCreateRequestDTO dto, Member member, List<String> imageUrls) {
         if (!(dto instanceof FreePostRequestDTO freeDto)) {
             throw new CustomException(PostErrorCode.INVALID_DTO_TYPE);
