@@ -33,6 +33,15 @@ public class MagazineService {
     private final MagazineLikeRepository magazineLikeRepository;
 
     private final UploadUtil uploadUtil;
+    /**
+     * 매거진을 생성합니다. (관리자 또는 비즈니스 회원만 가능)
+     *
+     * @param memberId 매거진을 작성하는 회원의 ID
+     * @param dto 매거진 생성 요청 DTO
+     * @param images 첨부 이미지 리스트
+     * @return 생성된 매거진의 상세 DTO
+     * @throws CustomException 권한이 없는 회원이 요청한 경우
+     */
     @Transactional
     public MagazineDetailDTO addMagazine(Long memberId, MagazineRequestDTO dto, List<MultipartFile> images) throws RuntimeException {
         Member member = memberService.validateAndGetMember(memberId);
@@ -53,7 +62,13 @@ public class MagazineService {
 
         return MagazineDetailDTO.toResponseDTO(entity);
     }
-
+    /**
+     * 홈 화면에 노출할 매거진 목록을 조회합니다. (표시 가능한 매거진만 반환)
+     *
+     * @param memberId 매거진 목록을 요청하는 회원의 ID
+     * @return 매거진 홈 카드 정보를 담은 DTO 리스트
+     * @throws CustomException 회원이 존재하지 않을 경우
+     */
     public List<MagazineHomeResponseDTO> readHomeMagazines(Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
 
