@@ -149,8 +149,6 @@ public class UploadUtil {
         String bucketUrl = "https://" + bucketName + ".s3." + region + ".amazonaws.com/";
         String key = imageUrl.replace(bucketUrl, "");
 
-        System.out.println();
-
         try {
             amazonS3.deleteObject(bucketName, key);
         } catch (Exception e) {
