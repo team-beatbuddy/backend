@@ -75,76 +75,76 @@ public class SwaggerConfig {
     public GroupedOpenApi loginApi() {
         return GroupedOpenApi.builder()
                 .group("login")
-                .pathsToMatch("/login")
-                .addOpenApiCustomizer(
-                        openApi -> {
-                            SecurityScheme oauthScheme = new SecurityScheme()
-                                    .type(SecurityScheme.Type.OAUTH2)
-                                    .flows(new OAuthFlows()
-                                            .authorizationCode(new OAuthFlow()
-                                                    .authorizationUrl("https://kauth.kakao.com/oauth/authorize")
-                                                    .tokenUrl("https://kauth.kakao.com/oauth/token")
-                                            ));
+                .pathsToMatch("/login", "/oauth2/authorization/kakao", "/oauth2/authorization/google")
+                .addOpenApiCustomizer(openApi -> {
 
-                            // Components에 OAuth2 보안 스키마 추가
-                            openApi.components(new Components().addSecuritySchemes("oauth2", oauthScheme));
+                    // 1. Kakao OAuth2 SecurityScheme
+                    SecurityScheme kakaoScheme = new SecurityScheme()
+                            .type(SecurityScheme.Type.OAUTH2)
+                            .flows(new OAuthFlows()
+                                    .authorizationCode(new OAuthFlow()
+                                            .authorizationUrl("https://kauth.kakao.com/oauth/authorize")
+                                            .tokenUrl("https://kauth.kakao.com/oauth/token")
+                                    ));
 
-                            // SecurityRequirement 정의
-                            SecurityRequirement securityRequirement = new SecurityRequirement().addList("oauth2");
+                    // 2. Google OAuth2 SecurityScheme
+                    SecurityScheme googleScheme = new SecurityScheme()
+                            .type(SecurityScheme.Type.OAUTH2)
+                            .flows(new OAuthFlows()
+                                    .authorizationCode(new OAuthFlow()
+                                            .authorizationUrl("https://accounts.google.com/o/oauth2/v2/auth")
+                                            .tokenUrl("https://oauth2.googleapis.com/token")
+                                    ));
 
-                            openApi.addSecurityItem(securityRequirement)
-                                    .path("/oauth2/authorization/kakao", new io.swagger.v3.oas.models.PathItem()
-                                            .get(new io.swagger.v3.oas.models.Operation()
-                                                    .summary("로그인 로직")
-                                                    .description("카카오 로그인을 통해 회원가입을 진행합니다")
-                                                    .responses(new ApiResponses()
-                                                            .addApiResponse("200", new ApiResponse()
-                                                                    .description("로그인 성공 시 사용자 정보들을 반환합니다"
-                                                                            + "헤더에는 Access Token, 쿠키에는 Refresh Token을 담아 Response됩니다.")
-                                                                    .headers(Map.of(
-                                                                                    "access", new Header()
-                                                                                            .description("Access Token입니다")
-                                                                                            .schema(new StringSchema()),
-                                                                                    "Set-Cookie", new Header()
-                                                                                            .description(
-                                                                                                    "Refresh Token을 포함하는 쿠키입니다")
-                                                                                            .schema(new StringSchema())
-                                                                            )
-                                                                    )
-                                                                    .content(new Content()
-                                                                            .addMediaType("application/json",
-                                                                                    new MediaType()
-                                                                                            .schema(new Schema<>()
-                                                                                                    .addProperty(
-                                                                                                            "memberId",
-                                                                                                            new Schema<Long>().type(
-                                                                                                                            "integer")
-                                                                                                                    .description(
-                                                                                                                            "회원 식별자"))
-                                                                                                    .addProperty(
-                                                                                                            "loginId",
-                                                                                                            new Schema<String>().type(
-                                                                                                                            "string")
-                                                                                                                    .description(
-                                                                                                                            "로그인 ID"
-                                                                                                                                    + "이는 어느 Oauth2를 사용해 로그인한 유저인 지를 식별하기 위한 값입니다."
-                                                                                                                                    + "ex) kakao_{Oauth2_user_id}"))
-                                                                                                    .addProperty("name",
-                                                                                                            new Schema<String>().type(
-                                                                                                                            "string")
-                                                                                                                    .description(
-                                                                                                                            "유저의 이름입니다"
-                                                                                                                                    + "일단은 Oauth2에서 받아온 nickname을 이름으로 사용하고 있습니다"
-                                                                                                                                    + "그래서 기본 닉네임이 실명이 아닌 유저는 본명이 아닐 수도 있습니다"))
-                                                                                            )
-                                                                            )
-                                                                    )
-                                                            )
-                                                            .addApiResponse("401", new ApiResponse()
-                                                                    .description("로그인 실패 시 에러 메시지를 반환합니다")
-                                                            ))
-                                            ));
+                    openApi.components(new Components()
+                            .addSecuritySchemes("kakaoOAuth", kakaoScheme)
+                            .addSecuritySchemes("googleOAuth", googleScheme));
 
-                        }).build();
+                    // 카카오 로그인 경로
+                    openApi.path("/oauth2/authorization/kakao", new io.swagger.v3.oas.models.PathItem()
+                            .get(new io.swagger.v3.oas.models.Operation()
+                                    .summary("카카오 로그인")
+                                    .description("카카오 로그인을 통해 회원가입을 진행합니다.")
+                                    .responses(new ApiResponses()
+                                            .addApiResponse("200", new ApiResponse()
+                                                    .description("로그인 성공 시 사용자 정보를 반환합니다.")
+                                                    .headers(Map.of(
+                                                            "access", new Header().description("Access Token").schema(new StringSchema()),
+                                                            "Set-Cookie", new Header().description("Refresh Token 쿠키").schema(new StringSchema())
+                                                    ))
+                                                    .content(new Content().addMediaType("application/json",
+                                                            new MediaType().schema(new Schema<>()
+                                                                    .addProperty("memberId", new Schema<Long>().type("integer").description("회원 식별자"))
+                                                                    .addProperty("loginId", new Schema<String>().type("string").description("로그인 ID"))
+                                                                    .addProperty("name", new Schema<String>().type("string").description("유저 이름"))
+                                                            ))))
+                                            .addApiResponse("401", new ApiResponse().description("로그인 실패"))
+                                    )
+                                    .security(List.of(new SecurityRequirement().addList("kakaoOAuth")))
+                            ));
+
+                    // 구글 로그인 경로
+                    openApi.path("/oauth2/authorization/google", new io.swagger.v3.oas.models.PathItem()
+                            .get(new io.swagger.v3.oas.models.Operation()
+                                    .summary("구글 로그인")
+                                    .description("구글 로그인을 통해 회원가입을 진행합니다.")
+                                    .responses(new ApiResponses()
+                                            .addApiResponse("200", new ApiResponse()
+                                                    .description("로그인 성공 시 사용자 정보를 반환합니다.")
+                                                    .headers(Map.of(
+                                                            "access", new Header().description("Access Token").schema(new StringSchema()),
+                                                            "Set-Cookie", new Header().description("Refresh Token 쿠키").schema(new StringSchema())
+                                                    ))
+                                                    .content(new Content().addMediaType("application/json",
+                                                            new MediaType().schema(new Schema<>()
+                                                                    .addProperty("memberId", new Schema<Long>().type("integer").description("회원 식별자"))
+                                                                    .addProperty("loginId", new Schema<String>().type("string").description("로그인 ID"))
+                                                                    .addProperty("name", new Schema<String>().type("string").description("유저 이름"))
+                                                            ))))
+                                            .addApiResponse("401", new ApiResponse().description("로그인 실패"))
+                                    )
+                                    .security(List.of(new SecurityRequirement().addList("googleOAuth")))
+                            ));
+                }).build();
     }
 }

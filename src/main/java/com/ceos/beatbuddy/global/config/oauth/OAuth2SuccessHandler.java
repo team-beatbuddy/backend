@@ -52,6 +52,13 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         saveRefreshToken(memberId, refresh);
 
+        // provider 추출
+        String uri = request.getRequestURI(); // ex: /login/oauth2/code/google
+        String provider = uri.substring(uri.lastIndexOf("/") + 1); // → google 또는 kakao
+
+
+        String redirectUrl = "https://beatbuddy.world/login/oauth2/callback/" + provider + "?access=" + access;
+
         LoginResponseDto loginResponseDto = LoginResponseDto.builder()
                 .memberId(oAuth2User.getMemberId())
                 .loginId(oAuth2User.getUsername())
@@ -82,7 +89,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         session.setMaxInactiveInterval(600);
 
         if (!response.isCommitted()) {
-            response.sendRedirect("https://beatbuddy.world/login/oauth2/callback/kakao?access=" + access);
+            response.sendRedirect(redirectUrl);
         }
     }
 
