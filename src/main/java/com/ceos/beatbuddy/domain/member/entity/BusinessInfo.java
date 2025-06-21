@@ -1,18 +1,24 @@
 package com.ceos.beatbuddy.domain.member.entity;
 
 import jakarta.persistence.Embeddable;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Embeddable
 @Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class BusinessInfo {
     private String businessName;
-    private Boolean isApproved;
+    private boolean isApproved;
     private String phoneNumber;
     private LocalDate dateOfBirth;
-    private Boolean isVerified; // 본인 인증 완료 되었는지
+    private boolean isVerified; // 본인 인증 완료 되었는지
 
     public void savePhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
