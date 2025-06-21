@@ -18,12 +18,12 @@ import java.util.Map;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class VenueGenreService {
-    private final VenueRepository venueRepository;
+    private final VenueInfoService venueInfoService;
     private final VenueGenreRepository venueGenreRepository;
 
     @Transactional
     public VenueVectorResponseDTO addGenreVector(Long venueId, Map<String, Double> genres) {
-        Venue venue = venueRepository.findById(venueId).orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
+        Venue venue = venueInfoService.validateAndGetVenue(venueId);
 
         Vector preferenceVector = Vector.fromGenres(genres);
 
@@ -44,7 +44,7 @@ public class VenueGenreService {
 
     @Transactional
     public VenueVectorResponseDTO updateGenreVector(Long venueId, Map<String, Double> genres) {
-        Venue venue = venueRepository.findById(venueId).orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
+        Venue venue = venueInfoService.validateAndGetVenue(venueId);
         VenueGenre venueGenre = venueGenreRepository.findByVenue(venue).orElseThrow(()->new CustomException(VenueErrorCode.INVALID_VENUE_INFO));
 
         venueGenre.updateGenreVector(Vector.fromGenres(genres));
