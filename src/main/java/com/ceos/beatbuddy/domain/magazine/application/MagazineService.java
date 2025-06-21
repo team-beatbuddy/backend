@@ -7,9 +7,8 @@ import com.ceos.beatbuddy.domain.magazine.dto.MagazineResponseDTO;
 import com.ceos.beatbuddy.domain.magazine.entity.Magazine;
 import com.ceos.beatbuddy.domain.magazine.exception.MagazineErrorCode;
 import com.ceos.beatbuddy.domain.magazine.repository.MagazineRepository;
+import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
-import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineInteractionId;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineLike;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineScrap;
@@ -23,36 +22,28 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class MagazineService {
     private final MagazineRepository magazineRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final MagazineScrapRepository magazineScrapRepository;
     private final MagazineLikeRepository magazineLikeRepository;
 
     private final UploadUtil uploadUtil;
     @Transactional
     public MagazineResponseDTO addMagazine(Long memberId, MagazineRequestDTO dto, List<MultipartFile> images) throws RuntimeException {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         if (!(Objects.equals(member.getRole(), "ADMIN")) && !(Objects.equals(member.getRole(), "BUSINESS"))) {
             throw new CustomException(MagazineErrorCode.CANNOT_ADD_MAGAZINE_UNAUTHORIZED_MEMBER);
         }
 
         // 이미지 업로드
-        List<String> imageUrls = images.stream().map((image -> {
-            try {
-                return uploadUtil.upload(image, UploadUtil.BucketType.MEDIA, "magazine");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        })).collect(Collectors.toList());
+        List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "magazine");
 
         // 엔티티로 변경
         Magazine entity = MagazineRequestDTO.toEntity(dto, member, imageUrls);
@@ -65,7 +56,7 @@ public class MagazineService {
     }
 
     public List<MagazineHomeResponseDTO> readHomeMagazines(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         List<Magazine> magazines = magazineRepository.findMagazinesByIsVisibleTrue();
 
@@ -73,7 +64,7 @@ public class MagazineService {
     }
 
     public MagazineDetailDTO readDetailMagazine(Long memberId, Long magazineId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         Magazine magazine = magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
                 new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
@@ -86,7 +77,7 @@ public class MagazineService {
 
     @Transactional
     public MagazineDetailDTO scrapMagazine(Long memberId, Long magazineId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         Magazine magazine = magazineRepository.findById(magazineId).orElseThrow(() ->
                 new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
@@ -105,7 +96,7 @@ public class MagazineService {
     }
 
     public List<MagazineHomeResponseDTO> getScrapMagazines(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         List<MagazineScrap> magazineScraps = magazineScrapRepository.findAllByMember(member);
         List<Magazine> magazines = magazineScraps.stream().map((magazineScrap -> {
@@ -117,8 +108,8 @@ public class MagazineService {
 
     @Transactional
     public MagazineDetailDTO likeMagazine(Long magazineId, Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        
+        Member member = memberService.validateAndGetMember(memberId);
+
         // 엔티티 검색
         Magazine magazine = magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
                 new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
@@ -141,7 +132,7 @@ public class MagazineService {
 
     @Transactional
     public MagazineDetailDTO deleteLikeMagazine(Long magazineId, Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         // 엔티티 검색
         Magazine magazine = magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
@@ -162,7 +153,7 @@ public class MagazineService {
 
     @Transactional
     public MagazineDetailDTO deleteScrapMagazine(Long magazineId, Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         // 엔티티 검색
         Magazine magazine = magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->

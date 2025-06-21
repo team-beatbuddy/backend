@@ -46,12 +46,21 @@ public class PostController implements PostApiDocs {
     public ResponseEntity<Post> addPost(
             @PathVariable String type,
             @RequestBody PostRequestDto requestDto) {
-        return ResponseEntity.ok(postService.addPost(type, requestDto));
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        return ResponseEntity.ok(postService.addPost(memberId, type, requestDto));
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/new/{type}")
     public ResponseEntity<ResponseDTO<ResponsePostDto>> addNewPost(
             @PathVariable String type,
+            @Parameter(
+                    name = "postCreateRequestDTO",
+                    description = "게시글 생성 DTO (type: free 또는 piece)",
+                    schema = @Schema(
+                            oneOf = { FreePostRequestDTO.class, PiecePostRequestDTO.class },
+                            discriminatorProperty = "type"
+                    )
+            )
             @Valid @RequestPart("postCreateRequestDTO") PostCreateRequestDTO postCreateRequestDTO,
             @RequestPart(value = "images", required = false) List<MultipartFile> images){
 
@@ -144,7 +153,9 @@ public class PostController implements PostApiDocs {
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "페이지 당 요청할 게시물 개수")
             @RequestParam(defaultValue = "10") int size) {
-        PostListResponseDTO result = postService.readAllPostsSort(type, sort, page, size);
+
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        PostListResponseDTO result = postService.readAllPostsSort(memberId, type, sort, page, size);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_POST_SORT_LIST.getStatus().value())
@@ -153,7 +164,9 @@ public class PostController implements PostApiDocs {
 
     @GetMapping("/posts/hot")
     public ResponseEntity<ResponseDTO<List<PostPageResponseDTO>>> getHotPosts() {
-        List<PostPageResponseDTO> result = postService.getHotPosts();
+        Long memberId = SecurityUtils.getCurrentMemberId();
+
+        List<PostPageResponseDTO> result = postService.getHotPosts(memberId);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_HOT_POSTS.getStatus().value())

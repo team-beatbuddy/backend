@@ -7,13 +7,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Entity
+@SuperBuilder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PiecePost extends Post{
     @ManyToOne
@@ -23,14 +24,4 @@ public class PiecePost extends Post{
     @ManyToOne
     @JoinColumn(name = "venueId")
     private Venue venue;
-
-    @Builder
-    public PiecePost(String title, String content, Boolean anonymous,
-                     List<String> imageUrls, Member member,
-                     Piece piece, Venue venue) {
-        super(title, content, anonymous, imageUrls, member);
-        this.piece = piece;
-        this.venue = venue;
-    }
-
 }

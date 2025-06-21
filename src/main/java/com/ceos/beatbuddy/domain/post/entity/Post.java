@@ -12,12 +12,14 @@ import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Entity
 @Table(name = "Post")  // 추가
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn
+@SuperBuilder
 @NoArgsConstructor(access = PROTECTED)
 public abstract class Post extends BaseTimeEntity {
     @Id
