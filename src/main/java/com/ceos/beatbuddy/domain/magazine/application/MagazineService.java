@@ -164,7 +164,9 @@ public class MagazineService {
         magazineLikeRepository.save(entity);
         magazineRepository.increaseLike(magazineId);
 
-        return MagazineDetailDTO.toDTO(magazine);
+        Magazine updatedEntity = this.validateAndGetMagazine(magazineId);
+
+        return MagazineDetailDTO.toDTO(updatedEntity);
     }
 
     /**
@@ -191,7 +193,9 @@ public class MagazineService {
         magazineLikeRepository.delete(magazineLike);
         magazineRepository.decreaseLike(magazineId);
 
-        return MagazineDetailDTO.toDTO(magazine);
+        Magazine updatedEntity = this.validateAndGetMagazine(magazineId);
+
+        return MagazineDetailDTO.toDTO(updatedEntity);
     }
 
     /**

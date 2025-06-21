@@ -148,9 +148,11 @@ public class EventService {
         eventLikeRepository.save(eventLike);
         eventRepository.increaseLike(eventId);
 
-        boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, event.getId()));
+        // 반영된 값까지 포함해 다시 조회
+        Event updated = this.validateAndGet(eventId);
 
-        return EventResponseDTO.toDTO(event, liked);
+        boolean liked = true;
+        return EventResponseDTO.toDTO(updated, liked);
     }
 
     @Transactional
@@ -170,9 +172,11 @@ public class EventService {
         eventLikeRepository.delete(eventLike);
         eventRepository.decreaseLike(eventId);
 
-        boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, event.getId()));
+        Event updated = this.validateAndGet(eventId);
 
-        return EventResponseDTO.toDTO(event, liked);
+        boolean liked = false;
+
+        return EventResponseDTO.toDTO(updated, liked);
     }
 
     @Transactional(readOnly = true)
