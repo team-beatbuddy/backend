@@ -62,10 +62,6 @@ public class OnboardingService {
     private OnboardingResponseDto getOnboardingMap(Member member) {
         OnboardingResponseDto responseDto = new OnboardingResponseDto();
 
-        if (member.getIsAdult()) {
-            responseDto.setAdultCert();
-        }
-
         if (memberGenreRepository.existsByMember(member)) {
             responseDto.setGenre();
         }

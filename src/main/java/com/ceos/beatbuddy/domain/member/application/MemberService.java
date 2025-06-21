@@ -134,25 +134,24 @@ public class MemberService {
 
 
     public Boolean getNicknameSet(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = this.validateAndGetMember(memberId);
+
         return member.getSetNewNickname();
     }
 
     public NicknameDTO getNickname(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = this.validateAndGetMember(memberId);
         return NicknameDTO.builder()
                 .nickname(member.getNickname()).build();
     }
 
-    @Transactional
-    public void tempVerify(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(
-                () -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        member.setAdultUser();
-        memberRepository.save(member);
-    }
+//    @Transactional
+//    public void tempVerify(Long memberId) {
+//        Member member = memberRepository.findById(memberId).orElseThrow(
+//                () -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+//        member.setAdultUser();
+//        memberRepository.save(member);
+//    }
 
     public List<String> getPreferences(Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(
@@ -192,8 +191,7 @@ public class MemberService {
 
     @Transactional
     public void uploadProfileImage(Long memberId, MultipartFile image) throws IOException {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = this.validateAndGetMember(memberId);
 
         //기존 이미지 삭제
         if (member.getProfileImage() != null && !member.getProfileImage().isBlank()) {

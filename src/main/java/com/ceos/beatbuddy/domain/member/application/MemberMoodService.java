@@ -3,11 +3,9 @@ package com.ceos.beatbuddy.domain.member.application;
 import com.ceos.beatbuddy.domain.member.dto.MemberVectorResponseDTO;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.entity.MemberMood;
-import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.exception.MemberGenreErrorCode;
 import com.ceos.beatbuddy.domain.member.exception.MemberMoodErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberMoodRepository;
-import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.vector.entity.Vector;
 import com.ceos.beatbuddy.global.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +20,12 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MemberMoodService {
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final MemberMoodRepository memberMoodRepository;
 
     @Transactional
     public MemberVectorResponseDTO addMoodVector(Long memberId, Map<String, Double> moods) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         Vector preferenceVector = Vector.fromMoods(moods);
 
@@ -48,7 +46,7 @@ public class MemberMoodService {
 
     @Transactional
     public MemberVectorResponseDTO deleteMoodVector(Long memberId, Long memberMoodId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
         MemberMood memberMood = memberMoodRepository.findById(memberMoodId).orElseThrow(()->new CustomException((MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST)));
         List<MemberMood> memberMoods = memberMoodRepository.findAllByMember(member);
 
@@ -69,7 +67,7 @@ public class MemberMoodService {
     }
 
     public List<MemberVectorResponseDTO> getAllMoodVector(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
         List<MemberMood> memberMoods = memberMoodRepository.findAllByMember(member);
         return memberMoods.stream()
                 .map(memberGenre -> MemberVectorResponseDTO.builder()
@@ -84,7 +82,7 @@ public class MemberMoodService {
     }
 
     public MemberVectorResponseDTO getLatestMoodVector(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
         MemberMood memberMood = memberMoodRepository.findLatestMoodByMember(member).orElseThrow(()-> new CustomException((MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST)));
         return MemberVectorResponseDTO.builder()
                 .vectorString(memberMood.getMoodVectorString())
