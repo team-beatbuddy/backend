@@ -119,7 +119,7 @@ public class MagazineService {
         List<Magazine> magazines = magazineScraps.stream().map((magazineScrap ->
                 validateAndGetMagazine(magazineScrap.getId().getMagazineId()))).toList();
 
-        return magazines.stream().map((MagazineHomeResponseDTO::toScrapDTO)).toList();
+        return magazines.stream().map((MagazineHomeResponseDTO::toDTO)).toList();
     }
 
     /**

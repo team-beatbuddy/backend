@@ -110,7 +110,9 @@ public interface MagazineApiDocs {
                   "data": [
                     {
                       "magazineId": 1,
-                      "thumbImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png"
+                      "thumbImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png",
+                      "title": "제목",
+                      "content": "내용"
                     }
                   ]
                 }
@@ -395,11 +397,12 @@ public interface MagazineApiDocs {
                               "code": "SUCCESS_GET_MAGAZINE_LIST",
                               "message": "매거진을 성공적으로 불러왔습니다.",
                               "data": [
-                                {
-                                  "magazineId": 1,
-                                  "thumbImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png",
-                                  "title": "제목"
-                                }
+                                        {
+                                          "magazineId": 1,
+                                          "thumbImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png",
+                                          "title": "제목",
+                                          "content": "내용"
+                                        }
                               ]
                             }
                                     """)

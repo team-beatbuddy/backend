@@ -12,20 +12,15 @@ public class MagazineHomeResponseDTO {
     private Long magazineId;
     private String thumbImageUrl;
     private String title;
+    private String content;
 
     public static MagazineHomeResponseDTO toDTO(Magazine magazine) {
         return MagazineHomeResponseDTO.builder()
                 .magazineId(magazine.getId())
                 .thumbImageUrl(magazine.getThumbImage())
-                .build();
-
-    }
-
-    public static MagazineHomeResponseDTO toScrapDTO(Magazine magazine) {
-        return MagazineHomeResponseDTO.builder()
-                .magazineId(magazine.getId())
-                .thumbImageUrl(magazine.getThumbImage())
                 .title(magazine.getTitle())
+                .content(magazine.getContent())
                 .build();
+
     }
 }
