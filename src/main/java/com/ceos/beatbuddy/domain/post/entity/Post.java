@@ -63,14 +63,6 @@ public abstract class Post extends BaseTimeEntity {
         views++;
     }
 
-    public void increaseLike() {
-        likes++;
-    }
-
-    public void decreaseLike() {
-        likes--;
-    }
-
     public void increaseComments() {
         comments++;
     }

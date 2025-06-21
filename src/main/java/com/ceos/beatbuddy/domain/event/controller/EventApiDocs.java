@@ -108,8 +108,8 @@ public interface EventApiDocs {
                                             value = """
                                 {
                                   "status": 403,
-                                  "error": "UNAUTHORIZED",
-                                  "code": "CANNOT_ADD_MAGAZINE_UNAUTHORIZED_MEMBER",
+                                  "error": "FORBIDDEN",
+                                  "code": "CANNOT_ADD_EVENT_UNAUTHORIZED_MEMBER",
                                   "message": "글을 작성할 수 없는 유저입니다."
                                 }
                             """
@@ -857,8 +857,8 @@ public interface EventApiDocs {
                                 {
                                   "status": 403,
                                   "error": "FORBIDDEN",
-                                  "code": "NOT_COMMENT_OWNER",
-                                  "message": "본인이 작성한 댓글이 아닙니다."
+                                  "code": "UNAUTHORIZED_MEMBER",
+                                  "message": "해당 작업에 대한 권한이 없습니다."
                                 }
                                 """)
                             }
@@ -866,7 +866,6 @@ public interface EventApiDocs {
             )
 
     })
-    @DeleteMapping("/{eventId}/comments/{commentId}/levels/{commentLevel}")
     ResponseEntity<ResponseDTO<String>> deleteComment(
             @PathVariable Long eventId,
             @PathVariable Long commentId,

@@ -11,6 +11,7 @@ import com.ceos.beatbuddy.domain.event.repository.EventCommentRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.global.CustomException;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +40,7 @@ public class EventCommentService {
 
         if (parentCommentId == null) {
             // 원댓글이면 새로운 그룹 ID 생성
-            commentId = eventCommentRepository.getNextCommentGroupId(); // ★ 별도로 시퀀스 또는 max(id)+1 로직 필요
+            commentId = eventCommentRepository.getNextCommentGroupId();
         } else {
             // 대댓글이면 부모 댓글 확인
             EventComment parent = eventCommentRepository.findTopByIdOrderByLevelDesc(parentCommentId)
@@ -72,7 +73,7 @@ public class EventCommentService {
                 .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_COMMENT));
 
         if (!target.getAuthor().getId().equals(memberId)) {
-            throw new CustomException(EventErrorCode.NOT_COMMENT_OWNER);
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
 
         if (level == 0) {

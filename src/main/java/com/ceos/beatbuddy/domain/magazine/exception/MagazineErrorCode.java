@@ -6,8 +6,8 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum MagazineErrorCode implements ApiCode {
-    CANNOT_ADD_MAGAZINE_UNAUTHORIZED_MEMBER(HttpStatus.UNAUTHORIZED, "글을 작성할 수 없는 유저입니다."),
-    MAGAZINE_NOT_EXIST(HttpStatus.UNAUTHORIZED, "해당 매거진을 찾을 수 없습니다."),
+    CANNOT_ADD_MAGAZINE_UNAUTHORIZED_MEMBER(HttpStatus.FORBIDDEN, "글을 작성할 수 없는 유저입니다."),
+    MAGAZINE_NOT_EXIST(HttpStatus.NOT_FOUND, "해당 매거진을 찾을 수 없습니다."),
     ALREADY_SCRAP_MAGAZINE(HttpStatus.CONFLICT, "이미 스크랩한 매거진입니다."),
     ALREADY_LIKE_MAGAZINE(HttpStatus.CONFLICT, "이미 좋아요를 누른 매거진입니다."),
 
