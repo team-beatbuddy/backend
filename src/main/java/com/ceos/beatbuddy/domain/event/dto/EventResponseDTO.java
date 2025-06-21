@@ -82,19 +82,4 @@ public class EventResponseDTO {
                 .location(event.getLocation())
                 .build();
     }
-
-    public static EventResponseDTO toUpcomingDTO(Event event, boolean liked) {
-        return EventResponseDTO.builder()
-                .eventId(event.getId())
-                .title(event.getTitle())
-                .content(event.getContent())
-                .dDay("D-" + ChronoUnit.DAYS.between(LocalDate.now(), event.getStartDate()))
-                .startDate(event.getStartDate())
-                .endDate(event.getEndDate())
-                .image(event.getThumbImage())
-                .likes(event.getLikes())
-                .liked(liked)
-                .views(event.getViews())
-                .build();
-    }
 }
