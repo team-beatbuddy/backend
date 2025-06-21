@@ -5,6 +5,7 @@ import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
+import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
 import com.ceos.beatbuddy.domain.vector.entity.Vector;
 import com.ceos.beatbuddy.domain.venue.dto.VenueInfoResponseDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
@@ -45,9 +46,7 @@ public class VenueInfoService {
 
     private final AmazonS3 amazonS3;
 
-    @Autowired
-    private UploadUtil uploadUtil;
-
+    private final UploadUtil uploadUtil;
     public List<Venue> getVenueInfoList() {
         return venueRepository.findAll();
     }
@@ -155,5 +154,10 @@ public class VenueInfoService {
 
         venue.update(venueRequestDTO, logoImageUrl, backgroundImageUrls);
         return venueRepository.save(venue);
+    }
+
+    public Venue validateAndGetVenue(Long venueId) {
+        return venueRepository.findById(venueId)
+                .orElseThrow(() -> new CustomException(PostErrorCode.VENUE_NOT_EXIST));
     }
 }
