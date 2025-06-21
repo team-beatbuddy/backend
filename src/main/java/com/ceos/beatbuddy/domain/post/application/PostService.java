@@ -47,6 +47,7 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final PostTypeHandlerFactory postTypeHandlerFactory;
     private final UploadUtil uploadUtil;
+    private final PostRepository postRepository;
 
     private static final List<String> VALID_POST_TYPES = List.of("free", "piece");
 
@@ -205,7 +206,7 @@ public class PostService {
         Post post = readPost(type, postId);
 
         if (!post.getMember().getId().equals(member.getId())) {
-            throw new CustomException(PostErrorCode.MEMBER_NOT_MATCH);
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
 
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
@@ -275,7 +276,7 @@ public class PostService {
                 .build();
 
         postLikeRepository.save(postLike);
-        post.increaseLike();
+        postRepository.increaseLike(postId);
     }
 
 
@@ -291,7 +292,8 @@ public class PostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_LIKE));
 
         postLikeRepository.delete(postLike);
-        post.decreaseLike();
+        postRepository.decreaseLike(postId);
+
     }
 
     @Transactional

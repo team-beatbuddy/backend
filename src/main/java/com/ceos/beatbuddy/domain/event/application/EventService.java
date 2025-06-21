@@ -146,7 +146,7 @@ public class EventService {
 
         EventLike eventLike = EventLike.toEntity(member, event);
         eventLikeRepository.save(eventLike);
-        event.increaseLike();
+        eventRepository.increaseLike(eventId);
 
         boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, event.getId()));
 
@@ -168,7 +168,7 @@ public class EventService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_LIKE));
 
         eventLikeRepository.delete(eventLike);
-        event.decreaseLike();
+        eventRepository.decreaseLike(eventId);
 
         boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, event.getId()));
 

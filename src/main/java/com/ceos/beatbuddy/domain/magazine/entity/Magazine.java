@@ -49,14 +49,4 @@ public class Magazine extends BaseTimeEntity {
         views++;
     }
 
-    public synchronized void increaseLike() {
-        likes++;
-    }
-
-    public synchronized void decreaseLike() {
-        if (likes > 0) {
-            likes--;
-        }
-    }
-
 }
