@@ -1,9 +1,8 @@
 package com.ceos.beatbuddy.domain.post.application;
 
-import com.ceos.beatbuddy.domain.comment.entity.Comment;
 import com.ceos.beatbuddy.domain.comment.repository.CommentRepository;
+import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.post.dto.*;
 import com.ceos.beatbuddy.domain.post.dto.PostRequestDto.PiecePostRequestDto;
 import com.ceos.beatbuddy.domain.post.entity.FreePost;
@@ -17,21 +16,15 @@ import com.ceos.beatbuddy.domain.scrapandlike.entity.PostLike;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostScrap;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostLikeRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostScrapRepository;
-import com.ceos.beatbuddy.domain.venue.entity.Venue;
-import com.ceos.beatbuddy.domain.venue.exception.VenueErrorCode;
-import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
 import com.ceos.beatbuddy.global.code.ErrorCode;
-import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
-import java.io.IOException;
+
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,25 +39,23 @@ import org.springframework.web.multipart.MultipartFile;
 public class PostService {
     private final FreePostRepository freePostRepository;
     private final PiecePostRepository piecePostRepository;
-    private final MemberRepository memberRepository;
-    private final VenueRepository venueRepository;
-    private final PieceRepository pieceRepository;
-    private final PostRepository postRepository;
+    private final MemberService memberService;
+    private final PieceService pieceService;
     private final PostLikeRepository postLikeRepository;
     private final PostScrapRepository postScrapRepository;
     private final PostQueryRepository postQueryRepository;
     private final CommentRepository commentRepository;
+    private final PostTypeHandlerFactory postTypeHandlerFactory;
+    private final UploadUtil uploadUtil;
 
-    @Autowired
-    private UploadUtil uploadUtil;
+    private static final List<String> VALID_POST_TYPES = List.of("free", "piece");
 
+
+    // 프론트 개발 완료 후 삭제 예정
     @Transactional
-    public Post addPost(String type, PostRequestDto requestDto) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
-
-        List<String> imageUrls = uploadImages(requestDto.images());
+    public Post addPost(Long memberId, String type, PostRequestDto requestDto) {
+        Member member = memberService.validateAndGetMember(memberId);
+        List<String> imageUrls = uploadUtil.uploadImages(requestDto.images(), UploadUtil.BucketType.MEDIA, "post");
 
         return switch (type) {
             case "free" -> createFreePost(member, requestDto, imageUrls);
@@ -75,43 +66,21 @@ public class PostService {
 
     @Transactional
     public ResponsePostDto addNewPost(String type, PostCreateRequestDTO dto, Long memberId, List<MultipartFile> images) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
-
-
+        validatePostType(type);
+        Member member = memberService.validateAndGetMember(memberId);
         // 이미지 s3 올리기
-        List<String> imageUrls = images.stream().map(( image -> {
-            try {
-                return uploadUtil.upload(image, UploadUtil.BucketType.MEDIA, "post");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        })).toList();
+        List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "post");
 
-        Post savedPost = null;
-
-        switch (type) {
-            case "free" -> {
-                Venue venue = dto.getVenueId() != null ?
-                        venueRepository.findById(dto.getVenueId()).orElseThrow(
-                                () -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST)) :
-                        null;
-
-                FreePost freePost = new FreePost(dto.getHashtag(), imageUrls, dto.getTitle(), dto.getContent(), dto.getAnonymous(), member, venue);
-                savedPost = freePostRepository.save(freePost);
-            }
-
-            case "piece" -> {
-                // 아직 기능이 존재하지 않음.
-
-            }
-
-            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
-        }
-
-        return ResponsePostDto.of(Objects.requireNonNull(savedPost));
+        // 내부에서 공장 선택
+        PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
+        // 선택된 공장은 모르지만, createPost 하도록 인터페이스만 제공
+        Post post = handler.createPost(dto, member, imageUrls);
+        
+        return ResponsePostDto.of(post);
     }
 
+    
+    // 추후 삭제 예정
     public Post readPost(String type, Long postId) {
         switch (type) {
             case "free" -> {
@@ -132,24 +101,9 @@ public class PostService {
 
     @Transactional
     public PostPageResponseDTO newReadPost(String type, Long postId, Long memberId) {
-        Post post;
-
         // 1. 게시글 조회 및 조회수 증가
-        switch (type) {
-            case "free" -> {
-                FreePost freePost = freePostRepository.findById(postId)
-                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
-                freePost.increaseView();
-                post = freePost;
-            }
-            case "piece" -> {
-                PiecePost piecePost = piecePostRepository.findById(postId)
-                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
-                piecePost.increaseView();
-                post = piecePost;
-            }
-            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
-        }
+        PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
+        Post post = handler.readPost(postId);
 
         // 2. 사용자가 좋아요 / 스크랩 / 댓글 달았는지 여부
         PostInteractionId interactionId = new PostInteractionId(memberId, postId);
@@ -162,6 +116,7 @@ public class PostService {
         return PostPageResponseDTO.toDTO(post, isLiked, isScrapped, hasCommented);
     }
 
+    // 삭제 예정
     public Page<ResponsePostDto> readAllPosts(String type, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return switch (type) {
@@ -171,35 +126,25 @@ public class PostService {
         };
     }
 
-    public PostListResponseDTO readAllPostsSort(String type, String sort, int page, int size) {
+    public PostListResponseDTO readAllPostsSort(Long memberId, String type, String sort, int page, int size) {
         Sort sortOption = getSortOption(sort);
         Pageable pageable = PageRequest.of(page, size, sortOption);
-        Long memberId = SecurityUtils.getCurrentMemberId();
 
-        Page<? extends Post> postPage = switch (type) {
-            case "free" -> freePostRepository.findAll(pageable);
-            case "piece" -> piecePostRepository.findAll(pageable);
-            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
-        };
+        Member member = memberService.validateAndGetMember(memberId);
+
+        PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
+        Page<? extends Post> postPage = handler.readAllPosts(pageable);
 
         List<? extends Post> posts = postPage.getContent();
         List<Long> postIds = posts.stream().map(Post::getId).toList();
 
         // 좋아요/스크랩/댓글 여부를 IN 쿼리로 한 번에 조회
-        Set<Long> likedPostIds = postLikeRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
-                .stream()
-                .map(PostLike::getPostId)
-                .collect(Collectors.toSet());
+        Set<Long> likedPostIds = getLikedPostIds(member.getId(), postIds);
 
-        Set<Long> scrappedPostIds = postScrapRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
-                .stream()
-                .map(PostScrap::getPostId)
-                .collect(Collectors.toSet());
+        Set<Long> scrappedPostIds = getScrappedPostIds(member.getId(), postIds);
 
-        Set<Long> commentedPostIds = commentRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
-                .stream()
-                .map(Comment::getPostId)
-                .collect(Collectors.toSet());
+        Set<Long> commentedPostIds = getCommentedPostIds(member.getId(), postIds);
+
 
         List<PostPageResponseDTO> dtoList = posts.stream()
                 .map(post -> PostPageResponseDTO.toDTO(
@@ -228,28 +173,20 @@ public class PostService {
     }
 
 
-    public List<PostPageResponseDTO> getHotPosts() {
+    public List<PostPageResponseDTO> getHotPosts(Long memberId) {
+        Member member = memberService.validateAndGetMember(memberId);
         List<Post> posts = postQueryRepository.findHotPostsWithin12Hours();
-        Long memberId = SecurityUtils.getCurrentMemberId();
 
         List<Long> postIds = posts.stream()
                 .map(Post::getId)
                 .toList();
 
-        Set<Long> likedPostIds = postLikeRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
-                .stream()
-                .map(PostLike::getPostId)
-                .collect(Collectors.toSet());
+        Set<Long> likedPostIds = getLikedPostIds(member.getId(), postIds);
 
-        Set<Long> scrappedPostIds = postScrapRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
-                .stream()
-                .map(PostScrap::getPostId)
-                .collect(Collectors.toSet());
+        Set<Long> scrappedPostIds = getScrappedPostIds(member.getId(), postIds);
 
-        Set<Long> commentedPostIds = commentRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
-                .stream()
-                .map(Comment::getPostId)
-                .collect(Collectors.toSet());
+        Set<Long> commentedPostIds = getCommentedPostIds(member.getId(), postIds);
+
 
         return posts.stream()
                 .map(post -> PostPageResponseDTO.toDTO(
@@ -263,35 +200,19 @@ public class PostService {
 
     @Transactional
     public void deletePost(String type, Long postId, Long memberId) {
+        Member member = memberService.validateAndGetMember(memberId);
+
         Post post = readPost(type, postId);
 
-        if (!post.getMember().getId().equals(memberId)) {
+        if (!post.getMember().getId().equals(member.getId())) {
             throw new CustomException(PostErrorCode.MEMBER_NOT_MATCH);
         }
 
-        switch (type) {
-            case "free" -> freePostRepository.delete((FreePost) post);
-            case "piece" -> {
-                PiecePost piecePost = (PiecePost) post;
-                pieceRepository.delete(piecePost.getPiece());
-                piecePostRepository.delete(piecePost);
-            }
-            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
-        }
+        PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
+        handler.deletePost(postId, member);
     }
 
-    private List<String> uploadImages(List<MultipartFile> images) {
-        return images.stream()
-                .map(image -> {
-                    try {
-                        return uploadUtil.upload(image, UploadUtil.BucketType.MEDIA, "post");
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .collect(Collectors.toList());
-    }
-
+    // 이후 삭제할 예정
     private FreePost createFreePost(Member member, PostRequestDto requestDto, List<String> imageUrls) {
         FreePost post = FreePost.builder()
                 .title(requestDto.title())
@@ -303,18 +224,9 @@ public class PostService {
         return freePostRepository.save(post);
     }
 
+    // 삭제 예정
     private PiecePost createPiecePost(Member member, PostRequestDto requestDto, List<String> imageUrls) {
-        Venue venue = venueRepository.findById(requestDto.venueId())
-                .orElseThrow(() -> new CustomException(PostErrorCode.VENUE_NOT_EXIST));
-        PiecePostRequestDto request = (PiecePostRequestDto) requestDto;
-        Piece piece = Piece.builder()
-                .member(member)
-                .venue(venue)
-                .eventDate(request.eventDate())
-                .totalPrice(request.totalPrice())
-                .totalMembers(request.totalMembers())
-                .build();
-        pieceRepository.save(piece);
+        Piece piece = pieceService.createPiece(member, requestDto.venueId(), (PiecePostRequestDto) requestDto);
 
         PiecePost post = PiecePost.builder()
                 .title(requestDto.title())
@@ -327,6 +239,7 @@ public class PostService {
         return piecePostRepository.save(post);
     }
 
+    // 삭제 예정
     public Post findPostByIdWithDiscriminator(Long postId) {
         // 먼저 자유 게시글 확인
         Optional<FreePost> freePost = freePostRepository.findById(postId);
@@ -346,9 +259,7 @@ public class PostService {
 
     @Transactional
     public void likePost(Long postId, Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
-
+        Member member = memberService.validateAndGetMember(memberId);
 
         Post post = findPostByIdWithDiscriminator(postId);
 
@@ -370,8 +281,8 @@ public class PostService {
 
     @Transactional
     public void deletePostLike(Long postId, Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
+
 
         Post post = findPostByIdWithDiscriminator(postId);
 
@@ -385,8 +296,8 @@ public class PostService {
 
     @Transactional
     public void scrapPost(Long postId, Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
+
 
         Post post = findPostByIdWithDiscriminator(postId);
 
@@ -407,12 +318,12 @@ public class PostService {
 
     @Transactional
     public void deletePostScrap(Long postId, Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
+
 
         Post post = findPostByIdWithDiscriminator(postId);
 
-        PostInteractionId scrapId = new PostInteractionId(memberId, post.getId());
+        PostInteractionId scrapId = new PostInteractionId(member.getId(), post.getId());
         PostScrap postScrap = postScrapRepository.findById(scrapId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_SCRAP));
 
@@ -421,22 +332,19 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostListResponseDTO getScrappedPostsByType(Long memberId, String type, int page, int size) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
+
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // 1. 스크랩한 게시글 페이징 조회
-        Page<Post> postPage = postScrapRepository.findPostsByMemberId(memberId, pageable);
+        Page<Post> postPage = postScrapRepository.findPostsByMemberId(member.getId(), pageable);
         List<Post> posts = postPage.getContent();
 
         // 2. 게시글 타입 필터링
+        PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
         List<Post> filteredPosts = posts.stream()
-                .filter(post -> {
-                    if (type.equals("free")) return post instanceof FreePost;
-                    else if (type.equals("piece")) return post instanceof PiecePost;
-                    else throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
-                })
+                .filter(handler::supports)
                 .toList();
 
         // 3. 최적화용 postIds 추출
@@ -445,15 +353,9 @@ public class PostService {
                 .toList();
 
         // 4. 연관 정보 bulk 조회
-        Set<Long> likedPostIds = postLikeRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
-                .stream()
-                .map(pl -> pl.getPost().getId())
-                .collect(Collectors.toSet());
+        Set<Long> likedPostIds = getLikedPostIds(member.getId(), postIds);
 
-        Set<Long> commentedPostIds = commentRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
-                .stream()
-                .map(c -> c.getPost().getId())
-                .collect(Collectors.toSet());
+        Set<Long> commentedPostIds = getCommentedPostIds(member.getId(), postIds);
 
         // 5. DTO 매핑
         List<PostPageResponseDTO> dtos = filteredPosts.stream()
@@ -477,36 +379,23 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostListResponseDTO getMyPostsByType(Long memberId, String type, int page, int size) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<? extends Post> postPage;
 
-        switch (type) {
-            case "free" -> postPage = freePostRepository.findByMemberId(memberId, pageable);
-            case "piece" -> postPage = piecePostRepository.findByMemberId(memberId, pageable);
-            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
-        }
+        PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
+        postPage = handler.readAllPosts(pageable);
 
         List<? extends Post> posts = postPage.getContent();
         List<Long> postIds = posts.stream().map(Post::getId).toList();
 
         // 연관 정보 bulk 조회
-        Set<Long> likedPostIds = postLikeRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
-                .stream()
-                .map(pl -> pl.getPost().getId())
-                .collect(Collectors.toSet());
+        Set<Long> likedPostIds = getLikedPostIds(member.getId(), postIds);
 
-        Set<Long> scrappedPostIds = postScrapRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
-                .stream()
-                .map(ps -> ps.getPost().getId())
-                .collect(Collectors.toSet());
+        Set<Long> scrappedPostIds = getScrappedPostIds(member.getId(), postIds);
 
-        Set<Long> commentedPostIds = commentRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
-                .stream()
-                .map(c -> c.getPost().getId())
-                .collect(Collectors.toSet());
+        Set<Long> commentedPostIds = getCommentedPostIds(member.getId(), postIds);
 
         // DTO 매핑
         List<PostPageResponseDTO> dtos = posts.stream()
@@ -524,6 +413,34 @@ public class PostService {
                 .size(postPage.getSize())
                 .responseDTOS(dtos)
                 .build();
+    }
+
+    private Set<Long> getLikedPostIds(Long memberId, List<Long> postIds) {
+        return postLikeRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+                .stream()
+                .map(pl -> pl.getPost().getId())
+                .collect(Collectors.toSet());
+    }
+
+    private Set<Long> getCommentedPostIds(Long memberId, List<Long> postIds) {
+        return commentRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+                .stream()
+                .map(c -> c.getPost().getId())
+                .collect(Collectors.toSet());
+    }
+
+    private Set<Long> getScrappedPostIds(Long memberId, List<Long> postIds) {
+        return postScrapRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+                .stream()
+                .map(ps -> ps.getPost().getId())
+                .collect(Collectors.toSet());
+    }
+
+    // 주어진 타입이 올바른지 확인
+    private void validatePostType(String type) {
+        if (!VALID_POST_TYPES.contains(type)) {
+            throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
+        }
     }
 
 }

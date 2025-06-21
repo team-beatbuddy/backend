@@ -1,9 +1,6 @@
 package com.ceos.beatbuddy.domain.post.controller;
 
-import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
-import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
-import com.ceos.beatbuddy.domain.post.dto.PostPageResponseDTO;
-import com.ceos.beatbuddy.domain.post.dto.ResponsePostDto;
+import com.ceos.beatbuddy.domain.post.dto.*;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface PostApiDocs {
-    @Operation(summary = "#####게시물 생성 - 새로운 버전", description = "게시물을 생성합니다 (type: free/piece), 밑의 Post 관련 RequestDto들을 참고해"
+    @Operation(summary = "#####게시물 생성 - 새로운 버전", description = "게시물을 생성합니다 (type: free/piece), 밑의 FreePostRequestDTO, PiecePostRequestDTO들을 참고해"
             + "타입에 맞는 request를 채워주세요.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "게시물 생성 성공",
@@ -104,7 +102,18 @@ public interface PostApiDocs {
     })
     ResponseEntity<ResponseDTO<ResponsePostDto>> addNewPost(
             @PathVariable String type,
-            @Valid @RequestPart("postCreateRequestDTO") PostCreateRequestDTO postCreateRequestDTO,
+            @Valid
+            @Parameter(
+                    description = "게시글 생성 DTO (type: free 또는 piece)",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(
+                                    oneOf = { FreePostRequestDTO.class, PiecePostRequestDTO.class },
+                                    discriminatorProperty = "type"
+                            )
+                    )
+            )
+            @RequestPart("postCreateRequestDTO") PostCreateRequestDTO postCreateRequestDTO,
             @RequestPart(value = "images", required = false) List<MultipartFile> images);
 
 

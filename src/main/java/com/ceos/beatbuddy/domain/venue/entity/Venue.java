@@ -1,15 +1,14 @@
 package com.ceos.beatbuddy.domain.venue.entity;
 
-import com.ceos.beatbuddy.domain.comment.entity.Comment;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
-import java.util.Map;
 import lombok.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Builder
