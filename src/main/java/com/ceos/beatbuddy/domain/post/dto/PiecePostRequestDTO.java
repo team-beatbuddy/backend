@@ -28,11 +28,11 @@ public class PiecePostRequestDTO implements PostCreateRequestDTO {
 
     public static PiecePost toEntity(PiecePostRequestDTO dto, List<String> imageUrls, Member member, Venue venue, Piece piece) {
         return PiecePost.builder()
-                .title(dto.title())
-                .content(dto.content())
+                .title(dto.getTitle())
+                .content(dto.getContent())
                 .imageUrls(imageUrls)
                 .member(member)
-                .anonymous(dto.anonymous())
+                .anonymous(dto.getAnonymous())
                 .venue(venue)
                 .piece(piece)
                 .build();
