@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class RecommendService {
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final MemberGenreRepository memberGenreRepository;
     private final MemberMoodRepository memberMoodRepository;
     private final VenueGenreRepository venueGenreRepository;
@@ -56,7 +56,7 @@ public class RecommendService {
     private final ArchiveRepository archiveRepository;
 
     public List<VenueResponseDTO> recommendVenuesByGenre(Long memberId, Long num) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
         MemberGenre latestMemberGenre = memberGenreRepository.findLatestGenreByMember(member).orElseThrow(() -> new CustomException(MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST));
 
         if(member.getRegions().isEmpty()){
@@ -105,7 +105,7 @@ public class RecommendService {
 
 
     public List<VenueResponseDTO> recommendVenuesByMood(Long memberId, Long num) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
         MemberMood latestMemberMood = memberMoodRepository.findLatestMoodByMember(member).orElseThrow(() -> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));
 
         if(member.getRegions().isEmpty()){
@@ -155,7 +155,7 @@ public class RecommendService {
 
     @Transactional
     public List<VenueResponseDTO> recommendVenues(Long memberId, Long num) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
         MemberMood memberMood;
         MemberGenre memberGenre;
         Archive archive;
@@ -163,7 +163,6 @@ public class RecommendService {
         if(member.getLatestArchiveId() == null){
             archive = archiveRepository.findFirstByMemberOrderByUpdatedAtDesc(member).orElseThrow(()->new CustomException(ArchiveErrorCode.ARCHIVE_NOT_EXIST));
             member.saveLatestArchiveId(archive.getId());
-            memberRepository.save(member);
             memberGenre= memberGenreRepository.findLatestGenreByMember(member).orElseThrow(() -> new CustomException(MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST));
             memberMood= memberMoodRepository.findLatestMoodByMember(member).orElseThrow(() -> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));
         }
@@ -247,7 +246,7 @@ public class RecommendService {
         List<String> regionTags = recommendFilterDTO.getRegionTags();
         if(genreTags.isEmpty() && moodTags.isEmpty() && regionTags.isEmpty()) throw new CustomException(VectorErrorCode.TAGS_EMPTY);
 
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
         MemberMood latestMemberMood = memberMoodRepository.findLatestMoodByMember(member).orElseThrow(() -> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));
         MemberGenre latestMemberGenre = memberGenreRepository.findLatestGenreByMember(member).orElseThrow(() -> new CustomException(MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST));
         Vector memberVector = Vector.mergeVectors(latestMemberGenre.getGenreVector(), latestMemberMood.getMoodVector());
@@ -349,7 +348,7 @@ public class RecommendService {
     }
 
     public List<VenueResponseDTO> recommendVenuesByArchive(Long memberId, Long num, Long archiveId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
         Archive archive = archiveRepository.findById(archiveId).orElseThrow(()->new CustomException(ArchiveErrorCode.ARCHIVE_NOT_EXIST));
         MemberMood archiveMood = memberMoodRepository.findById(archive.getMemberMood().getId()).orElseThrow(() -> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));
         MemberGenre archiveGenre = memberGenreRepository.findById(archive.getMemberGenre().getId()).orElseThrow(() -> new CustomException(MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST));

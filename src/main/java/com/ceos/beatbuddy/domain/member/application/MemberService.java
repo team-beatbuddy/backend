@@ -41,7 +41,6 @@ public class MemberService {
     private final ArchiveRepository archiveRepository;
     private final UploadUtil uploadUtil;
     private final MemberQueryRepository memberQueryRepository;
-    private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9가-힣._]*$");
 //
 //    @Value("${iamport.api.key}")
 //    private String imp_key;
@@ -77,207 +76,16 @@ public class MemberService {
                         .build());
     }
 
-    public Boolean isDuplicate(Long memberId, NicknameDTO nicknameDTO) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        String nickname = nicknameDTO.getNickname();
-
-        if (memberRepository.existsDistinctByNickname(nickname)) {
-            throw new CustomException(MemberErrorCode.NICKNAME_ALREADY_EXIST);
-        }
-
-        return true;
-    }
-
-    public Boolean isValidate(Long memberId, NicknameDTO nicknameDTO) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        String nickname = nicknameDTO.getNickname();
-        if (nickname.length() > 12) {
-            throw new CustomException(MemberErrorCode.NICKNAME_OVER_LENGTH);
-        }
-        if (nickname.matches(".*\\s+.*")) {
-            throw new CustomException(MemberErrorCode.NICKNAME_SPACE_EXIST);
-        }
-        if (!NICKNAME_PATTERN.matcher(nickname).matches()) {
-            throw new CustomException(MemberErrorCode.NICKNAME_SYMBOL_EXIST);
-        }
-        return true;
-    }
-
-    @Transactional
-    public MemberResponseDTO saveMemberConsent(Long memberId, MemberConsentRequestDTO memberConsentRequestDTO) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        member.saveConsents(memberConsentRequestDTO.getIsLocationConsent(),
-                memberConsentRequestDTO.getIsMarketingConsent());
-        memberRepository.save(member);
-        return MemberResponseDTO.builder()
-                .memberId(member.getId())
-                .loginId(member.getLoginId())
-                .nickname(member.getNickname())
-                .isLocationConsent(member.getIsLocationConsent())
-                .isMarketingConsent(member.getIsMarketingConsent())
-                .build();
-    }
-
-    @Transactional
-    public MemberResponseDTO saveNickname(Long memberId, NicknameDTO nicknameDTO) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        String nickname = nicknameDTO.getNickname();
-        member.saveNickname(nickname);
-        memberRepository.save(member);
-        return MemberResponseDTO.builder()
-                .memberId(member.getId())
-                .loginId(member.getLoginId())
-                .nickname(member.getNickname())
-                .isLocationConsent(member.getIsLocationConsent())
-                .isMarketingConsent(member.getIsMarketingConsent())
-                .build();
-    }
-
-
-    @Transactional
-    public MemberResponseDTO saveRegions(Long memberId, RegionRequestDTO regionRequestDTO) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        List<Region> regions = Arrays.stream(regionRequestDTO.getRegions().split(","))
-                .map(Region::fromText)
-                .collect(Collectors.toList());
-        member.saveRegions(regions);
-        memberRepository.save(member);
-        return MemberResponseDTO.builder()
-                .memberId(member.getId())
-                .loginId(member.getLoginId())
-                .nickname(member.getNickname())
-                .isLocationConsent(member.getIsLocationConsent())
-                .isMarketingConsent(member.getIsMarketingConsent())
-                .build();
-    }
-
-//    @Transactional
-//    public String getToken() {
-//        RestTemplate restTemplate = new RestTemplate();
-//        String tokenUrl = "https://api.iamport.kr/users/getToken";
-//        Map<String, String> tokenRequest = new HashMap<>();
-//        tokenRequest.put("imp_key", imp_key);
-//        tokenRequest.put("imp_secret", imp_secret);
-//
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.set("Content-Type", "application/json");
-//
-//        HttpEntity<Map<String, String>> tokenEntity = new HttpEntity<>(tokenRequest, headers);
-//        ResponseEntity<Map> tokenResponse = restTemplate.exchange(tokenUrl, HttpMethod.POST, tokenEntity, Map.class);
-//
-//        Map body = tokenResponse.getBody();
-//        Map response = (Map) body.get("response");
-//        return response.get("access_token").toString();
-//    }
-//
-//    public ResponseEntity<Map> getUserData(String token, String imp_uid) {
-//        RestTemplate restTemplate = new RestTemplate();
-//        String certificationUrl = UriComponentsBuilder.fromHttpUrl("https://api.iamport.kr/certifications/{imp_uid}")
-//                .buildAndExpand(imp_uid)
-//                .toUriString();
-//
-//        HttpHeaders certificationHeaders = new HttpHeaders();
-//        certificationHeaders.set("Authorization", "Bearer " + token);
-//
-//        HttpEntity<String> certificationEntity = new HttpEntity<>(certificationHeaders);
-//        ResponseEntity<Map> exchange = restTemplate.exchange(certificationUrl, HttpMethod.GET, certificationEntity,
-//                Map.class);
-//
-//        return exchange;
-//    }
-//
-//    public void verifyUserData(ResponseEntity<Map> userData, Long memberId) {
-//        Member member = memberRepository.findById(memberId)
-//                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//        String userName = userData.getBody().get("name").toString();
-//        if (!userName.equals(member.getNickname())) {
-//            throw new CustomException(MemberErrorCode.USERNAME_NOT_MATCH);
-//        }
-//
-//        String userBirth = userData.getBody().get("birth").toString();
-//        LocalDate userBirthDate = LocalDate.parse(userBirth, formatter);
-//
-//        if (Period.between(userBirthDate, LocalDate.now()).getYears() >= 19) {
-//            member.setAdultUser();
-//        } else {
-//            throw new CustomException(MemberErrorCode.MEMBER_NOT_ADULT);
-//        }
-//
-//    }
-
-    public OnboardingResponseDto isOnboarding(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-
-        return getOnboardingMap(member);
-    }
-
-    private OnboardingResponseDto getOnboardingMap(Member member) {
-        OnboardingResponseDto responseDto = new OnboardingResponseDto();
-
-        if (member.getIsAdult()) {
-            responseDto.setAdultCert();
-        }
-
-        if (memberGenreRepository.existsByMember(member)) {
-            responseDto.setGenre();
-        }
-        if (memberMoodRepository.existsByMember(member)) {
-            responseDto.setMood();
-        }
-
-        if (memberRepository.existsRegionsById(member.getId())) {
-            responseDto.setRegion();
-        }
-        return responseDto;
-    }
-
-    public Boolean isTermConsent(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        if (member.getIsLocationConsent() && member.getIsMarketingConsent()) {
-            return true;
-        }
-        return false;
-    }
-
     public Boolean getNicknameSet(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = this.validateAndGetMember(memberId);
+
         return member.getSetNewNickname();
     }
 
     public NicknameDTO getNickname(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = this.validateAndGetMember(memberId);
         return NicknameDTO.builder()
                 .nickname(member.getNickname()).build();
-    }
-
-    public Member getUser(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-    }
-
-    public Boolean getCertification(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(
-                () -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-
-        return member.getIsAdult();
-    }
-
-    @Transactional
-    public void tempVerify(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(
-                () -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        member.setAdultUser();
-        memberRepository.save(member);
     }
 
     public List<String> getPreferences(Long memberId) {
@@ -318,8 +126,7 @@ public class MemberService {
 
     @Transactional
     public void uploadProfileImage(Long memberId, MultipartFile image) throws IOException {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = this.validateAndGetMember(memberId);
 
         //기존 이미지 삭제
         if (member.getProfileImage() != null && !member.getProfileImage().isBlank()) {
