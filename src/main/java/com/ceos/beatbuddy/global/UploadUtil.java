@@ -13,6 +13,7 @@ import jakarta.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -83,25 +84,19 @@ public class UploadUtil {
         }).toList();
     }
 
-    private String uploadImageS3(MultipartFile image, String bucketName, String folder) throws IOException {
-        String s3FileName = (folder != null && !folder.isBlank())
-                ? folder + "/" + generateFileName(image.getOriginalFilename())
-                : generateFileName(image.getOriginalFilename());
+    private String uploadImageS3(MultipartFile image, String bucketName, String folder) throws UncheckedIOException {
+        String fileName = generateFileName(image.getOriginalFilename());
+        String s3FileName = (folder != null && !folder.isBlank()) ? folder + "/" + fileName : fileName;
 
-        InputStream is = image.getInputStream();
-        byte[] bytes = IOUtils.toByteArray(is);
         ObjectMetadata metadata = getObjectMetadata(image);
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
 
-        try {
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, s3FileName, byteArrayInputStream, metadata);
-            amazonS3.putObject(putObjectRequest);
+        try (InputStream is = image.getInputStream()) {
+            PutObjectRequest putRequest = new PutObjectRequest(bucketName, s3FileName, is, metadata);
+            amazonS3.putObject(putRequest);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         } catch (Exception e) {
-            e.printStackTrace();
             throw new CustomException(VenueErrorCode.IMAGE_UPLOAD_FAILED);
-        } finally {
-            byteArrayInputStream.close();
-            is.close();
         }
 
         return amazonS3.getUrl(bucketName, s3FileName).toString();
