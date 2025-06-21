@@ -31,7 +31,7 @@ public class PiecePostHandler implements PostTypeHandler{
 
     @Override
     public Post createPost(PostCreateRequestDTO dto, Member member, List<String> imageUrls) {
-        return null;
+        throw new UnsupportedOperationException("PiecePost 생성 기능이 아직 구현되지 않았습니다.");
     }
 
     @Override
