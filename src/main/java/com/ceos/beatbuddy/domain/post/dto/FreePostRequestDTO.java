@@ -23,11 +23,11 @@ public class FreePostRequestDTO implements PostCreateRequestDTO{
 
     public static FreePost toEntity(FreePostRequestDTO dto, List<String> imageUrls, Member member, Venue venue) {
         return FreePost.builder()
-                .hashtag(dto.hashtag())
+                .hashtag(dto.getHashtag())
                 .imageUrls(imageUrls)
-                .title(dto.title())
-                .content(dto.content())
-                .anonymous(dto.anonymous())
+                .title(dto.getTitle())
+                .content(dto.getContent())
+                .anonymous(dto.getAnonymous())
                 .member(member)
                 .venue(venue)
                 .build();

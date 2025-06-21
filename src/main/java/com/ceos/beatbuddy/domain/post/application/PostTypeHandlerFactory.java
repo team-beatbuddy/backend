@@ -13,9 +13,10 @@ public class PostTypeHandlerFactory {
     private final Map<String, PostTypeHandler> handlerMap;
 
     public PostTypeHandler getHandler(String type) {
-        if (!handlerMap.containsKey(type)) {
+        PostTypeHandler handler = handlerMap.get(type);
+        if (handler == null) {
             throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
         }
-        return handlerMap.get(type);
+        return handler;
     }
 }
