@@ -41,7 +41,6 @@ public class MemberService {
     private final ArchiveRepository archiveRepository;
     private final UploadUtil uploadUtil;
     private final MemberQueryRepository memberQueryRepository;
-    private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9가-힣._]*$");
 //
 //    @Value("${iamport.api.key}")
 //    private String imp_key;
@@ -77,84 +76,6 @@ public class MemberService {
                         .build());
     }
 
-    public Boolean isDuplicate(Long memberId, NicknameDTO nicknameDTO) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        String nickname = nicknameDTO.getNickname();
-
-        if (memberRepository.existsDistinctByNickname(nickname)) {
-            throw new CustomException(MemberErrorCode.NICKNAME_ALREADY_EXIST);
-        }
-
-        return true;
-    }
-
-    public Boolean isValidate(Long memberId, NicknameDTO nicknameDTO) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        String nickname = nicknameDTO.getNickname();
-        if (nickname.length() > 12) {
-            throw new CustomException(MemberErrorCode.NICKNAME_OVER_LENGTH);
-        }
-        if (nickname.matches(".*\\s+.*")) {
-            throw new CustomException(MemberErrorCode.NICKNAME_SPACE_EXIST);
-        }
-        if (!NICKNAME_PATTERN.matcher(nickname).matches()) {
-            throw new CustomException(MemberErrorCode.NICKNAME_SYMBOL_EXIST);
-        }
-        return true;
-    }
-
-    @Transactional
-    public MemberResponseDTO saveMemberConsent(Long memberId, MemberConsentRequestDTO memberConsentRequestDTO) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        member.saveConsents(memberConsentRequestDTO.getIsLocationConsent(),
-                memberConsentRequestDTO.getIsMarketingConsent());
-        memberRepository.save(member);
-        return MemberResponseDTO.builder()
-                .memberId(member.getId())
-                .loginId(member.getLoginId())
-                .nickname(member.getNickname())
-                .isLocationConsent(member.getIsLocationConsent())
-                .isMarketingConsent(member.getIsMarketingConsent())
-                .build();
-    }
-
-    @Transactional
-    public MemberResponseDTO saveNickname(Long memberId, NicknameDTO nicknameDTO) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        String nickname = nicknameDTO.getNickname();
-        member.saveNickname(nickname);
-        memberRepository.save(member);
-        return MemberResponseDTO.builder()
-                .memberId(member.getId())
-                .loginId(member.getLoginId())
-                .nickname(member.getNickname())
-                .isLocationConsent(member.getIsLocationConsent())
-                .isMarketingConsent(member.getIsMarketingConsent())
-                .build();
-    }
-
-
-    @Transactional
-    public MemberResponseDTO saveRegions(Long memberId, RegionRequestDTO regionRequestDTO) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        List<Region> regions = Arrays.stream(regionRequestDTO.getRegions().split(","))
-                .map(Region::fromText)
-                .collect(Collectors.toList());
-        member.saveRegions(regions);
-        memberRepository.save(member);
-        return MemberResponseDTO.builder()
-                .memberId(member.getId())
-                .loginId(member.getLoginId())
-                .nickname(member.getNickname())
-                .isLocationConsent(member.getIsLocationConsent())
-                .isMarketingConsent(member.getIsMarketingConsent())
-                .build();
-    }
 
 //    @Transactional
 //    public String getToken() {
@@ -211,41 +132,6 @@ public class MemberService {
 //
 //    }
 
-    public OnboardingResponseDto isOnboarding(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-
-        return getOnboardingMap(member);
-    }
-
-    private OnboardingResponseDto getOnboardingMap(Member member) {
-        OnboardingResponseDto responseDto = new OnboardingResponseDto();
-
-        if (member.getIsAdult()) {
-            responseDto.setAdultCert();
-        }
-
-        if (memberGenreRepository.existsByMember(member)) {
-            responseDto.setGenre();
-        }
-        if (memberMoodRepository.existsByMember(member)) {
-            responseDto.setMood();
-        }
-
-        if (memberRepository.existsRegionsById(member.getId())) {
-            responseDto.setRegion();
-        }
-        return responseDto;
-    }
-
-    public Boolean isTermConsent(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        if (member.getIsLocationConsent() && member.getIsMarketingConsent()) {
-            return true;
-        }
-        return false;
-    }
 
     public Boolean getNicknameSet(Long memberId) {
         Member member = memberRepository.findById(memberId)
@@ -258,18 +144,6 @@ public class MemberService {
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
         return NicknameDTO.builder()
                 .nickname(member.getNickname()).build();
-    }
-
-    public Member getUser(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-    }
-
-    public Boolean getCertification(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(
-                () -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-
-        return member.getIsAdult();
     }
 
     @Transactional

@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.member.controller;
 
 import com.ceos.beatbuddy.domain.member.application.MemberService;
+import com.ceos.beatbuddy.domain.member.application.OnboardingService;
 import com.ceos.beatbuddy.domain.member.dto.*;
 import com.ceos.beatbuddy.global.ResponseTemplate;
 import com.ceos.beatbuddy.global.code.SuccessCode;
@@ -32,6 +33,7 @@ import java.util.Map;
         + "추후 사용자 상세 정보, 아카이브를 조회하는 기능이 추가될 수 있습니다")
 public class MemberController implements MemberApiDocs{
     private final MemberService memberService;
+    private final OnboardingService onboardingService;
 
     @GetMapping("/onboarding")
     @Operation(summary = "사용자 온보딩 완료 현황 조회", description = "사용자의 완료한 온보딩 단계를 조회합니다.")
@@ -48,7 +50,7 @@ public class MemberController implements MemberApiDocs{
     })
     public ResponseEntity<OnboardingResponseDto> getOnboardingSet() {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(memberService.isOnboarding(memberId));
+        return ResponseEntity.ok(onboardingService.isOnboarding(memberId));
     }
 
     @PostMapping("/onboarding/consent")
@@ -63,7 +65,7 @@ public class MemberController implements MemberApiDocs{
     })
     public ResponseEntity<MemberResponseDTO> saveTermConsent(@RequestBody MemberConsentRequestDTO memberConsentRequestDTO) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(memberService.saveMemberConsent(memberId, memberConsentRequestDTO));
+        return ResponseEntity.ok(onboardingService.saveMemberConsent(memberId, memberConsentRequestDTO));
     }
 
     @GetMapping("/onboarding/consent")
@@ -78,7 +80,7 @@ public class MemberController implements MemberApiDocs{
     })
     public ResponseEntity<Boolean> getTermConsentSet() {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(memberService.isTermConsent(memberId));
+        return ResponseEntity.ok(onboardingService.isTermConsent(memberId));
     }
 
     @PostMapping("/onboarding/nickname/duplicate")
@@ -96,7 +98,7 @@ public class MemberController implements MemberApiDocs{
     })
     public ResponseEntity<Boolean> isNicknameDuplicate(@RequestBody NicknameDTO nicknameDTO) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(memberService.isDuplicate(memberId, nicknameDTO));
+        return ResponseEntity.ok(onboardingService.isDuplicate(memberId, nicknameDTO));
     }
 
     @PostMapping("/onboarding/nickname/validate")
@@ -114,7 +116,7 @@ public class MemberController implements MemberApiDocs{
     })
     public ResponseEntity<Boolean> isNicknameValidate(@RequestBody NicknameDTO nicknameDTO) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(memberService.isValidate(memberId, nicknameDTO));
+        return ResponseEntity.ok(onboardingService.isValidate(memberId, nicknameDTO));
     }
 
     @PostMapping("/onboarding/nickname")
@@ -129,7 +131,7 @@ public class MemberController implements MemberApiDocs{
     })
     public ResponseEntity<MemberResponseDTO> saveNickname(@RequestBody NicknameDTO nicknameDTO) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(memberService.saveNickname(memberId, nicknameDTO));
+        return ResponseEntity.ok(onboardingService.saveNickname(memberId, nicknameDTO));
     }
 
     @GetMapping("/onboarding/nickname")
@@ -159,7 +161,7 @@ public class MemberController implements MemberApiDocs{
     })
     public ResponseEntity<MemberResponseDTO> saveRegions(@RequestBody RegionRequestDTO regionRequestDTO) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(memberService.saveRegions(memberId, regionRequestDTO));
+        return ResponseEntity.ok(onboardingService.saveRegions(memberId, regionRequestDTO));
     }
 
     @GetMapping("/nickname")
