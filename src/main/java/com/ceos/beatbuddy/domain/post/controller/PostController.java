@@ -53,6 +53,14 @@ public class PostController implements PostApiDocs {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/new/{type}")
     public ResponseEntity<ResponseDTO<ResponsePostDto>> addNewPost(
             @PathVariable String type,
+            @Parameter(
+                    name = "postCreateRequestDTO",
+                    description = "게시글 생성 DTO (type: free 또는 piece)",
+                    schema = @Schema(
+                            oneOf = { FreePostRequestDTO.class, PiecePostRequestDTO.class },
+                            discriminatorProperty = "type"
+                    )
+            )
             @Valid @RequestPart("postCreateRequestDTO") PostCreateRequestDTO postCreateRequestDTO,
             @RequestPart(value = "images", required = false) List<MultipartFile> images){
 

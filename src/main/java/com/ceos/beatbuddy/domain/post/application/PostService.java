@@ -17,6 +17,7 @@ import com.ceos.beatbuddy.domain.scrapandlike.entity.PostLike;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostScrap;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostLikeRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostScrapRepository;
+import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.exception.VenueErrorCode;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
@@ -47,16 +48,17 @@ public class PostService {
     private final FreePostRepository freePostRepository;
     private final PiecePostRepository piecePostRepository;
     private final MemberService memberService;
-    private final VenueRepository venueRepository;
-    private final PieceRepository pieceRepository;
-    private final PostRepository postRepository;
+    private final VenueInfoService venueInfoService;
+    private final PieceService pieceService;
     private final PostLikeRepository postLikeRepository;
     private final PostScrapRepository postScrapRepository;
     private final PostQueryRepository postQueryRepository;
     private final CommentRepository commentRepository;
+    private final PostTypeHandlerFactory postTypeHandlerFactory;
     private final UploadUtil uploadUtil;
 
 
+    // 프론트 개발 완료 후 삭제 예정
     @Transactional
     public Post addPost(Long memberId, String type, PostRequestDto requestDto) {
         Member member = memberService.validateAndGetMember(memberId);
@@ -71,35 +73,21 @@ public class PostService {
 
     @Transactional
     public ResponsePostDto addNewPost(String type, PostCreateRequestDTO dto, Long memberId, List<MultipartFile> images) {
+        validatePostType(type);
         Member member = memberService.validateAndGetMember(memberId);
-
         // 이미지 s3 올리기
         List<String> imageUrls = uploadUtil.uploadImages(images, "post");
 
-        Post savedPost = null;
-
-        switch (type) {
-            case "free" -> {
-                Venue venue = dto.getVenueId() != null ?
-                        venueRepository.findById(dto.getVenueId()).orElseThrow(
-                                () -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST)) :
-                        null;
-
-                FreePost freePost = new FreePost(dto.getHashtag(), imageUrls, dto.getTitle(), dto.getContent(), dto.getAnonymous(), member, venue);
-                savedPost = freePostRepository.save(freePost);
-            }
-
-            case "piece" -> {
-                // 아직 기능이 존재하지 않음.
-
-            }
-
-            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
-        }
-
-        return ResponsePostDto.of(Objects.requireNonNull(savedPost));
+        // 내부에서 공장 선택
+        PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
+        // 선택된 공장은 모르지만, createPost 하도록 인터페이스만 제공
+        Post post = handler.createPost(dto, member, imageUrls);
+        
+        return ResponsePostDto.of(post);
     }
 
+    
+    // 추후 삭제 예정
     public Post readPost(String type, Long postId) {
         switch (type) {
             case "free" -> {
@@ -120,24 +108,9 @@ public class PostService {
 
     @Transactional
     public PostPageResponseDTO newReadPost(String type, Long postId, Long memberId) {
-        Post post;
-
         // 1. 게시글 조회 및 조회수 증가
-        switch (type) {
-            case "free" -> {
-                FreePost freePost = freePostRepository.findById(postId)
-                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
-                freePost.increaseView();
-                post = freePost;
-            }
-            case "piece" -> {
-                PiecePost piecePost = piecePostRepository.findById(postId)
-                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
-                piecePost.increaseView();
-                post = piecePost;
-            }
-            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
-        }
+        PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
+        Post post = handler.readPost(postId);
 
         // 2. 사용자가 좋아요 / 스크랩 / 댓글 달았는지 여부
         PostInteractionId interactionId = new PostInteractionId(memberId, postId);
@@ -150,6 +123,7 @@ public class PostService {
         return PostPageResponseDTO.toDTO(post, isLiked, isScrapped, hasCommented);
     }
 
+    // 삭제 예정
     public Page<ResponsePostDto> readAllPosts(String type, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return switch (type) {
@@ -265,13 +239,14 @@ public class PostService {
             case "free" -> freePostRepository.delete((FreePost) post);
             case "piece" -> {
                 PiecePost piecePost = (PiecePost) post;
-                pieceRepository.delete(piecePost.getPiece());
+                //pieceRepository.delete(piecePost.getPiece());
                 piecePostRepository.delete(piecePost);
             }
             default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
         }
     }
 
+    // 이후 삭제할 예정
     private FreePost createFreePost(Member member, PostRequestDto requestDto, List<String> imageUrls) {
         FreePost post = FreePost.builder()
                 .title(requestDto.title())
@@ -284,17 +259,7 @@ public class PostService {
     }
 
     private PiecePost createPiecePost(Member member, PostRequestDto requestDto, List<String> imageUrls) {
-        Venue venue = venueRepository.findById(requestDto.venueId())
-                .orElseThrow(() -> new CustomException(PostErrorCode.VENUE_NOT_EXIST));
-        PiecePostRequestDto request = (PiecePostRequestDto) requestDto;
-        Piece piece = Piece.builder()
-                .member(member)
-                .venue(venue)
-                .eventDate(request.eventDate())
-                .totalPrice(request.totalPrice())
-                .totalMembers(request.totalMembers())
-                .build();
-        pieceRepository.save(piece);
+        Piece piece = pieceService.createPiece(member, requestDto.venueId(), (PiecePostRequestDto) requestDto);
 
         PiecePost post = PiecePost.builder()
                 .title(requestDto.title())
@@ -503,6 +468,14 @@ public class PostService {
                 .size(postPage.getSize())
                 .responseDTOS(dtos)
                 .build();
+    }
+
+
+    // 주어진 타입이 올바른지 확인
+    private void validatePostType(String type) {
+        if (!List.of("free", "piece").contains(type)) {
+            throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
+        }
     }
 
 }
