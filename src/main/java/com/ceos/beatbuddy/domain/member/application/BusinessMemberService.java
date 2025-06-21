@@ -24,6 +24,9 @@ public class BusinessMemberService {
     private final MemberService memberService;
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisTemplate<String, BusinessMemberDTO> businessMemberTempRedisTemplate;
+    private final OnboardingService onboardingService;
+
+
     @Transactional
     public BusinessMemberResponseDTO businessMemberSignup(Long memberId, VerifyCodeDTO dto) {
         String key = "verification_code:" + memberId;
@@ -86,7 +89,7 @@ public class BusinessMemberService {
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_EXIST));
 
         // 닉네임 중복과 가능한 닉네임인지 확인
-        if ((memberService.isDuplicate(memberId, NicknameDTO.builder().nickname(dto.getNickname()).build())) && (memberService.isValidate(memberId, NicknameDTO.builder().nickname(dto.getNickname()).build()))) {
+        if ((onboardingService.isDuplicate(memberId, NicknameDTO.builder().nickname(dto.getNickname()).build())) && (onboardingService.isValidate(memberId, NicknameDTO.builder().nickname(dto.getNickname()).build()))) {
             member.saveNickname(dto.getNickname());
             member.saveBusinessName(dto.getBusinessName());
         }
