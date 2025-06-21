@@ -51,8 +51,8 @@ public class OnboardingService {
     }
 
     public Boolean isTermConsent(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
+
         if (member.getIsLocationConsent() && member.getIsMarketingConsent()) {
             return true;
         }
@@ -89,8 +89,8 @@ public class OnboardingService {
     }
 
     public Boolean isValidate(Long memberId, NicknameDTO nicknameDTO) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
+
         String nickname = nicknameDTO.getNickname();
         if (nickname.length() > 12) {
             throw new CustomException(MemberErrorCode.NICKNAME_OVER_LENGTH);
@@ -108,11 +108,11 @@ public class OnboardingService {
 
     @Transactional
     public MemberResponseDTO saveNickname(Long memberId, NicknameDTO nicknameDTO) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
+
         String nickname = nicknameDTO.getNickname();
         member.saveNickname(nickname);
-        memberRepository.save(member);
+
         return MemberResponseDTO.builder()
                 .memberId(member.getId())
                 .loginId(member.getLoginId())
@@ -125,13 +125,13 @@ public class OnboardingService {
 
     @Transactional
     public MemberResponseDTO saveRegions(Long memberId, RegionRequestDTO regionRequestDTO) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
+
         List<Region> regions = Arrays.stream(regionRequestDTO.getRegions().split(","))
                 .map(Region::fromText)
                 .collect(Collectors.toList());
         member.saveRegions(regions);
-        memberRepository.save(member);
+
         return MemberResponseDTO.builder()
                 .memberId(member.getId())
                 .loginId(member.getLoginId())
