@@ -16,6 +16,9 @@ public interface MemberGenreRepository extends JpaRepository<MemberGenre, Long> 
     @Query("SELECT mg FROM MemberGenre mg WHERE mg.member = :member ORDER BY mg.createdAt DESC LIMIT 1")
     Optional<MemberGenre> findLatestGenreByMember(@Param("member") Member member);
 
+    @Query("SELECT mg FROM MemberGenre mg WHERE mg.member.id = :memberId ORDER BY mg.createdAt DESC LIMIT 1")
+    Optional<MemberGenre> findLatestGenreByMemberId(@Param("memberId") Long memberId);
+
     @Query("SELECT mg FROM MemberGenre mg WHERE mg.member = :member ORDER BY mg.createdAt DESC")
     List<MemberGenre> findAllByMember(@Param("member") Member member);
 
