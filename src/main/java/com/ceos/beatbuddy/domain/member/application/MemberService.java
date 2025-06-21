@@ -76,63 +76,6 @@ public class MemberService {
                         .build());
     }
 
-
-//    @Transactional
-//    public String getToken() {
-//        RestTemplate restTemplate = new RestTemplate();
-//        String tokenUrl = "https://api.iamport.kr/users/getToken";
-//        Map<String, String> tokenRequest = new HashMap<>();
-//        tokenRequest.put("imp_key", imp_key);
-//        tokenRequest.put("imp_secret", imp_secret);
-//
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.set("Content-Type", "application/json");
-//
-//        HttpEntity<Map<String, String>> tokenEntity = new HttpEntity<>(tokenRequest, headers);
-//        ResponseEntity<Map> tokenResponse = restTemplate.exchange(tokenUrl, HttpMethod.POST, tokenEntity, Map.class);
-//
-//        Map body = tokenResponse.getBody();
-//        Map response = (Map) body.get("response");
-//        return response.get("access_token").toString();
-//    }
-//
-//    public ResponseEntity<Map> getUserData(String token, String imp_uid) {
-//        RestTemplate restTemplate = new RestTemplate();
-//        String certificationUrl = UriComponentsBuilder.fromHttpUrl("https://api.iamport.kr/certifications/{imp_uid}")
-//                .buildAndExpand(imp_uid)
-//                .toUriString();
-//
-//        HttpHeaders certificationHeaders = new HttpHeaders();
-//        certificationHeaders.set("Authorization", "Bearer " + token);
-//
-//        HttpEntity<String> certificationEntity = new HttpEntity<>(certificationHeaders);
-//        ResponseEntity<Map> exchange = restTemplate.exchange(certificationUrl, HttpMethod.GET, certificationEntity,
-//                Map.class);
-//
-//        return exchange;
-//    }
-//
-//    public void verifyUserData(ResponseEntity<Map> userData, Long memberId) {
-//        Member member = memberRepository.findById(memberId)
-//                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//        String userName = userData.getBody().get("name").toString();
-//        if (!userName.equals(member.getNickname())) {
-//            throw new CustomException(MemberErrorCode.USERNAME_NOT_MATCH);
-//        }
-//
-//        String userBirth = userData.getBody().get("birth").toString();
-//        LocalDate userBirthDate = LocalDate.parse(userBirth, formatter);
-//
-//        if (Period.between(userBirthDate, LocalDate.now()).getYears() >= 19) {
-//            member.setAdultUser();
-//        } else {
-//            throw new CustomException(MemberErrorCode.MEMBER_NOT_ADULT);
-//        }
-//
-//    }
-
-
     public Boolean getNicknameSet(Long memberId) {
         Member member = this.validateAndGetMember(memberId);
 
@@ -144,14 +87,6 @@ public class MemberService {
         return NicknameDTO.builder()
                 .nickname(member.getNickname()).build();
     }
-
-//    @Transactional
-//    public void tempVerify(Long memberId) {
-//        Member member = memberRepository.findById(memberId).orElseThrow(
-//                () -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-//        member.setAdultUser();
-//        memberRepository.save(member);
-//    }
 
     public List<String> getPreferences(Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(
