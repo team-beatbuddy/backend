@@ -3,7 +3,6 @@ package com.ceos.beatbuddy.domain.magazine.application;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineDetailDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineHomeResponseDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineResponseDTO;
 import com.ceos.beatbuddy.domain.magazine.entity.Magazine;
 import com.ceos.beatbuddy.domain.magazine.exception.MagazineErrorCode;
 import com.ceos.beatbuddy.domain.magazine.repository.MagazineRepository;
@@ -35,7 +34,7 @@ public class MagazineService {
 
     private final UploadUtil uploadUtil;
     @Transactional
-    public MagazineResponseDTO addMagazine(Long memberId, MagazineRequestDTO dto, List<MultipartFile> images) throws RuntimeException {
+    public MagazineDetailDTO addMagazine(Long memberId, MagazineRequestDTO dto, List<MultipartFile> images) throws RuntimeException {
         Member member = memberService.validateAndGetMember(memberId);
 
         if (!(Objects.equals(member.getRole(), "ADMIN")) && !(Objects.equals(member.getRole(), "BUSINESS"))) {
@@ -52,7 +51,7 @@ public class MagazineService {
 
         magazineRepository.save(entity);
 
-        return MagazineResponseDTO.toDTO(entity);
+        return MagazineDetailDTO.toResponseDTO(entity);
     }
 
     public List<MagazineHomeResponseDTO> readHomeMagazines(Long memberId) {
@@ -64,12 +63,12 @@ public class MagazineService {
     }
 
     /**
-     * Retrieves detailed information for a visible magazine and increments its view count.
+     * 표시 가능한(visible) 매거진의 상세 정보를 조회하고, 조회수를 증가시킵니다.
      *
-     * @param memberId the ID of the member requesting the magazine details
-     * @param magazineId the ID of the magazine to retrieve
-     * @return a detailed DTO representing the magazine
-     * @throws CustomException if the member or magazine does not exist, or if the magazine is not visible
+     * @param memberId 매거진 상세 정보를 요청하는 회원의 ID
+     * @param magazineId 조회할 매거진의 ID
+     * @return 매거진을 나타내는 상세 DTO
+     * @throws CustomException 회원 또는 매거진이 존재하지 않거나, 매거진이 표시 불가능한 경우
      */
     public MagazineDetailDTO readDetailMagazine(Long memberId, Long magazineId) {
         Member member = memberService.validateAndGetMember(memberId);
@@ -82,12 +81,12 @@ public class MagazineService {
     }
 
     /**
-     * Adds a scrap (bookmark) for the specified magazine by the given member.
+     * 지정된 매거진에 대해 해당 회원이 스크랩(북마크)을 등록합니다.
      *
-     * @param memberId the ID of the member performing the scrap action
-     * @param magazineId the ID of the magazine to be scrapped
-     * @return a detailed DTO of the magazine after the scrap action
-     * @throws CustomException if the magazine does not exist, is not visible, or has already been scrapped by the member
+     * @param memberId 스크랩을 수행하는 회원의 ID
+     * @param magazineId 스크랩할 매거진의 ID
+     * @return 스크랩 등록 후의 매거진 상세 DTO
+     * @throws CustomException 매거진이 존재하지 않거나, 표시되지 않거나, 이미 스크랩한 경우
      */
     @Transactional
     public MagazineDetailDTO scrapMagazine(Long memberId, Long magazineId) {
@@ -108,10 +107,10 @@ public class MagazineService {
     }
 
     /**
-     * Retrieves a list of magazines scrapped by the specified member.
+     * 지정된 회원이 스크랩한 매거진 목록을 조회합니다.
      *
-     * @param memberId the ID of the member whose scrapped magazines are to be retrieved
-     * @return a list of DTOs representing the scrapped magazines
+     * @param memberId 스크랩한 매거진을 조회할 회원의 ID
+     * @return 스크랩한 매거진을 나타내는 DTO 리스트
      */
     public List<MagazineHomeResponseDTO> getScrapMagazines(Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
@@ -124,12 +123,12 @@ public class MagazineService {
     }
 
     /**
-     * Registers a like from the specified member on the given magazine.
+     * 지정된 회원이 해당 매거진에 좋아요를 등록합니다.
      *
-     * @param magazineId the ID of the magazine to like
-     * @param memberId the ID of the member performing the like
-     * @return a detailed DTO of the magazine after the like is registered
-     * @throws CustomException if the magazine does not exist, is not visible, or the member has already liked the magazine
+     * @param magazineId 좋아요를 등록할 매거진의 ID
+     * @param memberId 좋아요를 수행하는 회원의 ID
+     * @return 좋아요 등록 후의 매거진 상세 DTO
+     * @throws CustomException 매거진이 존재하지 않거나, 표시되지 않거나, 이미 좋아요를 등록한 경우
      */
     @Transactional
     public MagazineDetailDTO likeMagazine(Long magazineId, Long memberId) {
@@ -154,12 +153,12 @@ public class MagazineService {
     }
 
     /**
-     * Removes a like from the specified magazine by the given member.
+     * 지정된 매거진에 대해 해당 회원의 좋아요를 제거합니다.
      *
-     * @param magazineId the ID of the magazine from which the like will be removed
-     * @param memberId the ID of the member removing the like
-     * @return a detailed DTO of the magazine after the like has been removed
-     * @throws CustomException if the like does not exist or the magazine/member is not found
+     * @param magazineId 좋아요를 제거할 매거진의 ID
+     * @param memberId 좋아요를 제거하는 회원의 ID
+     * @return 좋아요 제거 후의 매거진 상세 DTO
+     * @throws CustomException 좋아요가 존재하지 않거나, 매거진/회원이 존재하지 않는 경우
      */
     @Transactional
     public MagazineDetailDTO deleteLikeMagazine(Long magazineId, Long memberId) {
@@ -181,12 +180,12 @@ public class MagazineService {
     }
 
     /**
-     * Removes a scrap (bookmark) of the specified magazine for the given member.
+     * 지정된 매거진에 대해 해당 회원의 스크랩(북마크)을 제거합니다.
      *
-     * @param magazineId the ID of the magazine to unscrap
-     * @param memberId the ID of the member performing the unscrap action
-     * @return a detailed DTO of the magazine after the scrap is removed
-     * @throws CustomException if the member or magazine does not exist, or if the scrap is not found
+     * @param magazineId 스크랩을 취소할 매거진의 ID
+     * @param memberId 스크랩 취소를 수행하는 회원의 ID
+     * @return 스크랩이 제거된 후의 매거진 상세 DTO
+     * @throws CustomException 회원 또는 매거진이 존재하지 않거나, 스크랩이 존재하지 않을 경우
      */
     @Transactional
     public MagazineDetailDTO deleteScrapMagazine(Long magazineId, Long memberId) {
@@ -208,11 +207,11 @@ public class MagazineService {
     }
 
     /**
-     * Retrieves a visible magazine by its ID or throws an exception if not found.
+     * ID를 기반으로 표시 가능한(visible) 매거진을 조회하며, 존재하지 않거나 표시 불가능한 경우 예외를 발생시킵니다.
      *
-     * @param magazineId the ID of the magazine to retrieve
-     * @return the magazine entity if it exists and is marked as visible
-     * @throws CustomException if the magazine does not exist or is not visible
+     * @param magazineId 조회할 매거진의 ID
+     * @return 존재하고 표시 가능한 매거진 엔티티
+     * @throws CustomException 매거진이 존재하지 않거나 표시 불가능한 경우
      */
     private Magazine validateAndGetMagazineVisibleTrue(Long magazineId) {
         return magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
@@ -220,11 +219,11 @@ public class MagazineService {
     }
 
     /**
-     * Retrieves a magazine by its ID, regardless of visibility.
+     * 표시 여부와 관계없이 ID를 기반으로 매거진을 조회합니다.
      *
-     * @param magazineId the ID of the magazine to retrieve
-     * @return the magazine entity with the specified ID
-     * @throws CustomException if the magazine does not exist
+     * @param magazineId 조회할 매거진의 ID
+     * @return 해당 ID를 가진 매거진 엔티티
+     * @throws CustomException 매거진이 존재하지 않는 경우
      */
     private Magazine validateAndGetMagazine(Long magazineId) {
         return magazineRepository.findById(magazineId).orElseThrow(() ->

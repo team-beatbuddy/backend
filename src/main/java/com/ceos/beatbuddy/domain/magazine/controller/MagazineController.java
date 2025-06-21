@@ -4,14 +4,11 @@ import com.ceos.beatbuddy.domain.magazine.application.MagazineService;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineDetailDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineHomeResponseDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineResponseDTO;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +27,11 @@ public class MagazineController implements MagazineApiDocs{
     // 매거진 작성
     @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDTO<MagazineResponseDTO>> addMagazine(
+    public ResponseEntity<ResponseDTO<MagazineDetailDTO>> addMagazine(
             @Valid @RequestPart("magazineRequestDTO") MagazineRequestDTO magazineRequestDTO,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        MagazineResponseDTO result = magazineService.addMagazine(memberId, magazineRequestDTO, images);
+        MagazineDetailDTO result = magazineService.addMagazine(memberId, magazineRequestDTO, images);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_CREATED_MAGAZINE.getStatus().value())
