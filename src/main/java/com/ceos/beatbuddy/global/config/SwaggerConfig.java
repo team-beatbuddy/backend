@@ -100,51 +100,33 @@ public class SwaggerConfig {
                             .addSecuritySchemes("kakaoOAuth", kakaoScheme)
                             .addSecuritySchemes("googleOAuth", googleScheme));
 
-                    // 카카오 로그인 경로
-                    openApi.path("/oauth2/authorization/kakao", new io.swagger.v3.oas.models.PathItem()
-                            .get(new io.swagger.v3.oas.models.Operation()
-                                    .summary("카카오 로그인")
-                                    .description("카카오 로그인을 통해 회원가입을 진행합니다.")
-                                    .responses(new ApiResponses()
-                                            .addApiResponse("200", new ApiResponse()
-                                                    .description("로그인 성공 시 사용자 정보를 반환합니다.")
-                                                    .headers(Map.of(
-                                                            "access", new Header().description("Access Token").schema(new StringSchema()),
-                                                            "Set-Cookie", new Header().description("Refresh Token 쿠키").schema(new StringSchema())
-                                                    ))
-                                                    .content(new Content().addMediaType("application/json",
-                                                            new MediaType().schema(new Schema<>()
-                                                                    .addProperty("memberId", new Schema<Long>().type("integer").description("회원 식별자"))
-                                                                    .addProperty("loginId", new Schema<String>().type("string").description("로그인 ID"))
-                                                                    .addProperty("name", new Schema<String>().type("string").description("유저 이름"))
-                                                            ))))
-                                            .addApiResponse("401", new ApiResponse().description("로그인 실패"))
-                                    )
-                                    .security(List.of(new SecurityRequirement().addList("kakaoOAuth")))
-                            ));
-
-                    // 구글 로그인 경로
-                    openApi.path("/oauth2/authorization/google", new io.swagger.v3.oas.models.PathItem()
-                            .get(new io.swagger.v3.oas.models.Operation()
-                                    .summary("구글 로그인")
-                                    .description("구글 로그인을 통해 회원가입을 진행합니다.")
-                                    .responses(new ApiResponses()
-                                            .addApiResponse("200", new ApiResponse()
-                                                    .description("로그인 성공 시 사용자 정보를 반환합니다.")
-                                                    .headers(Map.of(
-                                                            "access", new Header().description("Access Token").schema(new StringSchema()),
-                                                            "Set-Cookie", new Header().description("Refresh Token 쿠키").schema(new StringSchema())
-                                                    ))
-                                                    .content(new Content().addMediaType("application/json",
-                                                            new MediaType().schema(new Schema<>()
-                                                                    .addProperty("memberId", new Schema<Long>().type("integer").description("회원 식별자"))
-                                                                    .addProperty("loginId", new Schema<String>().type("string").description("로그인 ID"))
-                                                                    .addProperty("name", new Schema<String>().type("string").description("유저 이름"))
-                                                            ))))
-                                            .addApiResponse("401", new ApiResponse().description("로그인 실패"))
-                                    )
-                                    .security(List.of(new SecurityRequirement().addList("googleOAuth")))
-                            ));
+                    openApi.path("/oauth2/authorization/kakao", createOAuthPathItem("kakao", "카카오", "kakaoOAuth"));
+                    openApi.path("/oauth2/authorization/google", createOAuthPathItem("google", "구글", "googleOAuth"));
                 }).build();
+    }
+
+
+    private io.swagger.v3.oas.models.PathItem createOAuthPathItem(String provider, String displayName, String securitySchemeName) {
+        return new io.swagger.v3.oas.models.PathItem()
+                .get(new io.swagger.v3.oas.models.Operation()
+                        .summary(displayName + " 로그인")
+                        .description(displayName + " 로그인을 통해 회원가입을 진행합니다.")
+                        .responses(new ApiResponses()
+                                .addApiResponse("200", new ApiResponse()
+                                        .description("로그인 성공 시 사용자 정보를 반환합니다.")
+                                        .headers(Map.of(
+                                                "access", new Header().description("Access Token").schema(new StringSchema()),
+                                                "Set-Cookie", new Header().description("Refresh Token 쿠키").schema(new StringSchema())
+                                        ))
+                                        .content(new Content().addMediaType("application/json",
+                                                new MediaType().schema(new Schema<>()
+                                                        .addProperty("memberId", new Schema<Long>().type("integer").description("회원 식별자"))
+                                                        .addProperty("loginId", new Schema<String>().type("string").description("로그인 ID"))
+                                                        .addProperty("name", new Schema<String>().type("string").description("유저 이름"))
+                                                ))))
+                                .addApiResponse("401", new ApiResponse().description("로그인 실패"))
+                        )
+                        .security(List.of(new SecurityRequirement().addList(securitySchemeName)))
+                );
     }
 }
