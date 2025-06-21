@@ -18,12 +18,12 @@ import java.util.Map;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class VenueMoodService {
-    private final VenueRepository venueRepository;
+    private final VenueInfoService venueInfoService;
     private final VenueMoodRepository venueMoodRepository;
 
     @Transactional
     public VenueVectorResponseDTO addMoodVector(Long venueId, Map<String, Double> moods) {
-        Venue venue = venueRepository.findById(venueId).orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
+        Venue venue = venueInfoService.validateAndGetVenue(venueId);
 
         Vector preferenceVector = Vector.fromMoods(moods);
 
@@ -44,7 +44,7 @@ public class VenueMoodService {
 
     @Transactional
     public VenueVectorResponseDTO updateMoodVector(Long venueId, Map<String, Double> moods) {
-        Venue venue = venueRepository.findById(venueId).orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
+        Venue venue = venueInfoService.validateAndGetVenue(venueId);
         VenueMood venueMood = venueMoodRepository.findByVenue(venue).orElseThrow(()->new CustomException(VenueErrorCode.INVALID_VENUE_INFO));
 
         venueMood.updateMoodVector(Vector.fromMoods(moods));

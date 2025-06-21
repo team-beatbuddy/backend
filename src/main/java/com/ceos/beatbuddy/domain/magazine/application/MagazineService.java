@@ -66,9 +66,7 @@ public class MagazineService {
     public MagazineDetailDTO readDetailMagazine(Long memberId, Long magazineId) {
         Member member = memberService.validateAndGetMember(memberId);
 
-        Magazine magazine = magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
-                new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
-        );
+        Magazine magazine = validateAndGetMagazineVisibleTrue(magazineId);
 
         magazine.increaseView();
 
@@ -79,9 +77,7 @@ public class MagazineService {
     public MagazineDetailDTO scrapMagazine(Long memberId, Long magazineId) {
         Member member = memberService.validateAndGetMember(memberId);
 
-        Magazine magazine = magazineRepository.findById(magazineId).orElseThrow(() ->
-                new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
-        );
+        Magazine magazine = validateAndGetMagazineVisibleTrue(magazineId);
 
         boolean alreadyScrapped = magazineScrapRepository.existsById(MagazineInteractionId.builder().magazineId(magazineId).memberId(memberId).build());
 
@@ -99,9 +95,8 @@ public class MagazineService {
         Member member = memberService.validateAndGetMember(memberId);
 
         List<MagazineScrap> magazineScraps = magazineScrapRepository.findAllByMember(member);
-        List<Magazine> magazines = magazineScraps.stream().map((magazineScrap -> {
-            return magazineRepository.findById(magazineScrap.getMagazine().getId()).orElseThrow(() -> new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST));
-        })).toList();
+        List<Magazine> magazines = magazineScraps.stream().map((magazineScrap ->
+                validateAndGetMagazine(magazineScrap.getId().getMagazineId()))).toList();
 
         return magazines.stream().map((MagazineHomeResponseDTO::toScrapDTO)).toList();
     }
@@ -111,9 +106,7 @@ public class MagazineService {
         Member member = memberService.validateAndGetMember(memberId);
 
         // 엔티티 검색
-        Magazine magazine = magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
-                new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
-        );
+        Magazine magazine = validateAndGetMagazineVisibleTrue(magazineId);
 
         // 좋아요 증가 (이미 좋아요가 있으면 예외처리
         boolean alreadyLiked = magazineLikeRepository.existsById(
@@ -135,9 +128,7 @@ public class MagazineService {
         Member member = memberService.validateAndGetMember(memberId);
 
         // 엔티티 검색
-        Magazine magazine = magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
-                new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
-        );
+        Magazine magazine = validateAndGetMagazine(magazineId);
 
         // 좋아요 삭제
         MagazineLike magazineLike = magazineLikeRepository.findById(
@@ -156,9 +147,7 @@ public class MagazineService {
         Member member = memberService.validateAndGetMember(memberId);
 
         // 엔티티 검색
-        Magazine magazine = magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
-                new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST)
-        );
+        Magazine magazine = validateAndGetMagazine(magazineId);
 
         // 스크랩 삭제
         MagazineScrap magazineScrap = magazineScrapRepository.findById(
@@ -170,5 +159,15 @@ public class MagazineService {
 
         return MagazineDetailDTO.toDTO(magazine);
 
+    }
+
+    private Magazine validateAndGetMagazineVisibleTrue(Long magazineId) {
+        return magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
+                new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST));
+    }
+
+    private Magazine validateAndGetMagazine(Long magazineId) {
+        return magazineRepository.findById(magazineId).orElseThrow(() ->
+                new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST));
     }
 }
