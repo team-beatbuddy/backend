@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.event.controller;
 
+import com.ceos.beatbuddy.domain.event.application.EventAttendanceExcelExporter;
 import com.ceos.beatbuddy.domain.event.application.EventAttendanceService;
 import com.ceos.beatbuddy.domain.event.application.EventCommentService;
 import com.ceos.beatbuddy.domain.event.application.EventService;
@@ -128,32 +129,8 @@ public class EventController implements EventApiDocs {
         response.setContentType("application/vnd.ms-excel");
         response.setHeader("Content-Disposition", "attachment; filename=attendances.xlsx");
 
-        try (Workbook workbook = new XSSFWorkbook(); OutputStream os = response.getOutputStream()) {
-            Sheet sheet = workbook.createSheet("참석자 명단");
-
-            // 헤더
-            Row headerRow = sheet.createRow(0);
-            headerRow.createCell(0).setCellValue("이름");
-            headerRow.createCell(1).setCellValue("성별");
-            headerRow.createCell(2).setCellValue("전화번호");
-            headerRow.createCell(3).setCellValue("SNS 타입");
-            headerRow.createCell(4).setCellValue("SNS 아이디");
-            headerRow.createCell(5).setCellValue("참가비 납부 여부");
-            headerRow.createCell(6).setCellValue("총 동행 인원");
-
-            // 데이터
-            for (int i = 0; i < dtoList.size(); i++) {
-                Row row = sheet.createRow(i + 1);
-                EventAttendanceExportDTO dto = dtoList.get(i);
-                row.createCell(0).setCellValue(nullToHyphen(dto.getName()));
-                row.createCell(1).setCellValue(nullToHyphen(dto.getGender()));
-                row.createCell(2).setCellValue(nullToHyphen(dto.getPhoneNumber()));
-                row.createCell(3).setCellValue(nullToHyphen(dto.getSnsType()));
-                row.createCell(4).setCellValue(nullToHyphen(dto.getSnsId()));
-                row.createCell(5).setCellValue(dto.getIsPaid() != null ? (dto.getIsPaid() ? "예" : "아니오") : "-");
-                row.createCell(6).setCellValue(dto.getTotalMember() != null ? dto.getTotalMember() : 0);
-            }
-
+        try (Workbook workbook = EventAttendanceExcelExporter.export(dtoList);
+             OutputStream os = response.getOutputStream()) {
             workbook.write(os);
         }
     }
