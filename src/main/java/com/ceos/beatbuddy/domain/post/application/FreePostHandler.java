@@ -11,6 +11,8 @@ import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -34,6 +36,11 @@ public class FreePostHandler implements PostTypeHandler{
 
         FreePost freePost = FreePostRequestDTO.toEntity(freeDto, imageUrls, member, venue);
         return freePostRepository.save(freePost);
+    }
+
+    @Override
+    public Page<? extends Post> readAllPosts(Pageable pageable) {
+        return freePostRepository.findAll(pageable);
     }
 
     @Override

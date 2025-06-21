@@ -164,7 +164,9 @@ public class PostController implements PostApiDocs {
 
     @GetMapping("/posts/hot")
     public ResponseEntity<ResponseDTO<List<PostPageResponseDTO>>> getHotPosts() {
-        List<PostPageResponseDTO> result = postService.getHotPosts();
+        Long memberId = SecurityUtils.getCurrentMemberId();
+
+        List<PostPageResponseDTO> result = postService.getHotPosts(memberId);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_HOT_POSTS.getStatus().value())

@@ -10,6 +10,8 @@ import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,20 +24,14 @@ public class PiecePostHandler implements PostTypeHandler{
     private final VenueInfoService venueInfoService;
     private final PieceService pieceService;
 
-//    @Override
-//    public Post createPost(PostCreateRequestDTO dto, Member member, List<String> imageUrls) {
-//        Venue venue = Optional.ofNullable(dto.venueId())
-//                .map(venueInfoService::validateAndGetVenue)
-//                .orElse(null);
-//
-//        pieceService.createPiece()
-//        FreePost freePost = new FreePost(dto.getHashtag(), imageUrls, dto.getTitle(), dto.getContent(), dto.getAnonymous(), member, venue);
-//        return piecePostRepository.save(freePost);
-//    }
-
     @Override
     public Post createPost(PostCreateRequestDTO dto, Member member, List<String> imageUrls) {
         return null;
+    }
+
+    @Override
+    public Page<? extends Post> readAllPosts(Pageable pageable) {
+        return piecePostRepository.findAll(pageable);
     }
 
     @Override
