@@ -11,11 +11,13 @@ import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
 import com.ceos.beatbuddy.domain.magazine.exception.MagazineErrorCode;
+import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.EventInteractionId;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.EventLike;
+import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.exception.VenueErrorCode;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
@@ -36,8 +38,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EventService {
     private final UploadUtil uploadUtil;
-    private final MemberRepository memberRepository;
-    private final VenueRepository venueRepository;
+    private final MemberService memberService;
+    private final VenueInfoService venueInfoService;
     private final EventRepository eventRepository;
     private final EventQueryRepository eventQueryRepository;
     private final EventLikeRepository eventLikeRepository;
@@ -45,7 +47,7 @@ public class EventService {
 
     @Transactional
     public EventResponseDTO addEvent(Long memberId, EventCreateRequestDTO eventCreateRequestDTO, MultipartFile image) throws IOException {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         if (!(Objects.equals(member.getRole(), "ADMIN")) && !(Objects.equals(member.getRole(), "BUSINESS"))) {
             throw new CustomException(MagazineErrorCode.CANNOT_ADD_MAGAZINE_UNAUTHORIZED_MEMBER);
@@ -56,10 +58,7 @@ public class EventService {
 
         // 베뉴가 등록되어있다면,
         if (eventCreateRequestDTO.getVenueId() != null) {
-            Venue venue = venueRepository.findById(eventCreateRequestDTO.getVenueId()).orElseThrow(
-                    () -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST)
-            );
-
+            Venue venue = venueInfoService.validateAndGetVenue(eventCreateRequestDTO.getVenueId());
             event.setVenue(venue);
         }
 
@@ -74,7 +73,7 @@ public class EventService {
 
 
     public EventListResponseDTO getUpcomingEvents(String sort, Integer page, Integer size, Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         int offset = (page - 1) * size;
 
@@ -96,7 +95,7 @@ public class EventService {
     }
 
     public EventListResponseDTO getNowEvents(String sort, Integer page, Integer size, Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         int offset = (page - 1) * size;
 
@@ -118,8 +117,7 @@ public class EventService {
     }
 
     public EventListResponseDTO getPastEvents(String sort, Integer page, Integer size, Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         int offset = (page - 1) * size;
         // 지난 이벤트 조회
@@ -142,11 +140,9 @@ public class EventService {
 
     @Transactional
     public EventResponseDTO likeEvent(Long eventId, Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+        Event event = validateAndGet(eventId);
 
         EventInteractionId id = new EventInteractionId(memberId, eventId);
 
@@ -166,12 +162,11 @@ public class EventService {
     @Transactional
     public EventResponseDTO deleteLikeEvent(Long eventId, Long memberId) {
         // 멤버 조회
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         // 이벤트 조회
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+        Event event = validateAndGet(eventId);
+
 
         // 좋아요 여부 확인
         EventInteractionId id = new EventInteractionId(memberId, eventId);
@@ -189,12 +184,10 @@ public class EventService {
     @Transactional(readOnly = true)
     public EventResponseDTO getEventDetail(Long eventId, Long memberId) {
         // 멤버 조회
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         // 이벤트 조회
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+        Event event = validateAndGet(eventId);
 
         // 조회수 증가
         event.increaseView();
@@ -207,8 +200,7 @@ public class EventService {
 
 
     public Map<String, List<EventResponseDTO>> getMyPageEvents(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         LocalDate today = LocalDate.now();
         Set<Event> myEvents = new HashSet<>();
@@ -247,6 +239,11 @@ public class EventService {
         result.put("past", past);
 
         return result;
+    }
+
+    public Event validateAndGet(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
     }
 
 

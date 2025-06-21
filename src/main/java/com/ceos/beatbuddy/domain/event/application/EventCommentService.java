@@ -9,6 +9,7 @@ import com.ceos.beatbuddy.domain.event.entity.EventCommentId;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.event.repository.EventCommentRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
+import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
@@ -24,17 +25,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EventCommentService {
 
-    private final EventRepository eventRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
+    private final EventService eventService;
     private final EventCommentRepository eventCommentRepository;
 
     @Transactional
     public EventCommentResponseDTO createComment(Long eventId, Long memberId, EventCommentCreateRequestDTO dto, Long parentCommentId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+        Event event = eventService.validateAndGet(eventId);
 
         Long commentId;
         int level = 0;
@@ -66,11 +65,9 @@ public class EventCommentService {
 
     @Transactional
     public void deleteComment(Long eventId, Long commentId, Integer level, Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+        Event event = eventService.validateAndGet(eventId);
 
         EventComment target = eventCommentRepository.findById(new EventCommentId(commentId, level))
                 .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_COMMENT));
@@ -90,9 +87,10 @@ public class EventCommentService {
 
 
     @Transactional(readOnly = true)
-    public List<EventCommentTreeResponseDTO> getSortedEventComments(Long eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+    public List<EventCommentTreeResponseDTO> getSortedEventComments(Long memberId, Long eventId) {
+        Member member = memberService.validateAndGetMember(memberId);
+
+        Event event = eventService.validateAndGet(eventId);
 
         List<EventComment> all = eventCommentRepository.findAllByEvent(event);
 
