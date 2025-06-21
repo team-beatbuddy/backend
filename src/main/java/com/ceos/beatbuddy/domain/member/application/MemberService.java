@@ -4,10 +4,6 @@ import com.ceos.beatbuddy.domain.archive.repository.ArchiveRepository;
 import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.dto.*;
-import com.ceos.beatbuddy.domain.member.repository.MemberQueryRepository;
-import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
-import com.ceos.beatbuddy.global.UploadUtil;
-import com.ceos.beatbuddy.global.config.oauth.dto.Oauth2MemberDto;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.entity.MemberGenre;
 import com.ceos.beatbuddy.domain.member.entity.MemberMood;
@@ -16,30 +12,23 @@ import com.ceos.beatbuddy.domain.member.exception.MemberGenreErrorCode;
 import com.ceos.beatbuddy.domain.member.exception.MemberMoodErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberGenreRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberMoodRepository;
+import com.ceos.beatbuddy.domain.member.repository.MemberQueryRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.vector.entity.Vector;
 import com.ceos.beatbuddy.global.CustomException;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-
+import com.ceos.beatbuddy.global.UploadUtil;
+import com.ceos.beatbuddy.global.config.oauth.dto.Oauth2MemberDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @Transactional(readOnly = true)

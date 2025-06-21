@@ -63,6 +63,7 @@ public class FreePostHandler implements PostTypeHandler{
         freePostRepository.deleteById(post.getId());
     }
 
+    @Override
     public Post validateAndGetPost(Long postId) {
         return freePostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));

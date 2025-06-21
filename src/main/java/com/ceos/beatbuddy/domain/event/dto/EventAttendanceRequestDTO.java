@@ -6,7 +6,6 @@ import com.ceos.beatbuddy.domain.event.entity.EventAttendanceId;
 import com.ceos.beatbuddy.domain.member.constant.Gender;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

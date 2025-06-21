@@ -5,7 +5,6 @@ import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
-import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
 import com.ceos.beatbuddy.domain.vector.entity.Vector;
 import com.ceos.beatbuddy.domain.venue.dto.VenueInfoResponseDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
@@ -20,15 +19,15 @@ import com.ceos.beatbuddy.domain.venue.repository.VenueMoodRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor

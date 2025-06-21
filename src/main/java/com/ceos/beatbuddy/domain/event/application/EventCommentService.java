@@ -8,17 +8,16 @@ import com.ceos.beatbuddy.domain.event.entity.EventComment;
 import com.ceos.beatbuddy.domain.event.entity.EventCommentId;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.event.repository.EventCommentRepository;
-import com.ceos.beatbuddy.domain.event.repository.EventRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
-import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service

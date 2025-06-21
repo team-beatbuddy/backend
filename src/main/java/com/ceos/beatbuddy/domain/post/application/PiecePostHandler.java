@@ -2,13 +2,11 @@ package com.ceos.beatbuddy.domain.post.application;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
-import com.ceos.beatbuddy.domain.post.entity.FreePost;
 import com.ceos.beatbuddy.domain.post.entity.PiecePost;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
 import com.ceos.beatbuddy.domain.post.repository.PiecePostRepository;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
-import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -54,6 +52,7 @@ public class PiecePostHandler implements PostTypeHandler{
         piecePostRepository.deleteById(post.getId());
     }
 
+    @Override
     public Post validateAndGetPost(Long postId) {
         return piecePostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
