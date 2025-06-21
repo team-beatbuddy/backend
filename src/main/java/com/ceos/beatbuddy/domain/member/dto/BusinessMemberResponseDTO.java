@@ -26,7 +26,7 @@ public class BusinessMemberResponseDTO {
     public static BusinessMemberResponseDTO toSetNicknameDTO(Member member){
         return BusinessMemberResponseDTO.builder()
                 .realName(member.getRealName())
-                .phoneNumber(member.getBusinessInfo().getPhoneNumber())
+                .phoneNumber(member.getBusinessInfo() != null ? member.getBusinessInfo().getPhoneNumber() : null)
                 .role(member.getRole())
                 .nickname(member.getNickname())
                 .build();
