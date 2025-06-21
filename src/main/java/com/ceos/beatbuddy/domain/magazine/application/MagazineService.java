@@ -162,7 +162,7 @@ public class MagazineService {
 
         MagazineLike entity = MagazineLike.toEntity(member, magazine);
         magazineLikeRepository.save(entity);
-        magazine.increaseLike();
+        magazineRepository.increaseLike(magazineId);
 
         return MagazineDetailDTO.toDTO(magazine);
     }
@@ -189,7 +189,7 @@ public class MagazineService {
         );
 
         magazineLikeRepository.delete(magazineLike);
-        magazine.decreaseLike();
+        magazineRepository.decreaseLike(magazineId);
 
         return MagazineDetailDTO.toDTO(magazine);
     }

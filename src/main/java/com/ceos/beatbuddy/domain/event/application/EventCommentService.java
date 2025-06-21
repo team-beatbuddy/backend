@@ -40,7 +40,7 @@ public class EventCommentService {
 
         if (parentCommentId == null) {
             // 원댓글이면 새로운 그룹 ID 생성
-            commentId = eventCommentRepository.getNextCommentGroupId(); // ★ 별도로 시퀀스 또는 max(id)+1 로직 필요
+            commentId = eventCommentRepository.getNextCommentGroupId();
         } else {
             // 대댓글이면 부모 댓글 확인
             EventComment parent = eventCommentRepository.findTopByIdOrderByLevelDesc(parentCommentId)
