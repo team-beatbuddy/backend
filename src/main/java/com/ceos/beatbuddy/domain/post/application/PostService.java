@@ -55,7 +55,7 @@ public class PostService {
     @Transactional
     public Post addPost(Long memberId, String type, PostRequestDto requestDto) {
         Member member = memberService.validateAndGetMember(memberId);
-        List<String> imageUrls = uploadUtil.uploadImages(requestDto.images(), "post");
+        List<String> imageUrls = uploadUtil.uploadImages(requestDto.images(), UploadUtil.BucketType.MEDIA, "post");
 
         return switch (type) {
             case "free" -> createFreePost(member, requestDto, imageUrls);
@@ -69,7 +69,7 @@ public class PostService {
         validatePostType(type);
         Member member = memberService.validateAndGetMember(memberId);
         // 이미지 s3 올리기
-        List<String> imageUrls = uploadUtil.uploadImages(images, "post");
+        List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "post");
 
         // 내부에서 공장 선택
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);

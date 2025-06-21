@@ -334,7 +334,7 @@ public class MemberService {
 
         //기존 이미지 삭제
         if (member.getProfileImage() != null && !member.getProfileImage().isBlank()) {
-            uploadUtil.delete(member.getProfileImage(), UploadUtil.BucketType.MEDIA);
+            uploadUtil.deleteImage(member.getProfileImage(), UploadUtil.BucketType.MEDIA);
         }
 
         // 새 이미지 업로드

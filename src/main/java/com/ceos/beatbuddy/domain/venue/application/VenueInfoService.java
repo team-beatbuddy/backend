@@ -82,8 +82,8 @@ public class VenueInfoService {
     public Long deleteVenueInfo(Long venueId) {
         Venue venue = venueRepository.findById(venueId)
                 .orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
-        this.deleteImage(venue.getLogoUrl());
-        this.deleteImage(venue.getBackgroundUrl());
+        uploadUtil.deleteImage(venue.getLogoUrl(), UploadUtil.BucketType.VENUE);
+        uploadUtil.deleteImages(venue.getBackgroundUrl(), UploadUtil.BucketType.VENUE);
         return venueRepository.deleteByVenueId(venueId);
     }
 
@@ -99,39 +99,14 @@ public class VenueInfoService {
         }
 
         if (!backgroundImage.isEmpty()) {
-            for (MultipartFile multipartFile : backgroundImage) {
-                backgroundImageUrls.add(uploadUtil.upload(multipartFile, UploadUtil.BucketType.VENUE, null));
-            }
+            uploadUtil.uploadImages(backgroundImage, UploadUtil.BucketType.VENUE, null);
         }
 
         return venueRepository.save(Venue.of(request, logoImageUrl, backgroundImageUrls));
     }
 
-    private void deleteImage(String imageUrl) {
-        String s3FileName = imageUrl.split("/")[3];
-
-        try {
-            amazonS3.deleteObject(bucketName, s3FileName);
-        } catch (Exception e) {
-            throw new CustomException(VenueErrorCode.IMAGE_DELETE_FAILED);
-        }
-
-    }
-
-    private void deleteImage(List<String> imageUrls) {
-        for (String imageUrl : imageUrls) {
-            String s3FileName = imageUrl.split("/")[3];
-
-            try {
-                amazonS3.deleteObject(bucketName, s3FileName);
-            } catch (Exception e) {
-                throw new CustomException(VenueErrorCode.IMAGE_DELETE_FAILED);
-            }
-        }
-    }
-
     @Transactional
-    public Venue updateVenueInfo(Long venueId, VenueRequestDTO venueRequestDTO, MultipartFile logoImage, List<MultipartFile> backgroundImage)
+    public Venue updateVenueInfo(Long venueId, VenueRequestDTO venueRequestDTO, MultipartFile logoImage, List<MultipartFile> backgroundImages)
             throws IOException {
         Venue venue = venueRepository.findById(venueId)
                 .orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
@@ -140,16 +115,13 @@ public class VenueInfoService {
         List<String> backgroundImageUrls = venue.getBackgroundUrl();
 
         if (logoImage != null) {
-            this.deleteImage(logoImageUrl);
+            uploadUtil.deleteImage(logoImageUrl, UploadUtil.BucketType.VENUE);
             logoImageUrl = uploadUtil.upload(logoImage, UploadUtil.BucketType.VENUE, null);
         }
 
-        if (!backgroundImage.isEmpty()) {
-            this.deleteImage(backgroundImageUrls);
-            backgroundImageUrls = new ArrayList<>();
-            for (MultipartFile multipartFile : backgroundImage) {
-                backgroundImageUrls.add(uploadUtil.upload(multipartFile, UploadUtil.BucketType.VENUE, null));
-            }
+        if (!backgroundImages.isEmpty()) {
+            uploadUtil.deleteImages(backgroundImageUrls, UploadUtil.BucketType.VENUE);
+            backgroundImageUrls = uploadUtil.uploadImages(backgroundImages, UploadUtil.BucketType.VENUE, null);
         }
 
         venue.update(venueRequestDTO, logoImageUrl, backgroundImageUrls);
