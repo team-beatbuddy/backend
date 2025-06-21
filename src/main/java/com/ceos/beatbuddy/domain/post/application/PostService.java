@@ -50,6 +50,8 @@ public class PostService {
     private final PostTypeHandlerFactory postTypeHandlerFactory;
     private final UploadUtil uploadUtil;
 
+    private static final List<String> VALID_POST_TYPES = List.of("free", "piece");
+
 
     // 프론트 개발 완료 후 삭제 예정
     @Transactional
@@ -438,7 +440,7 @@ public class PostService {
 
     // 주어진 타입이 올바른지 확인
     private void validatePostType(String type) {
-        if (!List.of("free", "piece").contains(type)) {
+        if (!VALID_POST_TYPES.contains(type)) {
             throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
         }
     }

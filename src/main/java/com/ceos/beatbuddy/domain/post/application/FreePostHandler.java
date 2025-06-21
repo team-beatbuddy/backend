@@ -59,7 +59,7 @@ public class FreePostHandler implements PostTypeHandler{
     @Override
     public void deletePost(Long postId, Member member) {
         Post post = validateAndGetPost(postId);
-        isWriter(post, member);
+        validateWriter(post, member);
         freePostRepository.deleteById(post.getId());
     }
 
@@ -69,7 +69,7 @@ public class FreePostHandler implements PostTypeHandler{
     }
 
     @Override
-    public void isWriter(Post post, Member member) {
+    public void validateWriter(Post post, Member member) {
         if (!post.getMember().equals(member)) {
             throw new CustomException(PostErrorCode.MEMBER_NOT_MATCH);
         }
