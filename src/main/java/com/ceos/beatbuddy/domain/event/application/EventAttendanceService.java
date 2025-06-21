@@ -10,6 +10,7 @@ import com.ceos.beatbuddy.domain.event.entity.EventAttendanceId;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
+import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
@@ -24,21 +25,20 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class EventAttendanceService {
-    private final EventRepository eventRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
+    private final EventService eventService;
     private final EventAttendanceRepository eventAttendanceRepository;
 
     @Transactional
     public EventAttendanceResponseDTO addEventAttendance(Long memberId, EventAttendanceRequestDTO dto, Long eventId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
-        Event event = eventRepository.findById(eventId).orElseThrow(
-                () -> new CustomException(EventErrorCode.NOT_FOUND_EVENT)
-        );
+        Event event = eventService.validateAndGet(eventId);
 
         validateAttendanceInput(dto, event);
 
         boolean alreadyAttendance = eventAttendanceRepository.existsById(new EventAttendanceId(event.getId(), memberId));
+
         if (alreadyAttendance) {
             throw new CustomException(EventErrorCode.ALREADY_ATTENDANCE_EVENT);
         }
@@ -78,14 +78,7 @@ public class EventAttendanceService {
     }
 
     public EventAttendanceExportListDTO getAttendanceList(Long eventId, Long memberId) {
-        Member host = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
-
-        if (!Objects.equals(event.getHost().getId(), memberId)) {
-            throw new CustomException(EventErrorCode.FORBIDDEN_EVENT_ACCESS);
-        }
+        checkAccessForEvent(eventId, memberId);
 
         List<EventAttendance> attendances = eventAttendanceRepository.findAllByEventId(eventId);
         List<EventAttendanceExportDTO> eventAttendanceExportDTOS = attendances.stream()
@@ -100,18 +93,21 @@ public class EventAttendanceService {
 
 
     public List<EventAttendanceExportDTO> getAttendanceListForExcel(Long eventId, Long memberId) {
-        Member host = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
-
-        if (!Objects.equals(event.getHost().getId(), memberId)) {
-            throw new CustomException(EventErrorCode.FORBIDDEN_EVENT_ACCESS);
-        }
+        checkAccessForEvent(eventId, memberId);
 
         List<EventAttendance> attendances = eventAttendanceRepository.findAllByEventId(eventId);
         return attendances.stream()
                 .map(EventAttendanceExportDTO::toDTOForExcel)
                 .toList();
+    }
+
+    private void checkAccessForEvent(Long eventId, Long memberId) {
+        Member host = memberService.validateAndGetMember(memberId);
+
+        Event event = eventService.validateAndGet(eventId);
+
+        if (!Objects.equals(event.getHost().getId(), memberId)) {
+            throw new CustomException(EventErrorCode.FORBIDDEN_EVENT_ACCESS);
+        }
     }
 }
