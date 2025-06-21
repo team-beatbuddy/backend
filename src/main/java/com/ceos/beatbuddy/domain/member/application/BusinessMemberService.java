@@ -2,7 +2,6 @@ package com.ceos.beatbuddy.domain.member.application;
 
 import com.ceos.beatbuddy.domain.member.dto.*;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +19,12 @@ import static com.ceos.beatbuddy.domain.member.exception.MemberErrorCode.*;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BusinessMemberService {
-    private final MemberRepository memberRepository;
     private final MemberService memberService;
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisTemplate<String, BusinessMemberDTO> businessMemberTempRedisTemplate;
+    private final OnboardingService onboardingService;
+
+
     @Transactional
     public BusinessMemberResponseDTO businessMemberSignup(Long memberId, VerifyCodeDTO dto) {
         String key = "verification_code:" + memberId;
@@ -45,13 +46,12 @@ public class BusinessMemberService {
             throw new CustomException(TEMPORARY_MEMBER_INFO_NOT_FOUND);
         }
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
-        member.saveVerify();
+        member.getBusinessInfo().saveVerify();
         member.setRealName(tempBusinessMemberDTO.getRealName());
         member.setBusinessMember();
-        member.setPhoneNumber(tempBusinessMemberDTO.getPhoneNumber());
+        member.getBusinessInfo().savePhoneNumber(tempBusinessMemberDTO.getPhoneNumber());
         member.setDateOfBirthAndGender(tempBusinessMemberDTO.getResidentRegistration());
 
         return BusinessMemberResponseDTO.toDTO(member);
@@ -82,13 +82,12 @@ public class BusinessMemberService {
 
     @Transactional
     public BusinessMemberResponseDTO setNicknameAndBusinessName(Long memberId, NicknameAndBusinessNameDTO dto) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         // 닉네임 중복과 가능한 닉네임인지 확인
-        if ((memberService.isDuplicate(memberId, NicknameDTO.builder().nickname(dto.getNickname()).build())) && (memberService.isValidate(memberId, NicknameDTO.builder().nickname(dto.getNickname()).build()))) {
+        if ((onboardingService.isDuplicate(memberId, NicknameDTO.builder().nickname(dto.getNickname()).build())) && (onboardingService.isValidate(memberId, NicknameDTO.builder().nickname(dto.getNickname()).build()))) {
             member.saveNickname(dto.getNickname());
-            member.saveBusinessName(dto.getBusinessName());
+            member.getBusinessInfo().saveBusinessName(dto.getBusinessName());
         }
 
         return BusinessMemberResponseDTO.toSetNicknameDTO(member);
