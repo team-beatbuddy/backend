@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.post.dto;
 
 import com.ceos.beatbuddy.domain.post.entity.Post;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,18 +14,19 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PostPageResponseDTO {
     private Long id;
     private String title;
     private String content;
     private String thumbImage;
     private String role;
-    private Integer likes;
-    private Integer scraps;
-    private Integer comments;
-    private Boolean liked;
-    private Boolean scrapped;
-    private Boolean hasCommented;
+    private int likes;
+    private int scraps;
+    private int comments;
+    private boolean liked;
+    private boolean scrapped;
+    private boolean hasCommented;
     private String nickname;
     private LocalDate createAt;
 

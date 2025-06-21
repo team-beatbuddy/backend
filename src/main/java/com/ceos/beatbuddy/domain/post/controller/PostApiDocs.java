@@ -583,7 +583,8 @@ public interface PostApiDocs {
                                             "scrapped": true,
                                             "hasCommented": false,
                                             "nickname": "길동hong",
-                                            "createAt": "2025-06-19"
+                                            "createAt": "2025-06-19",
+                                            "imageUrls": ["https://", "https://"]
                                           }
                                     }
                     """))
@@ -627,7 +628,7 @@ public interface PostApiDocs {
             )
 
     })
-    ResponseEntity<ResponseDTO<PostPageResponseDTO>> newReadPost(
+    ResponseEntity<ResponseDTO<PostReadDetailDTO>> newReadPost(
             @PathVariable String type,
             @PathVariable Long postId);
 
