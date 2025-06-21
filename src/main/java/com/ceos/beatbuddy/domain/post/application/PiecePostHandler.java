@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.post.application;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
 import com.ceos.beatbuddy.domain.post.entity.FreePost;
+import com.ceos.beatbuddy.domain.post.entity.PiecePost;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
 import com.ceos.beatbuddy.domain.post.repository.PiecePostRepository;
@@ -23,6 +24,10 @@ public class PiecePostHandler implements PostTypeHandler{
     private final PiecePostRepository piecePostRepository;
     private final VenueInfoService venueInfoService;
     private final PieceService pieceService;
+    @Override
+    public boolean supports(Post post) {
+        return post instanceof PiecePost;
+    }
 
     @Override
     public Post createPost(PostCreateRequestDTO dto, Member member, List<String> imageUrls) {

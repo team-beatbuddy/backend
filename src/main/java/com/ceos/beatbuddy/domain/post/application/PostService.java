@@ -343,12 +343,9 @@ public class PostService {
         List<Post> posts = postPage.getContent();
 
         // 2. 게시글 타입 필터링
+        PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
         List<Post> filteredPosts = posts.stream()
-                .filter(post -> {
-                    if (type.equals("free")) return post instanceof FreePost;
-                    else if (type.equals("piece")) return post instanceof PiecePost;
-                    else throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
-                })
+                .filter(handler::supports)
                 .toList();
 
         // 3. 최적화용 postIds 추출
