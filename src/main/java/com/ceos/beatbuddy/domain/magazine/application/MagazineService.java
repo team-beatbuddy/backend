@@ -63,6 +63,14 @@ public class MagazineService {
         return magazines.stream().map((MagazineHomeResponseDTO::toDTO)).toList();
     }
 
+    /**
+     * Retrieves detailed information for a visible magazine and increments its view count.
+     *
+     * @param memberId the ID of the member requesting the magazine details
+     * @param magazineId the ID of the magazine to retrieve
+     * @return a detailed DTO representing the magazine
+     * @throws CustomException if the member or magazine does not exist, or if the magazine is not visible
+     */
     public MagazineDetailDTO readDetailMagazine(Long memberId, Long magazineId) {
         Member member = memberService.validateAndGetMember(memberId);
 
@@ -73,6 +81,14 @@ public class MagazineService {
         return MagazineDetailDTO.toDTO(magazine);
     }
 
+    /**
+     * Adds a scrap (bookmark) for the specified magazine by the given member.
+     *
+     * @param memberId the ID of the member performing the scrap action
+     * @param magazineId the ID of the magazine to be scrapped
+     * @return a detailed DTO of the magazine after the scrap action
+     * @throws CustomException if the magazine does not exist, is not visible, or has already been scrapped by the member
+     */
     @Transactional
     public MagazineDetailDTO scrapMagazine(Long memberId, Long magazineId) {
         Member member = memberService.validateAndGetMember(memberId);
@@ -91,6 +107,12 @@ public class MagazineService {
         return MagazineDetailDTO.toDTO(magazine);
     }
 
+    /**
+     * Retrieves a list of magazines scrapped by the specified member.
+     *
+     * @param memberId the ID of the member whose scrapped magazines are to be retrieved
+     * @return a list of DTOs representing the scrapped magazines
+     */
     public List<MagazineHomeResponseDTO> getScrapMagazines(Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
 
@@ -101,6 +123,14 @@ public class MagazineService {
         return magazines.stream().map((MagazineHomeResponseDTO::toScrapDTO)).toList();
     }
 
+    /**
+     * Registers a like from the specified member on the given magazine.
+     *
+     * @param magazineId the ID of the magazine to like
+     * @param memberId the ID of the member performing the like
+     * @return a detailed DTO of the magazine after the like is registered
+     * @throws CustomException if the magazine does not exist, is not visible, or the member has already liked the magazine
+     */
     @Transactional
     public MagazineDetailDTO likeMagazine(Long magazineId, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
@@ -123,6 +153,14 @@ public class MagazineService {
         return MagazineDetailDTO.toDTO(magazine);
     }
 
+    /**
+     * Removes a like from the specified magazine by the given member.
+     *
+     * @param magazineId the ID of the magazine from which the like will be removed
+     * @param memberId the ID of the member removing the like
+     * @return a detailed DTO of the magazine after the like has been removed
+     * @throws CustomException if the like does not exist or the magazine/member is not found
+     */
     @Transactional
     public MagazineDetailDTO deleteLikeMagazine(Long magazineId, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
@@ -142,6 +180,14 @@ public class MagazineService {
         return MagazineDetailDTO.toDTO(magazine);
     }
 
+    /**
+     * Removes a scrap (bookmark) of the specified magazine for the given member.
+     *
+     * @param magazineId the ID of the magazine to unscrap
+     * @param memberId the ID of the member performing the unscrap action
+     * @return a detailed DTO of the magazine after the scrap is removed
+     * @throws CustomException if the member or magazine does not exist, or if the scrap is not found
+     */
     @Transactional
     public MagazineDetailDTO deleteScrapMagazine(Long magazineId, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
@@ -161,11 +207,25 @@ public class MagazineService {
 
     }
 
+    /**
+     * Retrieves a visible magazine by its ID or throws an exception if not found.
+     *
+     * @param magazineId the ID of the magazine to retrieve
+     * @return the magazine entity if it exists and is marked as visible
+     * @throws CustomException if the magazine does not exist or is not visible
+     */
     private Magazine validateAndGetMagazineVisibleTrue(Long magazineId) {
         return magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
                 new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST));
     }
 
+    /**
+     * Retrieves a magazine by its ID, regardless of visibility.
+     *
+     * @param magazineId the ID of the magazine to retrieve
+     * @return the magazine entity with the specified ID
+     * @throws CustomException if the magazine does not exist
+     */
     private Magazine validateAndGetMagazine(Long magazineId) {
         return magazineRepository.findById(magazineId).orElseThrow(() ->
                 new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST));
