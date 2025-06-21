@@ -52,10 +52,15 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         saveRefreshToken(memberId, refresh);
 
-        // provider 추출
         String uri = request.getRequestURI(); // ex: /login/oauth2/code/google
-        String provider = uri.substring(uri.lastIndexOf("/") + 1); // → google 또는 kakao
+        String[] segments = uri.split("/");
+        String provider = segments.length > 0 ? segments[segments.length - 1] : "unknown";
 
+        // 지원하는 provider인지 검증
+        if (!provider.equals("google") && !provider.equals("kakao")) {
+            log.warn("Unsupported OAuth2 provider: {}", provider);
+            provider = "kakao"; // 기본값
+        }
 
         String redirectUrl = "https://beatbuddy.world/login/oauth2/callback/" + provider + "?access=" + access;
 
