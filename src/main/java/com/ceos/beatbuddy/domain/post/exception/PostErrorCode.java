@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum PostErrorCode implements ApiCode {
     POST_NOT_EXIST(HttpStatus.NOT_FOUND, "존재하지 않는 포스트입니다."),
-    MEMBER_NOT_MATCH(HttpStatus.BAD_REQUEST, "게시물의 생성자가 아닙니다."),
     INVALID_POST_TYPE(HttpStatus.BAD_REQUEST,"포스트의 type이 올바르지 않습니다"),
     INVALID_SORT_TYPE(HttpStatus.BAD_REQUEST,"포스트의 sort_type이 올바르지 않습니다"),
     ALREADY_LIKED(HttpStatus.CONFLICT, "이미 좋아요를 눌렀습니다."),

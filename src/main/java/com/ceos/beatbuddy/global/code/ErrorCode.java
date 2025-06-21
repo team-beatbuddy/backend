@@ -22,6 +22,14 @@ public enum ErrorCode implements ApiCode {
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다."),
     WRONG_PASSWORD(HttpStatus.UNAUTHORIZED, "잘못된 비밀번호입니다."),
 
+
+    /**
+     * 403
+     * */
+    UNAUTHORIZED_MEMBER(HttpStatus.FORBIDDEN, "글의 작성자가 아닙니다."),
+
+
+
     /**
      * 404
      */

@@ -11,6 +11,7 @@ import com.ceos.beatbuddy.domain.event.repository.EventCommentRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.global.CustomException;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,7 +73,7 @@ public class EventCommentService {
                 .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_COMMENT));
 
         if (!target.getAuthor().getId().equals(memberId)) {
-            throw new CustomException(EventErrorCode.NOT_COMMENT_OWNER);
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
 
         if (level == 0) {
