@@ -3,9 +3,6 @@ package com.ceos.beatbuddy.domain.magazine.controller;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineDetailDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineHomeResponseDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineResponseDTO;
-import com.ceos.beatbuddy.domain.venue.dto.RecommendFilterDTO;
-import com.ceos.beatbuddy.domain.venue.dto.VenueResponseDTO;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,11 +11,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -92,7 +86,7 @@ public interface MagazineApiDocs {
                     )
             )
     })
-    ResponseEntity<ResponseDTO<MagazineResponseDTO>> addMagazine(
+    ResponseEntity<ResponseDTO<MagazineDetailDTO>> addMagazine(
             @Valid @RequestPart("magazineRequestDTO") MagazineRequestDTO magazineRequestDTO,
             @RequestPart(value = "images", required = false) List<MultipartFile> images);
 
@@ -116,7 +110,9 @@ public interface MagazineApiDocs {
                   "data": [
                     {
                       "magazineId": 1,
-                      "thumbImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png"
+                      "thumbImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png",
+                      "title": "제목",
+                      "content": "내용"
                     }
                   ]
                 }
@@ -401,11 +397,12 @@ public interface MagazineApiDocs {
                               "code": "SUCCESS_GET_MAGAZINE_LIST",
                               "message": "매거진을 성공적으로 불러왔습니다.",
                               "data": [
-                                {
-                                  "magazineId": 1,
-                                  "thumbImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png",
-                                  "title": "제목"
-                                }
+                                        {
+                                          "magazineId": 1,
+                                          "thumbImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png",
+                                          "title": "제목",
+                                          "content": "내용"
+                                        }
                               ]
                             }
                                     """)
