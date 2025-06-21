@@ -50,26 +50,6 @@ public class Member extends BaseTimeEntity {
     @Setter
     private BusinessInfo businessInfo;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MemberGenre> memberGenres;
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MemberMood> memberMoods;
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Archive> archives;
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments;
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Heartbeat> heartbeats;
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Post> posts;
-
-
-
 
     public void saveConsents(Boolean isLocationConsent, Boolean isMarketingConsent) {
         this.isLocationConsent = isLocationConsent;
