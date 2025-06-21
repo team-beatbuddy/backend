@@ -20,7 +20,7 @@ public interface MagazineRepository extends JpaRepository<Magazine, Long> {
     @Query("UPDATE Magazine m SET m.likes = m.likes + 1 WHERE m.id = :magazineId")
     void increaseLike(@Param("magazineId") Long magazineId);
 
-
+    // 좋아요를 누른 것이 확인되어야만 좋아요 취소가 가능
     @Modifying
     @Query("UPDATE Magazine m SET m.likes = m.likes - 1 WHERE m.id = :magazineId")
     void decreaseLike(@Param("magazineId") Long magazineId);

@@ -19,7 +19,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("UPDATE Event e SET e.likes = e.likes + 1 WHERE e.id = :eventId")
     void increaseLike(@Param("eventId") Long eventId);
 
-
+    // 좋아요를 누른 것이 확인되어야만 좋아요 취소가 가능
     @Modifying
     @Query("UPDATE Event e SET e.likes = e.likes -1 WHERE e.id = :eventId")
     void decreaseLike(@Param("eventId") Long eventId);
