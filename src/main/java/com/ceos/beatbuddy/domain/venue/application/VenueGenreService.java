@@ -18,12 +18,19 @@ import java.util.Map;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class VenueGenreService {
-    private final VenueRepository venueRepository;
+    private final VenueInfoService venueInfoService;
     private final VenueGenreRepository venueGenreRepository;
 
+    /**
+     * Adds a new genre vector for the specified venue and returns the resulting vector information.
+     *
+     * @param venueId the ID of the venue to associate with the genre vector
+     * @param genres a map representing genre preferences, where keys are genre names and values are their corresponding weights
+     * @return a response DTO containing the created genre vector and venue details
+     */
     @Transactional
     public VenueVectorResponseDTO addGenreVector(Long venueId, Map<String, Double> genres) {
-        Venue venue = venueRepository.findById(venueId).orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
+        Venue venue = venueInfoService.validateAndGetVenue(venueId);
 
         Vector preferenceVector = Vector.fromGenres(genres);
 
@@ -42,9 +49,19 @@ public class VenueGenreService {
                 .build();
     }
 
+    /**
+     * Updates the genre vector associated with a venue.
+     *
+     * Validates the existence of the venue by its ID, retrieves the current genre vector, and updates it with the provided genre map. Returns a response DTO containing the updated vector and venue details.
+     *
+     * @param venueId the ID of the venue whose genre vector is to be updated
+     * @param genres a map representing the new genre preferences for the venue
+     * @return a DTO containing the updated genre vector and venue information
+     * @throws CustomException if the venue or its genre vector does not exist
+     */
     @Transactional
     public VenueVectorResponseDTO updateGenreVector(Long venueId, Map<String, Double> genres) {
-        Venue venue = venueRepository.findById(venueId).orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
+        Venue venue = venueInfoService.validateAndGetVenue(venueId);
         VenueGenre venueGenre = venueGenreRepository.findByVenue(venue).orElseThrow(()->new CustomException(VenueErrorCode.INVALID_VENUE_INFO));
 
         venueGenre.updateGenreVector(Vector.fromGenres(genres));

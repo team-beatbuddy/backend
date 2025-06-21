@@ -18,12 +18,21 @@ import java.util.Map;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class VenueMoodService {
-    private final VenueRepository venueRepository;
+    private final VenueInfoService venueInfoService;
     private final VenueMoodRepository venueMoodRepository;
 
+    /**
+     * Adds a new mood vector for the specified venue and returns the resulting vector details.
+     *
+     * Validates the existence of the venue, converts the provided mood map into a vector, associates it with the venue, and saves the new mood vector entity.
+     *
+     * @param venueId the ID of the venue to associate with the mood vector
+     * @param moods a map representing mood names and their corresponding values
+     * @return a response DTO containing the saved vector string, venue ID, vector ID, and venue names and region
+     */
     @Transactional
     public VenueVectorResponseDTO addMoodVector(Long venueId, Map<String, Double> moods) {
-        Venue venue = venueRepository.findById(venueId).orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
+        Venue venue = venueInfoService.validateAndGetVenue(venueId);
 
         Vector preferenceVector = Vector.fromMoods(moods);
 
@@ -42,9 +51,19 @@ public class VenueMoodService {
                 .build();
     }
 
+    /**
+     * Updates the mood vector associated with a venue.
+     *
+     * Validates the existence of the venue by its ID, retrieves the current mood vector, updates it with the provided moods, and returns a response containing the updated vector and venue details.
+     *
+     * @param venueId the ID of the venue whose mood vector is to be updated
+     * @param moods a map representing the new mood values
+     * @return a response DTO containing the updated mood vector and venue information
+     * @throws CustomException if the venue does not have an existing mood vector
+     */
     @Transactional
     public VenueVectorResponseDTO updateMoodVector(Long venueId, Map<String, Double> moods) {
-        Venue venue = venueRepository.findById(venueId).orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
+        Venue venue = venueInfoService.validateAndGetVenue(venueId);
         VenueMood venueMood = venueMoodRepository.findByVenue(venue).orElseThrow(()->new CustomException(VenueErrorCode.INVALID_VENUE_INFO));
 
         venueMood.updateMoodVector(Vector.fromMoods(moods));

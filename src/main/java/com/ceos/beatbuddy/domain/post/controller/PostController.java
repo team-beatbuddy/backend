@@ -1,7 +1,5 @@
 package com.ceos.beatbuddy.domain.post.controller;
 
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineResponseDTO;
 import com.ceos.beatbuddy.domain.post.dto.*;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.global.code.SuccessCode;
