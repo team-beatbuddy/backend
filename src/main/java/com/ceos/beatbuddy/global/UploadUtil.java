@@ -73,10 +73,10 @@ public class UploadUtil {
         return uploadImageS3(image, getBucketName(type), folder);
     }
 
-    public List<String> uploadImages(List<MultipartFile> images, String directory) {
+    public List<String> uploadImages(List<MultipartFile> images, BucketType type, String directory) {
         return images.stream().map(image -> {
             try {
-                return this.upload(image, UploadUtil.BucketType.MEDIA, directory);
+                return this.upload(image, type, directory);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -147,7 +147,7 @@ public class UploadUtil {
         }
     }
 
-    public void delete(String imageUrl, BucketType type) {
+    public void deleteImage(String imageUrl, BucketType type) {
         if (imageUrl == null || imageUrl.isBlank()) return;
 
         String bucketName = getBucketName(type);
@@ -161,5 +161,11 @@ public class UploadUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void deleteImages(List<String> imageUrls, BucketType type) {
+        if (imageUrls == null || imageUrls.isEmpty()) return;
+
+        imageUrls.forEach(imageUrl -> this.deleteImage(imageUrl, type));
     }
 }

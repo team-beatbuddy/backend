@@ -47,7 +47,7 @@ public class MagazineService {
         }
 
         // 이미지 업로드
-        List<String> imageUrls = uploadUtil.uploadImages(images, "magazine");
+        List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "magazine");
 
         // 엔티티로 변경
         Magazine entity = MagazineRequestDTO.toEntity(dto, member, imageUrls);
