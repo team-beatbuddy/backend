@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -84,11 +85,11 @@ public class PostController implements PostApiDocs {
     }
 
     @GetMapping("/{type}/{postId}/new")
-    public ResponseEntity<ResponseDTO<PostPageResponseDTO>> newReadPost(
+    public ResponseEntity<ResponseDTO<PostReadDetailDTO>> newReadPost(
             @PathVariable String type,
             @PathVariable Long postId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        PostPageResponseDTO result = postService.newReadPost(type, postId, memberId);
+        PostReadDetailDTO result = postService.newReadPost(type, postId, memberId);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_POST.getStatus().value())
@@ -255,5 +256,29 @@ public class PostController implements PostApiDocs {
         return ResponseEntity
                 .status(SuccessCode.GET_MY_POST_LIST.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.GET_MY_POST_LIST, result));
+    }
+
+
+    @Operation(summary = "게시글 수정", description = "자유 게시판 또는 조각 모집 게시판의 게시글을 수정합니다.")
+    @PatchMapping(
+            value = "/posts/{type}/{postId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseDTO<PostReadDetailDTO>> updatePost(
+            @PathVariable String type,
+            @PathVariable Long postId,
+            @RequestPart("updatePostRequestDTO") UpdatePostRequestDTO updatePostRequestDTO,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @RequestPart(value = "deleteFileIds", required = false) List<String> deleteFileIds
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+
+        PostReadDetailDTO result = postService.updatePost(
+                postId, memberId, updatePostRequestDTO, files, deleteFileIds);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_UPDATE_POST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_POST, result));
     }
 }
