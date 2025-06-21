@@ -15,10 +15,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class BusinessInfo {
     private String businessName;
-    private boolean isApproved;
+    private boolean isApproved = false;
     private String phoneNumber;
     private LocalDate dateOfBirth;
-    private boolean isVerified; // 본인 인증 완료 되었는지
+    private boolean isVerified = false; // 본인 인증 완료 되었는지
 
     public void savePhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
