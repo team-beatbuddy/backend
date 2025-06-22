@@ -7,12 +7,14 @@ import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -51,14 +53,6 @@ public class PostController implements PostApiDocs {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/new/{type}")
     public ResponseEntity<ResponseDTO<ResponsePostDto>> addNewPost(
             @PathVariable String type,
-            @Parameter(
-                    name = "postCreateRequestDTO",
-                    description = "게시글 생성 DTO (type: free 또는 piece)",
-                    schema = @Schema(
-                            oneOf = { FreePostRequestDTO.class, PiecePostRequestDTO.class },
-                            discriminatorProperty = "type"
-                    )
-            )
             @Valid @RequestPart("postCreateRequestDTO") PostCreateRequestDTO postCreateRequestDTO,
             @RequestPart(value = "images", required = false) List<MultipartFile> images){
 
@@ -84,11 +78,11 @@ public class PostController implements PostApiDocs {
     }
 
     @GetMapping("/{type}/{postId}/new")
-    public ResponseEntity<ResponseDTO<PostPageResponseDTO>> newReadPost(
+    public ResponseEntity<ResponseDTO<PostReadDetailDTO>> newReadPost(
             @PathVariable String type,
             @PathVariable Long postId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        PostPageResponseDTO result = postService.newReadPost(type, postId, memberId);
+        PostReadDetailDTO result = postService.newReadPost(type, postId, memberId);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_POST.getStatus().value())
@@ -122,23 +116,27 @@ public class PostController implements PostApiDocs {
                       "status": 200,
                       "code": "SUCCESS_GET_POST_SORT_LIST",
                       "message": "type 에 맞는 post를 sort 해서 불러왔습니다.",
-                      "data": [
-                        {
-                          "id": 3,
-                          "title": "string",
-                          "content": "string",
-                          "thumbImage": null,
-                          "role": "ADMIN",
-                          "likes": 1,
-                          "scraps": 0,
-                          "comments": 3,
-                          "liked": true,
-                          "scrapped": false,
-                          "hasCommented": false,
-                          "nickname": "ff",
-                          "createAt": "2025-01-31"
-                        }
-                      ]
+                      "data": {
+                        "totalPost": 40,
+                        "size": 10,
+                        "page": 0,
+                        "responseDTOS": [
+                          {
+                            "id": 533,
+                            "title": "string",
+                            "content": "string",
+                            "role": "BUSINESS",
+                            "likes": 0,
+                            "scraps": 0,
+                            "comments": 0,
+                            "liked": false,
+                            "scrapped": false,
+                            "hasCommented": false,
+                            "nickname": "길동hong",
+                            "createAt": "2025-06-22"
+                          }
+                        ]
+                      }
                     }
         """)
             )
@@ -160,7 +158,7 @@ public class PostController implements PostApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_POST_SORT_LIST, result));
     }
 
-    @GetMapping("/posts/hot")
+    @GetMapping("/hot")
     public ResponseEntity<ResponseDTO<List<PostPageResponseDTO>>> getHotPosts() {
         Long memberId = SecurityUtils.getCurrentMemberId();
 
@@ -255,5 +253,29 @@ public class PostController implements PostApiDocs {
         return ResponseEntity
                 .status(SuccessCode.GET_MY_POST_LIST.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.GET_MY_POST_LIST, result));
+    }
+
+
+    @Operation(summary = "게시글 수정", description = "자유 게시판 또는 조각 모집 게시판의 게시글을 수정합니다.")
+    @PutMapping(
+            value = "/{type}/{postId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseDTO<PostReadDetailDTO>> updatePost(
+            @PathVariable String type,
+            @PathVariable Long postId,
+            @RequestPart("updatePostRequestDTO") UpdatePostRequestDTO updatePostRequestDTO,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+
+        PostReadDetailDTO result = postService.updatePost(
+                type,
+                postId, memberId, updatePostRequestDTO, files, updatePostRequestDTO.getDeleteImageUrls());
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_UPDATE_POST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_POST, result));
     }
 }

@@ -48,7 +48,9 @@ public class Member extends BaseTimeEntity {
 
     @Embedded
     @Builder.Default
-    private BusinessInfo businessInfo = new BusinessInfo();
+    private BusinessInfo businessInfo = new BusinessInfo(
+            null, false, null, null, false
+    );
 
 
     public void saveConsents(Boolean isLocationConsent, Boolean isMarketingConsent) {
