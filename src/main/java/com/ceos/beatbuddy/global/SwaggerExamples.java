@@ -1,6 +1,17 @@
 package com.ceos.beatbuddy.global;
 
 public class SwaggerExamples {
+    /**
+     * 200
+     * */
+    public static final String SUCCESS_BUT_EMPTY_LIST = """
+    {
+      "status": 200,
+      "code": "SUCCESS_BUT_EMPTY_LIST",
+      "message": "성공적으로 조회했으나 리스트가 비었습니다.",
+      "data": []
+    }
+    """;
     
     /**
      * 400 잘못된 요청

@@ -213,44 +213,28 @@ public class EventService {
         return EventResponseDTO.toDTO(event, liked);
     }
 
-
-    public Map<String, List<EventResponseDTO>> getMyPageEvents(Long memberId) {
+    // 내가 작성한 이벤트
+    public Map<String, List<EventResponseDTO>> getMyEvents(Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
 
-        LocalDate today = LocalDate.now();
-        Set<Event> myEvents = new HashSet<>();
-
-        if (member.getRole().equals("BUSINESS")) {
-            // 비즈니스 회원: 내가 생성한 이벤트
-            myEvents.addAll(eventRepository.findAllByHost(member));
-        } else {
-            // 일반 회원: 좋아요 + 참석한 이벤트
-            List<Event> likedEvents = eventLikeRepository.findByMember(member).stream()
-                    .map(EventLike::getEvent)
-                    .toList();
-            List<Event> attendedEvents = eventAttendanceRepository.findByMember(member).stream()
-                    .map(EventAttendance::getEvent)
-                    .toList();
-
-            myEvents.addAll(likedEvents);
-            myEvents.addAll(attendedEvents);
-        }
-
-        // 상태별 분리 및 정렬
-        List<EventResponseDTO> upcoming = myEvents.stream()
-                .filter(e -> !e.getStartDate().isBefore(today))
-                .sorted(Comparator.comparing(Event::getStartDate).reversed())
+        List<EventResponseDTO> upcoming = eventQueryRepository.findMyUpcomingEvents(member)
+                .stream()
                 .map(EventResponseDTO::toUpcomingListDTO)
                 .toList();
 
-        List<EventResponseDTO> past = myEvents.stream()
-                .filter(e -> e.getStartDate().isBefore(today))
-                .sorted(Comparator.comparing(Event::getStartDate).reversed())
+        List<EventResponseDTO> now = eventQueryRepository.findMyNowEvents(member)
+                .stream()
+                .map(EventResponseDTO::toNowListDTO)
+                .toList();
+
+        List<EventResponseDTO> past = eventQueryRepository.findMyPastEvents(member)
+                .stream()
                 .map(EventResponseDTO::toPastListDTO)
                 .toList();
 
         Map<String, List<EventResponseDTO>> result = new HashMap<>();
         result.put("upcoming", upcoming);
+        result.put("now", now);
         result.put("past", past);
 
         return result;
