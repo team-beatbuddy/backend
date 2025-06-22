@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 @AllArgsConstructor
@@ -14,28 +16,30 @@ public class EventAttendanceExportDTO {
     private String name;
     private String gender;
     private String phoneNumber;
-    private Boolean isPaid;
+    private String isPaid;
+    private String totalMember;
     private String snsType;
     private String snsId;
-    private Integer totalMember;
+    private LocalDateTime localDateTime;
 
     public static EventAttendanceExportDTO toDTO(EventAttendance entity) {
         return EventAttendanceExportDTO.builder()
-                .name(entity.getName())
-                .gender(entity.getGender().getText())
-                .phoneNumber(entity.getPhoneNumber())
+                .name(entity.getName() != null ? entity.getName() : "-")
+                .gender(entity.getGender().getText() != null ? entity.getGender().getText() : "-")
+                .phoneNumber(entity.getPhoneNumber() != null ? entity.getPhoneNumber() : "-")
                 .build();
     }
 
     public static EventAttendanceExportDTO toDTOForExcel(EventAttendance entity) {
         return EventAttendanceExportDTO.builder()
-                .name(entity.getName())
-                .gender(entity.getGender().getText())
-                .phoneNumber(entity.getPhoneNumber())
-                .snsType(entity.getSnsType())
-                .snsId(entity.getSnsId())
-                .isPaid(entity.isHasPaid())
-                .totalMember(entity.getTotalMember())
+                .localDateTime(entity.getCreatedAt())
+                .name(entity.getName() != null ? entity.getName() : "-")
+                .gender(entity.getGender().getText() != null? entity.getGender().getText() : "-")
+                .phoneNumber(entity.getPhoneNumber() != null ? entity.getPhoneNumber() : "-")
+                .snsType(entity.getSnsType() != null ? entity.getSnsType() : "-")
+                .snsId(entity.getSnsId() != null ? entity.getSnsId() : "-")
+                .isPaid(entity.getHasPaid() != null ? entity.getHasPaid().toString() : "-")
+                .totalMember(entity.getTotalMember() != null? entity.getTotalMember().toString() : "-")
                 .build();
     }
 }

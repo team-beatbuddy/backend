@@ -406,7 +406,9 @@ public interface EventApiDocs {
 
 
 
-    @Operation(summary = "이벤트 신청자 명단 조회", description = "이벤트 신청자 명단을 조회합니다.")
+    @Operation(summary = "이벤트 신청자 명단 조회", description = "이벤트 신청자 명단을 조회합니다.\n" +
+            "- null이면 - 로 표시됩니다. (null / false / true)\n" +
+            "- 0이 아니라 null이어도 -로 표시됩니다.")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -414,27 +416,27 @@ public interface EventApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples = @ExampleObject(name = "이벤트 신청자 명단 조화 성공", value = """
-                        {
-                          "status": 200,
-                          "code": "SUCCESS_GET_EVENT_ATTENDANCE_LIST",
-                          "message": "이벤트 참여자 명단을 조회했습니다.",
-                          "data": {
-                            "eventId": null,
-                            "totalMember": 2,
-                            "eventAttendanceExportDTOS": [
-                              {
-                                "name": "string",
-                                "gender": "None",
-                                "phoneNumber": null
-                              },
-                              {
-                                "name": "string",
-                                "gender": "None",
-                                "phoneNumber": "string"
-                              }
-                            ]
-                          }
-                        }
+                                {
+                                  "status": 200,
+                                  "code": "SUCCESS_GET_EVENT_ATTENDANCE_LIST",
+                                  "message": "이벤트 참여자 명단을 조회했습니다.",
+                                  "data": {
+                                    "eventId": 2,
+                                    "totalMember": 2,
+                                    "eventAttendanceExportDTOS": [
+                                      {
+                                        "name": "이름1",
+                                        "gender": "FEMALE",
+                                        "phoneNumber": "-"
+                                      },
+                                      {
+                                        "name": "이름이름",
+                                        "gender": "None",
+                                        "phoneNumber": "010-0000-0000"
+                                      }
+                                    ]
+                                  }
+                                }
                         """)
                     )
             ),
