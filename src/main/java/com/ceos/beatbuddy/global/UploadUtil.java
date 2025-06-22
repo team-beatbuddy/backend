@@ -107,7 +107,7 @@ public class UploadUtil {
         String extension = "";
 
         int dotIndex = originalFilename.lastIndexOf('.');
-        if (dotIndex > 0) {
+        if (dotIndex > 0 && dotIndex < originalFilename.length() - 1) {
             extension = originalFilename.substring(dotIndex);
         }
 
@@ -140,12 +140,6 @@ public class UploadUtil {
     private static void validationImage(String fileName) {
         int lastDotIndex = fileName.lastIndexOf(".");
         if (lastDotIndex == -1) {
-            throw new CustomException(VenueErrorCode.INVALID_VENUE_IMAGE);
-        }
-    }
-
-    private static void validateImageExtension(String fileName) {
-        if (!fileName.contains(".")) {
             throw new CustomException(VenueErrorCode.INVALID_VENUE_IMAGE);
         }
     }
