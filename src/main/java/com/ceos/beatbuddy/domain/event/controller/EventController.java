@@ -82,8 +82,8 @@ public class EventController implements EventApiDocs {
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_UPCOMING_EVENT.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_UPCOMING_EVENT, result));
-    }
+            .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_UPCOMING_EVENT, result));
+}
 
     @Override
     @GetMapping("/now/{sort}")

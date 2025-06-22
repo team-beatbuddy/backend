@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.event.repository;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 
 import java.util.List;
+import java.util.Map;
 
 public interface EventQueryRepository {
     // 예정 이벤트
@@ -17,6 +18,8 @@ public interface EventQueryRepository {
     // 완룓된 이벤트
     List<Event> findPastEvents(String sort, int offset, int limit);
     int countPastEvents();
+
+    Map<String, List<Event>> findPastEventsGroupedByMonth();
 
 
 }

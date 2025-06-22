@@ -2,16 +2,19 @@ package com.ceos.beatbuddy.domain.event.repository;
 
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.QEvent;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.QEventLike;
 import com.ceos.beatbuddy.domain.venue.entity.QVenue;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -22,24 +25,33 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
     @Override
     public List<Event> findUpcomingEvents(String sort, int offset, int limit) {
         QEvent event = QEvent.event;
+        QEventLike eventLike = QEventLike.eventLike;
 
-        // 오늘 이후의 이벤트만 조회 greater than
         BooleanBuilder builder = new BooleanBuilder()
                 .and(event.startDate.gt(LocalDate.now()));
 
-        OrderSpecifier<?> orderBy;
+        if ("popular".equals(sort)) {
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime yesterday = now.minusDays(1);
 
-        switch (sort) {
-            case "popular" -> orderBy = event.likes.desc();           // 좋아요 순
-            case "latest" -> orderBy = event.startDate.desc();         // 날짜 빠른 순
-            default -> orderBy = event.startDate.desc();               // 디폴트도 날짜 빠른 순
+            return queryFactory
+                    .select(event)
+                    .from(event)
+                    .leftJoin(event.venue, QVenue.venue).fetchJoin()
+                    .leftJoin(eventLike).on(eventLike.event.eq(event).and(eventLike.createdAt.between(yesterday, now)))
+                    .where(builder)
+                    .groupBy(event)
+                    .orderBy(eventLike.count().desc())
+                    .offset(offset)
+                    .limit(limit)
+                    .fetch();
         }
 
         return queryFactory
                 .selectFrom(event)
                 .leftJoin(event.venue, QVenue.venue).fetchJoin()
                 .where(builder)
-                .orderBy(orderBy)
+                .orderBy(event.startDate.asc())
                 .offset(offset)
                 .limit(limit)
                 .fetch();
@@ -53,11 +65,10 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
         return Objects.requireNonNull(queryFactory
                         .select(event.count())
                         .from(event)
-                        .where(event.startDate.gt(LocalDate.now())) // 오늘보다 큰 거
+                        .where(event.startDate.gt(LocalDate.now()))
                         .fetchOne())
                 .intValue();
     }
-
 
     @Override
     public List<Event> findNowEvents(String sort, int offset, int limit) {
@@ -67,11 +78,9 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
                 .and(event.startDate.loe(LocalDate.now()))
                 .and(event.endDate.goe(LocalDate.now()));
 
-        OrderSpecifier<?> orderBy = switch (sort) {
-            case "popular" -> event.likes.desc();
-            case "latest" -> event.startDate.desc();
-            default -> event.startDate.desc();
-        };
+        OrderSpecifier<?> orderBy = "popular".equals(sort)
+                ? event.likes.desc()
+                : event.startDate.asc();
 
         return queryFactory
                 .selectFrom(event)
@@ -96,19 +105,17 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
                 .intValue();
     }
 
-
     @Override
     public List<Event> findPastEvents(String sort, int offset, int limit) {
         QEvent event = QEvent.event;
 
+        LocalDate now = LocalDate.now();
         BooleanBuilder builder = new BooleanBuilder()
-                .and(event.endDate.lt(LocalDate.now()));
+                .and(event.endDate.lt(now));
 
-        OrderSpecifier<?> orderBy = switch (sort) {
-            case "popular" -> event.likes.desc();
-            case "latest" -> event.endDate.desc();
-            default -> event.endDate.desc();
-        };
+        OrderSpecifier<?> orderBy = "popular".equals(sort)
+                ? event.likes.desc()
+                : event.endDate.desc();
 
         return queryFactory
                 .selectFrom(event)
@@ -123,10 +130,35 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
     @Override
     public int countPastEvents() {
         QEvent event = QEvent.event;
+
         return Objects.requireNonNull(queryFactory
                 .select(event.count())
                 .from(event)
                 .where(event.endDate.lt(LocalDate.now()))
                 .fetchOne()).intValue();
+    }
+
+    @Override
+    public Map<String, List<Event>> findPastEventsGroupedByMonth() {
+        QEvent event = QEvent.event;
+
+        LocalDate now = LocalDate.now(); // 오늘
+        LocalDate from = now.minusYears(1).withDayOfMonth(1); // 작년 같은 월의 1일
+        LocalDate to = now.minusDays(1); // 어제까지
+
+        List<Event> allEvents = queryFactory
+                .selectFrom(event)
+                .leftJoin(event.venue, QVenue.venue).fetchJoin()
+                .where(event.endDate.between(from, to)) // 작년 ~ 어제까지
+                .orderBy(event.likes.desc())
+                .fetch();
+
+        Map<String, List<Event>> result = new LinkedHashMap<>();
+        for (Event e : allEvents) {
+            String month = YearMonth.from(e.getEndDate()).toString(); // yyyy-MM
+            result.computeIfAbsent(month, k -> new ArrayList<>()).add(e);
+        }
+
+        return result;
     }
 }

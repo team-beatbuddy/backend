@@ -110,7 +110,7 @@ public class EventService {
         List<Event> events = eventQueryRepository.findNowEvents(sort, offset, size);
 
         List<EventResponseDTO> dto = events.stream()
-                .map(EventResponseDTO::toPastAndNowListDTO)
+                .map(EventResponseDTO::toNowListDTO)
                 .toList();
 
         int totalSize = eventQueryRepository.countNowEvents(); // 총 개수 (페이지네이션용)
@@ -124,25 +124,40 @@ public class EventService {
                 .build();
     }
 
-    public EventListResponseDTO getPastEvents(String sort, Integer page, Integer size, Long memberId) {
-        Member member = memberService.validateAndGetMember(memberId);
+    public EventListResponseDTO getPastEvents(String sort, int offset, int limit, Long memberId) {
+        offset = (offset - 1) * limit;
 
-        int offset = (page - 1) * size;
-        // 지난 이벤트 조회
-        List<Event> events = eventQueryRepository.findPastEvents(sort, offset, size);
+        if ("popular".equals(sort)) {
+            // 월별 인기순으로 전체 데이터 가져와서 그룹핑
 
-        List<EventResponseDTO> dto = events.stream()
-                .map(EventResponseDTO::toPastAndNowListDTO)
+            Map<String, List<Event>> groupedEvents = eventQueryRepository.findPastEventsGroupedByMonth();
+
+            List<EventResponseDTO> groupedResponse = groupedEvents.entrySet().stream()
+                    .sorted(Map.Entry.<String, List<Event>>comparingByKey().reversed()) // 최신 월이 먼저 오도록
+                    .map(entry -> EventResponseDTO.groupByMonth(entry.getKey(), entry.getValue()))
+                    .toList();
+
+            return EventListResponseDTO.builder()
+                    .sort(sort)
+                    .eventResponseDTOS(groupedResponse)
+                    .totalSize(groupedResponse.size()) // 페이지 처리 안 함
+                    .build();
+        }
+
+        // 최신순 (기존 방식)
+        List<Event> events = eventQueryRepository.findPastEvents(sort, offset, limit);
+        int total = eventQueryRepository.countPastEvents();
+
+        List<EventResponseDTO> responseList = events.stream()
+                .map(EventResponseDTO::toPastListDTO)
                 .toList();
-
-        int totalSize = eventQueryRepository.countPastEvents();
 
         return EventListResponseDTO.builder()
                 .sort(sort)
-                .page(page)
-                .size(size)
-                .totalSize(totalSize)
-                .eventResponseDTOS(dto)
+                .totalSize(total)
+                .page(offset)
+                .size(limit)
+                .eventResponseDTOS(responseList)
                 .build();
     }
 
@@ -231,7 +246,7 @@ public class EventService {
         List<EventResponseDTO> past = myEvents.stream()
                 .filter(e -> e.getStartDate().isBefore(today))
                 .sorted(Comparator.comparing(Event::getStartDate).reversed())
-                .map(EventResponseDTO::toPastAndNowListDTO)
+                .map(EventResponseDTO::toPastListDTO)
                 .toList();
 
         Map<String, List<EventResponseDTO>> result = new HashMap<>();
