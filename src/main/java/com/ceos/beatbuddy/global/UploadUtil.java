@@ -103,6 +103,12 @@ public class UploadUtil {
         return amazonS3.getUrl(bucketName, s3FileName).toString();
     }
 
+    /**
+     * Generates a unique filename using the current timestamp, a random UUID, and the original file's extension.
+     *
+     * @param originalFilename the original name of the file, used to extract the extension
+     * @return a new filename in the format "yyyyMMdd_HHmmss_UUID.extension"
+     */
     private String generateFileName(String originalFilename) {
         String extension = "";
 
@@ -137,6 +143,12 @@ public class UploadUtil {
         return metadata;
     }
 
+    /**
+     * Validates that the provided filename contains a file extension.
+     *
+     * @param fileName the name of the file to validate
+     * @throws CustomException if the filename does not contain a dot character, indicating a missing extension
+     */
     private static void validationImage(String fileName) {
         int lastDotIndex = fileName.lastIndexOf(".");
         if (lastDotIndex == -1) {
@@ -144,6 +156,13 @@ public class UploadUtil {
         }
     }
 
+    /**
+     * Deletes an image from the specified AWS S3 bucket based on its URL and bucket type.
+     *
+     * @param imageUrl the public URL of the image to delete
+     * @param type the type of bucket from which to delete the image
+     * @throws CustomException if the image deletion fails
+     */
     public void deleteImage(String imageUrl, BucketType type) {
         if (imageUrl == null || imageUrl.isBlank()) return;
 

@@ -76,6 +76,11 @@ public class FreePostHandler implements PostTypeHandler{
 
 
 
+    /**
+     * Updates the post's title and content with non-null, non-blank values from the update request DTO.
+     *
+     * Only updates fields if the corresponding value in the DTO is not null and not blank (ignoring leading and trailing whitespace).
+     */
     protected void updateCommonFields(UpdatePostRequestDTO dto, Post post) {
         if ((dto.getTitle() != null) && (!dto.getTitle().trim().isEmpty())) {
             post.updateTitle(dto.getTitle());
