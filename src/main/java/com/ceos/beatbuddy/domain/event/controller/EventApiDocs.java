@@ -144,7 +144,7 @@ public interface EventApiDocs {
             summary = "이벤트 수정 기능",
             description = """
                     수정하고자 하는 필드만 넣으면 됩니다. \n
-                    데이터 전달은 multipart/form-data이며 'eventCreateRequestDTO'는 JSON 문자열 형태로 전송해야 합니다.\n
+                    데이터 전달은 multipart/form-data이며 'eventUpdateRequestDTO'는 JSON 문자열 형태로 전송해야 합니다.\n
                     - receiveInfo: 참석자 정보 수집 여부\n
                     - receiveName: 참석자 이름 수집 여부\n
                     - receiveGender: 참석자 성별 수집 여부\n
