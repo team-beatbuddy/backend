@@ -104,10 +104,10 @@ public class UploadUtil {
     }
 
     /**
-     * Generates a unique filename using the current timestamp, a random UUID, and the original file's extension.
+     * 현재 시간의 타임스탬프, 랜덤 UUID, 그리고 원본 파일의 확장자를 이용하여 고유한 파일명을 생성합니다.
      *
-     * @param originalFilename the original name of the file, used to extract the extension
-     * @return a new filename in the format "yyyyMMdd_HHmmss_UUID.extension"
+     * @param originalFilename 원본 파일명 (확장자 추출에 사용됨)
+     * @return "yyyyMMdd_HHmmss_UUID.확장자" 형식의 새로운 파일명
      */
     private String generateFileName(String originalFilename) {
         String extension = "";
