@@ -6,7 +6,6 @@ import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.entity.VenueGenre;
 import com.ceos.beatbuddy.domain.venue.exception.VenueErrorCode;
 import com.ceos.beatbuddy.domain.venue.repository.VenueGenreRepository;
-import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

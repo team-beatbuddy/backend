@@ -1,12 +1,9 @@
 package com.ceos.beatbuddy.domain.post.dto;
 
 import com.ceos.beatbuddy.domain.post.entity.Post;
+import lombok.*;
+
 import java.time.LocalDate;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor

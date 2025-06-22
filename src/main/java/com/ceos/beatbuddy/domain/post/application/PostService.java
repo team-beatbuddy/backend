@@ -10,7 +10,10 @@ import com.ceos.beatbuddy.domain.post.entity.Piece;
 import com.ceos.beatbuddy.domain.post.entity.PiecePost;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
-import com.ceos.beatbuddy.domain.post.repository.*;
+import com.ceos.beatbuddy.domain.post.repository.FreePostRepository;
+import com.ceos.beatbuddy.domain.post.repository.PiecePostRepository;
+import com.ceos.beatbuddy.domain.post.repository.PostQueryRepository;
+import com.ceos.beatbuddy.domain.post.repository.PostRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostInteractionId;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostLike;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostScrap;
@@ -19,14 +22,8 @@ import com.ceos.beatbuddy.domain.scrapandlike.repository.PostScrapRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
 import com.ceos.beatbuddy.global.code.ErrorCode;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Triple;
-import org.hibernate.sql.Update;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +31,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)

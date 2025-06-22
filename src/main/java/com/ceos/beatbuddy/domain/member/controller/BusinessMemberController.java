@@ -1,18 +1,10 @@
 package com.ceos.beatbuddy.domain.member.controller;
 
-import com.amazonaws.Response;
 import com.ceos.beatbuddy.domain.member.application.BusinessMemberService;
 import com.ceos.beatbuddy.domain.member.dto.*;
-import com.ceos.beatbuddy.global.ResponseTemplate;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

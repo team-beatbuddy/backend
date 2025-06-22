@@ -1,9 +1,11 @@
 package com.ceos.beatbuddy.domain.member.dto;
 
-import com.ceos.beatbuddy.domain.member.entity.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Builder
 @Data
