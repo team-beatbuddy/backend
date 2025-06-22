@@ -3,8 +3,8 @@ package com.ceos.beatbuddy.domain.event.application;
 import com.ceos.beatbuddy.domain.event.dto.EventCreateRequestDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
+import com.ceos.beatbuddy.domain.event.dto.EventUpdateRequestDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
-import com.ceos.beatbuddy.domain.event.entity.EventAttendance;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -37,7 +36,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventQueryRepository eventQueryRepository;
     private final EventLikeRepository eventLikeRepository;
-    private final EventAttendanceRepository eventAttendanceRepository;
+    private final EventValidator eventValidator;
 
     @Transactional
     public EventResponseDTO addEvent(Long memberId, EventCreateRequestDTO eventCreateRequestDTO, List<MultipartFile> images) throws IOException {
@@ -78,6 +77,74 @@ public class EventService {
                 throw new CustomException(EventErrorCode.NEED_DEPOSIT_INFO);
             }
         }
+    }
+
+    @Transactional
+    public EventResponseDTO updateEvent(Long eventId, EventUpdateRequestDTO dto, Long memberId, List<MultipartFile> imageFiles) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+
+        eventValidator.checkAccessForEvent(eventId, memberId);
+
+        // 문자열: null이 아니면서 공백만 있는 값은 무시
+        if (isNotBlank(dto.getTitle())) event.setTitle(dto.getTitle());
+        if (isNotBlank(dto.getContent())) event.setContent(dto.getContent());
+        if (dto.getStartDate() != null) event.setStartDate(dto.getStartDate());
+        if (dto.getEndDate() != null) event.setEndDate(dto.getEndDate());
+        if (isNotBlank(dto.getLocation())) event.setLocation(dto.getLocation());
+
+        if (dto.getIsVisible() != null) event.setVisible(dto.getIsVisible());
+
+        if (dto.getReceiveInfo() != null) event.setReceiveInfo(dto.getReceiveInfo());
+        if (dto.getReceiveName() != null) event.setReceiveName(dto.getReceiveName());
+        if (dto.getReceiveGender() != null) event.setReceiveGender(dto.getReceiveGender());
+        if (dto.getReceivePhoneNumber() != null) event.setReceivePhoneNumber(dto.getReceivePhoneNumber());
+        if (dto.getReceiveTotalCount() != null) event.setReceiveTotalCount(dto.getReceiveTotalCount());
+        if (dto.getReceiveSNSId() != null) event.setReceiveSNSId(dto.getReceiveSNSId());
+        if (dto.getReceiveMoney() != null) event.setReceiveMoney(dto.getReceiveMoney());
+
+
+        List<String> deleteFiles = dto.getDeleteImageUrls();
+
+        if (deleteFiles != null && !deleteFiles.isEmpty()) {
+            removeImages(event, deleteFiles);
+        }
+
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            List<String> imageUrls = uploadUtil.uploadImages(imageFiles, UploadUtil.BucketType.MEDIA, "event");
+            event.getImageUrls().addAll(imageUrls);
+        }
+
+        boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, eventId));
+
+        // 6. 응답 생성
+        return EventResponseDTO.toDTO(event, liked);
+    }
+
+    @Transactional
+    public void removeImages(Event event, List<String> deleteFileIds) {
+        List<String> existing = event.getImageUrls();
+
+        // 1. 삭제 대상 필터링
+        List<String> matched = existing.stream()
+                .filter(deleteFileIds::contains)
+                .toList();
+
+        // 2. 유효성 검증
+        if (matched.size() != deleteFileIds.size()) {
+            throw new CustomException(EventErrorCode.FILE_NOT_FOUND);
+        }
+
+        // 3. S3 삭제
+        uploadUtil.deleteImages(deleteFileIds, UploadUtil.BucketType.MEDIA);
+
+        // 4. 연관관계 해제
+        existing.removeAll(matched);
+    }
+
+
+    private boolean isNotBlank(String str) {
+        return str != null && !str.trim().isEmpty();
     }
 
 

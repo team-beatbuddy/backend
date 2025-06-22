@@ -139,6 +139,94 @@ public interface EventApiDocs {
             @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException;
 
 
+
+    @Operation(
+            summary = "이벤트 수정 기능",
+            description = """
+                    수정하고자 하는 필드만 넣으면 됩니다. \n
+                    데이터 전달은 multipart/form-data이며 'eventCreateRequestDTO'는 JSON 문자열 형태로 전송해야 합니다.\n
+                    - receiveInfo: 참석자 정보 수집 여부\n
+                    - receiveName: 참석자 이름 수집 여부\n
+                    - receiveGender: 참석자 성별 수집 여부\n
+                    - receivePhoneNumber: 참석자 전화번호 수집 여부\n
+                    - receiveTotalCount: 참석자 본인 포함 동행인원 수집 여부\n
+                    - receiveSNSId: 참석자 SNS ID 수집 여부\n
+                    - receiveMoney: 예약금 설정 여부
+                    """
+    )
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "이벤트가 수정되었습니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                            {
+                              "status": 200,
+                              "code": "SUCCESS_UPDATE_EVENT",
+                              "message": "이벤트를 수정했습니다.",
+                              "data": {
+                                "eventId": 8,
+                                "title": "이벤트 제목",
+                                "content": "내용입니다.",
+                                "images": [
+                                  "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/event/20250622_224204_e8799c68-8ea2-4dea-bbd0-4e1922604b7e.jpg",
+                                  "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/event/20250623_011130_b39d5833-6793-4fa9-a3b4-a7174a86e6c9.png",
+                                  "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/event/20250623_011130_9dacc431-7b82-4c65-a582-870ab237f3f0.png"
+                                ],
+                                "liked": false,
+                                "likes": 0,
+                                "views": 2,
+                                "startDate": "2025-06-23",
+                                "endDate": "2025-06-24",
+                                "receiveInfo": true,
+                                "receiveName": true,
+                                "receiveGender": true,
+                                "receivePhoneNumber": true,
+                                "receiveTotalCount": false,
+                                "receiveSNSId": true,
+                                "receiveMoney": true
+                              }
+                            }
+                                    """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "존재하지 않는 유저",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples =
+                            @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "잘못된 요청 (권한이 없는 일반 유저)",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "권한 없는 유저", value = SwaggerExamples.CANNOT_ADD_EVENT_UNAUTHORIZED_MEMBER)
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "S3에 이미지 등록 실패했을 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "s3에 이미지 등록을 실패했을 경우", value = SwaggerExamples.IMAGE_UPLOAD_FAILED),
+                                    @ExampleObject(name = "s3에서 이미지 삭제를 실패한 경우", value = SwaggerExamples.IMAGE_DELETE_FAILED)
+                            }
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<EventResponseDTO>> updateEvent(@PathVariable Long eventId,
+                                                              @RequestPart("eventUpdateRequestDTO") EventUpdateRequestDTO eventUpdateRequestDTO,
+                                                              @RequestPart(value = "files", required = false) List<MultipartFile> files
+    );
+
     @Operation(summary = "이벤트 참석 신청",
                 description = "이벤트에서 필요한 정보 수집들을 제대로 입력하지 않으면 아래와 같은 에러가 발생합니다.")
     @ApiResponses(value = {
@@ -677,7 +765,8 @@ public interface EventApiDocs {
         """
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "성공적으로 댓글을 작성했습니다. ******부모 댓글이 없는 경우에는 해당 필드를 지우고 작성해주세요. 댓글 레벨이 0이면 본인 글입니다. 1부터 대댓글",
+            @ApiResponse(responseCode = "201", description = "성공적으로 댓글을 작성했습니다.\n" +
+                    "- 댓글 레벨이 0이면 본인 글입니다. 1부터 대댓글",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ResponseDTO.class),

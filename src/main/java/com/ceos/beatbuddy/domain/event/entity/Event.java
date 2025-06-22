@@ -102,4 +102,59 @@ public class Event extends BaseTimeEntity {
     public void setVenue(Venue venue) {
         this.venue = venue;
     }
+
+// Event.java
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setVisible(boolean visible) {
+        this.isVisible = visible;
+    }
+
+    public void setReceiveInfo(boolean receiveInfo) {
+        this.receiveInfo = receiveInfo;
+    }
+
+    public void setReceiveName(boolean receiveName) {
+        this.receiveName = receiveName;
+    }
+
+    public void setReceiveGender(boolean receiveGender) {
+        this.receiveGender = receiveGender;
+    }
+
+    public void setReceivePhoneNumber(boolean receivePhoneNumber) {
+        this.receivePhoneNumber = receivePhoneNumber;
+    }
+
+    public void setReceiveTotalCount(boolean receiveTotalCount) {
+        this.receiveTotalCount = receiveTotalCount;
+    }
+
+    public void setReceiveSNSId(boolean receiveSNSId) {
+        this.receiveSNSId = receiveSNSId;
+    }
+
+    public void setReceiveMoney(boolean receiveMoney) {
+        this.receiveMoney = receiveMoney;
+    }
+
 }

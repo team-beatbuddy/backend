@@ -465,21 +465,21 @@ public class PostService {
     }
 
     @Transactional
-    public void removeImages(Post post, List<String> deleteFileIds) {
+    public void removeImages(Post post, List<String> deleteFiles) {
         List<String> existing = post.getImageUrls();
 
         // 1. 삭제 대상 필터링
         List<String> matched = existing.stream()
-                .filter(deleteFileIds::contains)
+                .filter(deleteFiles::contains)
                 .toList();
 
         // 2. 유효성 검증
-        if (matched.size() != deleteFileIds.size()) {
+        if (matched.size() != deleteFiles.size()) {
             throw new CustomException(PostErrorCode.FILE_NOT_FOUND);
         }
 
         // 3. S3 삭제
-        uploadUtil.deleteImages(deleteFileIds, UploadUtil.BucketType.MEDIA);
+        uploadUtil.deleteImages(deleteFiles, UploadUtil.BucketType.MEDIA);
 
         // 4. 연관관계 해제
         existing.removeAll(matched);
