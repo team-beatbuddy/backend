@@ -40,7 +40,7 @@ public class EventService {
     private final EventAttendanceRepository eventAttendanceRepository;
 
     @Transactional
-    public EventResponseDTO addEvent(Long memberId, EventCreateRequestDTO eventCreateRequestDTO, MultipartFile image) throws IOException {
+    public EventResponseDTO addEvent(Long memberId, EventCreateRequestDTO eventCreateRequestDTO, List<MultipartFile> images) throws IOException {
         Member member = memberService.validateAndGetMember(memberId);
 
         if (!(Objects.equals(member.getRole(), "ADMIN")) && !(Objects.equals(member.getRole(), "BUSINESS"))) {
@@ -60,14 +60,15 @@ public class EventService {
         }
 
         // 이미지 setting
-        if (image != null && !image.isEmpty()) {
-            String imageUrl = uploadUtil.upload(image, UploadUtil.BucketType.MEDIA, "event");
-            event.setThumbImage(imageUrl);
+        if (images != null && !images.isEmpty()) {
+            List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "event");
+            event.setThumbImage(imageUrls.get(0));
+            event.setImageUrls(imageUrls);
         }
 
         eventRepository.save(event);
 
-        return EventResponseDTO.toDTO(event, null);
+        return EventResponseDTO.toDTO(event, false);
     }
 
     // 에약금을 받지만 계좌 정보가 없는 경우

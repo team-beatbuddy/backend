@@ -4,15 +4,13 @@ import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Builder
@@ -42,29 +40,42 @@ public class Event extends BaseTimeEntity {
     @Getter
     private String thumbImage;
 
+    @ElementCollection
+    @Setter
+    @Getter
+    private List<String> imageUrls;
+
     @Getter
     private int views;
     @Getter
     private int likes;
 
     @Getter
-    private boolean receiveInfo; // 참석자 정보 수집 여부
+    @Column(nullable = false)
+    private boolean receiveInfo = false; // 참석자 정보 수집 여부
     @Getter
+    @Column(nullable = false)
     private boolean receiveName = false; // 이름 받을 건지
     @Getter
+    @Column(nullable = false)
     private boolean receiveGender = false;; // 성별 받을 건지
     @Getter
+    @Column(nullable = false)
     private boolean receivePhoneNumber= false;; // 전화번호 받을 건지
     @Getter
+    @Column(nullable = false)
     private boolean receiveTotalCount= false;; // 동행 인원 받을 건지
     @Getter
+    @Column(nullable = false)
     private boolean receiveSNSId= false;; // sns id 받을 건지
     @Getter
+    @Column(nullable = false)
     private boolean receiveMoney= false;; // 예약금 받을 건지
 
     private String depositAccount; // 사전 예약금 계좌번호
     private Integer depositAmount; // 사전 예약금 금액
 
+    @Column(nullable = false)
     private boolean isVisible = true;
 
 

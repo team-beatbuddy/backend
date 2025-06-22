@@ -8,7 +8,9 @@ import lombok.Getter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Builder
 @Getter
@@ -17,15 +19,17 @@ public class EventResponseDTO {
     private Long eventId;
     private String title;
     private String content;
-    private String image;
+    private List<String> images;
+
+    private String thumbImage; // 썸네일
 
     private String dDay;
 
-    private Boolean liked;
+    private boolean liked;
     private String location;
 
-    private Integer likes;
-    private Integer views;
+    private int likes;
+    private int views;
 
     private LocalDate startDate;
     private LocalDate endDate;
@@ -33,21 +37,21 @@ public class EventResponseDTO {
     private String groupDate; // past list 에서만  사용
     private List<EventResponseDTO> pastDTOList; // past list 에서만  사용
 
-    private Boolean receiveInfo;
-    private Boolean receiveName; // 이름 받을 건지
-    private Boolean receiveGender; // 성별 받을 건지
-    private Boolean receivePhoneNumber; // 전화번호 받을 건지
-    private Boolean receiveTotalCount; // 동행 인원 받을 건지
-    private Boolean receiveSNSId; // sns id 받을 건지
-    private Boolean receiveMoney; // 예약금 받을 건지
+    private boolean receiveInfo;
+    private boolean receiveName; // 이름 받을 건지
+    private boolean receiveGender; // 성별 받을 건지
+    private boolean receivePhoneNumber; // 전화번호 받을 건지
+    private boolean receiveTotalCount; // 동행 인원 받을 건지
+    private boolean receiveSNSId; // sns id 받을 건지
+    private boolean receiveMoney; // 예약금 받을 건지
 
 
-    public static EventResponseDTO toDTO(Event event, Boolean liked) {
+    public static EventResponseDTO toDTO(Event event, boolean liked) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
                 .content(event.getContent())
-                .image(event.getThumbImage())
+                .images(Optional.ofNullable(event.getImageUrls()).orElseGet(ArrayList::new))
                 .views(event.getViews())
                 .likes(event.getLikes())
                 .liked(liked)
@@ -70,7 +74,7 @@ public class EventResponseDTO {
                 .dDay("D-" + ChronoUnit.DAYS.between(LocalDate.now(), event.getStartDate()))
                 .startDate(event.getStartDate())
                 .endDate(event.getEndDate())
-                .image(event.getThumbImage())
+                .thumbImage(Optional.ofNullable(event.getThumbImage()).orElse(""))
                 .likes(event.getLikes())
                 .views(event.getViews())
                 .location(event.getLocation())
@@ -85,7 +89,7 @@ public class EventResponseDTO {
                         .content(event.getContent())
                         .startDate(event.getStartDate())
                         .endDate(event.getEndDate())
-                        .image(event.getThumbImage())
+                        .thumbImage(Optional.ofNullable(event.getThumbImage()).orElse(""))
                         .likes(event.getLikes())
                         .views(event.getViews())
                         .location(event.getLocation())
@@ -105,7 +109,7 @@ public class EventResponseDTO {
                 .content(event.getContent())
                 .startDate(event.getStartDate())
                 .endDate(event.getEndDate())
-                .image(event.getThumbImage())
+                .thumbImage(Optional.ofNullable(event.getThumbImage()).orElse(""))
                 .likes(event.getLikes())
                 .views(event.getViews())
                 .location(event.getLocation())
@@ -119,7 +123,7 @@ public class EventResponseDTO {
                 .content(event.getContent())
                 .startDate(event.getStartDate())
                 .endDate(event.getEndDate())
-                .image(event.getThumbImage())
+                .thumbImage(Optional.ofNullable(event.getThumbImage()).orElse(""))
                 .likes(event.getLikes())
                 .views(event.getViews())
                 .location(event.getLocation())
