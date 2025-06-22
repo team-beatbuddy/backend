@@ -92,6 +92,9 @@ public class EventAttendanceService {
 
 
     public List<EventAttendanceExportDTO> getAttendanceListForExcel(Long eventId, Long memberId) {
+        eventService.validateAndGet(eventId);
+
+        // admin 은 모두 조회 가능
         checkAccessForEvent(eventId, memberId);
 
         List<EventAttendance> attendances = eventAttendanceRepository.findAllByEventId(eventId);
@@ -104,6 +107,11 @@ public class EventAttendanceService {
         Member host = memberService.validateAndGetMember(memberId);
 
         Event event = eventService.validateAndGet(eventId);
+
+        // admin 은 모두 조회 가능
+        if (Objects.equals(host.getRole(), "ADMIN")) {
+            return;
+        }
 
         if (!Objects.equals(event.getHost().getId(), memberId)) {
             throw new CustomException(EventErrorCode.FORBIDDEN_EVENT_ACCESS);

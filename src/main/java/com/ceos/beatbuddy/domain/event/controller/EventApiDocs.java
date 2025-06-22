@@ -466,6 +466,38 @@ public interface EventApiDocs {
 
     @Operation(summary = "이벤트 신청자 명단 엑셀 다운로드",
             description = "신청자 명단이 엑셀 다운받을 수 잇는 링크로 반환됩니다. Download file을 누르면 됩니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "이벤트 신청자 명단 조회 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(name = "이벤트 신청자 명단 조회 성공", value = """
+                        링크가 나옵니다.""")
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "이벤트 또는 유저 정보 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "이벤트 없음", value = SwaggerExamples.NOT_FOUND_EVENT)
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "이벤트를 작성한 유저가 아님",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "유저 권한 없음", value = SwaggerExamples.FORBIDDEN_EVENT_ACCESS)
+                            }
+                    )
+            )
+    })
     void downloadAttendanceExcel(
             @PathVariable Long eventId,
             HttpServletResponse response
