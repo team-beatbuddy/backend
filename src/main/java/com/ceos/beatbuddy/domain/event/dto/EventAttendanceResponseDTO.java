@@ -34,7 +34,7 @@ public class EventAttendanceResponseDTO {
                 .phoneNumber(entity.getPhoneNumber())
                 .snsType(entity.getSnsType())
                 .snsId(entity.getSnsId())
-                .isPaid(entity.isHasPaid())
+                .isPaid(entity.getHasPaid())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

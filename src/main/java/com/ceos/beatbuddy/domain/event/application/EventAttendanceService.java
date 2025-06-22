@@ -75,6 +75,7 @@ public class EventAttendanceService {
     }
 
     public EventAttendanceExportListDTO getAttendanceList(Long eventId, Long memberId) {
+        eventService.validateAndGet(eventId);
         checkAccessForEvent(eventId, memberId);
 
         List<EventAttendance> attendances = eventAttendanceRepository.findAllByEventId(eventId);
@@ -83,6 +84,7 @@ public class EventAttendanceService {
                 .toList();
 
         return EventAttendanceExportListDTO.builder()
+                .eventId(eventId)
                 .totalMember(eventAttendanceExportDTOS.size())
                 .eventAttendanceExportDTOS(eventAttendanceExportDTOS)
                 .build();

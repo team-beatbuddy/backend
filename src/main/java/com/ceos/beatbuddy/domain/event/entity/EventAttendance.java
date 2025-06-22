@@ -39,6 +39,6 @@ public class EventAttendance extends BaseTimeEntity {
     private String snsType; // 인스타그램, 페이스북, X
     private String snsId;
 
-    private boolean hasPaid;
+    private Boolean hasPaid;
     //private Integer paymentAmount;
 }
