@@ -2,10 +2,11 @@ package com.ceos.beatbuddy.domain.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.Builder;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,

@@ -5,8 +5,6 @@ import com.ceos.beatbuddy.domain.post.entity.FreePost;
 import com.ceos.beatbuddy.domain.post.entity.Piece;
 import com.ceos.beatbuddy.domain.post.entity.PiecePost;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

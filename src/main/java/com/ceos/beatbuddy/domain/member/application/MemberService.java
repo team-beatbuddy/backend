@@ -3,7 +3,8 @@ package com.ceos.beatbuddy.domain.member.application;
 import com.ceos.beatbuddy.domain.archive.repository.ArchiveRepository;
 import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
 import com.ceos.beatbuddy.domain.member.constant.Region;
-import com.ceos.beatbuddy.domain.member.dto.*;
+import com.ceos.beatbuddy.domain.member.dto.MemberProfileSummaryDTO;
+import com.ceos.beatbuddy.domain.member.dto.NicknameDTO;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.entity.MemberGenre;
 import com.ceos.beatbuddy.domain.member.entity.MemberMood;
@@ -25,10 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
