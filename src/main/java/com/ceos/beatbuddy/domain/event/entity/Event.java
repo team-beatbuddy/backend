@@ -58,19 +58,19 @@ public class Event extends BaseTimeEntity {
     private boolean receiveName = false; // 이름 받을 건지
     @Getter
     @Column(nullable = false)
-    private boolean receiveGender = false;; // 성별 받을 건지
+    private boolean receiveGender = false; // 성별 받을 건지
     @Getter
     @Column(nullable = false)
-    private boolean receivePhoneNumber= false;; // 전화번호 받을 건지
+    private boolean receivePhoneNumber= false; // 전화번호 받을 건지
     @Getter
     @Column(nullable = false)
-    private boolean receiveTotalCount= false;; // 동행 인원 받을 건지
+    private boolean receiveTotalCount= false; // 동행 인원 받을 건지
     @Getter
     @Column(nullable = false)
-    private boolean receiveSNSId= false;; // sns id 받을 건지
+    private boolean receiveSNSId= false; // sns id 받을 건지
     @Getter
     @Column(nullable = false)
-    private boolean receiveMoney= false;; // 예약금 받을 건지
+    private boolean receiveMoney= false; // 예약금 받을 건지
 
     private String depositAccount; // 사전 예약금 계좌번호
     private Integer depositAmount; // 사전 예약금 금액
