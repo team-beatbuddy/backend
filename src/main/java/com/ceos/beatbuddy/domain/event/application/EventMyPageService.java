@@ -34,7 +34,7 @@ public class EventMyPageService{
         return myEvents.stream()
                 .filter(e -> e.getStartDate().isAfter(today))
                 .sorted(getComparator(sort, "upcoming"))
-                .map(EventResponseDTO::toNowListDTO)
+                .map(EventResponseDTO::toUpcomingListDTO)
                 .toList();
     }
 
@@ -50,7 +50,7 @@ public class EventMyPageService{
         return myEvents.stream()
                 .filter(e -> !e.getStartDate().isAfter(today) && !e.getEndDate().isBefore(today))
                 .sorted(getComparator(sort, "now"))
-                .map(EventResponseDTO::toUpcomingListDTO) // 필요 시 toNowListDTO로 변경 가능
+                .map(EventResponseDTO::toNowListDTO) // 필요 시 toNowListDTO로 변경 가능
                 .toList();
     }
 
