@@ -76,6 +76,8 @@ public class EventAttendanceService {
 
     public EventAttendanceExportListDTO getAttendanceList(Long eventId, Long memberId) {
         eventService.validateAndGet(eventId);
+
+        // admin 은 모두 조회 가능
         checkAccessForEvent(eventId, memberId);
 
         List<EventAttendance> attendances = eventAttendanceRepository.findAllByEventId(eventId);

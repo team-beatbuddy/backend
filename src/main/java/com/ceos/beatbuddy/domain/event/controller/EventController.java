@@ -1,9 +1,6 @@
 package com.ceos.beatbuddy.domain.event.controller;
 
-import com.ceos.beatbuddy.domain.event.application.EventAttendanceExcelExporter;
-import com.ceos.beatbuddy.domain.event.application.EventAttendanceService;
-import com.ceos.beatbuddy.domain.event.application.EventCommentService;
-import com.ceos.beatbuddy.domain.event.application.EventService;
+import com.ceos.beatbuddy.domain.event.application.*;
 import com.ceos.beatbuddy.domain.event.dto.*;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
@@ -34,6 +31,7 @@ public class EventController implements EventApiDocs {
     private final EventService eventService;
     private final EventAttendanceService eventAttendanceService;
     private final EventCommentService eventCommentService;
+    private final EventMyPageService eventMyPageService;
 
     @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -221,15 +219,75 @@ public class EventController implements EventApiDocs {
 
 
     @Override
-    @GetMapping("/my-page")
-    public ResponseEntity<ResponseDTO<Map<String, List<EventResponseDTO>>>> getMyEvents() {
+    @GetMapping("/my-page/upcoming/{sort}")
+    public ResponseEntity<ResponseDTO<List<EventResponseDTO>>> getMyPageEventsUpcoming(
+            @PathVariable String sort
+    ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        Map<String, List<EventResponseDTO>> result = eventService.getMyPageEvents(memberId);
+        List<EventResponseDTO> result = eventMyPageService.getMyPageEventsUpcoming(memberId, sort);
 
         if (result.isEmpty()) {
             return ResponseEntity
                     .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_EVENTS, result));
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
+        }
+        else {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS.getHttpStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS, result));
+        }
+    }
+
+    @Override
+    @GetMapping("/my-page/now/{sort}")
+    public ResponseEntity<ResponseDTO<List<EventResponseDTO>>> getMyPageEventsNow(
+            @PathVariable String sort
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        List<EventResponseDTO> result = eventMyPageService.getMyPageEventsNow(memberId, sort);
+
+        if (result.isEmpty()) {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
+        }
+        else {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS.getHttpStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS, result));
+        }
+    }
+
+    @Override
+    @GetMapping("/my-page/past/{sort}")
+    public ResponseEntity<ResponseDTO<List<EventResponseDTO>>> getMyPageEventsPast(
+            @PathVariable String sort
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        List<EventResponseDTO> result = eventMyPageService.getMyPageEventsPast(memberId, sort);
+
+        if (result.isEmpty()) {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
+        }
+        else {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS.getHttpStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS, result));
+        }
+    }
+
+    @Override
+    @GetMapping("/my-event")
+    public ResponseEntity<ResponseDTO<Map<String, List<EventResponseDTO>>>> getMyEvents() {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        Map<String, List<EventResponseDTO>> result = eventService.getMyEvents(memberId);
+
+        if (result.isEmpty()) {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
         }
         else {
             return ResponseEntity

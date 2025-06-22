@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.event.repository;
 
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.QEvent;
+import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.QEventLike;
 import com.ceos.beatbuddy.domain.venue.entity.QVenue;
 import com.querydsl.core.BooleanBuilder;
@@ -160,5 +161,43 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
         }
 
         return result;
+    }
+
+    @Override
+    public List<Event> findMyUpcomingEvents(Member member) {
+        QEvent event = QEvent.event;
+        return queryFactory
+                .selectFrom(event)
+                .leftJoin(event.venue, QVenue.venue).fetchJoin()
+                .where(event.host.eq(member)
+                        .and(event.startDate.gt(LocalDate.now())))
+                .orderBy(event.startDate.asc())
+                .fetch();
+    }
+
+    @Override
+    public List<Event> findMyNowEvents(Member member) {
+        QEvent event = QEvent.event;
+        LocalDate today = LocalDate.now();
+        return queryFactory
+                .selectFrom(event)
+                .leftJoin(event.venue, QVenue.venue).fetchJoin()
+                .where(event.host.eq(member)
+                        .and(event.startDate.loe(today))
+                        .and(event.endDate.goe(today)))
+                .orderBy(event.startDate.asc())
+                .fetch();
+    }
+
+    @Override
+    public List<Event> findMyPastEvents(Member member) {
+        QEvent event = QEvent.event;
+        return queryFactory
+                .selectFrom(event)
+                .leftJoin(event.venue, QVenue.venue).fetchJoin()
+                .where(event.host.eq(member)
+                        .and(event.endDate.lt(LocalDate.now())))
+                .orderBy(event.startDate.desc())
+                .fetch();
     }
 }

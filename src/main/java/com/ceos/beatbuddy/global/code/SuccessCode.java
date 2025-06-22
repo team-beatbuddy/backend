@@ -62,8 +62,9 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_GET_EVENT(HttpStatus.OK, "성공적으로 이벤트를 조회했습니다." ),
     SUCCESS_GET_EVENT_COMMENTS(HttpStatus.OK, "성공적으로 댓글을 조회했습니다."),
     SUCCESS_GET_PAST_EVENT(HttpStatus.OK, "성공적으로 과거 이벤트를 조회했습니다." ),
-    SUCCESS_GET_MY_EVENTS(HttpStatus.OK, "마이페이지의 이벤트를 성공적으로 조회했습니다"),
+    SUCCESS_GET_MY_PAGE_EVENTS(HttpStatus.OK, "마이페이지의 이벤트를 성공적으로 조회했습니다"),
     SUCCESS_GET_NOW_EVENT(HttpStatus.OK, "성공적으로 진행되는 이벤트를 조회했습니다."),
+    SUCCESS_GET_MY_EVENTS(HttpStatus.OK, "성공적으로 내가 작성한 이벤트를 가져왔습니다."),
 
 
     /**
