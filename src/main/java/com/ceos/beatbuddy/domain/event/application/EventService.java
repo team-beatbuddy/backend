@@ -47,6 +47,9 @@ public class EventService {
             throw new CustomException(EventErrorCode.CANNOT_ADD_EVENT_UNAUTHORIZED_MEMBER);
         }
 
+        // 에약금 정보 확인
+        validateReceiveMoney(eventCreateRequestDTO.isReceiveMoney(), eventCreateRequestDTO.getDepositAccount(), eventCreateRequestDTO.getDepositAmount());
+
         // 엔티티 생성
         Event event = EventCreateRequestDTO.toEntity(eventCreateRequestDTO, member);
 
@@ -57,12 +60,23 @@ public class EventService {
         }
 
         // 이미지 setting
-        String imageUrl = uploadUtil.upload(image, UploadUtil.BucketType.MEDIA, "event");
-        event.setThumbImage(imageUrl);
+        if (image != null && !image.isEmpty()) {
+            String imageUrl = uploadUtil.upload(image, UploadUtil.BucketType.MEDIA, "event");
+            event.setThumbImage(imageUrl);
+        }
 
         eventRepository.save(event);
 
         return EventResponseDTO.toDTO(event, null);
+    }
+
+    // 에약금을 받지만 계좌 정보가 없는 경우
+    public void validateReceiveMoney(boolean receiveMoney, String depositAccount, Integer depositMoney) {
+        if (receiveMoney) {
+            if (depositMoney == null || depositMoney <= 0 || depositAccount == null || depositAccount.isBlank()) {
+                throw new CustomException(EventErrorCode.NEED_DEPOSIT_INFO);
+            }
+        }
     }
 
 
