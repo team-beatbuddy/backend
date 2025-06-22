@@ -72,7 +72,11 @@ public class PostService {
         validatePostType(type);
         Member member = memberService.validateAndGetMember(memberId);
         // 이미지 s3 올리기
-        List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "post");
+        List<String> imageUrls = null;
+
+        if (images != null && !images.isEmpty()) {
+            imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "post");
+        }
 
         // 내부에서 공장 선택
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
@@ -267,7 +271,7 @@ public class PostService {
 
         PostInteractionId likeId = new PostInteractionId(memberId, post.getId());
         if (postLikeRepository.existsById(likeId)) {
-            throw new CustomException(PostErrorCode.ALREADY_LIKED);
+            throw new CustomException(ErrorCode.ALREADY_LIKED);
         }
 
         PostLike postLike = PostLike.builder()
@@ -306,7 +310,7 @@ public class PostService {
 
         PostInteractionId scrapId = new PostInteractionId(memberId, post.getId());
         if (postScrapRepository.existsById(scrapId)) {
-            throw new CustomException(PostErrorCode.ALREADY_SCRAPPED);
+            throw new CustomException(ErrorCode.ALREADY_SCRAPPED);
         }
 
         PostScrap postScrap = PostScrap.builder()
@@ -458,15 +462,7 @@ public class PostService {
         }
     }
 
-    private void updateCommonFields(UpdatePostRequestDTO dto, Post post) {
-        if (dto.getTitle() != null) {
-            post.updateTitle(dto.getTitle());
-        }
-        if (dto.getContent() != null) {
-            post.updateContent(dto.getContent());
-        }
-    }
-
+    @Transactional
     public void removeImages(Post post, List<String> deleteFileIds) {
         List<String> existing = post.getImageUrls();
 
@@ -498,19 +494,24 @@ public class PostService {
     }
 
 
-    public PostReadDetailDTO updatePost(Long postId, Long memberId,
+    @Transactional
+    public PostReadDetailDTO updatePost(String type, Long postId, Long memberId,
                                             UpdatePostRequestDTO requestDTO, List<MultipartFile> files,
-                                            List<String> deleteFileIds) {
+                                            List<String> deleteFiles) {
         // 1. 게시글 조회 및 작성자 검증
         Post post = this.validateAndGetPost(postId);
+        Member member = memberService.validateAndGetMember(memberId);
         validatePostAuthor(post, memberId);
 
+
         // 2. 공통 필드 수정
-        this.updateCommonFields(requestDTO, post);
+        PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
+        post = handler.updatePost(requestDTO, post, member);
+
 
         // 3. 삭제할 이미지 제거
-        if (deleteFileIds != null && !deleteFileIds.isEmpty()) {
-            removeImages(post, deleteFileIds);
+        if (deleteFiles != null && !deleteFiles.isEmpty()) {
+            removeImages(post, deleteFiles);
         }
 
         // 4. 새 이미지 업로드 및 저장

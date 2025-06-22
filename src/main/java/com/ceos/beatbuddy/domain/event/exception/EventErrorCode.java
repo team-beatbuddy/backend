@@ -18,9 +18,7 @@ public enum EventErrorCode implements ApiCode {
     CANNOT_ADD_EVENT_UNAUTHORIZED_MEMBER(HttpStatus.FORBIDDEN, "글을 작성할 수 없는 유저입니다."),
 
 
-    ALREADY_SCRAPPED_EVENT(HttpStatus.CONFLICT, "해당 이벤트는 이미 스크랩 되었습니다."),
     NOT_FOUND_SCRAP(HttpStatus.NOT_FOUND, "스크랩 내역이 존재하지 않습니다."),
-    ALREADY_LIKE_EVENT(HttpStatus.CONFLICT, "해당 이벤트는 이미 좋아요를 표시하였습니다."),
     NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다.")
 
     ;

@@ -35,6 +35,14 @@ public enum ErrorCode implements ApiCode {
      */
     NOT_FOUND_SCRAP(HttpStatus.NOT_FOUND, "기존에 스크랩하지 않았습니다. 스크랩을 취소할 수 없습니다."),
     NOT_FOUND_LIKE(HttpStatus.NOT_FOUND, "기존에 좋아요를 누르지 않았습니다. 좋아요를 취소할 수 없습니다."),
+
+
+    /**
+     * 409
+     * */
+    ALREADY_LIKED(HttpStatus.CONFLICT, "이미 좋아요를 눌렀습니다."),
+    ALREADY_SCRAPPED(HttpStatus.CONFLICT, "이미 스크랩을 눌렀습니다."),
+
 //    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
 //    PET_NOT_FOUND(HttpStatus.NOT_FOUND, "반려동물 정보를 찾을 수 없습니다."),
 //    PARENT_MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "이전 메시지가 존재하지 않습니다."),
@@ -55,7 +63,11 @@ public enum ErrorCode implements ApiCode {
 //     * 409
 //     */
 //    DUPLICATE_USERNAME(HttpStatus.CONFLICT, "중복된 아이디입니다."),
-
+    /**
+     * 500
+     * */
+    IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드에 실패했습니다."),
+    IMAGE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 삭제에 실패했습니다."),
 
     ;
     private final HttpStatus status;
