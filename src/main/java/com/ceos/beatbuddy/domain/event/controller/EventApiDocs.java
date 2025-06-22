@@ -20,8 +20,20 @@ import java.util.List;
 import java.util.Map;
 
 public interface EventApiDocs {
-    @Operation(summary = "이벤트 작성 기능\n",
-            description = "admin과 business 멤버에 한해서만 이벤트를 작성할 수 있도록 해두었습니다. (추후 변경 가능), 데이터 전달은 multipart/form-data이며 'eventCreateRequestDTO'는 JSON 문자열 형태로 전송해야 합니다.")
+    @Operation(
+            summary = "이벤트 작성 기능",
+            description = """
+                    admin과 business 멤버에 한해서만 이벤트를 작성할 수 있도록 해두었습니다. (추후 변경 가능)\n
+                    데이터 전달은 multipart/form-data이며 'eventCreateRequestDTO'는 JSON 문자열 형태로 전송해야 합니다.\n
+                    - receiveInfo: 참석자 정보 수집 여부\n
+                    - receiveName: 참석자 이름 수집 여부\n
+                    - receiveGender: 참석자 성별 수집 여부\n
+                    - receivePhoneNumber: 참석자 전화번호 수집 여부\n
+                    - receiveTotalCount: 참석자 본인 포함 동행인원 수집 여부\n
+                    - receiveSNSId: 참석자 SNS ID 수집 여부\n
+                    - receiveMoney: 예약금 설정 여부
+                    """
+                )
 
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "이벤트가 성공적으로 작성되었습니다.",
@@ -110,7 +122,7 @@ public interface EventApiDocs {
     )
     })
     ResponseEntity<ResponseDTO<EventResponseDTO>> addEvent(
-            @Valid @RequestPart("eventCreateRequestDTO") EventCreateRequestDTO eventCreateRequestDTO,
+            @Valid @Schema(implementation = EventCreateRequestDTO.class) @RequestPart("eventCreateRequestDTO") EventCreateRequestDTO eventCreateRequestDTO,
             @RequestPart(value = "image", required = false) MultipartFile image) throws IOException;
 
 
