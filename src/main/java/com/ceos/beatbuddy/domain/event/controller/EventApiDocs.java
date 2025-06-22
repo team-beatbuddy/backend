@@ -71,24 +71,35 @@ public interface EventApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples =
-                            @ExampleObject(
-                                    name = "필수 필드 누락 시",
-                                    value = """
-                                {
-                                  "status": 400,
-                                  "error": "BAD_REQUEST",
-                                  "code": "BAD_REQUEST_VALIDATION",
-                                  "message": "요청 값이 유효하지 않습니다.",
-                                  "errors": {
-                                    "endDate": "종료날짜는 필수입니다.",
-                                    "location": "장소는 필수입니다.",
-                                    "title": "제목은 필수입니다.",
-                                    "content": "본문은 필수입니다.",
-                                    "startDate": "시작날짜는 필수입니다."
-                                  }
-                                }
-                            """
-                            )
+                                    {@ExampleObject(
+                                            name = "필수 필드 누락 시",
+                                            value = """
+                                                        {
+                                                          "status": 400,
+                                                          "error": "BAD_REQUEST",
+                                                          "code": "BAD_REQUEST_VALIDATION",
+                                                          "message": "요청 값이 유효하지 않습니다.",
+                                                          "errors": {
+                                                            "endDate": "종료날짜는 필수입니다.",
+                                                            "location": "장소는 필수입니다.",
+                                                            "title": "제목은 필수입니다.",
+                                                            "content": "본문은 필수입니다.",
+                                                            "startDate": "시작날짜는 필수입니다."
+                                                          }
+                                                        }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "예약금을 받으면서 정보가 없는 경우",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "error": "BAD_REQUEST",
+                                                      "code": "NEED_DEPOSIT_INFO",
+                                                      "message": "예약금에 관련된 정보가 필요합니다."
+                                                    }
+                                                    """
+                                    )}
                     )
             ),
             @ApiResponse(
