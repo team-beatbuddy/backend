@@ -16,13 +16,14 @@ public class EventResponseDTO {
     private String title;
     private String content;
     private String image;
+
     private String dDay;
+
     private Boolean liked;
     private String location;
 
     private Integer likes;
     private Integer views;
-    private Integer scraps;
 
     private LocalDate startDate;
     private LocalDate endDate;
@@ -45,6 +46,8 @@ public class EventResponseDTO {
                 .views(event.getViews())
                 .likes(event.getLikes())
                 .liked(liked)
+                .startDate(event.getStartDate())
+                .endDate(event.getEndDate())
                 .receiveInfo(event.isReceiveInfo())
                 .receiveName(event.isReceiveName())
                 .receiveGender(event.isReceiveGender())

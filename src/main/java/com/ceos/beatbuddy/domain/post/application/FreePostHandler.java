@@ -32,6 +32,7 @@ public class FreePostHandler implements PostTypeHandler{
     }
 
     @Override
+    @Transactional
     public Post createPost(PostCreateRequestDTO dto, Member member, List<String> imageUrls) {
         Venue venue = Optional.ofNullable(dto.getVenueId())
                 .map(venueInfoService::validateAndGetVenue)
@@ -47,6 +48,7 @@ public class FreePostHandler implements PostTypeHandler{
     }
 
     @Override
+    @Transactional
     public Post readPost(Long postId) {
         Post post = validateAndGetPost(postId);
 
@@ -55,6 +57,7 @@ public class FreePostHandler implements PostTypeHandler{
     }
 
     @Override
+    @Transactional
     public void deletePost(Long postId, Member member) {
         Post post = validateAndGetPost(postId);
         validateWriter(post, member);
