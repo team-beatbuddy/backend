@@ -141,7 +141,7 @@ public class EventService {
         EventInteractionId id = new EventInteractionId(memberId, eventId);
 
         if (eventLikeRepository.existsById(id)) {
-            throw new CustomException(EventErrorCode.ALREADY_LIKE_EVENT);
+            throw new CustomException(ErrorCode.ALREADY_LIKED);
         }
 
         EventLike eventLike = EventLike.toEntity(member, event);

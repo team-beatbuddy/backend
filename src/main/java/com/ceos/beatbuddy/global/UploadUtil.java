@@ -9,11 +9,14 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.util.IOUtils;
 import com.ceos.beatbuddy.domain.venue.exception.VenueErrorCode;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import jakarta.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -67,7 +70,7 @@ public class UploadUtil {
 
     public String upload(MultipartFile image, BucketType type, String folder) throws IOException {
         if (image.isEmpty() || Objects.isNull(image.getOriginalFilename())) {
-            throw new CustomException(VenueErrorCode.INVALID_VENUE_IMAGE);
+            throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
         }
 
         validationImage(image.getOriginalFilename());
@@ -79,13 +82,13 @@ public class UploadUtil {
             try {
                 return this.upload(image, type, directory);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
             }
         }).toList();
     }
 
     private String uploadImageS3(MultipartFile image, String bucketName, String folder) throws UncheckedIOException {
-        String fileName = generateFileName(image.getOriginalFilename());
+        String fileName = generateFileName(Objects.requireNonNull(image.getOriginalFilename()));
         String s3FileName = (folder != null && !folder.isBlank()) ? folder + "/" + fileName : fileName;
 
         ObjectMetadata metadata = getObjectMetadata(image);
@@ -96,11 +99,26 @@ public class UploadUtil {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (Exception e) {
-            throw new CustomException(VenueErrorCode.IMAGE_UPLOAD_FAILED);
+            throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
         }
 
         return amazonS3.getUrl(bucketName, s3FileName).toString();
     }
+
+    private String generateFileName(String originalFilename) {
+        String extension = "";
+
+        int dotIndex = originalFilename.lastIndexOf('.');
+        if (dotIndex > 0) {
+            extension = originalFilename.substring(dotIndex);
+        }
+
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        String uuid = UUID.randomUUID().toString();
+
+        return timestamp + "_" + uuid + extension;
+    }
+
 
     private String getBucketName(BucketType type) {
         return switch (type) {
@@ -112,14 +130,6 @@ public class UploadUtil {
     public enum BucketType {
         VENUE,
         MEDIA,
-    }
-
-    private static String generateFileName(String originalFilename) {
-        String sanitized = originalFilename
-                .replaceAll("\\s+", "-")        // 공백 → 하이픈
-                .replaceAll("[^a-zA-Z0-9._-]", ""); // 안전하지 않은 문자 제거 (선택)
-
-        return UUID.randomUUID().toString().substring(0, 10) + "-" + sanitized;
     }
 
     private static ObjectMetadata getObjectMetadata(MultipartFile image) {
@@ -152,7 +162,7 @@ public class UploadUtil {
         try {
             amazonS3.deleteObject(bucketName, key);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new CustomException(ErrorCode.IMAGE_DELETE_FAILED);
         }
     }
 
