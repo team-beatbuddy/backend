@@ -1,7 +1,5 @@
 package com.ceos.beatbuddy.global;
 
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-
 public class SwaggerExamples {
     
     /**

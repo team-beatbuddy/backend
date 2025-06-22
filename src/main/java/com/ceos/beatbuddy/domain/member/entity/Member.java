@@ -1,11 +1,7 @@
 package com.ceos.beatbuddy.domain.member.entity;
 
-import com.ceos.beatbuddy.domain.archive.entity.Archive;
-import com.ceos.beatbuddy.domain.comment.entity.Comment;
-import com.ceos.beatbuddy.domain.heartbeat.entity.Heartbeat;
 import com.ceos.beatbuddy.domain.member.constant.Gender;
 import com.ceos.beatbuddy.domain.member.constant.Region;
-import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;

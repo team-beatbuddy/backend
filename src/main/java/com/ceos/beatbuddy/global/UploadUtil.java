@@ -4,14 +4,15 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.util.IOUtils;
 import com.ceos.beatbuddy.domain.venue.exception.VenueErrorCode;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import jakarta.annotation.PostConstruct;
-import java.io.ByteArrayInputStream;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -20,9 +21,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 @Component
 public class UploadUtil {
@@ -105,11 +103,17 @@ public class UploadUtil {
         return amazonS3.getUrl(bucketName, s3FileName).toString();
     }
 
+    /**
+     * 현재 시간의 타임스탬프, 랜덤 UUID, 그리고 원본 파일의 확장자를 이용하여 고유한 파일명을 생성합니다.
+     *
+     * @param originalFilename 원본 파일명 (확장자 추출에 사용됨)
+     * @return "yyyyMMdd_HHmmss_UUID.확장자" 형식의 새로운 파일명
+     */
     private String generateFileName(String originalFilename) {
         String extension = "";
 
         int dotIndex = originalFilename.lastIndexOf('.');
-        if (dotIndex > 0) {
+        if (dotIndex > 0 && dotIndex < originalFilename.length() - 1) {
             extension = originalFilename.substring(dotIndex);
         }
 
@@ -139,6 +143,12 @@ public class UploadUtil {
         return metadata;
     }
 
+    /**
+     * Validates that the provided filename contains a file extension.
+     *
+     * @param fileName the name of the file to validate
+     * @throws CustomException if the filename does not contain a dot character, indicating a missing extension
+     */
     private static void validationImage(String fileName) {
         int lastDotIndex = fileName.lastIndexOf(".");
         if (lastDotIndex == -1) {
@@ -146,12 +156,13 @@ public class UploadUtil {
         }
     }
 
-    private static void validateImageExtension(String fileName) {
-        if (!fileName.contains(".")) {
-            throw new CustomException(VenueErrorCode.INVALID_VENUE_IMAGE);
-        }
-    }
-
+    /**
+     * Deletes an image from the specified AWS S3 bucket based on its URL and bucket type.
+     *
+     * @param imageUrl the public URL of the image to delete
+     * @param type the type of bucket from which to delete the image
+     * @throws CustomException if the image deletion fails
+     */
     public void deleteImage(String imageUrl, BucketType type) {
         if (imageUrl == null || imageUrl.isBlank()) return;
 

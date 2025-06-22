@@ -2,9 +2,9 @@ package com.ceos.beatbuddy.global.config.oauth;
 
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.global.config.oauth.dto.GoogleResponse;
-import com.ceos.beatbuddy.global.config.oauth.dto.Oauth2MemberDto;
 import com.ceos.beatbuddy.global.config.oauth.dto.KakaoResponse;
 import com.ceos.beatbuddy.global.config.oauth.dto.OAuth2Response;
+import com.ceos.beatbuddy.global.config.oauth.dto.Oauth2MemberDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;

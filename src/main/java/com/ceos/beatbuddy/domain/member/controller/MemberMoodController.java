@@ -1,7 +1,6 @@
 package com.ceos.beatbuddy.domain.member.controller;
 
 
-import com.ceos.beatbuddy.domain.member.application.MemberGenreService;
 import com.ceos.beatbuddy.domain.member.application.MemberMoodService;
 import com.ceos.beatbuddy.domain.member.dto.MemberResponseDTO;
 import com.ceos.beatbuddy.domain.member.dto.MemberVectorResponseDTO;
@@ -19,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/member-mood")
