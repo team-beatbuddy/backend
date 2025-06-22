@@ -1,8 +1,8 @@
 package com.ceos.beatbuddy.domain.post.application;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.post.dto.FreePostRequestDTO;
 import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
+import com.ceos.beatbuddy.domain.post.dto.UpdatePostRequestDTO;
 import com.ceos.beatbuddy.domain.post.entity.FreePost;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,15 +33,11 @@ public class FreePostHandler implements PostTypeHandler{
 
     @Override
     public Post createPost(PostCreateRequestDTO dto, Member member, List<String> imageUrls) {
-        if (!(dto instanceof FreePostRequestDTO freeDto)) {
-            throw new CustomException(PostErrorCode.INVALID_DTO_TYPE);
-        }
-
-        Venue venue = Optional.ofNullable(dto.venueId())
+        Venue venue = Optional.ofNullable(dto.getVenueId())
                 .map(venueInfoService::validateAndGetVenue)
                 .orElse(null);
 
-        FreePost freePost = FreePostRequestDTO.toEntity(freeDto, imageUrls, member, venue);
+        FreePost freePost = PostCreateRequestDTO.toEntity(dto, imageUrls, member, venue);
         return freePostRepository.save(freePost);
     }
 
@@ -75,6 +72,24 @@ public class FreePostHandler implements PostTypeHandler{
         if (!post.getMember().equals(member)) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
+    }
+
+
+
+    protected void updateCommonFields(UpdatePostRequestDTO dto, Post post) {
+        if ((dto.getTitle() != null) && (!dto.getTitle().isEmpty())) {
+            post.updateTitle(dto.getTitle());
+        }
+        if ((dto.getContent() != null) && (!dto.getContent().isEmpty())) {
+            post.updateContent(dto.getContent());
+        }
+    }
+
+    @Override
+    @Transactional
+    public Post updatePost(UpdatePostRequestDTO dto, Post post, Member member) {
+        updateCommonFields(dto, post);
+        return post;
     }
 
 }

@@ -25,6 +25,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Triple;
+import org.hibernate.sql.Update;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -70,7 +72,11 @@ public class PostService {
         validatePostType(type);
         Member member = memberService.validateAndGetMember(memberId);
         // 이미지 s3 올리기
-        List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "post");
+        List<String> imageUrls = null;
+
+        if (images != null && !images.isEmpty()) {
+            imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "post");
+        }
 
         // 내부에서 공장 선택
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
@@ -101,7 +107,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostPageResponseDTO newReadPost(String type, Long postId, Long memberId) {
+    public PostReadDetailDTO newReadPost(String type, Long postId, Long memberId) {
         // 1. 게시글 조회 및 조회수 증가
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
         Post post = handler.readPost(postId);
@@ -109,12 +115,11 @@ public class PostService {
         // 2. 사용자가 좋아요 / 스크랩 / 댓글 달았는지 여부
         PostInteractionId interactionId = new PostInteractionId(memberId, postId);
 
-        boolean isLiked = postLikeRepository.existsById(interactionId);
-        boolean isScrapped = postScrapRepository.existsById(interactionId);
-        boolean hasCommented = commentRepository.existsByPost_IdAndMember_Id(postId, memberId);
+        // 3. 유저 상호작용 상태
+        Triple<Boolean, Boolean, Boolean> status = getPostInteractions(memberId, postId);
 
-        // 3. DTO 변환
-        return PostPageResponseDTO.toDTO(post, isLiked, isScrapped, hasCommented);
+        // 4. 응답 생성
+        return PostReadDetailDTO.toDTO(post, status.getLeft(), status.getMiddle(), status.getRight());
     }
 
     // 삭제 예정
@@ -266,7 +271,7 @@ public class PostService {
 
         PostInteractionId likeId = new PostInteractionId(memberId, post.getId());
         if (postLikeRepository.existsById(likeId)) {
-            throw new CustomException(PostErrorCode.ALREADY_LIKED);
+            throw new CustomException(ErrorCode.ALREADY_LIKED);
         }
 
         PostLike postLike = PostLike.builder()
@@ -305,7 +310,7 @@ public class PostService {
 
         PostInteractionId scrapId = new PostInteractionId(memberId, post.getId());
         if (postScrapRepository.existsById(scrapId)) {
-            throw new CustomException(PostErrorCode.ALREADY_SCRAPPED);
+            throw new CustomException(ErrorCode.ALREADY_SCRAPPED);
         }
 
         PostScrap postScrap = PostScrap.builder()
@@ -450,5 +455,77 @@ public class PostService {
                 () -> new CustomException(PostErrorCode.POST_NOT_EXIST)
         );
     }
+
+    private void validatePostAuthor(Post post, Long memberId) {
+        if (!post.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER); // 권한 없음
+        }
+    }
+
+    @Transactional
+    public void removeImages(Post post, List<String> deleteFileIds) {
+        List<String> existing = post.getImageUrls();
+
+        // 1. 삭제 대상 필터링
+        List<String> matched = existing.stream()
+                .filter(deleteFileIds::contains)
+                .toList();
+
+        // 2. 유효성 검증
+        if (matched.size() != deleteFileIds.size()) {
+            throw new CustomException(PostErrorCode.FILE_NOT_FOUND);
+        }
+
+        // 3. S3 삭제
+        uploadUtil.deleteImages(deleteFileIds, UploadUtil.BucketType.MEDIA);
+
+        // 4. 연관관계 해제
+        existing.removeAll(matched);
+    }
+
+    private Triple<Boolean, Boolean, Boolean> getPostInteractions(Long memberId, Long postId) {
+        PostInteractionId interactionId = new PostInteractionId(memberId, postId);
+
+        boolean isLiked = postLikeRepository.existsById(interactionId);
+        boolean isScrapped = postScrapRepository.existsById(interactionId);
+        boolean hasCommented = commentRepository.existsByPost_IdAndMember_Id(postId, memberId);
+
+        return Triple.of(isLiked, isScrapped, hasCommented);
+    }
+
+
+    @Transactional
+    public PostReadDetailDTO updatePost(String type, Long postId, Long memberId,
+                                            UpdatePostRequestDTO requestDTO, List<MultipartFile> files,
+                                            List<String> deleteFiles) {
+        // 1. 게시글 조회 및 작성자 검증
+        Post post = this.validateAndGetPost(postId);
+        Member member = memberService.validateAndGetMember(memberId);
+        validatePostAuthor(post, memberId);
+
+
+        // 2. 공통 필드 수정
+        PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
+        post = handler.updatePost(requestDTO, post, member);
+
+
+        // 3. 삭제할 이미지 제거
+        if (deleteFiles != null && !deleteFiles.isEmpty()) {
+            removeImages(post, deleteFiles);
+        }
+
+        // 4. 새 이미지 업로드 및 저장
+        if (files != null && !files.isEmpty()) {
+            List<String> imageUrls = uploadUtil.uploadImages(files, UploadUtil.BucketType.MEDIA, "post");
+            post.getImageUrls().addAll(imageUrls);
+        }
+
+        // 5. 유저 상호작용 상태
+        Triple<Boolean, Boolean, Boolean> status = getPostInteractions(memberId, postId);
+
+        // 6. 응답 생성
+        return PostReadDetailDTO.toDTO(post, status.getLeft(), status.getMiddle(), status.getRight());
+    }
+
 
 }

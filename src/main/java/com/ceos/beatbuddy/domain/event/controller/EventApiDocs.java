@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.event.controller;
 
 import com.ceos.beatbuddy.domain.event.dto.*;
+import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -84,17 +85,7 @@ public interface EventApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples =
-                            @ExampleObject(
-                                    name = "존재하지 않는 유저",
-                                    value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MEMBER_NOT_EXIST",
-                                  "message": "요청한 유저가 존재하지 않습니다."
-                                }
-                            """
-                            )
+                            @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)
                     )
             ),
             @ApiResponse(
@@ -103,17 +94,7 @@ public interface EventApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
-                                    @ExampleObject(
-                                            name = "권한 없는 유저",
-                                            value = """
-                                {
-                                  "status": 403,
-                                  "error": "FORBIDDEN",
-                                  "code": "CANNOT_ADD_EVENT_UNAUTHORIZED_MEMBER",
-                                  "message": "글을 작성할 수 없는 유저입니다."
-                                }
-                            """
-                                    )
+                                    @ExampleObject(name = "권한 없는 유저", value = SwaggerExamples.CANNOT_ADD_EVENT_UNAUTHORIZED_MEMBER)
                             }
                     )
             ),
@@ -123,17 +104,7 @@ public interface EventApiDocs {
             content = @Content(
                     mediaType = "application/json",
                     examples = {
-                            @ExampleObject(
-                                    name = "s3에 이미지 등록을 실패했을 경우",
-                                    value = """
-                                        {
-                                          "status": 500,
-                                          "error": "INTERNAL_SERVER_ERROR",
-                                          "code": "IMAGE_UPLOAD_FAILED",
-                                          "message": "이미지 업로드에 실패했습니다."
-                                        }
-                                            """
-                            )
+                            @ExampleObject(name = "s3에 이미지 등록을 실패했을 경우", value = SwaggerExamples.IMAGE_UPLOAD_FAILED)
                     }
             )
     )
@@ -170,94 +141,77 @@ public interface EventApiDocs {
                     mediaType = "application/json",
                     examples = {
                             @ExampleObject(name = "이름 누락", value = """
-            {
-              "status": 400,
-              "error": "BAD_REQUEST",
-              "code": "MISSING_NAME",
-              "message": "이름 입력은 필수입니다."
-            }
-            """),
+                            {
+                              "status": 400,
+                              "error": "BAD_REQUEST",
+                              "code": "MISSING_NAME",
+                              "message": "이름 입력은 필수입니다."
+                            }
+                            """),
                             @ExampleObject(name = "성별 누락", value = """
-            {
-              "status": 400,
-              "error": "BAD_REQUEST",
-              "code": "MISSING_GENDER",
-              "message": "성별 입력은 필수입니다."
-            }
-            """),
+                            {
+                              "status": 400,
+                              "error": "BAD_REQUEST",
+                              "code": "MISSING_GENDER",
+                              "message": "성별 입력은 필수입니다."
+                            }
+                            """),
                             @ExampleObject(name = "전화번호 누락", value = """
-            {
-              "status": 400,
-              "error": "BAD_REQUEST",
-              "code": "MISSING_PHONE",
-              "message": "핸드폰 번호 입력은 필수입니다."
-            }
-            """),
+                            {
+                              "status": 400,
+                              "error": "BAD_REQUEST",
+                              "code": "MISSING_PHONE",
+                              "message": "핸드폰 번호 입력은 필수입니다."
+                            }
+                            """),
                             @ExampleObject(name = "동행 인원 누락", value = """
-            {
-              "status": 400,
-              "error": "BAD_REQUEST",
-              "code": "MISSING_TOTAL_COUNT",
-              "message": "동행인원 입력은 필수입니다."
-            }
-            """),
+                            {
+                              "status": 400,
+                              "error": "BAD_REQUEST",
+                              "code": "MISSING_TOTAL_COUNT",
+                              "message": "동행인원 입력은 필수입니다."
+                            }
+                            """),
                             @ExampleObject(name = "SNS 정보 누락", value = """
-            {
-              "status": 400,
-              "error": "BAD_REQUEST",
-              "code": "MISSING_SNS_ID_OR_TYPE",
-              "message": "SNS ID 또는 TYPE 입력은 필수입니다."
-            }
-            """),
+                            {
+                              "status": 400,
+                              "error": "BAD_REQUEST",
+                              "code": "MISSING_SNS_ID_OR_TYPE",
+                              "message": "SNS ID 또는 TYPE 입력은 필수입니다."
+                            }
+                            """),
                             @ExampleObject(name = "지불 여부 누락", value = """
-            {
-              "status": 400,
-              "error": "BAD_REQUEST",
-              "code": "MISSING_PAYMENT",
-              "message": "지불 완료 입력은 필수입니다."
-            }
-            """),
+                            {
+                              "status": 400,
+                              "error": "BAD_REQUEST",
+                              "code": "MISSING_PAYMENT",
+                              "message": "지불 완료 입력은 필수입니다."
+                            }
+                            """),
                             @ExampleObject(name = "성별 입력 오류", value = """
-            {
-              "status": 400,
-              "error": "BAD_REQUEST",
-              "code": "INVALID_GENDER",
-              "message": "성별 값이 올바르지 않습니다. (MALE, FEMALE 중 하나여야 합니다.)"
-            }
+                            {
+                              "status": 400,
+                              "error": "BAD_REQUEST",
+                              "code": "INVALID_GENDER",
+                              "message": "성별 값이 올바르지 않습니다. (MALE, FEMALE 중 하나여야 합니다.)"
+                            }
             """)
                     }
             )),
-            @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "이벤트 없음", value = """
-            {
-              "status": 404,
-              "error": "NOT_FOUND",
-              "code": "NOT_FOUND_EVENT",
-              "message": "존재하지 않는 이벤트입니다."
-            }
-            """),
-                            @ExampleObject(name = "유저 없음", value = """
-            {
-              "status": 404,
-              "error": "NOT_FOUND",
-              "code": "MEMBER_NOT_EXIST",
-              "message": "요청한 유저가 존재하지 않습니다."
-            }
-            """)
-                    }
-            )),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "이벤트 또는 유저 정보 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "이벤트 없음", value = SwaggerExamples.NOT_FOUND_EVENT)
+                            }
+                    )
+            ),
             @ApiResponse(responseCode = "409", description = "이미 참석한 경우", content = @Content(
                     mediaType = "application/json",
-                    examples = @ExampleObject(name = "중복 참석", value = """
-            {
-              "status": 409,
-              "error": "CONFLICT",
-              "code": "ALREADY_ATTENDANCE_EVENT",
-              "message": "이미 참여 신청한 이벤트입니다."
-            }
-        """)
+                    examples = @ExampleObject(name = "중복 참석", value = SwaggerExamples.ALREADY_ATTENDANCE_EVENT)
             ))
     })
     ResponseEntity<ResponseDTO<EventAttendanceResponseDTO>> addEventAttendance (@PathVariable Long eventId, @RequestBody EventAttendanceRequestDTO dto);
@@ -308,27 +262,17 @@ public interface EventApiDocs {
                     }
              """)
             )),
-            @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "유저 없음", value = """
-                        {
-                          "status": 404,
-                          "error": "NOT_FOUND",
-                          "code": "MEMBER_NOT_EXIST",
-                          "message": "요청한 유저가 존재하지 않습니다."
-                        }
-                        """),
-                            @ExampleObject(name = "이벤트 없음", value = """
-            {
-              "status": 404,
-              "error": "NOT_FOUND",
-              "code": "NOT_FOUND_EVENT",
-              "message": "존재하지 않는 이벤트입니다."
-            }
-            """)
-                    }
-            ))
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "이벤트 또는 유저 정보 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "이벤트 없음", value = SwaggerExamples.NOT_FOUND_EVENT)
+                            }
+                    )
+            )
     })
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventUpcomingSorted (@PathVariable String sort,
                                                                                 @RequestParam(defaultValue = "1") Integer page,
@@ -368,27 +312,17 @@ public interface EventApiDocs {
                     }
              """)
             )),
-            @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "유저 없음", value = """
-                        {
-                          "status": 404,
-                          "error": "NOT_FOUND",
-                          "code": "MEMBER_NOT_EXIST",
-                          "message": "요청한 유저가 존재하지 않습니다."
-                        }
-                        """),
-                            @ExampleObject(name = "이벤트 없음", value = """
-                        {
-                          "status": 404,
-                          "error": "NOT_FOUND",
-                          "code": "NOT_FOUND_EVENT",
-                          "message": "존재하지 않는 이벤트입니다."
-                        }
-                        """)
-                    }
-            ))
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "이벤트 또는 유저 정보 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "이벤트 없음", value = SwaggerExamples.NOT_FOUND_EVENT)
+                            }
+                    )
+            )
     })
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventNowSorted (        @PathVariable String sort,
                                                                                  @RequestParam(defaultValue = "1") Integer page,
@@ -427,27 +361,17 @@ public interface EventApiDocs {
                     }
              """)
             )),
-            @ApiResponse(responseCode = "404", description = "이벤트 또는 유저 정보 없음", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "유저 없음", value = """
-                        {
-                          "status": 404,
-                          "error": "NOT_FOUND",
-                          "code": "MEMBER_NOT_EXIST",
-                          "message": "요청한 유저가 존재하지 않습니다."
-                        }
-                        """),
-                            @ExampleObject(name = "이벤트 없음", value = """
-            {
-              "status": 404,
-              "error": "NOT_FOUND",
-              "code": "NOT_FOUND_EVENT",
-              "message": "존재하지 않는 이벤트입니다."
-            }
-            """)
-                    }
-            ))
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "이벤트 또는 유저 정보 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "이벤트 없음", value = SwaggerExamples.NOT_FOUND_EVENT)
+                            }
+                    )
+            )
     })
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventPastSorted(
             @PathVariable String sort,
@@ -495,22 +419,8 @@ public interface EventApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
-                                    @ExampleObject(name = "유저 없음", value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MEMBER_NOT_EXIST",
-                                  "message": "요청한 유저가 존재하지 않습니다."
-                                }
-                                """),
-                                    @ExampleObject(name = "이벤트 없음", value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "NOT_FOUND_EVENT",
-                                  "message": "존재하지 않는 이벤트입니다."
-                                }
-                                """)
+                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "이벤트 없음", value = SwaggerExamples.NOT_FOUND_EVENT)
                             }
                     )
             ),
@@ -520,14 +430,7 @@ public interface EventApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
-                                    @ExampleObject(name = "유저 권한 없음", value = """
-                                {
-                                  "status": 403,
-                                  "error": "FORBIDDEN",
-                                  "code": "FORBIDDEN_EVENT_ACCESS",
-                                  "message": "해당 이벤트에 대한 접근 권한이 없습니다."
-                                }
-                                """)
+                                    @ExampleObject(name = "유저 권한 없음", value = SwaggerExamples.FORBIDDEN_EVENT_ACCESS)
                             }
                     )
             )
@@ -579,22 +482,8 @@ public interface EventApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
-                                    @ExampleObject(name = "유저 없음", value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MEMBER_NOT_EXIST",
-                                  "message": "요청한 유저가 존재하지 않습니다."
-                                }
-                                """),
-                                    @ExampleObject(name = "이벤트 없음", value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "NOT_FOUND_EVENT",
-                                  "message": "존재하지 않는 이벤트입니다."
-                                }
-                                """)
+                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "이벤트 없음", value = SwaggerExamples.NOT_FOUND_EVENT)
                             }
                     )
             ),
@@ -603,17 +492,7 @@ public interface EventApiDocs {
                     description = "이미 좋아요한 경우",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    name = "이미 좋아요한 경우",
-                                    value = """
-                                {
-                                  "status": 409,
-                                  "error": "CONFLICT",
-                                  "code": "ALREADY_LIKE_EVENT",
-                                  "message": "해당 이벤트는 이미 좋아요를 표시하였습니다."
-                                }
-                                """
-                            )
+                            examples = @ExampleObject(name = "이미 좋아요한 경우", value = SwaggerExamples.ALREADY_LIKED)
                     )
             )
     })
@@ -657,39 +536,9 @@ public interface EventApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
-                                    @ExampleObject(
-                                            name = "존재하지 않는 유저",
-                                            value = """
-                                                    {
-                                                      "status": 404,
-                                                      "error": "NOT_FOUND",
-                                                      "code": "MEMBER_NOT_EXIST",
-                                                      "message": "요청한 유저가 존재하지 않습니다."
-                                                    }
-                                                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "존재하지 않는 이벤트",
-                                            value = """
-                                                    {
-                                                      "status": 404,
-                                                      "error": "NOT_FOUND",
-                                                      "code": "NOT_FOUND_EVENT",
-                                                      "message": "존재하지 않는 이벤트입니다."
-                                                    }
-                                                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "기존에 좋아요를 누르지 않았던 경우",
-                                            value = """
-                                                    {
-                                                      "status": 404,
-                                                      "error": "NOT_FOUND",
-                                                      "code": "NOT_FOUND_LIKE",
-                                                      "message": "기존에 좋아요를 누르지 않았습니다. 좋아요를 취소할 수 없습니다."
-                                                    }
-                                                    """
-                                    )
+                                    @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "존재하지 않는 이벤트", value = SwaggerExamples.NOT_FOUND_EVENT),
+                                    @ExampleObject(name = "기존에 좋아요를 누르지 않았던 경우", value = SwaggerExamples.NOT_FOUND_LIKE)
                             }
                     )
             )
@@ -722,43 +571,13 @@ public interface EventApiDocs {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "유저 또는 이벤트가 존재하지 않거나, 좋아요 정보가 없습니다.",
+                    description = "이벤트 / 댓글 / 유저 정보 없음",
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
-                                    @ExampleObject(
-                                            name = "존재하지 않는 유저",
-                                            value = """
-                                                    {
-                                                      "status": 404,
-                                                      "error": "NOT_FOUND",
-                                                      "code": "MEMBER_NOT_EXIST",
-                                                      "message": "요청한 유저가 존재하지 않습니다."
-                                                    }
-                                                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "존재하지 않는 이벤트",
-                                            value = """
-                                                    {
-                                                      "status": 404,
-                                                      "error": "NOT_FOUND",
-                                                      "code": "NOT_FOUND_EVENT",
-                                                      "message": "존재하지 않는 이벤트입니다."
-                                                    }
-                                                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "부모 댓글이 존재하지 않는 경우",
-                                            value = """
-                                            {
-                                              "status": 404,
-                                              "error": "NOT_FOUND",
-                                              "code": "NOT_FOUND_COMMENT",
-                                              "message": "해당 댓글을 찾을 수 없습니다."
-                                            }
-                                                    """
-                                    )
+                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "이벤트 없음", value = SwaggerExamples.NOT_FOUND_EVENT),
+                                    @ExampleObject(name = "댓글이 존재하지 않는 경우", value = SwaggerExamples.NOT_FOUND_COMMENT)
                             }
                     )
             ),
@@ -807,43 +626,13 @@ public interface EventApiDocs {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "유저 또는 이벤트가 존재하지 않거나, 좋아요 정보가 없습니다.",
+                    description = "이벤트 / 댓글 / 유저 정보 없음",
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
-                                    @ExampleObject(
-                                            name = "존재하지 않는 유저",
-                                            value = """
-                                                    {
-                                                      "status": 404,
-                                                      "error": "NOT_FOUND",
-                                                      "code": "MEMBER_NOT_EXIST",
-                                                      "message": "요청한 유저가 존재하지 않습니다."
-                                                    }
-                                                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "존재하지 않는 이벤트",
-                                            value = """
-                                                    {
-                                                      "status": 404,
-                                                      "error": "NOT_FOUND",
-                                                      "code": "NOT_FOUND_EVENT",
-                                                      "message": "존재하지 않는 이벤트입니다."
-                                                    }
-                                                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "댓글이 존재하지 않는 경우",
-                                            value = """
-                                            {
-                                              "status": 404,
-                                              "error": "NOT_FOUND",
-                                              "code": "NOT_FOUND_COMMENT",
-                                              "message": "해당 댓글을 찾을 수 없습니다."
-                                            }
-                                                    """
-                                    )
+                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "이벤트 없음", value = SwaggerExamples.NOT_FOUND_EVENT),
+                                    @ExampleObject(name = "댓글이 존재하지 않는 경우", value = SwaggerExamples.NOT_FOUND_COMMENT)
                             }
                     )
             ),
@@ -907,32 +696,12 @@ public interface EventApiDocs {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "유저 또는 이벤트가 존재하지 않거나, 좋아요 정보가 없습니다.",
+                    description = "이벤트 또는 유저 정보 없음",
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
-                                    @ExampleObject(
-                                            name = "존재하지 않는 유저",
-                                            value = """
-                                                    {
-                                                      "status": 404,
-                                                      "error": "NOT_FOUND",
-                                                      "code": "MEMBER_NOT_EXIST",
-                                                      "message": "요청한 유저가 존재하지 않습니다."
-                                                    }
-                                                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "존재하지 않는 이벤트",
-                                            value = """
-                                                    {
-                                                      "status": 404,
-                                                      "error": "NOT_FOUND",
-                                                      "code": "NOT_FOUND_EVENT",
-                                                      "message": "존재하지 않는 이벤트입니다."
-                                                    }
-                                                    """
-                                    )
+                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "이벤트 없음", value = SwaggerExamples.NOT_FOUND_EVENT)
                             }
                     )
             )
@@ -1015,32 +784,12 @@ public interface EventApiDocs {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "유저 또는 이벤트가 존재하지 않거나, 좋아요 정보가 없습니다.",
+                    description = "이벤트 또는 유저 정보 없음",
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
-                                    @ExampleObject(
-                                            name = "존재하지 않는 유저",
-                                            value = """
-                    {
-                      "status": 404,
-                      "error": "NOT_FOUND",
-                      "code": "MEMBER_NOT_EXIST",
-                      "message": "요청한 유저가 존재하지 않습니다."
-                    }
-                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "존재하지 않는 이벤트",
-                                            value = """
-                    {
-                      "status": 404,
-                      "error": "NOT_FOUND",
-                      "code": "NOT_FOUND_EVENT",
-                      "message": "존재하지 않는 이벤트입니다."
-                    }
-                    """
-                                    )
+                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "이벤트 없음", value = SwaggerExamples.NOT_FOUND_EVENT)
                             }
                     )
             )
@@ -1119,18 +868,7 @@ public interface EventApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
-                                    @ExampleObject(
-                                            name = "존재하지 않는 유저",
-                                            value = """
-                    {
-                      "status": 404,
-                      "error": "NOT_FOUND",
-                      "code": "MEMBER_NOT_EXIST",
-                      "message": "요청한 유저가 존재하지 않습니다."
-                    }
-                    """
-                                    )
-                            }
+                                    @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)}
                     )
             )
     })

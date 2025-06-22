@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.post.controller;
 
 import com.ceos.beatbuddy.domain.post.dto.*;
+import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,8 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface PostApiDocs {
-    @Operation(summary = "#####게시물 생성 - 새로운 버전", description = "게시물을 생성합니다 (type: free/piece), 밑의 FreePostRequestDTO, PiecePostRequestDTO들을 참고해"
-            + "타입에 맞는 request를 채워주세요.")
+    @Operation(summary = "#####게시물 생성 - 새로운 버전", description = "게시물을 생성합니다 (type: free/piece), 공통으로는 title(필수), content(필수), anonymous, venueId 입니다." +
+            "free: hashtag, piece: totalPrice, totalMembers, eventDate; ")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "게시물 생성 성공",
                     content = @Content(
@@ -47,35 +48,14 @@ public interface PostApiDocs {
             @ApiResponse(responseCode = "400", description = "잘못된 게시글 타입 요청",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(name = "잘못된 type 예시", value = """
-                                {
-                                  "status": 400,
-                                  "error": "BAD_REQUEST",
-                                  "code": "INVALID_POST_TYPE",
-                                  "message": "포스트의 type이 올바르지 않습니다"
-                                }
-                                """)
+                            examples = @ExampleObject(name = "잘못된 type 예시", value = SwaggerExamples.INVALID_POST_TYPE)
                     )
             ),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 유저, 베뉴가 존재하지 않는 경우",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = {@ExampleObject(name = "존재하지 않는 유저", value = """
-                                    {
-                                      "status": 404,
-                                      "error": "NOT_FOUND",
-                                      "code": "MEMBER_NOT_EXIST",
-                                      "message": "요청한 유저가 존재하지 않습니다."
-                                    }
-                                    """),
-                                    @ExampleObject(name = "존재하지 않는 베뉴", value = """
-                                    {
-                                      "status": 404,
-                                      "error": "NOT_FOUND",
-                                      "code": "VENUE_NOT_EXIST",
-                                      "message": "존재하지 않는 베뉴입니다."
-                                    }
-                                    """)
+                            examples = {@ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "존재하지 않는 베뉴", value = SwaggerExamples.VENUE_NOT_EXIST)
                             }
                     )
             ),
@@ -86,16 +66,7 @@ public interface PostApiDocs {
                             mediaType = "application/json",
                             examples = {
                                     @ExampleObject(
-                                            name = "s3에 이미지 등록을 실패했을 경우",
-                                            value = """
-                                        {
-                                          "status": 500,
-                                          "error": "INTERNAL_SERVER_ERROR",
-                                          "code": "IMAGE_UPLOAD_FAILED",
-                                          "message": "이미지 업로드에 실패했습니다."
-                                        }
-                                            """
-                                    )
+                                            name = "s3에 이미지 등록을 실패했을 경우", value = SwaggerExamples.IMAGE_UPLOAD_FAILED)
                             }
                     )
             )
@@ -103,16 +74,6 @@ public interface PostApiDocs {
     ResponseEntity<ResponseDTO<ResponsePostDto>> addNewPost(
             @PathVariable String type,
             @Valid
-            @Parameter(
-                    description = "게시글 생성 DTO (type: free 또는 piece)",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(
-                                    oneOf = { FreePostRequestDTO.class, PiecePostRequestDTO.class },
-                                    discriminatorProperty = "type"
-                            )
-                    )
-            )
             @RequestPart("postCreateRequestDTO") PostCreateRequestDTO postCreateRequestDTO,
             @RequestPart(value = "images", required = false) List<MultipartFile> images);
 
@@ -141,28 +102,9 @@ public interface PostApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples =
-                                    {@ExampleObject(
-                                            name = "존재하지 않는 유저",
-                                            value = """
-                                                        {
-                                                          "status": 404,
-                                                          "error": "NOT_FOUND",
-                                                          "code": "MEMBER_NOT_EXIST",
-                                                          "message": "요청한 유저가 존재하지 않습니다."
-                                                        }
-                                                    """
-                                    ),
-                                            @ExampleObject(
-                                                    name = "존재하지 않는 포스트",
-                                                    value = """
-                                                        {
-                                                          "status": 404,
-                                                          "error": "NOT_FOUND",
-                                                          "code": "POST_NOT_EXIST",
-                                                          "message": "존재하지 않는 포스트입니다."
-                                                        }
-                                                    """
-                                            )
+                                    {
+                                            @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST ),
+                                            @ExampleObject(name = "존재하지 않는 포스트", value = SwaggerExamples.POST_NOT_EXIST)
 
                                     }
                     )
@@ -172,19 +114,7 @@ public interface PostApiDocs {
                     description = "이미 좋아요한 경우",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    name = "이미 좋아요한 경우",
-                                    value = """
-                                    {
-                                      "status": 409,
-                                      "error": "CONFLICT",
-                                      "code": "ALREADY_LIKED",
-                                      "message": "이미 좋아요를 눌렀습니다."
-                                    }
-                                """
-                            )
-                    )
-            )
+                            examples = @ExampleObject(name = "이미 좋아요한 경우", value = SwaggerExamples.ALREADY_LIKED)))
     })
     ResponseEntity<ResponseDTO<String>> addPostLike(@PathVariable Long postId);
 
@@ -214,36 +144,10 @@ public interface PostApiDocs {
             @ApiResponse(responseCode = "404", description = "좋아요를 누른 적 없는 경우, 유저가 존재하지 않는 경우, 글이 존재하지 않는 경우",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = {@ExampleObject(name="삭제할 좋아요가 존재하지 않음.", value = """
-                                    {
-                                      "status": 404,
-                                      "error": "NOT_FOUND",
-                                      "code": "NOT_FOUND_LIKE",
-                                      "message": "기존에 좋아요를 누르지 않았습니다. 좋아요를 취소할 수 없습니다."
-                                    }
-                                    """),
-                                    @ExampleObject(
-                                            name = "존재하지 않는 유저",
-                                            value = """
-                                                        {
-                                                          "status": 404,
-                                                          "error": "NOT_FOUND",
-                                                          "code": "MEMBER_NOT_EXIST",
-                                                          "message": "요청한 유저가 존재하지 않습니다."
-                                                        }
-                                                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "존재하지 않는 포스트",
-                                            value = """
-                                                        {
-                                                          "status": 404,
-                                                          "error": "NOT_FOUND",
-                                                          "code": "POST_NOT_EXIST",
-                                                          "message": "존재하지 않는 포스트입니다."
-                                                        }
-                                                    """
-                                    )
+                            examples = {
+                                    @ExampleObject(name="삭제할 좋아요가 존재하지 않음.", value = SwaggerExamples.NOT_FOUND_LIKE),
+                                    @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "존재하지 않는 포스트", value = SwaggerExamples.POST_NOT_EXIST)
                             }
                     )
             )
@@ -275,28 +179,9 @@ public interface PostApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples =
-                                    {@ExampleObject(
-                                            name = "존재하지 않는 유저",
-                                            value = """
-                                                        {
-                                                          "status": 404,
-                                                          "error": "NOT_FOUND",
-                                                          "code": "MEMBER_NOT_EXIST",
-                                                          "message": "요청한 유저가 존재하지 않습니다."
-                                                        }
-                                                    """
-                                    ),
-                                            @ExampleObject(
-                                                    name = "존재하지 않는 포스트",
-                                                    value = """
-                                                        {
-                                                          "status": 404,
-                                                          "error": "NOT_FOUND",
-                                                          "code": "POST_NOT_EXIST",
-                                                          "message": "존재하지 않는 포스트입니다."
-                                                        }
-                                                    """
-                                            )
+                                    {
+                                            @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                            @ExampleObject(name = "존재하지 않는 포스트", value = SwaggerExamples.POST_NOT_EXIST)
 
                                     }
                     )
@@ -307,16 +192,7 @@ public interface PostApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples = @ExampleObject(
-                                    name = "이미 스크랩한 경우",
-                                    value = """
-                                    {
-                                      "status": 409,
-                                      "error": "CONFLICT",
-                                      "code": "ALREADY_SCRAPPED",
-                                      "message": "이미 스크랩을 눌렀습니다."
-                                    }
-                                """
-                            )
+                                    name = "이미 스크랩한 경우", value = SwaggerExamples.ALREADY_SCRAPPED )
                     )
             )
     })
@@ -342,36 +218,9 @@ public interface PostApiDocs {
             @ApiResponse(responseCode = "404", description = "스크랩을 누른 적 없는 경우, 유저가 존재하지 않는 경우, 글이 존재하지 않는 경우",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = {@ExampleObject(name="삭제할 스크랩이 존재하지 않음.", value = """
-                                    {
-                                      "status": 404,
-                                      "error": "NOT_FOUND",
-                                      "code": "NOT_FOUND_SCRAP",
-                                      "message": "기존에 스크랩하지 않았습니다. 스크랩을 취소할 수 없습니다."
-                                    }
-                                    """),
-                                    @ExampleObject(
-                                            name = "존재하지 않는 유저",
-                                            value = """
-                                                        {
-                                                          "status": 404,
-                                                          "error": "NOT_FOUND",
-                                                          "code": "MEMBER_NOT_EXIST",
-                                                          "message": "요청한 유저가 존재하지 않습니다."
-                                                        }
-                                                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "존재하지 않는 포스트",
-                                            value = """
-                                                        {
-                                                          "status": 404,
-                                                          "error": "NOT_FOUND",
-                                                          "code": "POST_NOT_EXIST",
-                                                          "message": "존재하지 않는 포스트입니다."
-                                                        }
-                                                    """
-                                    )
+                            examples = {@ExampleObject(name="삭제할 스크랩이 존재하지 않음.", value = SwaggerExamples.NOT_FOUND_SCRAP),
+                                    @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "존재하지 않는 포스트", value = SwaggerExamples.POST_NOT_EXIST)
                             }
                     )
             )
@@ -426,27 +275,13 @@ public interface PostApiDocs {
             @ApiResponse(responseCode = "400", description = "잘못된 게시글 타입 요청",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(name = "잘못된 type 예시", value = """
-                                {
-                                  "status": 400,
-                                  "error": "BAD_REQUEST",
-                                  "code": "INVALID_POST_TYPE",
-                                  "message": "포스트의 type이 올바르지 않습니다"
-                                }
-                                """)
+                            examples = @ExampleObject(name = "잘못된 type 예시", value = SwaggerExamples.INVALID_POST_TYPE)
                     )
             ),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 유저",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(name = "존재하지 않는 유저", value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MEMBER_NOT_EXIST",
-                                  "message": "요청한 유저가 존재하지 않습니다."
-                                }
-                                """)
+                            examples = @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)
                     )
             )
     })
@@ -496,27 +331,13 @@ public interface PostApiDocs {
             @ApiResponse(responseCode = "400", description = "잘못된 게시글 타입 요청",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(name = "잘못된 type 예시", value = """
-                                {
-                                  "status": 400,
-                                  "error": "BAD_REQUEST",
-                                  "code": "INVALID_POST_TYPE",
-                                  "message": "포스트의 type이 올바르지 않습니다"
-                                }
-                                """)
+                            examples = @ExampleObject(name = "잘못된 type 예시", value = SwaggerExamples.INVALID_POST_TYPE)
                     )
             ),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 유저",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(name = "존재하지 않는 유저", value = """
-                                {
-                                  "status": 404,
-                                  "error": "NOT_FOUND",
-                                  "code": "MEMBER_NOT_EXIST",
-                                  "message": "요청한 유저가 존재하지 않습니다."
-                                }
-                                """)
+                            examples = @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)
                     )
             )
     })
@@ -583,7 +404,8 @@ public interface PostApiDocs {
                                             "scrapped": true,
                                             "hasCommented": false,
                                             "nickname": "길동hong",
-                                            "createAt": "2025-06-19"
+                                            "createAt": "2025-06-19",
+                                            "imageUrls": ["https://", "https://"]
                                           }
                                     }
                     """))
@@ -591,44 +413,100 @@ public interface PostApiDocs {
             @ApiResponse(responseCode = "400", description = "잘못된 게시글 타입 요청",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(name = "잘못된 type 예시", value = """
-                                {
-                                  "status": 400,
-                                  "error": "BAD_REQUEST",
-                                  "code": "INVALID_POST_TYPE",
-                                  "message": "포스트의 type이 올바르지 않습니다"
-                                }
-                                """)
-                    )
+                            examples = @ExampleObject(name = "잘못된 type 예시", value = SwaggerExamples.INVALID_POST_TYPE))
             ),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 유저",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = { @ExampleObject(name = "존재하지 않는 유저", value = """
-                                    {
-                                      "status": 404,
-                                      "error": "NOT_FOUND",
-                                      "code": "MEMBER_NOT_EXIST",
-                                      "message": "요청한 유저가 존재하지 않습니다."
-                                    }
-                                    """),
+                            examples = { @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
                                     @ExampleObject(
-                                            name = "존재하지 않는 포스트",
-                                            value = """
-                                                        {
-                                                          "status": 404,
-                                                          "error": "NOT_FOUND",
-                                                          "code": "POST_NOT_EXIST",
-                                                          "message": "존재하지 않는 포스트입니다."
-                                                        }
-                                                    """
-                                    )}
-                    )
+                                            name = "존재하지 않는 포스트", value = SwaggerExamples.POST_NOT_EXIST)})
             )
 
     })
-    ResponseEntity<ResponseDTO<PostPageResponseDTO>> newReadPost(
+    ResponseEntity<ResponseDTO<PostReadDetailDTO>> newReadPost(
             @PathVariable String type,
             @PathVariable Long postId);
+
+
+
+    @Operation(summary = "포스트 수정 API", description = "기존 게시글을 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "포스트 수정 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(
+                                    name = "SuccessResponse",
+                                    summary = "성공 응답 예시",
+                                    value = """
+                        {
+                          "status": 200,
+                          "code": "SUCCESS_UPDATE_POST",
+                          "message": "포스트를 수정했습니다.",
+                          "data": {
+                            "id": 23,
+                            "title": "수정임",
+                            "content": "수정임",
+                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                            "role": "BUSINESS",
+                            "likes": 0,
+                            "scraps": 0,
+                            "comments": 0,
+                            "liked": false,
+                            "scrapped": false,
+                            "hasCommented": false,
+                            "nickname": "길동hong",
+                            "createAt": "2025-06-19",
+                            "imageUrls": [
+                              "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png"
+                            ]
+                          }
+                        }
+                        """
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "403", description = "권한 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "UnauthorizedMember",
+                                    summary = "작성자 아님",
+                                    value = SwaggerExamples.UNAUTHORIZED_MEMBER
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "리소스 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {@ExampleObject(
+                                    name = "유저가 존재하지 않음",
+                                    value = SwaggerExamples.MEMBER_NOT_EXIST
+                            ),
+                            @ExampleObject(
+                                    name = "글이 존재하지 않음",
+                                    value = SwaggerExamples.POST_NOT_EXIST
+                            )}
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "S3에 이미지 등록 실패했을 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "s3에 이미지 등록을 실패했을 경우", value = SwaggerExamples.IMAGE_UPLOAD_FAILED),
+                                    @ExampleObject(name = "s3에서 이미지 삭제를 실패한 경우", value = SwaggerExamples.IMAGE_DELETE_FAILED)
+                            }
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<PostReadDetailDTO>> updatePost(
+            @PathVariable String type,
+            @PathVariable Long postId,
+            @RequestPart("updatePostRequestDTO") UpdatePostRequestDTO updatePostRequestDTO,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files
+    );
 
 }

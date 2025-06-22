@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.post.application;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
+import com.ceos.beatbuddy.domain.post.dto.UpdatePostRequestDTO;
 import com.ceos.beatbuddy.domain.post.entity.PiecePost;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
@@ -19,10 +20,11 @@ import java.util.Optional;
 
 @Component("piece")
 @RequiredArgsConstructor
-public class PiecePostHandler implements PostTypeHandler{
+public class PiecePostHandler implements PostTypeHandler {
     private final PiecePostRepository piecePostRepository;
     private final VenueInfoService venueInfoService;
     private final PieceService pieceService;
+
     @Override
     public boolean supports(Post post) {
         return post instanceof PiecePost;
@@ -64,5 +66,10 @@ public class PiecePostHandler implements PostTypeHandler{
         if (!post.getMember().equals(member)) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
+    }
+
+    @Override
+    public Post updatePost(UpdatePostRequestDTO dto, Post post, Member member) {
+        throw new UnsupportedOperationException("PiecePost 생성 기능이 아직 구현되지 않았습니다.");
     }
 }

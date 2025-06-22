@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.post.application;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
+import com.ceos.beatbuddy.domain.post.dto.UpdatePostRequestDTO;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -56,4 +57,6 @@ public interface PostTypeHandler {
      * @return 지원 여부
      */
     boolean supports(Post post);
+
+    Post updatePost(UpdatePostRequestDTO dto, Post post, Member member);
 }

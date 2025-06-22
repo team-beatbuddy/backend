@@ -1,6 +1,8 @@
 package com.ceos.beatbuddy.domain.member.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,9 +17,12 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class BusinessInfo {
     private String businessName;
+    @Column(nullable = false)
     private boolean isApproved = false;
     private String phoneNumber;
     private LocalDate dateOfBirth;
+
+    @Column(nullable = false)
     private boolean isVerified = false; // 본인 인증 완료 되었는지
 
     public void savePhoneNumber(String phoneNumber) {
