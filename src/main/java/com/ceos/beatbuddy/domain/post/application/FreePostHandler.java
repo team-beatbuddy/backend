@@ -77,10 +77,10 @@ public class FreePostHandler implements PostTypeHandler{
 
 
     protected void updateCommonFields(UpdatePostRequestDTO dto, Post post) {
-        if (dto.getTitle() != null) {
+        if ((dto.getTitle() != null) && (!dto.getTitle().isEmpty())) {
             post.updateTitle(dto.getTitle());
         }
-        if (dto.getContent() != null) {
+        if ((dto.getContent() != null) && (!dto.getContent().isEmpty())) {
             post.updateContent(dto.getContent());
         }
     }
