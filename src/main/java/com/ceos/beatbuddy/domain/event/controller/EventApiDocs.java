@@ -300,7 +300,7 @@ public interface EventApiDocs {
             )
     })
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventUpcomingSorted (@PathVariable String sort,
-                                                                                @RequestParam(defaultValue = "1") Integer page,
+                                                                                @RequestParam(defaultValue = "0") Integer page,
                                                                                 @RequestParam(defaultValue = "10") Integer size);
 
 
@@ -331,7 +331,8 @@ public interface EventApiDocs {
                             "views": 0,
                             "startDate": "2025-06-17",
                             "endDate": "2025-06-17"
-                          }
+                          },
+                          { ... }
                         ]
                       }
                     }
@@ -350,41 +351,103 @@ public interface EventApiDocs {
             )
     })
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventNowSorted (        @PathVariable String sort,
-                                                                                 @RequestParam(defaultValue = "1") Integer page,
+                                                                                 @RequestParam(defaultValue = "0") Integer page,
                                                                                  @RequestParam(defaultValue = "10") Integer size);
 
 
     @Operation(summary = "종료된 이벤트",
-            description = "(종료 날짜 기준 < 오늘) 종료가 된 이벤트를 보여줍니다. sort 에는 popular / latest / region을 넣을 수 있으나 현재는 region은 구현되어있지 않습니다.")
+            description = "(종료 날짜 기준 < 오늘) 종료가 된 이벤트를 보여줍니다. \n" +
+                    "sort 에는 popular / latest / region을 넣을 수 있으나 현재는 region은 구현되어있지 않습니다. \n" +
+                    "- 종료된 이벤트의 최신순과 인기순의 응답이 다릅니다. \n" +
+                    "- 좋료된 이벤트 (인기순)의 경우에는 작년의 모든 이벤트를 불러옵니다. pagination XXX ")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "종료된 이벤트", content = @Content(
                     mediaType = "application/json",
-                    examples = @ExampleObject(name = "이미 종료된 이벤트 조회 성공", value = """
-                    {
-                      "status": 200,
-                      "code": "SUCCESS_GET_PAST_EVENT",
-                      "message": "성공적으로 과거 이벤트를 조회했습니다.",
-                      "data": {
-                        "sort": "latest",
-                        "page": 1,
-                        "size": 10,
-                        "totalSize": 1,
-                        "eventResponseDTOS": [
-                          {
-                            "eventId": 1,
-                            "title": "이벤트 시작",
-                            "content": "이게 바로 이트",
-                            "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
-                            "location": "경기도 파주",
-                            "likes": 5,
-                            "views": 0,
-                            "startDate": "2025-06-17",
-                            "endDate": "2025-06-17"
-                          }
-                        ]
-                      }
-                    }
-             """)
+                    examples = {@ExampleObject(name = "좋료된 이벤트 (최신순)", value = """
+                           {
+                             "status": 200,
+                             "code": "SUCCESS_GET_PAST_EVENT",
+                             "message": "성공적으로 과거 이벤트를 조회했습니다.",
+                             "data": {
+                               "sort": "latest",
+                               "page": 1,
+                               "size": 10,
+                               "totalSize": 1,
+                               "eventResponseDTOS": [
+                                 {
+                                   "eventId": 1,
+                                   "title": "이벤트 시작",
+                                   "content": "이게 바로 이트",
+                                   "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
+                                   "location": "경기도 파주",
+                                   "likes": 5,
+                                   "views": 0,
+                                   "startDate": "2025-06-17",
+                                   "endDate": "2025-06-17"
+                                 },
+                          { ... }
+                               ]
+                             }
+                           }
+                    """),
+                            @ExampleObject(name = "종료된 이벤트 (인기순)", value = """
+                   {
+                                                     "status": 200,
+                                                     "code": "SUCCESS_GET_PAST_EVENT",
+                                                     "message": "성공적으로 과거 이벤트를 조회했습니다.",
+                                                     "data": {
+                                                       "sort": "popular",
+                                                       "page": null,
+                                                       "size": null,
+                                                       "totalSize": 2,
+                                                       "eventResponseDTOS": [
+                                                         {
+                                                           "groupDate": "2025-06",
+                                                           "pastDTOList": [
+                                                             {
+                                                               "eventId": 1,
+                                                               "title": "이벤트 시작",
+                                                               "content": "이게 바로 이트",
+                                                               "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
+                                                               "location": "경기도 파주",
+                                                               "likes": 5,
+                                                               "views": 0,
+                                                               "startDate": "2025-06-17",
+                                                               "endDate": "2025-06-17"
+                                                             },
+                                                             {
+                                                               "eventId": 7,
+                                                               "title": "이벤트 제목",
+                                                               "content": "내용입니다.",
+                                                               "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                                                               "likes": 0,
+                                                               "views": 0,
+                                                               "startDate": "2025-06-20",
+                                                               "endDate": "2025-06-22"
+                                                             }
+                                                           ]
+                                                         },
+                                                         {
+                                                           "groupDate": "2025-04",
+                                                           "pastDTOList": [
+                                                             {
+                                                               "eventId": 5,
+                                                               "title": "이벤트 제목",
+                                                               "content": "내용입니다.",
+                                                               "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                                                               "likes": 0,
+                                                               "views": 0,
+                                                               "startDate": "2025-04-20",
+                                                               "endDate": "2025-04-21"
+                                                             }
+                                                           ]
+                                                         }
+                                                       ]
+                                                     }
+                                                   }
+                                                   """
+
+                   )}
             )),
             @ApiResponse(
                     responseCode = "404",
@@ -400,7 +463,7 @@ public interface EventApiDocs {
     })
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventPastSorted(
             @PathVariable String sort,
-            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size);
 
 
