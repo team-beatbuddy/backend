@@ -49,7 +49,7 @@ public interface EventApiDocs {
                                     "eventId": 2,
                                     "title": "string",
                                     "content": "string",
-                                    "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
+                                    "images": ["https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png"],
                                     "likes": 1,
                                     "views": 1,
                                     "liked": true,
@@ -136,7 +136,7 @@ public interface EventApiDocs {
     })
     ResponseEntity<ResponseDTO<EventResponseDTO>> addEvent(
             @Valid @Schema(implementation = EventCreateRequestDTO.class) @RequestPart("eventCreateRequestDTO") EventCreateRequestDTO eventCreateRequestDTO,
-            @RequestPart(value = "image", required = false) MultipartFile image) throws IOException;
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException;
 
 
     @Operation(summary = "이벤트 참석 신청",
@@ -144,23 +144,44 @@ public interface EventApiDocs {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "이벤트 참석 성공", content = @Content(
                     mediaType = "application/json",
-                    examples = @ExampleObject(name = "참석 성공", value = """
-                    {
-                      "status": 201,
-                      "code": "SUCCESS_CREATED_EVENT_ATTENDANCE",
-                      "message": "이벤트 참여 폼이 성공적으로 작성되었습니다.",
-                      "data": {
-                        "eventId": 2,
-                        "memberId": 156,
-                        "name": "홍길동",
-                        "gender": "None",
-                        "snsType": "Instagram",
-                        "snsId": "gil_dong",
-                        "phoneNumber": "010-0000-0000",
-                        "paid": true
-                      }
+                    examples = {@ExampleObject(name = "참석 성공", value = """
+                                   {
+                                     "status": 201,
+                                     "code": "SUCCESS_CREATED_EVENT_ATTENDANCE",
+                                     "message": "이벤트 참여 폼이 성공적으로 작성되었습니다.",
+                                     "data": {
+                                       "eventId": 2,
+                                       "memberId": 156,
+                                       "name": "홍길동",
+                                       "gender": "None",
+                                       "snsType": "Instagram",
+                                       "snsId": "gil_dong",
+                                       "phoneNumber": "010-0000-0000",
+                                       "paid": true
+                                     }
+                                   }
+                            """),
+                            @ExampleObject(name = "입력할 필요가 없는 정보", value = """
+                                    {
+                                      "status": 201,
+                                      "code": "SUCCESS_CREATED_EVENT_ATTENDANCE",
+                                      "message": "이벤트 참여 폼이 성공적으로 작성되었습니다.",
+                                      "data": {
+                                        "eventId": 12,
+                                        "memberId": 156,
+                                        "name": null,
+                                        "gender": null,
+                                        "snsType": null,
+                                        "snsId": null,
+                                        "phoneNumber": null,
+                                        "isPaid": null,
+                                        "totalMember": null,
+                                        "createdAt": null
+                                      }
+                                    }
+                                    
+                                    """)
                     }
-             """)
             )),
             @ApiResponse(responseCode = "400", description = "입력값 누락 또는 잘못된 요청", content = @Content(
                     mediaType = "application/json",
@@ -261,7 +282,7 @@ public interface EventApiDocs {
                             "eventId": 1,
                             "title": "이벤트 시작",
                             "content": "이게 바로 이트",
-                            "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
+                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
                             "likes": 5,
                             "views": 0,
                             "startDate": "2025-06-17",
@@ -273,7 +294,7 @@ public interface EventApiDocs {
                             "eventId": 2,
                             "title": "string",
                             "content": "string",
-                            "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
+                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
                             "likes": 1,
                             "views": 0,
                             "startDate": "2025-06-18",
@@ -325,7 +346,7 @@ public interface EventApiDocs {
                             "eventId": 1,
                             "title": "이벤트 시작",
                             "content": "이게 바로 이트",
-                            "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
+                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
                             "location": "경기도 파주",
                             "likes": 5,
                             "views": 0,
@@ -378,7 +399,7 @@ public interface EventApiDocs {
                                    "eventId": 1,
                                    "title": "이벤트 시작",
                                    "content": "이게 바로 이트",
-                                   "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
+                                   "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
                                    "location": "경기도 파주",
                                    "likes": 5,
                                    "views": 0,
@@ -408,7 +429,7 @@ public interface EventApiDocs {
                                                                "eventId": 1,
                                                                "title": "이벤트 시작",
                                                                "content": "이게 바로 이트",
-                                                               "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
+                                                               "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
                                                                "location": "경기도 파주",
                                                                "likes": 5,
                                                                "views": 0,
@@ -420,6 +441,7 @@ public interface EventApiDocs {
                                                                "title": "이벤트 제목",
                                                                "content": "내용입니다.",
                                                                "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                                                               "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
                                                                "likes": 0,
                                                                "views": 0,
                                                                "startDate": "2025-06-20",
@@ -436,6 +458,7 @@ public interface EventApiDocs {
                                                                "content": "내용입니다.",
                                                                "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
                                                                "likes": 0,
+                                                               "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
                                                                "views": 0,
                                                                "startDate": "2025-04-20",
                                                                "endDate": "2025-04-21"
@@ -637,8 +660,22 @@ public interface EventApiDocs {
     })
     ResponseEntity<ResponseDTO<String>> deleteLikeEvent(@PathVariable Long eventId);
 
-    @Operation(summary = "이벤트 댓글 작성\n",
-            description = "이벤트에 댓글을 작성합니다.")
+    @Operation(
+            summary = "이벤트 댓글 작성\n",
+            description = """
+        이벤트에 댓글을 작성합니다.  
+        최상위 댓글 작성 시 `parentCommentId`는 빈 문자열("")로 전달합니다.
+
+        예시:
+        ```json
+        {
+          "content": "string",
+          "anonymous": true,
+          "parentCommentId": ""
+        }
+        ```
+        """
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "성공적으로 댓글을 작성했습니다. ******부모 댓글이 없는 경우에는 해당 필드를 지우고 작성해주세요. 댓글 레벨이 0이면 본인 글입니다. 1부터 대댓글",
                     content = @Content(
@@ -734,14 +771,7 @@ public interface EventApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
-                                    @ExampleObject(name = "유저 권한 없음", value = """
-                                {
-                                  "status": 403,
-                                  "error": "FORBIDDEN",
-                                  "code": "UNAUTHORIZED_MEMBER",
-                                  "message": "해당 작업에 대한 권한이 없습니다."
-                                }
-                                """)
+                                    @ExampleObject(name = "유저 권한 없음", value = SwaggerExamples.UNAUTHORIZED_MEMBER)
                             }
                     )
             )
@@ -771,7 +801,7 @@ public interface EventApiDocs {
                                 "eventId": 2,
                                 "title": "string",
                                 "content": "string",
-                                "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
+                                "images": ["https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png"],
                                 "liked": true,
                                 "likes": 2,
                                 "views": 1,
@@ -919,6 +949,7 @@ public interface EventApiDocs {
                                           "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
                                           "likes": 1,
                                           "views": 0,
+                                          "thumbImage": "https://",
                                           "startDate": "2025-06-24",
                                           "endDate": "2025-07-21"
                                         },
