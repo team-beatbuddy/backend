@@ -25,6 +25,7 @@ public class EventAttendanceService {
     private final MemberService memberService;
     private final EventService eventService;
     private final EventAttendanceRepository eventAttendanceRepository;
+    private final EventValidator eventValidator;
 
     @Transactional
     public EventAttendanceResponseDTO addEventAttendance(Long memberId, EventAttendanceRequestDTO dto, Long eventId) {
@@ -78,7 +79,7 @@ public class EventAttendanceService {
         eventService.validateAndGet(eventId);
 
         // admin 은 모두 조회 가능
-        checkAccessForEvent(eventId, memberId);
+        eventValidator.checkAccessForEvent(eventId, memberId);
 
         List<EventAttendance> attendances = eventAttendanceRepository.findAllByEventId(eventId);
         List<EventAttendanceExportDTO> eventAttendanceExportDTOS = attendances.stream()
@@ -97,26 +98,11 @@ public class EventAttendanceService {
         eventService.validateAndGet(eventId);
 
         // admin 은 모두 조회 가능
-        checkAccessForEvent(eventId, memberId);
+        eventValidator.checkAccessForEvent(eventId, memberId);
 
         List<EventAttendance> attendances = eventAttendanceRepository.findAllByEventId(eventId);
         return attendances.stream()
                 .map(EventAttendanceExportDTO::toDTOForExcel)
                 .toList();
-    }
-
-    private void checkAccessForEvent(Long eventId, Long memberId) {
-        Member host = memberService.validateAndGetMember(memberId);
-
-        Event event = eventService.validateAndGet(eventId);
-
-        // admin 은 모두 조회 가능
-        if (Objects.equals(host.getRole(), "ADMIN")) {
-            return;
-        }
-
-        if (!Objects.equals(event.getHost().getId(), memberId)) {
-            throw new CustomException(EventErrorCode.FORBIDDEN_EVENT_ACCESS);
-        }
     }
 }

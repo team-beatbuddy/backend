@@ -17,6 +17,7 @@ public enum EventErrorCode implements ApiCode {
     FORBIDDEN_EVENT_ACCESS(HttpStatus.FORBIDDEN, "해당 이벤트에 대한 접근 권한이 없습니다."),
     CANNOT_ADD_EVENT_UNAUTHORIZED_MEMBER(HttpStatus.FORBIDDEN, "글을 작성할 수 없는 유저입니다."),
     NEED_DEPOSIT_INFO(HttpStatus.BAD_REQUEST, "예약금에 관련된 정보가 필요합니다."),
+    FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다."),
 
     ;
     private final HttpStatus httpStatus;

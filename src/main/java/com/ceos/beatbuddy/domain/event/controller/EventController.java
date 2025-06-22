@@ -57,6 +57,22 @@ public class EventController implements EventApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_EVENT, result));
     }
 
+    @Override
+    @PutMapping(value = "/{eventId}",
+                    consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+                    produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseDTO<EventResponseDTO>> updateEvent(@PathVariable Long eventId,
+                                                                     @RequestPart("eventUpdateRequestDTO") EventUpdateRequestDTO eventUpdateRequestDTO,
+                                                                     @RequestPart(value = "files", required = false) List<MultipartFile> files
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        EventResponseDTO result = eventService.updateEvent(eventId, eventUpdateRequestDTO, memberId, files);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_UPDATE_EVENT.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_EVENT, result));
+    }
+
 
     @Override
     @PostMapping("/{eventId}")
