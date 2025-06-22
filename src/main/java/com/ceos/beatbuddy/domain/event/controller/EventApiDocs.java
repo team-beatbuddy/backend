@@ -517,7 +517,7 @@ public interface EventApiDocs {
                             schema = @Schema(implementation = ResponseDTO.class),
                             examples = @ExampleObject(value = """
                                     {
-                                      "status": 201,
+                                      "status": 200,
                                       "code": "SUCCESS_DELETE_LIKE",
                                       "message": "좋아요를 취소했습니다.",
                                       "data": "좋아요를 취소했습니다"
