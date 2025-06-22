@@ -404,6 +404,7 @@ public interface PostApiDocs {
                                             "nickname": "길동hong",
                                             "createAt": "2025-06-19",
                                             "imageUrls": ["https://", "https://"]
+                                            "views": 1
                                           }
                                     }
                     """))

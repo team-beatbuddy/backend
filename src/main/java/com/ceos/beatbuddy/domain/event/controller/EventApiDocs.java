@@ -53,6 +53,8 @@ public interface EventApiDocs {
                                     "likes": 1,
                                     "views": 1,
                                     "liked": true,
+                                    "startDate": "2025-08-22",
+                                    "endDate": "2025-09-21",
                                     "receiveInfo": true,
                                     "receiveName": true,
                                     "receiveGender": true,
@@ -479,22 +481,7 @@ public interface EventApiDocs {
                           "status": 201,
                           "code": "SUCCESS_LIKE_EVENT",
                           "message": "이벤트에 성공적으로 좋아요 표시하였습니다.",
-                          "data": {
-                            "eventId": 2,
-                            "title": "string",
-                            "content": "string",
-                            "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
-                            "likes": 1,
-                            "views": 1,
-                            "liked": true,
-                            "receiveInfo": true,
-                            "receiveName": true,
-                            "receiveGender": true,
-                            "receivePhoneNumber": true,
-                            "receiveTotalCount": false,
-                            "receiveSNSId": true,
-                            "receiveMoney": true
-                          }
+                          "data": "좋아요를 눌렀습니다"
                         }
                         """)
                     )
@@ -519,7 +506,7 @@ public interface EventApiDocs {
                     )
             )
     })
-    ResponseEntity<ResponseDTO<EventResponseDTO>> likeEvent(@PathVariable Long eventId);
+    ResponseEntity<ResponseDTO<String>> likeEvent(@PathVariable Long eventId);
 
     @Operation(summary = "이벤트 좋아요 취소\n",
             description = "이벤트에 좋아요를 취소합니다.")
@@ -533,22 +520,7 @@ public interface EventApiDocs {
                                       "status": 201,
                                       "code": "SUCCESS_DELETE_LIKE",
                                       "message": "좋아요를 취소했습니다.",
-                                      "data": {
-                                        "eventId": 2,
-                                        "title": "string",
-                                        "content": "string",
-                                        "image": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
-                                        "likes": 1,
-                                        "views": 1,
-                                        "liked": true,
-                                        "receiveInfo": true,
-                                        "receiveName": true,
-                                        "receiveGender": true,
-                                        "receivePhoneNumber": true,
-                                        "receiveTotalCount": false,
-                                        "receiveSNSId": true,
-                                        "receiveMoney": true
-                                      }
+                                      "data": "좋아요를 취소했습니다"
                                     }
                                         """)
                     )
@@ -566,7 +538,7 @@ public interface EventApiDocs {
                     )
             )
     })
-    ResponseEntity<ResponseDTO<EventResponseDTO>> deleteLikeEvent(@PathVariable Long eventId);
+    ResponseEntity<ResponseDTO<String>> deleteLikeEvent(@PathVariable Long eventId);
 
     @Operation(summary = "이벤트 댓글 작성\n",
             description = "이벤트에 댓글을 작성합니다.")
@@ -706,6 +678,8 @@ public interface EventApiDocs {
                                 "liked": true,
                                 "likes": 2,
                                 "views": 1,
+                                "startDate": "2025-08-22",
+                                "endDate": "2025-09-21",
                                 "receiveInfo": true,
                                 "receiveName": true,
                                 "receiveGender": true,

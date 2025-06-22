@@ -48,6 +48,17 @@ public class EventController implements EventApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATED_EVENT, result));
     }
 
+    @Override
+    @GetMapping("/{eventId}")
+    public ResponseEntity<ResponseDTO<EventResponseDTO>> getEventDetail(@PathVariable Long eventId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        EventResponseDTO result = eventService.getEventDetail(eventId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_EVENT.getHttpStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_EVENT, result));
+    }
+
 
     @Override
     @PostMapping("/{eventId}")
@@ -141,24 +152,24 @@ public class EventController implements EventApiDocs {
 
     @Override
     @PostMapping("/{eventId}/like")
-    public ResponseEntity<ResponseDTO<EventResponseDTO>> likeEvent(@PathVariable Long eventId) {
+    public ResponseEntity<ResponseDTO<String>> likeEvent(@PathVariable Long eventId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        EventResponseDTO result = eventService.likeEvent(eventId, memberId);
+        eventService.likeEvent(eventId, memberId);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_LIKE_EVENT.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_EVENT, result));
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_EVENT, "좋아요를 눌렀습니다."));
     }
 
     @Override
     @DeleteMapping("/{eventId}/like")
-    public ResponseEntity<ResponseDTO<EventResponseDTO>> deleteLikeEvent(@PathVariable Long eventId) {
+    public ResponseEntity<ResponseDTO<String>> deleteLikeEvent(@PathVariable Long eventId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        EventResponseDTO result = eventService.deleteLikeEvent(eventId, memberId);
+        eventService.deleteLikeEvent(eventId, memberId);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_DELETE_LIKE.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_LIKE, result));
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_LIKE, "좋아요를 취소했습니다."));
     }
 
     @Override
@@ -187,17 +198,6 @@ public class EventController implements EventApiDocs {
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_DELETE_COMMENT.getHttpStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_COMMENT, "댓글 삭제 완료"));
-    }
-
-    @Override
-    @GetMapping("/{eventId}")
-    public ResponseEntity<ResponseDTO<EventResponseDTO>> getEventDetail(@PathVariable Long eventId) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        EventResponseDTO result = eventService.getEventDetail(eventId, memberId);
-
-        return ResponseEntity
-                .status(SuccessCode.SUCCESS_GET_EVENT.getHttpStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_EVENT, result));
     }
 
 

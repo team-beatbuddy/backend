@@ -147,7 +147,7 @@ public class EventService {
     }
 
     @Transactional
-    public EventResponseDTO likeEvent(Long eventId, Long memberId) {
+    public void likeEvent(Long eventId, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
 
         Event event = validateAndGet(eventId);
@@ -161,16 +161,10 @@ public class EventService {
         EventLike eventLike = EventLike.toEntity(member, event);
         eventLikeRepository.save(eventLike);
         eventRepository.increaseLike(eventId);
-
-        // 반영된 값까지 포함해 다시 조회
-        Event updated = this.validateAndGet(eventId);
-
-        boolean liked = true;
-        return EventResponseDTO.toDTO(updated, liked);
     }
 
     @Transactional
-    public EventResponseDTO deleteLikeEvent(Long eventId, Long memberId) {
+    public void deleteLikeEvent(Long eventId, Long memberId) {
         // 멤버 조회
         Member member = memberService.validateAndGetMember(memberId);
 
@@ -185,15 +179,9 @@ public class EventService {
 
         eventLikeRepository.delete(eventLike);
         eventRepository.decreaseLike(eventId);
-
-        Event updated = this.validateAndGet(eventId);
-
-        boolean liked = false;
-
-        return EventResponseDTO.toDTO(updated, liked);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public EventResponseDTO getEventDetail(Long eventId, Long memberId) {
         // 멤버 조회
         Member member = memberService.validateAndGetMember(memberId);
