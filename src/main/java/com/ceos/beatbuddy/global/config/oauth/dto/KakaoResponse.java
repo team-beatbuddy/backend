@@ -1,7 +1,8 @@
 package com.ceos.beatbuddy.global.config.oauth.dto;
 
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Map;
 
 @RequiredArgsConstructor
 public class KakaoResponse implements OAuth2Response {

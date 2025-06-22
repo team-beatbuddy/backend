@@ -2,7 +2,6 @@ package com.ceos.beatbuddy.domain.post.dto;
 
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import jakarta.persistence.Embedded;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

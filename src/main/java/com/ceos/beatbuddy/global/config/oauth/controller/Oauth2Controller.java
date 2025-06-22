@@ -1,10 +1,9 @@
 package com.ceos.beatbuddy.global.config.oauth.controller;
 
 import com.ceos.beatbuddy.global.ResponseTemplate;
-import com.ceos.beatbuddy.global.config.oauth.application.Oauth2Service;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
+import com.ceos.beatbuddy.global.config.oauth.application.Oauth2Service;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
