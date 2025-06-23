@@ -66,19 +66,19 @@ public class EventValidator {
 
     protected void validateAttendanceInput(EventAttendanceRequestDTO dto, Event event) {
         if (event.isReceiveInfo()) {
-            if (event.isReceiveName() && isBlank(dto.getName())) {
+            if (event.isReceiveName() && isEmpty(dto.getName())) {
                 throw new CustomException(EventErrorCode.MISSING_NAME);
             }
-            if (event.isReceiveGender() && isBlank(dto.getGender())) {
+            if (event.isReceiveGender() && isEmpty(dto.getGender())) {
                 throw new CustomException(EventErrorCode.MISSING_GENDER);
             }
-            if (event.isReceivePhoneNumber() && isBlank(dto.getPhoneNumber())) {
+            if (event.isReceivePhoneNumber() && isEmpty(dto.getPhoneNumber())) {
                 throw new CustomException(EventErrorCode.MISSING_PHONE);
             }
             if (event.isReceiveTotalCount() && dto.getTotalNumber() == null) {
                 throw new CustomException(EventErrorCode.MISSING_TOTAL_COUNT);
             }
-            if (event.isReceiveSNSId() && (isBlank(dto.getSnsType()) || isBlank(dto.getSnsId()))) {
+            if (event.isReceiveSNSId() && (isEmpty(dto.getSnsType()) || isEmpty(dto.getSnsId()))) {
                 throw new CustomException(EventErrorCode.MISSING_SNS_ID_OR_TYPE);
             }
             if (event.isReceiveMoney() && dto.getIsPaid() == null) {
@@ -138,8 +138,8 @@ public class EventValidator {
 
         // SNS ID & Type
         if (event.isReceiveSNSId()) {
-            boolean dtoMissing = isBlank(dto.getSnsType()) || isBlank(dto.getSnsId());
-            boolean existingMissing = isBlank(existing.getSnsType()) || isBlank(existing.getSnsId());
+            boolean dtoMissing = isEmpty(dto.getSnsType()) || isEmpty(dto.getSnsId());
+            boolean existingMissing = isEmpty(existing.getSnsType()) || isEmpty(existing.getSnsId());
             if (dtoMissing && existingMissing) {
                 throw new CustomException(EventErrorCode.MISSING_SNS_ID_OR_TYPE);
             }
@@ -152,10 +152,6 @@ public class EventValidator {
                 existing.getHasPaid(),
                 EventErrorCode.MISSING_PAYMENT
         );
-    }
-
-    private boolean isBlank(String s) {
-        return s == null || s.trim().isEmpty();
     }
 
 }
