@@ -317,4 +317,16 @@ public class EventController implements EventApiDocs {
                 .status(SuccessCode.SUCCESS_GET_EVENT_ATTENDANCE_LIST.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_EVENT_ATTENDANCE_LIST, result));
     }
+
+    @PatchMapping("/{eventId}/attendance")
+    public ResponseEntity<ResponseDTO<EventAttendanceResponseDTO>> updateEventAttendance(
+            @PathVariable Long eventId,
+            @RequestBody EventAttendanceUpdateDTO dto) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        EventAttendanceResponseDTO result = eventAttendanceService.updateAttendance(eventId, memberId, dto);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_UPDATE_ATTENDANCE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_ATTENDANCE, result));
+    }
 }
