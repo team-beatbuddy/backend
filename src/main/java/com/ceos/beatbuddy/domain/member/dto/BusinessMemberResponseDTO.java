@@ -22,7 +22,7 @@ public class BusinessMemberResponseDTO {
         return BusinessMemberResponseDTO.builder()
                 .realName(member.getRealName())
                 .phoneNumber(member.getBusinessInfo().getPhoneNumber())
-                .role(member.getRole())
+                .role(member.getRole().toString())
                 .build();
     }
 
@@ -30,7 +30,7 @@ public class BusinessMemberResponseDTO {
         return BusinessMemberResponseDTO.builder()
                 .realName(member.getRealName())
                 .phoneNumber(member.getBusinessInfo() != null ? member.getBusinessInfo().getPhoneNumber() : null)
-                .role(member.getRole())
+                .role(member.getRole().toString())
                 .nickname(member.getNickname())
                 .build();
     }
