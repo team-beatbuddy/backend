@@ -136,7 +136,7 @@ public interface EventApiDocs {
     })
     ResponseEntity<ResponseDTO<EventResponseDTO>> addEvent(
             @Valid @Schema(implementation = EventCreateRequestDTO.class) @RequestPart("eventCreateRequestDTO") EventCreateRequestDTO eventCreateRequestDTO,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException;
+            @RequestPart(value = "files", required = false) List<MultipartFile> files) throws IOException;
 
 
 
