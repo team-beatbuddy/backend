@@ -1366,4 +1366,53 @@ public interface EventApiDocs {
             @PathVariable String sort
     );
 
+    @Operation(
+            summary = "이벤트 참석 삭제\n",
+            description = """
+                내가 참석한 이벤트 정보를 삭제합니다.
+                해당 이벤트에 참석한 이력이 있는 경우에만 삭제가 가능합니다.
+        
+                ⚠️ 주의: 삭제 시, 해당 이벤트에 대한 내 참석 정보가 완전히 제거되며 복구할 수 없습니다.
+        
+                요청 경로: `DELETE /events/{eventId}/`
+        
+                예시:
+                - DELETE /events/5/attendance → ID가 5인 이벤트 참석 정보 삭제
+                """
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "이벤트 참석 취소 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(
+                                            name = "성공 예시",
+                                            value = """
+                                            {
+                                              "status": 200,
+                                              "code": "SUCCESS_DELETE_ATTENDANCE",
+                                              "message": "이벤트 참석을 취소했습니다.",
+                                              "data": "이벤트 참석을 취소했습니다."
+                                            }
+                                            """
+                                    )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "리소스 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "이벤트 없음", value = SwaggerExamples.NOT_FOUND_EVENT),
+                                    @ExampleObject(name = "이벤트 참석 정보 없음", value = SwaggerExamples.ATTENDANCE_NOT_FOUND)
+                            }
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<String>> deleteEventAttendance(@PathVariable Long eventId);
+
 }

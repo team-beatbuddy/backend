@@ -105,4 +105,13 @@ public class EventAttendanceService {
                 .map(EventAttendanceExportDTO::toDTOForExcel)
                 .toList();
     }
+
+    @Transactional
+    public void deleteAttendance(Long eventId, Long memberId) {
+        eventService.validateAndGet(eventId);
+
+        // 권한 체크할 필요 없이 본인 것만 검색됨.
+        EventAttendance entity = eventValidator.validateAndGetAttendance(eventId, memberId);
+        eventAttendanceRepository.delete(entity);
+    }
 }
