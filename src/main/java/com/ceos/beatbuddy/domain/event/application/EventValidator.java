@@ -2,7 +2,10 @@ package com.ceos.beatbuddy.domain.event.application;
 
 import com.ceos.beatbuddy.domain.event.dto.EventUpdateRequestDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
+import com.ceos.beatbuddy.domain.event.entity.EventAttendance;
+import com.ceos.beatbuddy.domain.event.entity.EventAttendanceId;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
+import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
@@ -17,6 +20,7 @@ import java.util.Objects;
 public class EventValidator {
     private final MemberService memberService;
     private final EventRepository eventRepository;
+    private final EventAttendanceRepository eventAttendanceRepository;
 
     public void checkAccessForEvent(Long eventId, Long memberId) {
         Member host = memberService.validateAndGetMember(memberId);
@@ -54,5 +58,12 @@ public class EventValidator {
                 throw new CustomException(EventErrorCode.NEED_DEPOSIT_INFO);
             }
         }
+    }
+
+    public EventAttendance validateAndGetAttendance(Long eventId, Long memberId) {
+        EventAttendanceId id = new EventAttendanceId(eventId, memberId);
+        return eventAttendanceRepository.findById(id).orElseThrow(
+                () -> new CustomException(EventErrorCode.ATTENDANCE_NOT_FOUND));
+
     }
 }

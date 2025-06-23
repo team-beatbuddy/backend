@@ -111,14 +111,7 @@ public class EventAttendanceService {
         eventService.validateAndGet(eventId);
 
         // 권한 체크할 필요 없이 본인 것만 검색됨.
-        EventAttendance entity = validateAndGetAttendance(eventId, memberId);
+        EventAttendance entity = eventValidator.validateAndGetAttendance(eventId, memberId);
         eventAttendanceRepository.delete(entity);
-    }
-
-    private EventAttendance validateAndGetAttendance(Long eventId, Long memberId) {
-        EventAttendanceId id = new EventAttendanceId(eventId, memberId);
-        return eventAttendanceRepository.findById(id).orElseThrow(
-                () -> new CustomException(EventErrorCode.ATTENDANCE_NOT_FOUND));
-
     }
 }
