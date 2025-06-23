@@ -142,6 +142,16 @@ public interface EventApiDocs {
 
 
 
+    /**
+     * Updates specified fields of an existing event.
+     *
+     * Only the fields provided in the request will be updated; omitted fields retain their current values. The request must use multipart/form-data, with the event update data sent as a JSON string in the 'eventUpdateRequestDTO' part, and optional images in the 'images' part.
+     *
+     * @param eventId the ID of the event to update
+     * @param eventUpdateRequestDTO the event update data as a JSON string
+     * @param images optional list of new images to associate with the event
+     * @return the updated event details
+     */
     @Operation(
             summary = "이벤트 수정 기능",
             description = """
@@ -489,7 +499,21 @@ public interface EventApiDocs {
                                                                                  @RequestParam(defaultValue = "10") Integer size);
 
 
-    @Operation(summary = "종료된 이벤트",
+    /**
+             * Retrieves a paginated list of past events (events that have ended) sorted by the specified criteria.
+             *
+             * Depending on the `sort` parameter, the response structure varies:
+             * - `latest`: Returns a flat list of past events sorted by most recent.
+             * - `popular`: Groups past events from the last year by month, with each group sorted by number of likes.
+             *
+             * The response always includes pagination fields (`page`, `size`, `totalSize`).
+             *
+             * @param sort The sorting criteria: "popular" (grouped by month and sorted by likes) or "latest" (sorted by most recent). "region" is not currently supported.
+             * @param page The page number for pagination (default is 0).
+             * @param size The number of items per page or month group (default is 10).
+             * @return A ResponseEntity containing a paginated list of past events, either as a flat list or grouped by month depending on the sort type.
+             */
+            @Operation(summary = "종료된 이벤트",
             description = """
                     
                     (종료 날짜 기준 < 오늘) 종료가 된 이벤트를 보여줍니다.
