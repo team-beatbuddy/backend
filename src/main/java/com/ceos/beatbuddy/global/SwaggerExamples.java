@@ -214,6 +214,15 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String NOT_FOUND_COMMENT_IN_EVENT = """
+        {
+          "status": 404,
+          "error": "NOT_FOUND",
+          "code": "NOT_FOUND_COMMENT_IN_EVENT",
+          "message": "해당 댓글이 이벤트에 속하지 않습니다."
+        }
+        """;
+
 
     /**
      * 409 already do something

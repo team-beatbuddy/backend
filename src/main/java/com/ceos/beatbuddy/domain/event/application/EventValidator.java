@@ -5,6 +5,7 @@ import com.ceos.beatbuddy.domain.event.dto.EventAttendanceUpdateDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventUpdateRequestDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventAttendance;
+import com.ceos.beatbuddy.domain.event.entity.EventComment;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
@@ -164,6 +165,13 @@ public class EventValidator {
     protected void validateCommentAuthor(Long commentAuthorId, Long memberId) {
         if (!Objects.equals(commentAuthorId, memberId)) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
+        }
+    }
+
+    // 댓글이 해당 이벤트에 속하는지 확인
+    protected void validateCommentBelongsToEvent(EventComment comment, Long eventId) {
+        if (!comment.getEvent().getId().equals(eventId)) {
+            throw new CustomException(ErrorCode.NOT_FOUND_COMMENT_IN_EVENT);
         }
     }
 }

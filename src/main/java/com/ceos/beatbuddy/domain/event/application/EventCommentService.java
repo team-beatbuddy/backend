@@ -123,10 +123,14 @@ public class EventCommentService {
     @Transactional
     public EventCommentResponseDTO updateComment(Long eventId, Long commentId, Integer level, Long memberId, EventCommentUpdateDTO dto) {
         Member member = memberService.validateAndGetMember(memberId);
-        Event event = eventService.validateAndGet(eventId);
+        eventService.validateAndGet(eventId);
         EventComment comment = validateAndGetComment(commentId, level);
 
+        // 권한이 있는지 확인
         eventValidator.validateCommentAuthor(comment.getAuthor().getId(), member.getId());
+
+        // 이벤트에 해당 댓글이 속하는지 확인
+        eventValidator.validateCommentBelongsToEvent(comment, eventId);
 
         // content가 null이 아니고 빈 문자열이 아닌 경우에만 업데이트
         if (dto.getContent() != null && !dto.getContent().isBlank()) {

@@ -897,7 +897,9 @@ public interface EventApiDocs {
                             examples = {
                                     @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST),
                                     @ExampleObject(name = "이벤트 없음", value = SwaggerExamples.NOT_FOUND_EVENT),
-                                    @ExampleObject(name = "댓글이 존재하지 않는 경우", value = SwaggerExamples.NOT_FOUND_COMMENT)
+                                    @ExampleObject(name = "댓글이 존재하지 않는 경우", value = SwaggerExamples.NOT_FOUND_COMMENT),
+                                    @ExampleObject(name = "댓글이 이벤트에 속하지 않는 경우", value = SwaggerExamples.NOT_FOUND_COMMENT_IN_EVENT)
+
                             }
                     )
             ),
