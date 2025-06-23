@@ -95,15 +95,7 @@ public interface EventApiDocs {
                                     ),
                                     @ExampleObject(
                                             name = "예약금을 받으면서 정보가 없는 경우",
-                                            value = """
-                                                    {
-                                                      "status": 400,
-                                                      "error": "BAD_REQUEST",
-                                                      "code": "NEED_DEPOSIT_INFO",
-                                                      "message": "예약금에 관련된 정보가 필요합니다."
-                                                    }
-                                                    """
-                                    )}
+                                            value = SwaggerExamples.NEED_DEPOSIT_INFO)}
                     )
             ),
             @ApiResponse(
@@ -299,62 +291,13 @@ public interface EventApiDocs {
             @ApiResponse(responseCode = "400", description = "입력값 누락 또는 잘못된 요청", content = @Content(
                     mediaType = "application/json",
                     examples = {
-                            @ExampleObject(name = "이름 누락", value = """
-                            {
-                              "status": 400,
-                              "error": "BAD_REQUEST",
-                              "code": "MISSING_NAME",
-                              "message": "이름 입력은 필수입니다."
-                            }
-                            """),
-                            @ExampleObject(name = "성별 누락", value = """
-                            {
-                              "status": 400,
-                              "error": "BAD_REQUEST",
-                              "code": "MISSING_GENDER",
-                              "message": "성별 입력은 필수입니다."
-                            }
-                            """),
-                            @ExampleObject(name = "전화번호 누락", value = """
-                            {
-                              "status": 400,
-                              "error": "BAD_REQUEST",
-                              "code": "MISSING_PHONE",
-                              "message": "핸드폰 번호 입력은 필수입니다."
-                            }
-                            """),
-                            @ExampleObject(name = "동행 인원 누락", value = """
-                            {
-                              "status": 400,
-                              "error": "BAD_REQUEST",
-                              "code": "MISSING_TOTAL_COUNT",
-                              "message": "동행인원 입력은 필수입니다."
-                            }
-                            """),
-                            @ExampleObject(name = "SNS 정보 누락", value = """
-                            {
-                              "status": 400,
-                              "error": "BAD_REQUEST",
-                              "code": "MISSING_SNS_ID_OR_TYPE",
-                              "message": "SNS ID 또는 TYPE 입력은 필수입니다."
-                            }
-                            """),
-                            @ExampleObject(name = "지불 여부 누락", value = """
-                            {
-                              "status": 400,
-                              "error": "BAD_REQUEST",
-                              "code": "MISSING_PAYMENT",
-                              "message": "지불 완료 입력은 필수입니다."
-                            }
-                            """),
-                            @ExampleObject(name = "성별 입력 오류", value = """
-                            {
-                              "status": 400,
-                              "error": "BAD_REQUEST",
-                              "code": "INVALID_GENDER",
-                              "message": "성별 값이 올바르지 않습니다. (MALE, FEMALE 중 하나여야 합니다.)"
-                            }
-            """)
+                            @ExampleObject(name = "이름 누락", value = SwaggerExamples.MISSING_NAME_EXAMPLE),
+                            @ExampleObject(name = "성별 누락", value = SwaggerExamples.MISSING_GENDER_EXAMPLE),
+                            @ExampleObject(name = "전화번호 누락", value = SwaggerExamples.MISSING_PHONE_EXAMPLE),
+                            @ExampleObject(name = "동행 인원 누락", value = SwaggerExamples.MISSING_TOTAL_COUNT_EXAMPLE),
+                            @ExampleObject(name = "SNS 정보 누락", value = SwaggerExamples.MISSING_SNS_INFO_EXAMPLE),
+                            @ExampleObject(name = "지불 여부 누락", value = SwaggerExamples.MISSING_PAYMENT_EXAMPLE),
+                            @ExampleObject(name = "성별 입력 오류", value = SwaggerExamples.INVALID_GENDER_EXAMPLE)
                     }
             )),
             @ApiResponse(
@@ -1415,4 +1358,96 @@ public interface EventApiDocs {
     })
     ResponseEntity<ResponseDTO<String>> deleteEventAttendance(@PathVariable Long eventId);
 
+
+    @Operation(
+            summary = "이벤트 참석 정보 수정\n",
+            description = """
+        내가 참석한 이벤트 정보를 수정합니다.
+        수정 가능한 항목은 이벤트에서 설정한 수집 항목(receive 설정)에 따라 다르며,
+        수정하지 않을 필드는 요청 본문에서 생략하면 됩니다.
+
+        ⚠️ 주의: 해당 이벤트에 참석한 이력이 있는 경우에만 수정할 수 있으며, 
+        이벤트에서 특정 정보를 수집하지 않는다면 해당 필드를 수정할 수 없습니다.
+
+        요청 방식: `PATCH /events/{eventId}/attendance`
+
+        요청 형식:
+        - Content-Type: application/json
+        - 예시:
+        ```json
+        {
+          "name": "홍길동",
+          "gender": "MALE",
+          "phoneNumber": "010-1234-5678",
+          "totalMember": 2,
+          "snsType": "instagram",
+          "snsId": "gildong_hong",
+          "hasPaid": true
+        }
+        ```
+
+        위 필드 중 일부만 보내 수정할 수도 있습니다.
+        예: `{ "phoneNumber": "010-0000-0000" }`
+        → 전화번호만 수정됨
+        """
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "이벤트 참석 정보 수정 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(
+                                    name = "성공 예시",
+                                    value = """
+                                        {
+                                          "status": 200,
+                                          "code": "SUCCESS_UPDATE_ATTENDANCE",
+                                          "message": "이벤트 참석 정보를 수정했습니다.",
+                                          "data": {
+                                            "eventId": 12,
+                                            "memberId": 156,
+                                            "name": "dlrbals",
+                                            "gender": "MALE",
+                                            "snsType": "Insta",
+                                            "snsId": "@123",
+                                            "phoneNumber": "010-2222-2222",
+                                            "isPaid": true,
+                                            "totalMember": 3,
+                                            "createdAt": "2025-06-22T23:12:01.92143"
+                                          }
+                                        }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "입력값 누락 또는 잘못된 요청", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "이름 누락", value = SwaggerExamples.MISSING_NAME_EXAMPLE),
+                            @ExampleObject(name = "성별 누락", value = SwaggerExamples.MISSING_GENDER_EXAMPLE),
+                            @ExampleObject(name = "전화번호 누락", value = SwaggerExamples.MISSING_PHONE_EXAMPLE),
+                            @ExampleObject(name = "동행 인원 누락", value = SwaggerExamples.MISSING_TOTAL_COUNT_EXAMPLE),
+                            @ExampleObject(name = "SNS 정보 누락", value = SwaggerExamples.MISSING_SNS_INFO_EXAMPLE),
+                            @ExampleObject(name = "지불 여부 누락", value = SwaggerExamples.MISSING_PAYMENT_EXAMPLE),
+                            @ExampleObject(name = "성별 입력 오류", value = SwaggerExamples.INVALID_GENDER_EXAMPLE)
+                    }
+            )),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "리소스 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "이벤트 없음", value = SwaggerExamples.NOT_FOUND_EVENT),
+                                    @ExampleObject(name = "이벤트 참석 정보 없음", value = SwaggerExamples.ATTENDANCE_NOT_FOUND)
+                            }
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<EventAttendanceResponseDTO>> updateEventAttendance(
+            @PathVariable Long eventId,
+            @RequestBody EventAttendanceUpdateDTO dto);
 }
