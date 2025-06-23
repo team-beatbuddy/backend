@@ -90,6 +90,9 @@ public class EventAttendanceService {
 
     @Transactional(readOnly = true)
     public EventAttendanceResponseDTO getAttendance(Long eventId, Long memberId) {
+        // 멤버 유효성 검사
+        memberService.validateAndGetMember(memberId);
+        // 이벤트 유효성 검사
         eventService.validateAndGet(eventId);
 
         // 권한 체크할 필요 없이 본인 것만 검색됨.
