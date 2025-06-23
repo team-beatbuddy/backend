@@ -142,6 +142,15 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String ATTENDANCE_NOT_FOUND = """
+        {
+          "status": 404,
+          "error": "NOT_FOUND",
+          "code": "ATTENDANCE_NOT_FOUND",
+          "message": "해당 이벤트에 대한 참석 정보를 찾을 수 없습니다."
+        }
+        """;
+
 
     /**
      * 409 already do something
