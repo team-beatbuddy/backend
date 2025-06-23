@@ -58,7 +58,7 @@ public class EventController implements EventApiDocs {
     }
 
     @Override
-    @PutMapping(value = "/{eventId}",
+    @PatchMapping(value = "/{eventId}",
                     consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO<EventResponseDTO>> updateEvent(@PathVariable Long eventId,

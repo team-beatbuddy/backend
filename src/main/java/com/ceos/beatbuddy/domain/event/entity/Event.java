@@ -50,8 +50,8 @@ public class Event extends BaseTimeEntity {
     @Getter
     private int likes;
 
-    @Getter
     @Column(nullable = false)
+    @Getter
     private boolean receiveInfo = false; // 참석자 정보 수집 여부
     @Getter
     @Column(nullable = false)
@@ -72,7 +72,11 @@ public class Event extends BaseTimeEntity {
     @Column(nullable = false)
     private boolean receiveMoney= false; // 예약금 받을 건지
 
+    @Getter
+    @Setter
     private String depositAccount; // 사전 예약금 계좌번호
+    @Getter
+    @Setter
     private Integer depositAmount; // 사전 예약금 금액
 
     @Column(nullable = false)

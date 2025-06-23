@@ -30,5 +30,8 @@ public class EventUpdateRequestDTO {
     private Boolean receiveSNSId;
     private Boolean receiveMoney;
 
+    private String depositAccount;
+    private Integer depositAmount;
+
     private List<String> deleteImageUrls;
 }

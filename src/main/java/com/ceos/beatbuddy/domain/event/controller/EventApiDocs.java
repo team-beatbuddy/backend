@@ -61,7 +61,9 @@ public interface EventApiDocs {
                                     "receivePhoneNumber": true,
                                     "receiveTotalCount": false,
                                     "receiveSNSId": true,
-                                    "receiveMoney": true
+                                    "receiveMoney": false,
+                                    "depositAccount": "",
+                                    "depositAmount": 0
                                   }
                                 }
                                     """)
@@ -152,6 +154,14 @@ public interface EventApiDocs {
                     - receiveTotalCount: 참석자 본인 포함 동행인원 수집 여부\n
                     - receiveSNSId: 참석자 SNS ID 수집 여부\n
                     - receiveMoney: 예약금 설정 여부
+                    
+                    예시)\\n
+                    {
+                      "receiveInfo": true,
+                      "receiveGender": true
+                    }\\n
+                    → 참석자 정보 수집을 활성화하고, 성별만 수집하도록 설정됩니다.\\n
+                    → 나머지 receive 항목은 명시하지 않으면 기존 값이 유지됩니다.
                     """
     )
 
@@ -185,10 +195,20 @@ public interface EventApiDocs {
                                 "receivePhoneNumber": true,
                                 "receiveTotalCount": false,
                                 "receiveSNSId": true,
-                                "receiveMoney": true
+                                "receiveMoney": false,
+                                "depositAccount": "",
+                                "depositAmount": 0
                               }
                             }
                                     """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "예약금에 관련된 정보 누락",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(name = "예약금에 관련된 정보 누락", value = SwaggerExamples.NEED_DEPOSIT_INFO)
                     )
             ),
             @ApiResponse(
@@ -901,7 +921,9 @@ public interface EventApiDocs {
                                 "receiveGender": true,
                                 "receivePhoneNumber": true,
                                 "receiveSNSId": true,
-                                "receiveMoney": true
+                                "receiveMoney": true,
+                                "depositAccount": "국민 XXXXXXXX",
+                                "depositAmount": 10000
                               }
                             }
                                         """)
