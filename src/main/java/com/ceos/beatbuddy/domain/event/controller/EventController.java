@@ -306,4 +306,17 @@ public class EventController implements EventApiDocs {
                 .status(SuccessCode.SUCCESS_DELETE_ATTENDANCE.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_ATTENDANCE, "이벤트 참석을 취소했습니다."));
     }
+
+    @Override
+    @PatchMapping("/{eventId}/attendance")
+    public ResponseEntity<ResponseDTO<EventAttendanceResponseDTO>> updateEventAttendance(
+            @PathVariable Long eventId,
+            @RequestBody EventAttendanceUpdateDTO dto) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        EventAttendanceResponseDTO result = eventAttendanceService.updateAttendance(eventId, memberId, dto);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_UPDATE_ATTENDANCE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_ATTENDANCE, result));
+    }
 }

@@ -43,6 +43,69 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String MISSING_NAME_EXAMPLE = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "MISSING_NAME",
+          "message": "이름 입력은 필수입니다."
+        }
+        """;
+
+    public static final String MISSING_GENDER_EXAMPLE = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "MISSING_GENDER",
+          "message": "성별 입력은 필수입니다."
+        }
+        """;
+
+    public static final String MISSING_PHONE_EXAMPLE = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "MISSING_PHONE",
+          "message": "핸드폰 번호 입력은 필수입니다."
+        }
+        """;
+
+    public static final String MISSING_TOTAL_COUNT_EXAMPLE = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "MISSING_TOTAL_COUNT",
+          "message": "동행인원 입력은 필수입니다."
+        }
+        """;
+
+    public static final String MISSING_SNS_INFO_EXAMPLE = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "MISSING_SNS_ID_OR_TYPE",
+          "message": "SNS ID 또는 TYPE 입력은 필수입니다."
+        }
+        """;
+
+    public static final String MISSING_PAYMENT_EXAMPLE = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "MISSING_PAYMENT",
+          "message": "지불 완료 입력은 필수입니다."
+        }
+        """;
+
+    public static final String INVALID_GENDER_EXAMPLE = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "INVALID_GENDER",
+          "message": "성별 값이 올바르지 않습니다. (MALE, FEMALE 중 하나여야 합니다.)"
+        }
+        """;
+
     /**
      * 403 권한 없음
      * */
