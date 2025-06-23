@@ -468,7 +468,7 @@ public interface EventApiDocs {
             description = "(종료 날짜 기준 < 오늘) 종료가 된 이벤트를 보여줍니다. \n" +
                     "sort 에는 popular / latest / region을 넣을 수 있으나 현재는 region은 구현되어있지 않습니다. \n" +
                     "- 종료된 이벤트의 최신순과 인기순의 응답이 다릅니다. \n" +
-                    "- 좋료된 이벤트 (인기순)의 경우에는 작년의 모든 이벤트를 불러옵니다. pagination XXX ")
+                    "- 종료된 이벤트 (인기순)의 경우에는 작년의 모든 이벤트를 불러옵니다. pagination은 지원하지 않습니다. ")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "종료된 이벤트", content = @Content(
                     mediaType = "application/json",
