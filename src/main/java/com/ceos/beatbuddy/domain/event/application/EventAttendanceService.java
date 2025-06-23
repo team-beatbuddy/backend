@@ -25,6 +25,7 @@ public class EventAttendanceService {
     private final MemberService memberService;
     private final EventService eventService;
     private final EventAttendanceRepository eventAttendanceRepository;
+    private final EventValidator eventValidator;
 
     @Transactional
     public EventAttendanceResponseDTO addEventAttendance(Long memberId, EventAttendanceRequestDTO dto, Long eventId) {
@@ -42,9 +43,9 @@ public class EventAttendanceService {
 
         EventAttendance eventAttendance = EventAttendanceRequestDTO.toEntity(dto, member, event);
 
-        eventAttendanceRepository.save(eventAttendance);
+        EventAttendance saved = eventAttendanceRepository.save(eventAttendance);
 
-        return EventAttendanceResponseDTO.toDTO(eventAttendance);
+        return EventAttendanceResponseDTO.toDTO(saved);
     }
 
     private void validateAttendanceInput(EventAttendanceRequestDTO dto, Event event) {
@@ -75,7 +76,10 @@ public class EventAttendanceService {
     }
 
     public EventAttendanceExportListDTO getAttendanceList(Long eventId, Long memberId) {
-        checkAccessForEvent(eventId, memberId);
+        eventService.validateAndGet(eventId);
+
+        // admin 은 모두 조회 가능
+        eventValidator.checkAccessForEvent(eventId, memberId);
 
         List<EventAttendance> attendances = eventAttendanceRepository.findAllByEventId(eventId);
         List<EventAttendanceExportDTO> eventAttendanceExportDTOS = attendances.stream()
@@ -83,6 +87,7 @@ public class EventAttendanceService {
                 .toList();
 
         return EventAttendanceExportListDTO.builder()
+                .eventId(eventId)
                 .totalMember(eventAttendanceExportDTOS.size())
                 .eventAttendanceExportDTOS(eventAttendanceExportDTOS)
                 .build();
@@ -90,21 +95,14 @@ public class EventAttendanceService {
 
 
     public List<EventAttendanceExportDTO> getAttendanceListForExcel(Long eventId, Long memberId) {
-        checkAccessForEvent(eventId, memberId);
+        eventService.validateAndGet(eventId);
+
+        // admin 은 모두 조회 가능
+        eventValidator.checkAccessForEvent(eventId, memberId);
 
         List<EventAttendance> attendances = eventAttendanceRepository.findAllByEventId(eventId);
         return attendances.stream()
                 .map(EventAttendanceExportDTO::toDTOForExcel)
                 .toList();
-    }
-
-    private void checkAccessForEvent(Long eventId, Long memberId) {
-        Member host = memberService.validateAndGetMember(memberId);
-
-        Event event = eventService.validateAndGet(eventId);
-
-        if (!Objects.equals(event.getHost().getId(), memberId)) {
-            throw new CustomException(EventErrorCode.FORBIDDEN_EVENT_ACCESS);
-        }
     }
 }

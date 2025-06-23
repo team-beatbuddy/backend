@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.member.repository;
 
 import com.ceos.beatbuddy.domain.follow.entity.QFollow;
+import com.ceos.beatbuddy.domain.member.constant.Role;
 import com.ceos.beatbuddy.domain.member.dto.MemberProfileSummaryDTO;
 import com.ceos.beatbuddy.domain.member.entity.QMember;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.ceos.beatbuddy.domain.follow.entity.QFollow.follow;
 import static com.ceos.beatbuddy.domain.member.entity.QMember.member;
@@ -50,12 +52,16 @@ public class MemberQueryRepositoryImpl implements MemberQueryRepository{
             throw new CustomException(MemberErrorCode.MEMBER_NOT_EXIST);
         } else {
             // null인 경우 0으로 입력되도록 처리
-            int postCount = result.get(qPost.id.countDistinct()) != null ? result.get(qPost.id.countDistinct()).intValue() : 0;
-            int followerCount = result.get(qFollowerFollow.id.countDistinct()) != null ? result.get(qFollowerFollow.id.countDistinct()).intValue() : 0;
-            int followingCount = result.get(qFollowingFollow.id.countDistinct()) != null ? result.get(qFollowingFollow.id.countDistinct()).intValue() : 0;
+            long id = result.get(qMember.id);
+            String nickname = result.get(qMember.nickname);
+            String profileImage = result.get(qMember.profileImage);
+            Role role = result.get(qMember.role);
 
-            return MemberProfileSummaryDTO.toDTO(result.get(qMember.id).longValue(), result.get(qMember.nickname), result.get(qMember.profileImage), result.get(qMember.role), postCount, followerCount, followingCount);
+            int postCount = Optional.ofNullable(result.get(qPost.id.countDistinct())).map(Number::intValue).orElse(0);
+            int followerCount = Optional.ofNullable(result.get(qFollowerFollow.id.countDistinct())).map(Number::intValue).orElse(0);
+            int followingCount = Optional.ofNullable(result.get(qFollowingFollow.id.countDistinct())).map(Number::intValue).orElse(0);
 
+            return MemberProfileSummaryDTO.toDTO(id, nickname, profileImage, role.toString(), postCount, followerCount, followingCount);
         }
     }
 }

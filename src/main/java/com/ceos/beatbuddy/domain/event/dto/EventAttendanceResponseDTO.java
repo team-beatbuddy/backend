@@ -8,12 +8,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class EventAttendanceResponseDTO {
     private Long eventId;
     private Long memberId;
@@ -22,7 +22,8 @@ public class EventAttendanceResponseDTO {
     private String snsType;
     private String snsId;
     private String phoneNumber;
-    private boolean isPaid;
+    private Boolean isPaid;
+    private Integer totalMember;
     private LocalDateTime createdAt;
 
     public static EventAttendanceResponseDTO toDTO(EventAttendance entity) {
@@ -30,11 +31,12 @@ public class EventAttendanceResponseDTO {
                 .eventId(entity.getEvent().getId())
                 .memberId(entity.getMember().getId())
                 .name(entity.getName())
-                .gender(entity.getGender().getText())
+                .gender(entity.getGender() != null ? entity.getGender().getText() : null)
                 .phoneNumber(entity.getPhoneNumber())
                 .snsType(entity.getSnsType())
                 .snsId(entity.getSnsId())
-                .isPaid(entity.isHasPaid())
+                .isPaid(entity.getHasPaid())
+                .totalMember(entity.getTotalMember())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

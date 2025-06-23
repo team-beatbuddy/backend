@@ -44,7 +44,7 @@ public class EventCommentService {
         } else {
             // 대댓글이면 부모 댓글 확인
             EventComment parent = eventCommentRepository.findTopByIdOrderByLevelDesc(parentCommentId)
-                    .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_COMMENT));
+                    .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMENT));
             commentId = parent.getId(); // 부모 id 따라감
             level = parent.getLevel() + 1;
         }
@@ -70,7 +70,7 @@ public class EventCommentService {
         Event event = eventService.validateAndGet(eventId);
 
         EventComment target = eventCommentRepository.findById(new EventCommentId(commentId, level))
-                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_COMMENT));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMENT));
 
         if (!target.getAuthor().getId().equals(memberId)) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);

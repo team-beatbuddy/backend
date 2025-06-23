@@ -22,7 +22,7 @@ public class MemberDto {
                 .memberId(member.getId())
                 .loginId(member.getLoginId())
                 .nickname(member.getNickname())
-                .role(member.getRole())
+                .role(member.getRole().toString())
                 .build();
     }
 }
