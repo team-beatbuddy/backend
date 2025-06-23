@@ -138,11 +138,7 @@ public class EventValidator {
 
         // SNS ID & Type
         if (event.isReceiveSNSId()) {
-            boolean dtoMissing = isEmpty(dto.getSnsType()) || isEmpty(dto.getSnsId());
-            boolean existingMissing = isEmpty(existing.getSnsType()) || isEmpty(existing.getSnsId());
-            if (dtoMissing && existingMissing) {
-                throw new CustomException(EventErrorCode.MISSING_SNS_ID_OR_TYPE);
-            }
+            validateSnsInfo(dto, existing);
         }
 
         // 예약금 납부 여부
@@ -154,4 +150,13 @@ public class EventValidator {
         );
     }
 
+    // SNS 정보가 비어있을 때 예외 처리
+    private void validateSnsInfo(EventAttendanceUpdateDTO dto, EventAttendance existing) {
+        boolean dtoMissing = isEmpty(dto.getSnsType()) || isEmpty(dto.getSnsId());
+        boolean existingMissing = isEmpty(existing.getSnsType()) || isEmpty(existing.getSnsId());
+
+        if (dtoMissing && existingMissing) {
+            throw new CustomException(EventErrorCode.MISSING_SNS_ID_OR_TYPE);
+        }
+    }
 }
