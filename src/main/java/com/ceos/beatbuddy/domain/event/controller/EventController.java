@@ -318,6 +318,7 @@ public class EventController implements EventApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_ATTENDANCE, result));
     }
 
+    @Override
     @PatchMapping("/{eventId}/attendance")
     public ResponseEntity<ResponseDTO<EventAttendanceResponseDTO>> updateEventAttendance(
             @PathVariable Long eventId,
@@ -328,5 +329,20 @@ public class EventController implements EventApiDocs {
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_UPDATE_ATTENDANCE.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_ATTENDANCE, result));
+    }
+
+    @Override
+    @PatchMapping("/{eventId}/comments/{commentId}/levels/{commentLevel}")
+    public ResponseEntity<ResponseDTO<EventCommentResponseDTO>> updateComment(
+            @PathVariable Long eventId,
+            @PathVariable Long commentId,
+            @PathVariable Integer commentLevel,
+            @Valid @RequestBody EventCommentUpdateDTO dto) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        EventCommentResponseDTO result = eventCommentService.updateComment(eventId, commentId, commentLevel, memberId, dto);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_UPDATE_COMMENT.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_COMMENT, result));
     }
 }
