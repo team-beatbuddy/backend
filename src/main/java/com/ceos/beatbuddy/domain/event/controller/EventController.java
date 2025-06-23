@@ -314,8 +314,8 @@ public class EventController implements EventApiDocs {
         EventAttendanceResponseDTO result = eventAttendanceService.getAttendance(eventId, memberId);
 
         return ResponseEntity
-                .status(SuccessCode.SUCCESS_GET_EVENT_ATTENDANCE_LIST.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_EVENT_ATTENDANCE_LIST, result));
+                .status(SuccessCode.SUCCESS_GET_ATTENDANCE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_ATTENDANCE, result));
     }
 
     @PatchMapping("/{eventId}/attendance")

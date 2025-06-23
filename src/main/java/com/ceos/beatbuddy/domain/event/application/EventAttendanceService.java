@@ -88,6 +88,7 @@ public class EventAttendanceService {
         eventAttendanceRepository.delete(entity);
     }
 
+    @Transactional(readOnly = true)
     public EventAttendanceResponseDTO getAttendance(Long eventId, Long memberId) {
         eventService.validateAndGet(eventId);
 
