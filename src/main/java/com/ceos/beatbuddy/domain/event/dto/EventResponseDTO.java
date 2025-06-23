@@ -34,9 +34,6 @@ public class EventResponseDTO {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    private String groupDate; // past list 에서만  사용
-    private List<EventResponseDTO> pastDTOList; // past list 에서만  사용
-
     private boolean receiveInfo;
     private boolean receiveName; // 이름 받을 건지
     private boolean receiveGender; // 성별 받을 건지
@@ -83,27 +80,6 @@ public class EventResponseDTO {
                 .likes(event.getLikes())
                 .views(event.getViews())
                 .location(event.getLocation())
-                .build();
-    }
-
-    public static EventResponseDTO groupByMonth(String yyyyMM, List<Event> events) {
-        List<EventResponseDTO> list = events.stream()
-                .map(event -> EventResponseDTO.builder()
-                        .eventId(event.getId())
-                        .title(event.getTitle())
-                        .content(event.getContent())
-                        .startDate(event.getStartDate())
-                        .endDate(event.getEndDate())
-                        .thumbImage(Optional.ofNullable(event.getThumbImage()).orElse(""))
-                        .likes(event.getLikes())
-                        .views(event.getViews())
-                        .location(event.getLocation())
-                        .build())
-                .toList();
-
-        return EventResponseDTO.builder()
-                .groupDate(yyyyMM)
-                .pastDTOList(list)
                 .build();
     }
 
