@@ -6,7 +6,6 @@ import com.ceos.beatbuddy.domain.event.dto.EventCommentTreeResponseDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventComment;
 import com.ceos.beatbuddy.domain.event.entity.EventCommentId;
-import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.event.repository.EventCommentRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
