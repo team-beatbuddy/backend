@@ -308,6 +308,16 @@ public class EventController implements EventApiDocs {
     }
 
     @Override
+    @GetMapping("/{eventId}/attendance")
+    public ResponseEntity<ResponseDTO<EventAttendanceResponseDTO>> getEventAttendance(@PathVariable Long eventId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        EventAttendanceResponseDTO result = eventAttendanceService.getAttendance(eventId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_ATTENDANCE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_ATTENDANCE, result));
+    }
+
     @PatchMapping("/{eventId}/attendance")
     public ResponseEntity<ResponseDTO<EventAttendanceResponseDTO>> updateEventAttendance(
             @PathVariable Long eventId,
