@@ -108,6 +108,6 @@ public class Member extends BaseTimeEntity {
     }
 
     public boolean isAdmin() {
-        return Objects.equals(this.role.toString(), Role.ADMIN.name());
+        return Role.ADMIN.equals(this.role);
     }
 }
