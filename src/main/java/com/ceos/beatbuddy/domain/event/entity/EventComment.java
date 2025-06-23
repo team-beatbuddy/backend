@@ -33,4 +33,13 @@ public class EventComment extends BaseTimeEntity {
     private Member author;
 
     private boolean anonymous;
+
+    // 댓글 수정 구현
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
+    public void updateAnonymous(boolean anonymous) {
+        this.anonymous = anonymous;
+    }
 }

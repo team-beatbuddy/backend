@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.event.application;
 import com.ceos.beatbuddy.domain.event.dto.EventCommentCreateRequestDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventCommentResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventCommentTreeResponseDTO;
+import com.ceos.beatbuddy.domain.event.dto.EventCommentUpdateDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventComment;
 import com.ceos.beatbuddy.domain.event.entity.EventCommentId;
@@ -27,6 +28,7 @@ public class EventCommentService {
     private final MemberService memberService;
     private final EventService eventService;
     private final EventCommentRepository eventCommentRepository;
+    private final EventValidator eventValidator;
 
     @Transactional
     public EventCommentResponseDTO createComment(Long eventId, Long memberId, EventCommentCreateRequestDTO dto, Long parentCommentId) {
@@ -115,5 +117,32 @@ public class EventCommentService {
                 })
                 .sorted(Comparator.comparing((EventCommentTreeResponseDTO dto) -> dto.getCreatedAt()).reversed())
                 .toList();
+    }
+
+    // 이벤트 댓글 수정 구현
+    @Transactional
+    public EventCommentResponseDTO updateComment(Long eventId, Long commentId, Integer level, Long memberId, EventCommentUpdateDTO dto) {
+        Member member = memberService.validateAndGetMember(memberId);
+        Event event = eventService.validateAndGet(eventId);
+        EventComment comment = validateAndGetComment(commentId, level);
+
+        eventValidator.validateCommentAuthor(comment.getAuthor().getId(), member.getId());
+
+        // content가 null이 아니고 빈 문자열이 아닌 경우에만 업데이트
+        if (dto.getContent() != null && !dto.getContent().isBlank()) {
+            comment.updateContent(dto.getContent());
+        }
+
+        // anonymous가 null이 아닌 경우에만 업데이트
+        if (dto.getAnonymous() != null) {
+            comment.updateAnonymous(dto.getAnonymous());
+        }
+
+        return EventCommentResponseDTO.toDTO(comment);
+    }
+
+    private EventComment validateAndGetComment(Long commentId, Integer level) {
+        return eventCommentRepository.findById(new EventCommentId(commentId, level))
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMENT));
     }
 }
