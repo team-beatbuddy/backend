@@ -81,14 +81,21 @@ public class BusinessMemberService {
     }
 
     @Transactional
-    public BusinessMemberResponseDTO setNicknameAndBusinessName(Long memberId, NicknameAndBusinessNameDTO dto) {
+    public BusinessMemberResponseDTO updateBusinessInfo(Long memberId, NicknameAndBusinessNameDTO dto) {
         Member member = memberService.validateAndGetMember(memberId);
 
-        // 닉네임 중복과 가능한 닉네임인지 확인
-        if ((onboardingService.isDuplicate(memberId, NicknameDTO.builder().nickname(dto.getNickname()).build())) && (onboardingService.isValidate(memberId, NicknameDTO.builder().nickname(dto.getNickname()).build()))) {
-            member.saveNickname(dto.getNickname());
-            member.getBusinessInfo().saveBusinessName(dto.getBusinessName());
-        }
+        NicknameDTO nicknameDTO = NicknameDTO.builder()
+                .nickname(dto.getNickname())
+                .build();
+
+        // 중복 검증 (중복이면 예외 발생)
+        onboardingService.isDuplicate(memberId, nicknameDTO);
+
+        // 유효성 검증 (불가능한 닉네임이면 예외 발생)
+        onboardingService.isValidate(memberId, nicknameDTO);
+
+        member.saveNickname(dto.getNickname()); // 저장
+        member.getBusinessInfo().saveBusinessName(dto.getBusinessName());
 
         return BusinessMemberResponseDTO.toSetNicknameDTO(member);
     }
