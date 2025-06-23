@@ -8,7 +8,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class EventAttendanceExcelExporter {
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     public static Workbook export(List<EventAttendanceExportDTO> dtoList) {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("참석자 명단");
