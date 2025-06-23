@@ -9,10 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +34,7 @@ public class EventController implements EventApiDocs {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO<EventResponseDTO>> addEvent(
             @Valid @RequestPart("eventCreateRequestDTO") EventCreateRequestDTO eventCreateRequestDTO,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         EventResponseDTO result = eventService.addEvent(memberId, eventCreateRequestDTO, images);
 
@@ -158,10 +155,6 @@ public class EventController implements EventApiDocs {
              OutputStream os = response.getOutputStream()) {
             workbook.write(os);
         }
-    }
-
-    private String nullToHyphen(String value) {
-        return value == null || value.isBlank() ? "-" : value;
     }
 
     @Override

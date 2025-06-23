@@ -1,12 +1,8 @@
 package com.ceos.beatbuddy.domain.event.application;
 
-import com.ceos.beatbuddy.domain.event.dto.EventCreateRequestDTO;
-import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
-import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
-import com.ceos.beatbuddy.domain.event.dto.EventUpdateRequestDTO;
+import com.ceos.beatbuddy.domain.event.dto.*;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
-import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
@@ -25,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -39,7 +36,7 @@ public class EventService {
     private final EventValidator eventValidator;
 
     @Transactional
-    public EventResponseDTO addEvent(Long memberId, EventCreateRequestDTO eventCreateRequestDTO, List<MultipartFile> images) throws IOException {
+    public EventResponseDTO addEvent(Long memberId, EventCreateRequestDTO eventCreateRequestDTO, List<MultipartFile> images) {
         Member member = memberService.validateAndGetMember(memberId);
 
         if (!(Objects.equals(member.getRole().toString(), "ADMIN")) && !(Objects.equals(member.getRole().toString(), "BUSINESS"))) {
@@ -195,19 +192,38 @@ public class EventService {
         int offset = (page - 1) * limit;
 
         if ("popular".equals(sort)) {
-            // 월별 인기순으로 전체 데이터 가져와서 그룹핑
+            LocalDate now = LocalDate.now();
+            LocalDate from = now.minusYears(1).withDayOfMonth(1);
+            LocalDate to = now.minusDays(1);
 
-            Map<String, List<Event>> groupedEvents = eventQueryRepository.findPastEventsGroupedByMonth();
+            List<Object[]> result = eventRepository.findPastEventsGroupedByMonthOptimized(from, to);
 
-            List<EventResponseDTO> groupedResponse = groupedEvents.entrySet().stream()
-                    .sorted(Map.Entry.<String, List<Event>>comparingByKey().reversed()) // 최신 월이 먼저 오도록
-                    .map(entry -> EventResponseDTO.groupByMonth(entry.getKey(), entry.getValue()))
+            Map<String, List<Event>> groupedEvents = new LinkedHashMap<>();
+            for (Object[] row : result) {
+                String month = (String) row[0];  // yyyy-MM
+                Event event = (Event) row[1];
+                groupedEvents.computeIfAbsent(month, k -> new ArrayList<>()).add(event);
+            }
+
+            // 1. 전체 그룹핑 결과를 정렬된 리스트로 변환
+            List<EventGroupByMonthDTO> fullGroupedResponse = groupedEvents.entrySet().stream()
+                    .sorted(Map.Entry.<String, List<Event>>comparingByKey().reversed())
+                    .map(entry -> EventGroupByMonthDTO.groupByMonth(entry.getKey(), entry.getValue()))
                     .toList();
 
+            // 2. 페이징 계산
+            int totalSize = fullGroupedResponse.size(); // 전체 월 수
+            int fromIndex = Math.min((page - 1) * limit, totalSize);
+            int toIndex = Math.min(fromIndex + limit, totalSize);
+            List<EventGroupByMonthDTO> pagedResponse = fullGroupedResponse.subList(fromIndex, toIndex);
+
+            // 3. 응답 생성
             return EventListResponseDTO.builder()
                     .sort(sort)
-                    .eventResponseDTOS(groupedResponse)
-                    .totalSize(groupedResponse.size()) // 페이지 처리 안 함
+                    .groupedByMonth(pagedResponse)
+                    .totalSize(totalSize)
+                    .page(page)
+                    .size(limit)
                     .build();
         }
 
