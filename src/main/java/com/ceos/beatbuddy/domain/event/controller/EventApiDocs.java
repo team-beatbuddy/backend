@@ -786,8 +786,8 @@ public interface EventApiDocs {
     @Operation(
             summary = "이벤트 댓글 작성\n",
             description = """
-        이벤트에 댓글을 작성합니다.  
-        최상위 댓글 작성 시 `parentCommentId`는 빈 문자열("")로 전달합니다.
+            이벤트에 댓글을 작성합니다.
+            최상위 댓글 작성 시 `parentCommentId`는 빈 문자열("")로 전달합니다.
 
         예시:
         ```json
@@ -860,8 +860,70 @@ public interface EventApiDocs {
             @Valid @RequestBody EventCommentCreateRequestDTO dto);
 
 
+    @Operation(summary = "이벤트 댓글 수정\n",
+            description = """
+                이벤트에 댓글을 수정합니다.
+                - level 이 0이면 원댓글, 1부터 대댓글입니다.
+                - `content`와 `anonymous`을 수정할 수 있습니다.
+                - 수정하고자 하는 필드만 입력하면 됩니다.
+                """)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공적으로 댓글을 수정했습니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                            {
+                              "status": 200,
+                              "code": "SUCCESS_UPDATE_COMMENT",
+                              "message": "성공적으로 댓글을 수정했습니다.",
+                              "data": {
+                                "commentId": 1,
+                                "commentLevel": 1,
+                                "content": "댓글 수정해봄",
+                                "authorNickname": "익명",
+                                "anonymous": true,
+                                "createdAt": "2025-06-18T02:56:10.818788"
+                              }
+                            }
+                                        """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "이벤트 / 댓글 / 유저 정보 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "이벤트 없음", value = SwaggerExamples.NOT_FOUND_EVENT),
+                                    @ExampleObject(name = "댓글이 존재하지 않는 경우", value = SwaggerExamples.NOT_FOUND_COMMENT)
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "댓글을 작성한 유저가 아닙니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "유저 권한 없음", value = SwaggerExamples.UNAUTHORIZED_MEMBER)
+                            }
+                    )
+            )
+
+    })
+    ResponseEntity<ResponseDTO<EventCommentResponseDTO>> updateComment(
+            @PathVariable Long eventId,
+            @PathVariable Long commentId,
+            @PathVariable Integer commentLevel,
+            @Valid @RequestBody EventCommentUpdateDTO dto);
+
     @Operation(summary = "이벤트 댓글 삭제\n",
-            description = "이벤트에 댓글을 삭제합니다. level 이 0이면 원댓글부터 대댓글 전체 삭제됩니다.")
+            description = """
+            이벤트에 댓글을 삭제합니다.
+            - level 이 0이면 원댓글부터 대댓글 전체 삭제됩니다.
+            """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공적으로 댓글을 삭제했습니다. level 이 0이면 원댓글부터 대댓글 전체 삭제됩니다.",
                     content = @Content(
