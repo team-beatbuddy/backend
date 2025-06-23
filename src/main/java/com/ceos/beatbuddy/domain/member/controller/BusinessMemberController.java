@@ -49,7 +49,7 @@ public class BusinessMemberController implements BusinessMemberApiDocs{
     @PostMapping("/settings")
     public ResponseEntity<ResponseDTO<BusinessMemberResponseDTO>> setNicknameAndBusinessName(@Valid @RequestBody NicknameAndBusinessNameDTO dto) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        BusinessMemberResponseDTO result = businessMemberService.setNicknameAndBusinessName(memberId, dto);
+        BusinessMemberResponseDTO result = businessMemberService.updateBusinessInfo(memberId, dto);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_BUSINESS_SETTINGS.getStatus().value())
