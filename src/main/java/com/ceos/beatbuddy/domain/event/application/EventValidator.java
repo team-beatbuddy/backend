@@ -5,7 +5,6 @@ import com.ceos.beatbuddy.domain.event.dto.EventAttendanceUpdateDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventUpdateRequestDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventAttendance;
-import com.ceos.beatbuddy.domain.event.entity.EventAttendanceId;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;

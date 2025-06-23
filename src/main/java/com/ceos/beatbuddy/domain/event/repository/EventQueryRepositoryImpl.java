@@ -7,7 +7,6 @@ import com.ceos.beatbuddy.domain.scrapandlike.entity.QEventLike;
 import com.ceos.beatbuddy.domain.venue.entity.QVenue;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
