@@ -4,7 +4,6 @@ import com.ceos.beatbuddy.domain.event.dto.EventAttendanceExportDTO;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class EventAttendanceExcelExporter {
