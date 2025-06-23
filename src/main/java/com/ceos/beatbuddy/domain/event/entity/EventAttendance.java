@@ -20,31 +20,31 @@ public class EventAttendance extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("memberId")
     @JoinColumn(name = "memberId")
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("eventId")
     @JoinColumn(name = "eventId")
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
     private Event event;
 
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
     private String name;
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
     private Gender gender;
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
     private String phoneNumber;
 
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
     private Integer totalMember; // 동행인원 (본인 포함)
 
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
     private String snsType; // 인스타그램, 페이스북, X
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
     private String snsId;
 
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
     private Boolean hasPaid;
 
     public void applyUpdate(EventAttendanceUpdateDTO dto) {
