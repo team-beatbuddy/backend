@@ -72,7 +72,7 @@ public class EventController implements EventApiDocs {
 
 
     @Override
-    @PostMapping("/{eventId}")
+    @PostMapping("/{eventId}/attendance")
     public ResponseEntity<ResponseDTO<EventAttendanceResponseDTO>> addEventAttendance (@PathVariable Long eventId, @RequestBody EventAttendanceRequestDTO dto) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         EventAttendanceResponseDTO result = eventAttendanceService.addEventAttendance(memberId, dto, eventId);
@@ -132,7 +132,7 @@ public class EventController implements EventApiDocs {
 
 
     @Override
-    @GetMapping("/{eventId}/attendances")
+    @GetMapping("/{eventId}/attendance-list")
     public ResponseEntity<ResponseDTO<EventAttendanceExportListDTO>> getEventAttendanceList(@PathVariable Long eventId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         EventAttendanceExportListDTO result = eventAttendanceService.getAttendanceList(eventId, memberId);
@@ -143,7 +143,7 @@ public class EventController implements EventApiDocs {
     }
 
     @Override
-    @GetMapping("/{eventId}/attendances/excel")
+    @GetMapping("/{eventId}/attendance-list/excel")
     public void downloadAttendanceExcel(
             @PathVariable Long eventId,
             HttpServletResponse response
@@ -283,7 +283,8 @@ public class EventController implements EventApiDocs {
     }
 
     private ResponseEntity<ResponseDTO<List<EventResponseDTO>>> buildEventListResponse(
-            List<EventResponseDTO> result) {
+            List<EventResponseDTO> result)
+    {
         if (result.isEmpty()) {
             return ResponseEntity
                     .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
@@ -293,5 +294,16 @@ public class EventController implements EventApiDocs {
                     .status(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS.getHttpStatus().value())
                     .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS, result));
         }
+    }
+
+    @Override
+    @DeleteMapping("/{eventId}/attendance")
+    public ResponseEntity<ResponseDTO<String>> deleteEventAttendance(@PathVariable Long eventId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        eventAttendanceService.deleteAttendance(eventId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_DELETE_ATTENDANCE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_ATTENDANCE, "이벤트 참석을 취소했습니다."));
     }
 }
