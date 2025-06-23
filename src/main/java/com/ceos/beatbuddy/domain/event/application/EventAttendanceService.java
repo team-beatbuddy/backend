@@ -43,9 +43,9 @@ public class EventAttendanceService {
 
         EventAttendance eventAttendance = EventAttendanceRequestDTO.toEntity(dto, member, event);
 
-        eventAttendanceRepository.save(eventAttendance);
+        EventAttendance saved = eventAttendanceRepository.save(eventAttendance);
 
-        return EventAttendanceResponseDTO.toDTO(eventAttendance);
+        return EventAttendanceResponseDTO.toDTO(saved);
     }
 
     private void validateAttendanceInput(EventAttendanceRequestDTO dto, Event event) {

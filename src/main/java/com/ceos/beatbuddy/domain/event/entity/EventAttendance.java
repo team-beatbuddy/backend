@@ -40,5 +40,4 @@ public class EventAttendance extends BaseTimeEntity {
     private String snsId;
 
     private Boolean hasPaid;
-    //private Integer paymentAmount;
 }
