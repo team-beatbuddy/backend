@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.event.application;
 
+import com.ceos.beatbuddy.domain.event.dto.EventUpdateRequestDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
@@ -26,6 +27,32 @@ public class EventValidator {
 
         if (!Objects.equals(event.getHost().getId(), memberId)) {
             throw new CustomException(EventErrorCode.FORBIDDEN_EVENT_ACCESS);
+        }
+    }
+
+    public void validateReceiveInfoConfig(EventUpdateRequestDTO dto) {
+        if (Boolean.FALSE.equals(dto.getReceiveInfo())) {
+            if (Boolean.TRUE.equals(dto.getReceiveName()) ||
+                    Boolean.TRUE.equals(dto.getReceiveGender()) ||
+                    Boolean.TRUE.equals(dto.getReceivePhoneNumber()) ||
+                    Boolean.TRUE.equals(dto.getReceiveTotalCount()) ||
+                    Boolean.TRUE.equals(dto.getReceiveSNSId())) {
+                throw new CustomException(EventErrorCode.INVALID_RECEIVE_INFO_CONFIGURATION);
+            }
+        }
+    }
+
+    public boolean isNotBlank(String str) {
+        return str != null && !str.trim().isEmpty();
+    }
+
+
+    // 에약금을 받지만 계좌 정보가 없는 경우
+    public void validateReceiveMoney(boolean receiveMoney, String depositAccount, Integer depositMoney) {
+        if (receiveMoney) {
+            if (depositMoney == null || depositMoney <= 0 || depositAccount == null || depositAccount.isBlank()) {
+                throw new CustomException(EventErrorCode.NEED_DEPOSIT_INFO);
+            }
         }
     }
 }

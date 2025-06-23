@@ -25,6 +25,23 @@ public class SwaggerExamples {
         }
         """;
     
+    public static final String NEED_DEPOSIT_INFO = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "NEED_DEPOSIT_INFO",
+          "message": "예약금에 관련된 정보가 필요합니다."
+        }
+        """;
+
+    public static final String INVALID_RECEIVE_INFO_CONFIGURATION = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "INVALID_RECEIVE_INFO_CONFIGURATION",
+          "message": "receiveInfo가 false일 때 다른 수집 항목은 true일 수 없습니다."
+        }
+        """;
 
     /**
      * 403 권한 없음

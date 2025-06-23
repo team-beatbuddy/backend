@@ -47,7 +47,7 @@ public class EventService {
         }
 
         // 에약금 정보 확인
-        validateReceiveMoney(eventCreateRequestDTO.isReceiveMoney(), eventCreateRequestDTO.getDepositAccount(), eventCreateRequestDTO.getDepositAmount());
+        eventValidator.validateReceiveMoney(eventCreateRequestDTO.isReceiveMoney(), eventCreateRequestDTO.getDepositAccount(), eventCreateRequestDTO.getDepositAmount());
 
         // 엔티티 생성
         Event event = EventCreateRequestDTO.toEntity(eventCreateRequestDTO, member);
@@ -70,39 +70,75 @@ public class EventService {
         return EventResponseDTO.toDTO(event, false);
     }
 
-    // 에약금을 받지만 계좌 정보가 없는 경우
-    public void validateReceiveMoney(boolean receiveMoney, String depositAccount, Integer depositMoney) {
-        if (receiveMoney) {
-            if (depositMoney == null || depositMoney <= 0 || depositAccount == null || depositAccount.isBlank()) {
-                throw new CustomException(EventErrorCode.NEED_DEPOSIT_INFO);
-            }
-        }
-    }
-
     @Transactional
     public EventResponseDTO updateEvent(Long eventId, EventUpdateRequestDTO dto, Long memberId, List<MultipartFile> imageFiles) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+        Event event = validateAndGet(eventId);
 
         eventValidator.checkAccessForEvent(eventId, memberId);
 
-        // 문자열: null이 아니면서 공백만 있는 값은 무시
-        if (isNotBlank(dto.getTitle())) event.setTitle(dto.getTitle());
-        if (isNotBlank(dto.getContent())) event.setContent(dto.getContent());
+        if (eventValidator.isNotBlank(dto.getTitle())) event.setTitle(dto.getTitle());
+        if (eventValidator.isNotBlank(dto.getContent())) event.setContent(dto.getContent());
         if (dto.getStartDate() != null) event.setStartDate(dto.getStartDate());
         if (dto.getEndDate() != null) event.setEndDate(dto.getEndDate());
-        if (isNotBlank(dto.getLocation())) event.setLocation(dto.getLocation());
+        if (eventValidator.isNotBlank(dto.getLocation())) event.setLocation(dto.getLocation());
 
         if (dto.getIsVisible() != null) event.setVisible(dto.getIsVisible());
 
-        if (dto.getReceiveInfo() != null) event.setReceiveInfo(dto.getReceiveInfo());
-        if (dto.getReceiveName() != null) event.setReceiveName(dto.getReceiveName());
-        if (dto.getReceiveGender() != null) event.setReceiveGender(dto.getReceiveGender());
-        if (dto.getReceivePhoneNumber() != null) event.setReceivePhoneNumber(dto.getReceivePhoneNumber());
-        if (dto.getReceiveTotalCount() != null) event.setReceiveTotalCount(dto.getReceiveTotalCount());
-        if (dto.getReceiveSNSId() != null) event.setReceiveSNSId(dto.getReceiveSNSId());
-        if (dto.getReceiveMoney() != null) event.setReceiveMoney(dto.getReceiveMoney());
+        // userInfo 가 false 면 나머지도 false 여야 함.
+        eventValidator.validateReceiveInfoConfig(dto);
+//      1. receiveInfo 세팅
+        if (dto.getReceiveInfo() != null) {
+            event.setReceiveInfo(dto.getReceiveInfo());
 
+            // 만약 false로 바뀌면, 하위 항목 모두 false로 초기화
+            if (!dto.getReceiveInfo()) {
+                event.setReceiveName(false);
+                event.setReceiveGender(false);
+                event.setReceivePhoneNumber(false);
+                event.setReceiveTotalCount(false);
+                event.setReceiveSNSId(false);
+            }
+        }
+
+        // 2. receiveInfo가 true일 경우, 하위 항목을 선택적으로 적용
+        if (Boolean.TRUE.equals(event.isReceiveInfo())) {
+            if (dto.getReceiveName() != null) event.setReceiveName(dto.getReceiveName());
+            if (dto.getReceiveGender() != null) event.setReceiveGender(dto.getReceiveGender());
+            if (dto.getReceivePhoneNumber() != null) event.setReceivePhoneNumber(dto.getReceivePhoneNumber());
+            if (dto.getReceiveTotalCount() != null) event.setReceiveTotalCount(dto.getReceiveTotalCount());
+            if (dto.getReceiveSNSId() != null) event.setReceiveSNSId(dto.getReceiveSNSId());
+        }
+
+        // 기존에 money를 안 받겠다고 했으면, account랑 amount 가 없을 테니까, true 로 바꿨을 때라면 account. amount가 다 있어야겠지
+        // 기존에 money를 받았는데, 안 받겠다고 했으면, account랑 amount를 지우면 됨.
+        // 1. receiveMoney 상태 변경 반영
+        if (dto.getReceiveMoney() != null) {
+            event.setReceiveMoney(dto.getReceiveMoney());
+        }
+
+        // 2. 반영 후의 상태 기반 값 결정
+        boolean updatedReceiveMoney = dto.getReceiveMoney() != null ? dto.getReceiveMoney() : event.isReceiveMoney();
+        String updatedAccount = dto.getDepositAccount() != null ? dto.getDepositAccount() : event.getDepositAccount();
+        Integer updatedAmount = dto.getDepositAmount() != null ? dto.getDepositAmount() : event.getDepositAmount();
+
+        // 3. 상태에 따라 처리
+        if (dto.getReceiveMoney() != null || dto.getDepositAccount() != null || dto.getDepositAmount() != null) {
+            if (updatedReceiveMoney) {
+                // true일 때는 검증 및 설정
+                eventValidator.validateReceiveMoney(true, updatedAccount, updatedAmount);
+
+                if (dto.getDepositAccount() != null) {
+                    event.setDepositAccount(dto.getDepositAccount());
+                }
+                if (dto.getDepositAmount() != null) {
+                    event.setDepositAmount(dto.getDepositAmount());
+                }
+            } else {
+                // false일 경우에는 해당 필드 초기화
+                event.setDepositAccount(null);
+                event.setDepositAmount(null);
+            }
+        }
 
         List<String> deleteFiles = dto.getDeleteImageUrls();
 
@@ -140,11 +176,6 @@ public class EventService {
 
         // 4. 연관관계 해제
         existing.removeAll(matched);
-    }
-
-
-    private boolean isNotBlank(String str) {
-        return str != null && !str.trim().isEmpty();
     }
 
 

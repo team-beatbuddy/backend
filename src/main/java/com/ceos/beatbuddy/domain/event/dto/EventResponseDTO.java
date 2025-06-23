@@ -45,6 +45,9 @@ public class EventResponseDTO {
     private boolean receiveSNSId; // sns id 받을 건지
     private boolean receiveMoney; // 예약금 받을 건지
 
+    private String depositAccount;
+    private Integer depositAmount;
+
 
     public static EventResponseDTO toDTO(Event event, boolean liked) {
         return EventResponseDTO.builder()
@@ -63,6 +66,8 @@ public class EventResponseDTO {
                 .receivePhoneNumber(event.isReceivePhoneNumber())
                 .receiveMoney(event.isReceiveMoney())
                 .receiveSNSId(event.isReceiveSNSId())
+                .depositAccount(Optional.ofNullable(event.getDepositAccount()).orElse(""))
+                .depositAmount(Optional.ofNullable(event.getDepositAmount()).orElse(0))
                 .build();
     }
 
