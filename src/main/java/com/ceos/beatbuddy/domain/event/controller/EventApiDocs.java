@@ -145,25 +145,25 @@ public interface EventApiDocs {
     @Operation(
             summary = "이벤트 수정 기능",
             description = """
-                    수정하고자 하는 필드만 넣으면 됩니다. \n
-                    데이터 전달은 multipart/form-data이며 'eventUpdateRequestDTO'는 JSON 문자열 형태로 전송해야 합니다.\n
-                    - receiveInfo: 참석자 정보 수집 여부\n
-                    - receiveName: 참석자 이름 수집 여부\n
-                    - receiveGender: 참석자 성별 수집 여부\n
-                    - receivePhoneNumber: 참석자 전화번호 수집 여부\n
-                    - receiveTotalCount: 참석자 본인 포함 동행인원 수집 여부\n
-                    - receiveSNSId: 참석자 SNS ID 수집 여부\n
-                    - receiveMoney: 예약금 설정 여부 \n
+                    수정하고자 하는 필드만 넣으면 됩니다.
+                    데이터 전달은 multipart/form-data이며 'eventUpdateRequestDTO'는 JSON 문자열 형태로 전송해야 합니다
+                    - receiveInfo: 참석자 정보 수집 여부
+                    - receiveName: 참석자 이름 수집 여부
+                    - receiveGender: 참석자 성별 수집 여부
+                    - receivePhoneNumber: 참석자 전화번호 수집 여부
+                    - receiveTotalCount: 참석자 본인 포함 동행인원 수집 여부
+                    - receiveSNSId: 참석자 SNS ID 수집 여부
+                    - receiveMoney: 예약금 설정 여부
                     
-                    예시)\n
+                    예시)
                     ``` json
                     {
                       "receiveInfo": true,
                       "receiveGender": true
-                    } 
+                    }
                     ```
-                    \n
-                    → 참석자 정보 수집을 활성화하고, 성별만 수집하도록 설정됩니다.\n
+                    
+                    → 참석자 정보 수집을 활성화하고, 성별만 수집하도록 설정됩니다.
                     → 나머지 receive 항목은 명시하지 않으면 기존 값이 유지됩니다.
                     """
     )
@@ -492,20 +492,20 @@ public interface EventApiDocs {
     @Operation(summary = "종료된 이벤트",
             description = """
                     
-                    (종료 날짜 기준 < 오늘) 종료가 된 이벤트를 보여줍니다. \n
-                    sort 에는 popular / latest / region을 넣을 수 있으나 현재는 region은 구현되어있지 않습니다. \n
-                    - 종료된 이벤트의 최신순과 인기순의 응답이 다릅니다. \n
-                    - 종료된 이벤트 (인기순)의 경우에는 작년의 모든 이벤트를 불러옵니다. \n
+                    (종료 날짜 기준 < 오늘) 종료가 된 이벤트를 보여줍니다.
+                    sort 에는 popular / latest / region을 넣을 수 있으나 현재는 region은 구현되어있지 않습니다.
+                    - 종료된 이벤트의 최신순과 인기순의 응답이 다릅니다.
+                    - 종료된 이벤트 (인기순)의 경우에는 작년의 모든 이벤트를 불러옵니다.
                     
-                    ✅ `sort=popular` \n
-                    - 지난 1년간의 이벤트를 **월 단위로 그룹핑**하여, 각 월 내에서 좋아요 순으로 정렬합니다. \n
-                    - `page`, `size`는 **월 그룹 단위 페이징**입니다. (예: `size=2`면 2개월치 그룹 반환) \n
-                    - 예: `GET /events/past?sort=popular&page=1&size=2` \n
-                    \n
-                    ⚠️ 응답 구조 주의: \n
-                    - `sort=latest` → `eventResponseDTOS` 필드 포함 (단일 이벤트 리스트) \n
-                    - `sort=popular` → `groupedByMonth` 필드 포함 (월별 이벤트 그룹 리스트) \n
-                    \n
+                    ✅ `sort=popular`
+                    - 지난 1년간의 이벤트를 **월 단위로 그룹핑**하여, 각 월 내에서 좋아요 순으로 정렬합니다.
+                    - `page`, `size`는 **월 그룹 단위 페이징**입니다. (예: `size=2`면 2개월치 그룹 반환)
+                    - 예: `GET /events/past?sort=popular&page=1&size=2`
+                    
+                    ⚠️ 응답 구조 주의:
+                    - `sort=latest` → `eventResponseDTOS` 필드 포함 (단일 이벤트 리스트)
+                    - `sort=popular` → `groupedByMonth` 필드 포함 (월별 이벤트 그룹 리스트)
+                    
                     응답에는 `page`, `size`, `totalSize`가 항상 포함됩니다.
                     """)
     @ApiResponses(value = {
