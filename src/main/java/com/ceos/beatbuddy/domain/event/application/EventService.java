@@ -76,74 +76,41 @@ public class EventService {
 
         eventValidator.checkAccessForEvent(eventId, memberId);
 
-        if (eventValidator.isNotBlank(dto.getTitle())) event.setTitle(dto.getTitle());
-        if (eventValidator.isNotBlank(dto.getContent())) event.setContent(dto.getContent());
-        if (dto.getStartDate() != null) event.setStartDate(dto.getStartDate());
-        if (dto.getEndDate() != null) event.setEndDate(dto.getEndDate());
-        if (eventValidator.isNotBlank(dto.getLocation())) event.setLocation(dto.getLocation());
+        // 1. 기본 정보 업데이트
+        event.updateEventInfo(
+                eventValidator.isNotBlank(dto.getTitle()) ? dto.getTitle() : null,
+                eventValidator.isNotBlank(dto.getContent()) ? dto.getContent() : null,
+                dto.getStartDate(),
+                dto.getEndDate(),
+                eventValidator.isNotBlank(dto.getLocation()) ? dto.getLocation() : null,
+                dto.getIsVisible()
+        );
 
-        if (dto.getIsVisible() != null) event.setVisible(dto.getIsVisible());
-
-        // userInfo 가 false 면 나머지도 false 여야 함.
+        // 2. 참석자 정보 설정
         eventValidator.validateReceiveInfoConfig(dto);
-//      1. receiveInfo 세팅
-        if (dto.getReceiveInfo() != null) {
-            event.setReceiveInfo(dto.getReceiveInfo());
+        event.updateReceiveSettings(
+                dto.getReceiveInfo(),
+                dto.getReceiveName(),
+                dto.getReceiveGender(),
+                dto.getReceivePhoneNumber(),
+                dto.getReceiveTotalCount(),
+                dto.getReceiveSNSId()
+        );
 
-            // 만약 false로 바뀌면, 하위 항목 모두 false로 초기화
-            if (!dto.getReceiveInfo()) {
-                event.setReceiveName(false);
-                event.setReceiveGender(false);
-                event.setReceivePhoneNumber(false);
-                event.setReceiveTotalCount(false);
-                event.setReceiveSNSId(false);
-            }
+        // 3. 예약금 설정
+        boolean willUpdateDeposit = dto.getReceiveMoney() != null || dto.getDepositAccount() != null || dto.getDepositAmount() != null;
+        if (willUpdateDeposit) {
+            boolean updatedReceiveMoney = dto.getReceiveMoney() != null ? dto.getReceiveMoney() : event.isReceiveMoney();
+            String updatedAccount = dto.getDepositAccount() != null ? dto.getDepositAccount() : event.getDepositAccount();
+            Integer updatedAmount = dto.getDepositAmount() != null ? dto.getDepositAmount() : event.getDepositAmount();
+
+            eventValidator.validateReceiveMoney(updatedReceiveMoney, updatedAccount, updatedAmount);
+            event.updateDepositSettings(dto.getReceiveMoney(), dto.getDepositAccount(), dto.getDepositAmount());
         }
 
-        // 2. receiveInfo가 true일 경우, 하위 항목을 선택적으로 적용
-        if (Boolean.TRUE.equals(event.isReceiveInfo())) {
-            if (dto.getReceiveName() != null) event.setReceiveName(dto.getReceiveName());
-            if (dto.getReceiveGender() != null) event.setReceiveGender(dto.getReceiveGender());
-            if (dto.getReceivePhoneNumber() != null) event.setReceivePhoneNumber(dto.getReceivePhoneNumber());
-            if (dto.getReceiveTotalCount() != null) event.setReceiveTotalCount(dto.getReceiveTotalCount());
-            if (dto.getReceiveSNSId() != null) event.setReceiveSNSId(dto.getReceiveSNSId());
-        }
-
-        // 기존에 money를 안 받겠다고 했으면, account랑 amount 가 없을 테니까, true 로 바꿨을 때라면 account. amount가 다 있어야겠지
-        // 기존에 money를 받았는데, 안 받겠다고 했으면, account랑 amount를 지우면 됨.
-        // 1. receiveMoney 상태 변경 반영
-        if (dto.getReceiveMoney() != null) {
-            event.setReceiveMoney(dto.getReceiveMoney());
-        }
-
-        // 2. 반영 후의 상태 기반 값 결정
-        boolean updatedReceiveMoney = dto.getReceiveMoney() != null ? dto.getReceiveMoney() : event.isReceiveMoney();
-        String updatedAccount = dto.getDepositAccount() != null ? dto.getDepositAccount() : event.getDepositAccount();
-        Integer updatedAmount = dto.getDepositAmount() != null ? dto.getDepositAmount() : event.getDepositAmount();
-
-        // 3. 상태에 따라 처리
-        if (dto.getReceiveMoney() != null || dto.getDepositAccount() != null || dto.getDepositAmount() != null) {
-            if (updatedReceiveMoney) {
-                // true일 때는 검증 및 설정
-                eventValidator.validateReceiveMoney(true, updatedAccount, updatedAmount);
-
-                if (dto.getDepositAccount() != null) {
-                    event.setDepositAccount(dto.getDepositAccount());
-                }
-                if (dto.getDepositAmount() != null) {
-                    event.setDepositAmount(dto.getDepositAmount());
-                }
-            } else {
-                // false일 경우에는 해당 필드 초기화
-                event.setDepositAccount(null);
-                event.setDepositAmount(null);
-            }
-        }
-
-        List<String> deleteFiles = dto.getDeleteImageUrls();
-
-        if (deleteFiles != null && !deleteFiles.isEmpty()) {
-            removeImages(event, deleteFiles);
+        // 4. 이미지 삭제/추가
+        if (dto.getDeleteImageUrls() != null && !dto.getDeleteImageUrls().isEmpty()) {
+            removeImages(event, dto.getDeleteImageUrls());
         }
 
         if (imageFiles != null && !imageFiles.isEmpty()) {
@@ -151,9 +118,8 @@ public class EventService {
             event.getImageUrls().addAll(imageUrls);
         }
 
+        // 5. 응답 생성
         boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, eventId));
-
-        // 6. 응답 생성
         return EventResponseDTO.toDTO(event, liked);
     }
 
