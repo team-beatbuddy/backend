@@ -508,7 +508,7 @@ public interface EventApiDocs {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "종료된 이벤트", content = @Content(
                     mediaType = "application/json",
-                    examples = {@ExampleObject(name = "좋료된 이벤트 (최신순)", value = """
+                    examples = {@ExampleObject(name = "종료된 이벤트 (최신순)", value = """
                     {
                       "status": 200,
                       "code": "SUCCESS_GET_PAST_EVENT",

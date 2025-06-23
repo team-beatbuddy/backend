@@ -82,6 +82,7 @@ public class EventController implements EventApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATED_EVENT_ATTENDANCE, result));
     }
 
+    // 이벤트 홈에 예정된 이벤트
     @Override
     @GetMapping("/upcoming/{sort}")
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventUpcomingSorted (        @PathVariable String sort,
@@ -96,6 +97,7 @@ public class EventController implements EventApiDocs {
             .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_UPCOMING_EVENT, result));
 }
 
+    // 이벤트 홈에 진행 중인 이벤트
     @Override
     @GetMapping("/now/{sort}")
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventNowSorted (        @PathVariable String sort,
@@ -111,6 +113,7 @@ public class EventController implements EventApiDocs {
     }
 
 
+    // 이벤트 홈에 종료된 이벤트
     @Override
     @GetMapping("/past/{sort}")
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventPastSorted(
@@ -260,6 +263,7 @@ public class EventController implements EventApiDocs {
         return buildEventListResponse(result);
     }
 
+    // 내가 작성한 이벤트 조회
     @Override
     @GetMapping("/my-event")
     public ResponseEntity<ResponseDTO<Map<String, List<EventResponseDTO>>>> getMyEvents() {
