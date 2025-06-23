@@ -22,7 +22,7 @@ public class ResponsePostDto {
         ResponsePostDto.ResponsePostDtoBuilder builder = ResponsePostDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
-                .role(post.getMember().getRole())
+                .role(post.getMember().getRole().toString())
                 .createAt(post.getCreatedAt().toLocalDate())
                 .likes(post.getLikes())
                 .comments(post.getComments());

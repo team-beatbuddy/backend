@@ -16,10 +16,10 @@ public enum EventErrorCode implements ApiCode {
     MISSING_SNS_ID_OR_TYPE(HttpStatus.BAD_REQUEST, "SNS ID 또는 TYPE 입력은 필수입니다."),
     FORBIDDEN_EVENT_ACCESS(HttpStatus.FORBIDDEN, "해당 이벤트에 대한 접근 권한이 없습니다."),
     CANNOT_ADD_EVENT_UNAUTHORIZED_MEMBER(HttpStatus.FORBIDDEN, "글을 작성할 수 없는 유저입니다."),
+    NEED_DEPOSIT_INFO(HttpStatus.BAD_REQUEST, "예약금에 관련된 정보가 필요합니다."),
+    FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다."),
+    INVALID_RECEIVE_INFO_CONFIGURATION(HttpStatus.BAD_REQUEST, "receiveInfo가 false일 때 다른 수집 항목은 true일 수 없습니다.");
 
-
-    NOT_FOUND_SCRAP(HttpStatus.NOT_FOUND, "스크랩 내역이 존재하지 않습니다."),
-    NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다.")
 
     ;
     private final HttpStatus httpStatus;

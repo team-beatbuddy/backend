@@ -1,6 +1,17 @@
 package com.ceos.beatbuddy.global;
 
 public class SwaggerExamples {
+    /**
+     * 200
+     * */
+    public static final String SUCCESS_BUT_EMPTY_LIST = """
+    {
+      "status": 200,
+      "code": "SUCCESS_BUT_EMPTY_LIST",
+      "message": "성공적으로 조회했으나 리스트가 비었습니다.",
+      "data": []
+    }
+    """;
     
     /**
      * 400 잘못된 요청
@@ -14,6 +25,23 @@ public class SwaggerExamples {
         }
         """;
     
+    public static final String NEED_DEPOSIT_INFO = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "NEED_DEPOSIT_INFO",
+          "message": "예약금에 관련된 정보가 필요합니다."
+        }
+        """;
+
+    public static final String INVALID_RECEIVE_INFO_CONFIGURATION = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "INVALID_RECEIVE_INFO_CONFIGURATION",
+          "message": "receiveInfo가 false일 때 다른 수집 항목은 true일 수 없습니다."
+        }
+        """;
 
     /**
      * 403 권한 없음

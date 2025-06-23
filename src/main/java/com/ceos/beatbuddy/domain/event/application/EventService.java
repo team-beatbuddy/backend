@@ -1,12 +1,8 @@
 package com.ceos.beatbuddy.domain.event.application;
 
-import com.ceos.beatbuddy.domain.event.dto.EventCreateRequestDTO;
-import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
-import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
+import com.ceos.beatbuddy.domain.event.dto.*;
 import com.ceos.beatbuddy.domain.event.entity.Event;
-import com.ceos.beatbuddy.domain.event.entity.EventAttendance;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
-import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
@@ -37,15 +33,18 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventQueryRepository eventQueryRepository;
     private final EventLikeRepository eventLikeRepository;
-    private final EventAttendanceRepository eventAttendanceRepository;
+    private final EventValidator eventValidator;
 
     @Transactional
-    public EventResponseDTO addEvent(Long memberId, EventCreateRequestDTO eventCreateRequestDTO, MultipartFile image) throws IOException {
+    public EventResponseDTO addEvent(Long memberId, EventCreateRequestDTO eventCreateRequestDTO, List<MultipartFile> images) {
         Member member = memberService.validateAndGetMember(memberId);
 
-        if (!(Objects.equals(member.getRole(), "ADMIN")) && !(Objects.equals(member.getRole(), "BUSINESS"))) {
+        if (!(Objects.equals(member.getRole().toString(), "ADMIN")) && !(Objects.equals(member.getRole().toString(), "BUSINESS"))) {
             throw new CustomException(EventErrorCode.CANNOT_ADD_EVENT_UNAUTHORIZED_MEMBER);
         }
+
+        // 에약금 정보 확인
+        eventValidator.validateReceiveMoney(eventCreateRequestDTO.isReceiveMoney(), eventCreateRequestDTO.getDepositAccount(), eventCreateRequestDTO.getDepositAmount());
 
         // 엔티티 생성
         Event event = EventCreateRequestDTO.toEntity(eventCreateRequestDTO, member);
@@ -57,12 +56,89 @@ public class EventService {
         }
 
         // 이미지 setting
-        String imageUrl = uploadUtil.upload(image, UploadUtil.BucketType.MEDIA, "event");
-        event.setThumbImage(imageUrl);
+        if (images != null && !images.isEmpty()) {
+            List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "event");
+            event.setThumbImage(imageUrls.get(0));
+            event.setImageUrls(imageUrls);
+        }
 
         eventRepository.save(event);
 
-        return EventResponseDTO.toDTO(event, null);
+        return EventResponseDTO.toDTO(event, false);
+    }
+
+    @Transactional
+    public EventResponseDTO updateEvent(Long eventId, EventUpdateRequestDTO dto, Long memberId, List<MultipartFile> imageFiles) {
+        Event event = validateAndGet(eventId);
+
+        eventValidator.checkAccessForEvent(eventId, memberId);
+
+        // 1. 기본 정보 업데이트
+        event.updateEventInfo(
+                eventValidator.isNotBlank(dto.getTitle()) ? dto.getTitle() : null,
+                eventValidator.isNotBlank(dto.getContent()) ? dto.getContent() : null,
+                dto.getStartDate(),
+                dto.getEndDate(),
+                eventValidator.isNotBlank(dto.getLocation()) ? dto.getLocation() : null,
+                dto.getIsVisible()
+        );
+
+        // 2. 참석자 정보 설정
+        eventValidator.validateReceiveInfoConfig(dto);
+        event.updateReceiveSettings(
+                dto.getReceiveInfo(),
+                dto.getReceiveName(),
+                dto.getReceiveGender(),
+                dto.getReceivePhoneNumber(),
+                dto.getReceiveTotalCount(),
+                dto.getReceiveSNSId()
+        );
+
+        // 3. 예약금 설정
+        boolean willUpdateDeposit = dto.getReceiveMoney() != null || dto.getDepositAccount() != null || dto.getDepositAmount() != null;
+        if (willUpdateDeposit) {
+            boolean updatedReceiveMoney = dto.getReceiveMoney() != null ? dto.getReceiveMoney() : event.isReceiveMoney();
+            String updatedAccount = dto.getDepositAccount() != null ? dto.getDepositAccount() : event.getDepositAccount();
+            Integer updatedAmount = dto.getDepositAmount() != null ? dto.getDepositAmount() : event.getDepositAmount();
+
+            eventValidator.validateReceiveMoney(updatedReceiveMoney, updatedAccount, updatedAmount);
+            event.updateDepositSettings(dto.getReceiveMoney(), dto.getDepositAccount(), dto.getDepositAmount());
+        }
+
+        // 4. 이미지 삭제/추가
+        if (dto.getDeleteImageUrls() != null && !dto.getDeleteImageUrls().isEmpty()) {
+            removeImages(event, dto.getDeleteImageUrls());
+        }
+
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            List<String> imageUrls = uploadUtil.uploadImages(imageFiles, UploadUtil.BucketType.MEDIA, "event");
+            event.getImageUrls().addAll(imageUrls);
+        }
+
+        // 5. 응답 생성
+        boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, eventId));
+        return EventResponseDTO.toDTO(event, liked);
+    }
+
+    @Transactional
+    public void removeImages(Event event, List<String> deleteFileIds) {
+        List<String> existing = event.getImageUrls();
+
+        // 1. 삭제 대상 필터링
+        List<String> matched = existing.stream()
+                .filter(deleteFileIds::contains)
+                .toList();
+
+        // 2. 유효성 검증
+        if (matched.size() != deleteFileIds.size()) {
+            throw new CustomException(EventErrorCode.FILE_NOT_FOUND);
+        }
+
+        // 3. S3 삭제
+        uploadUtil.deleteImages(deleteFileIds, UploadUtil.BucketType.MEDIA);
+
+        // 4. 연관관계 해제
+        existing.removeAll(matched);
     }
 
 
@@ -96,7 +172,7 @@ public class EventService {
         List<Event> events = eventQueryRepository.findNowEvents(sort, offset, size);
 
         List<EventResponseDTO> dto = events.stream()
-                .map(EventResponseDTO::toPastAndNowListDTO)
+                .map(EventResponseDTO::toNowListDTO)
                 .toList();
 
         int totalSize = eventQueryRepository.countNowEvents(); // 총 개수 (페이지네이션용)
@@ -110,30 +186,66 @@ public class EventService {
                 .build();
     }
 
-    public EventListResponseDTO getPastEvents(String sort, Integer page, Integer size, Long memberId) {
+    public EventListResponseDTO getPastEvents(String sort, int page, int limit, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
 
-        int offset = (page - 1) * size;
-        // 지난 이벤트 조회
-        List<Event> events = eventQueryRepository.findPastEvents(sort, offset, size);
+        int offset = (page - 1) * limit;
 
-        List<EventResponseDTO> dto = events.stream()
-                .map(EventResponseDTO::toPastAndNowListDTO)
+        if ("popular".equals(sort)) {
+            LocalDate now = LocalDate.now();
+            LocalDate from = now.minusYears(1).withDayOfMonth(1);
+            LocalDate to = now.minusDays(1);
+
+            List<Object[]> result = eventRepository.findPastEventsGroupedByMonthOptimized(from, to);
+
+            Map<String, List<Event>> groupedEvents = new LinkedHashMap<>();
+            for (Object[] row : result) {
+                String month = (String) row[0];  // yyyy-MM
+                Event event = (Event) row[1];
+                groupedEvents.computeIfAbsent(month, k -> new ArrayList<>()).add(event);
+            }
+
+            // 1. 전체 그룹핑 결과를 정렬된 리스트로 변환
+            List<EventGroupByMonthDTO> fullGroupedResponse = groupedEvents.entrySet().stream()
+                    .sorted(Map.Entry.<String, List<Event>>comparingByKey().reversed())
+                    .map(entry -> EventGroupByMonthDTO.groupByMonth(entry.getKey(), entry.getValue()))
+                    .toList();
+
+            // 2. 페이징 계산
+            int totalSize = fullGroupedResponse.size(); // 전체 월 수
+            int fromIndex = Math.min((page - 1) * limit, totalSize);
+            int toIndex = Math.min(fromIndex + limit, totalSize);
+            List<EventGroupByMonthDTO> pagedResponse = fullGroupedResponse.subList(fromIndex, toIndex);
+
+            // 3. 응답 생성
+            return EventListResponseDTO.builder()
+                    .sort(sort)
+                    .groupedByMonth(pagedResponse)
+                    .totalSize(totalSize)
+                    .page(page)
+                    .size(limit)
+                    .build();
+        }
+
+        // 최신순 (기존 방식)
+        List<Event> events = eventQueryRepository.findPastEvents(sort, offset, limit);
+        int total = eventQueryRepository.countPastEvents();
+
+        List<EventResponseDTO> responseList = events.stream()
+                .map(EventResponseDTO::toPastListDTO)
                 .toList();
-
-        int totalSize = eventQueryRepository.countPastEvents();
 
         return EventListResponseDTO.builder()
                 .sort(sort)
+                .totalSize(total)
                 .page(page)
-                .size(size)
-                .totalSize(totalSize)
-                .eventResponseDTOS(dto)
+                .size(limit)
+                .eventResponseDTOS(responseList)
                 .build();
     }
 
     @Transactional
-    public EventResponseDTO likeEvent(Long eventId, Long memberId) {
+    public void likeEvent(Long eventId, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
 
         Event event = validateAndGet(eventId);
@@ -147,16 +259,10 @@ public class EventService {
         EventLike eventLike = EventLike.toEntity(member, event);
         eventLikeRepository.save(eventLike);
         eventRepository.increaseLike(eventId);
-
-        // 반영된 값까지 포함해 다시 조회
-        Event updated = this.validateAndGet(eventId);
-
-        boolean liked = true;
-        return EventResponseDTO.toDTO(updated, liked);
     }
 
     @Transactional
-    public EventResponseDTO deleteLikeEvent(Long eventId, Long memberId) {
+    public void deleteLikeEvent(Long eventId, Long memberId) {
         // 멤버 조회
         Member member = memberService.validateAndGetMember(memberId);
 
@@ -171,15 +277,9 @@ public class EventService {
 
         eventLikeRepository.delete(eventLike);
         eventRepository.decreaseLike(eventId);
-
-        Event updated = this.validateAndGet(eventId);
-
-        boolean liked = false;
-
-        return EventResponseDTO.toDTO(updated, liked);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public EventResponseDTO getEventDetail(Long eventId, Long memberId) {
         // 멤버 조회
         Member member = memberService.validateAndGetMember(memberId);
@@ -196,44 +296,28 @@ public class EventService {
         return EventResponseDTO.toDTO(event, liked);
     }
 
-
-    public Map<String, List<EventResponseDTO>> getMyPageEvents(Long memberId) {
+    // 내가 작성한 이벤트
+    public Map<String, List<EventResponseDTO>> getMyEvents(Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
 
-        LocalDate today = LocalDate.now();
-        Set<Event> myEvents = new HashSet<>();
-
-        if (member.getRole().equals("BUSINESS")) {
-            // 비즈니스 회원: 내가 생성한 이벤트
-            myEvents.addAll(eventRepository.findAllByHost(member));
-        } else {
-            // 일반 회원: 좋아요 + 참석한 이벤트
-            List<Event> likedEvents = eventLikeRepository.findByMember(member).stream()
-                    .map(EventLike::getEvent)
-                    .toList();
-            List<Event> attendedEvents = eventAttendanceRepository.findByMember(member).stream()
-                    .map(EventAttendance::getEvent)
-                    .toList();
-
-            myEvents.addAll(likedEvents);
-            myEvents.addAll(attendedEvents);
-        }
-
-        // 상태별 분리 및 정렬
-        List<EventResponseDTO> upcoming = myEvents.stream()
-                .filter(e -> !e.getStartDate().isBefore(today))
-                .sorted(Comparator.comparing(Event::getStartDate).reversed())
+        List<EventResponseDTO> upcoming = eventQueryRepository.findMyUpcomingEvents(member)
+                .stream()
                 .map(EventResponseDTO::toUpcomingListDTO)
                 .toList();
 
-        List<EventResponseDTO> past = myEvents.stream()
-                .filter(e -> e.getStartDate().isBefore(today))
-                .sorted(Comparator.comparing(Event::getStartDate).reversed())
-                .map(EventResponseDTO::toPastAndNowListDTO)
+        List<EventResponseDTO> now = eventQueryRepository.findMyNowEvents(member)
+                .stream()
+                .map(EventResponseDTO::toNowListDTO)
+                .toList();
+
+        List<EventResponseDTO> past = eventQueryRepository.findMyPastEvents(member)
+                .stream()
+                .map(EventResponseDTO::toPastListDTO)
                 .toList();
 
         Map<String, List<EventResponseDTO>> result = new HashMap<>();
         result.put("upcoming", upcoming);
+        result.put("now", now);
         result.put("past", past);
 
         return result;

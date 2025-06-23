@@ -17,11 +17,13 @@ public class PostReadDetailDTO {
     @JsonUnwrapped
     PostPageResponseDTO postPageResponseDTO;
     private List<String> imageUrls;
+    private int views;
 
     public static PostReadDetailDTO toDTO(Post post, boolean liked, boolean scrapped, boolean commented) {
         return PostReadDetailDTO.builder()
                 .postPageResponseDTO(PostPageResponseDTO.toDTO(post, liked, scrapped, commented))
                 .imageUrls(post.getImageUrls())
+                .views(post.getViews())
                 .build();
     }
 }

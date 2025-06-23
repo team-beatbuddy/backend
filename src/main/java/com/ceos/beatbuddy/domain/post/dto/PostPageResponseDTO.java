@@ -43,7 +43,7 @@ public class PostPageResponseDTO {
                 .liked(liked)
                 .scrapped(scrapped)
                 .hasCommented(hasCommented)
-                .role(post.getMember().getRole())
+                .role(post.getMember().getRole().toString())
                 .build();
     }
 }

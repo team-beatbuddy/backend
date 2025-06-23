@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.member.entity;
 
 import com.ceos.beatbuddy.domain.member.constant.Gender;
 import com.ceos.beatbuddy.domain.member.constant.Region;
+import com.ceos.beatbuddy.domain.member.constant.Role;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,6 +10,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -29,7 +31,9 @@ public class Member extends BaseTimeEntity {
     @Convert(converter = RegionConverter.class)
     private List<Region> regions;
 
-    private String role;
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private Role role = Role.USER;
 
     @Builder.Default
     private Boolean setNewNickname = false;
@@ -66,7 +70,7 @@ public class Member extends BaseTimeEntity {
     public void saveLatestArchiveId(Long latestArchiveId) {this.latestArchiveId = latestArchiveId;}
 
     public void setBusinessMember() {
-        this.role = "BUSINESS";
+        this.role = Role.BUSINESS;
     }
 
     public void setRealName(String realName){
@@ -103,4 +107,7 @@ public class Member extends BaseTimeEntity {
         this.profileImage = image;
     }
 
+    public boolean isAdmin() {
+        return Role.ADMIN.equals(this.role);
+    }
 }

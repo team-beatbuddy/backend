@@ -1,9 +1,6 @@
 package com.ceos.beatbuddy.domain.event.controller;
 
-import com.ceos.beatbuddy.domain.event.application.EventAttendanceExcelExporter;
-import com.ceos.beatbuddy.domain.event.application.EventAttendanceService;
-import com.ceos.beatbuddy.domain.event.application.EventCommentService;
-import com.ceos.beatbuddy.domain.event.application.EventService;
+import com.ceos.beatbuddy.domain.event.application.*;
 import com.ceos.beatbuddy.domain.event.dto.*;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
@@ -12,10 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,18 +28,46 @@ public class EventController implements EventApiDocs {
     private final EventService eventService;
     private final EventAttendanceService eventAttendanceService;
     private final EventCommentService eventCommentService;
+    private final EventMyPageService eventMyPageService;
 
     @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO<EventResponseDTO>> addEvent(
             @Valid @RequestPart("eventCreateRequestDTO") EventCreateRequestDTO eventCreateRequestDTO,
-            @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        EventResponseDTO result = eventService.addEvent(memberId, eventCreateRequestDTO, image);
+        EventResponseDTO result = eventService.addEvent(memberId, eventCreateRequestDTO, images);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_CREATED_EVENT.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATED_EVENT, result));
+    }
+
+    @Override
+    @GetMapping("/{eventId}")
+    public ResponseEntity<ResponseDTO<EventResponseDTO>> getEventDetail(@PathVariable Long eventId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        EventResponseDTO result = eventService.getEventDetail(eventId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_EVENT.getHttpStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_EVENT, result));
+    }
+
+    @Override
+    @PatchMapping(value = "/{eventId}",
+                    consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+                    produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseDTO<EventResponseDTO>> updateEvent(@PathVariable Long eventId,
+                                                                     @RequestPart("eventUpdateRequestDTO") EventUpdateRequestDTO eventUpdateRequestDTO,
+                                                                     @RequestPart(value = "images", required = false) List<MultipartFile> images
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        EventResponseDTO result = eventService.updateEvent(eventId, eventUpdateRequestDTO, memberId, images);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_UPDATE_EVENT.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_EVENT, result));
     }
 
 
@@ -60,6 +82,7 @@ public class EventController implements EventApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATED_EVENT_ATTENDANCE, result));
     }
 
+    // 이벤트 홈에 예정된 이벤트
     @Override
     @GetMapping("/upcoming/{sort}")
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventUpcomingSorted (        @PathVariable String sort,
@@ -71,9 +94,10 @@ public class EventController implements EventApiDocs {
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_UPCOMING_EVENT.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_UPCOMING_EVENT, result));
-    }
+            .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_UPCOMING_EVENT, result));
+}
 
+    // 이벤트 홈에 진행 중인 이벤트
     @Override
     @GetMapping("/now/{sort}")
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventNowSorted (        @PathVariable String sort,
@@ -89,6 +113,7 @@ public class EventController implements EventApiDocs {
     }
 
 
+    // 이벤트 홈에 종료된 이벤트
     @Override
     @GetMapping("/past/{sort}")
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventPastSorted(
@@ -135,30 +160,26 @@ public class EventController implements EventApiDocs {
         }
     }
 
-    private String nullToHyphen(String value) {
-        return value == null || value.isBlank() ? "-" : value;
-    }
-
     @Override
     @PostMapping("/{eventId}/like")
-    public ResponseEntity<ResponseDTO<EventResponseDTO>> likeEvent(@PathVariable Long eventId) {
+    public ResponseEntity<ResponseDTO<String>> likeEvent(@PathVariable Long eventId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        EventResponseDTO result = eventService.likeEvent(eventId, memberId);
+        eventService.likeEvent(eventId, memberId);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_LIKE_EVENT.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_EVENT, result));
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_EVENT, "좋아요를 눌렀습니다."));
     }
 
     @Override
     @DeleteMapping("/{eventId}/like")
-    public ResponseEntity<ResponseDTO<EventResponseDTO>> deleteLikeEvent(@PathVariable Long eventId) {
+    public ResponseEntity<ResponseDTO<String>> deleteLikeEvent(@PathVariable Long eventId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        EventResponseDTO result = eventService.deleteLikeEvent(eventId, memberId);
+        eventService.deleteLikeEvent(eventId, memberId);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_DELETE_LIKE.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_LIKE, result));
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_LIKE, "좋아요를 취소했습니다."));
     }
 
     @Override
@@ -189,17 +210,6 @@ public class EventController implements EventApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_COMMENT, "댓글 삭제 완료"));
     }
 
-    @Override
-    @GetMapping("/{eventId}")
-    public ResponseEntity<ResponseDTO<EventResponseDTO>> getEventDetail(@PathVariable Long eventId) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        EventResponseDTO result = eventService.getEventDetail(eventId, memberId);
-
-        return ResponseEntity
-                .status(SuccessCode.SUCCESS_GET_EVENT.getHttpStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_EVENT, result));
-    }
-
 
     @Override
     @GetMapping("/{eventId}/comments")
@@ -221,20 +231,67 @@ public class EventController implements EventApiDocs {
 
 
     @Override
-    @GetMapping("/my-page")
+    @GetMapping("/my-page/upcoming/{sort}")
+    public ResponseEntity<ResponseDTO<List<EventResponseDTO>>> getMyPageEventsUpcoming(
+            @PathVariable String sort
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        List<EventResponseDTO> result = eventMyPageService.getMyPageEventsUpcoming(memberId, sort);
+
+        return buildEventListResponse(result);
+    }
+
+    @Override
+    @GetMapping("/my-page/now/{sort}")
+    public ResponseEntity<ResponseDTO<List<EventResponseDTO>>> getMyPageEventsNow(
+            @PathVariable String sort
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        List<EventResponseDTO> result = eventMyPageService.getMyPageEventsNow(memberId, sort);
+
+        return buildEventListResponse(result);
+    }
+
+    @Override
+    @GetMapping("/my-page/past/{sort}")
+    public ResponseEntity<ResponseDTO<List<EventResponseDTO>>> getMyPageEventsPast(
+            @PathVariable String sort
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        List<EventResponseDTO> result = eventMyPageService.getMyPageEventsPast(memberId, sort);
+
+        return buildEventListResponse(result);
+    }
+
+    // 내가 작성한 이벤트 조회
+    @Override
+    @GetMapping("/my-event")
     public ResponseEntity<ResponseDTO<Map<String, List<EventResponseDTO>>>> getMyEvents() {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        Map<String, List<EventResponseDTO>> result = eventService.getMyPageEvents(memberId);
+        Map<String, List<EventResponseDTO>> result = eventService.getMyEvents(memberId);
 
         if (result.isEmpty()) {
             return ResponseEntity
                     .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_EVENTS, result));
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
         }
         else {
             return ResponseEntity
                     .status(SuccessCode.SUCCESS_GET_MY_EVENTS.getHttpStatus().value())
                     .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_EVENTS, result));
+        }
+    }
+
+    private ResponseEntity<ResponseDTO<List<EventResponseDTO>>> buildEventListResponse(
+            List<EventResponseDTO> result) {
+        if (result.isEmpty()) {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
+        } else {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS.getHttpStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS, result));
         }
     }
 }

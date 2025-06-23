@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -23,4 +23,12 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Modifying
     @Query("UPDATE Event e SET e.likes = e.likes -1 WHERE e.id = :eventId")
     void decreaseLike(@Param("eventId") Long eventId);
+
+    @Query("SELECT FUNCTION('DATE_FORMAT', e.endDate, '%Y-%m'), e " +
+            "FROM Event e " +
+            "WHERE e.endDate BETWEEN :from AND :to " +
+            "ORDER BY FUNCTION('DATE_FORMAT', e.endDate, '%Y-%m') DESC, e.likes DESC")
+    List<Object[]> findPastEventsGroupedByMonthOptimized(@Param("from") LocalDate from,
+                                                         @Param("to") LocalDate to);
+
 }
