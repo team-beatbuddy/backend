@@ -1396,6 +1396,7 @@ public interface EventApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
+                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST),
                                     @ExampleObject(name = "이벤트 없음", value = SwaggerExamples.NOT_FOUND_EVENT),
                                     @ExampleObject(name = "참석 정보 없음", value = SwaggerExamples.ATTENDANCE_NOT_FOUND)
                             }
