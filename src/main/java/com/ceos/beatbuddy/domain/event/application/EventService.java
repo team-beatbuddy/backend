@@ -222,7 +222,7 @@ public class EventService {
         return EventListResponseDTO.builder()
                 .sort(sort)
                 .totalSize(total)
-                .page(offset)
+                .page(page)
                 .size(limit)
                 .eventResponseDTOS(responseList)
                 .build();
