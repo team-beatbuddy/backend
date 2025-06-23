@@ -36,7 +36,8 @@ public enum ErrorCode implements ApiCode {
     NOT_FOUND_SCRAP(HttpStatus.NOT_FOUND, "기존에 스크랩하지 않았습니다. 스크랩을 취소할 수 없습니다."),
     NOT_FOUND_LIKE(HttpStatus.NOT_FOUND, "기존에 좋아요를 누르지 않았습니다. 좋아요를 취소할 수 없습니다."),
     NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다."),
-
+    // 댓글이 속하지 않을 때
+    NOT_FOUND_COMMENT_IN_EVENT(HttpStatus.NOT_FOUND, "해당 댓글이 이벤트에 속하지 않습니다."),
 
     /**
      * 409
