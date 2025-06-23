@@ -7,6 +7,8 @@ import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Optional;
+
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -48,12 +50,12 @@ public class EventAttendance extends BaseTimeEntity {
     private Boolean hasPaid;
 
     public void applyUpdate(EventAttendanceUpdateDTO dto) {
-        if (dto.getName() != null) this.setName(dto.getName());
-        if (dto.getGender() != null) this.setGender(dto.getGender());
-        if (dto.getPhoneNumber() != null) this.setPhoneNumber(dto.getPhoneNumber());
-        if (dto.getTotalMember() != null) this.setTotalMember(dto.getTotalMember());
-        if (dto.getSnsType() != null) this.setSnsType(dto.getSnsType());
-        if (dto.getSnsId() != null) this.setSnsId(dto.getSnsId());
-        if (dto.getHasPaid() != null) this.setHasPaid(dto.getHasPaid());
+        Optional.ofNullable(dto.getName()).ifPresent(this::setName);
+        Optional.ofNullable(dto.getGender()).ifPresent(this::setGender);
+        Optional.ofNullable(dto.getPhoneNumber()).ifPresent(this::setPhoneNumber);
+        Optional.ofNullable(dto.getTotalMember()).ifPresent(this::setTotalMember);
+        Optional.ofNullable(dto.getSnsType()).ifPresent(this::setSnsType);
+        Optional.ofNullable(dto.getSnsId()).ifPresent(this::setSnsId);
+        Optional.ofNullable(dto.getHasPaid()).ifPresent(this::setHasPaid);
     }
 }
