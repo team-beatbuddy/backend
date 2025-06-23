@@ -1363,6 +1363,48 @@ public interface EventApiDocs {
 
 
     @Operation(
+            summary = "이벤트 참석 정보 조회",
+            description = "특정 이벤트에 대한 참석 정보를 조회합니다. 이 API는 이벤트 ID를 기반으로 해당 이벤트에 참석한 유저의 정보를 반환합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "이벤트 참석 정보 조회 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                                {
+                                  "status": 200,
+                                  "code": "SUCCESS_GET_EVENT_ATTENDANCE",
+                                  "message": "이벤트 참석 정보를 조회했습니다.",
+                                  "data": {
+                                    "eventId": 1,
+                                    "memberId": 123,
+                                    "name": "홍길동",
+                                    "gender": "MALE",
+                                    "phoneNumber": "010-1234-5678",
+                                    "isPaid": true,
+                                    "totalMember": 2,
+                                    "createdAt": "2025-06-23T12:00:00"
+                                  }
+                                }
+                                """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "이벤트 또는 참석 정보가 존재하지 않음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "이벤트 없음", value = SwaggerExamples.NOT_FOUND_EVENT),
+                                    @ExampleObject(name = "참석 정보 없음", value = SwaggerExamples.ATTENDANCE_NOT_FOUND)
+                            }
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<EventAttendanceResponseDTO>> getEventAttendance(@PathVariable Long eventId);
+
+    @Operation(
             summary = "이벤트 참석 정보 수정\n",
             description = """
         내가 참석한 이벤트 정보를 수정합니다.

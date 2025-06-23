@@ -88,6 +88,15 @@ public class EventAttendanceService {
         eventAttendanceRepository.delete(entity);
     }
 
+    @Transactional(readOnly = true)
+    public EventAttendanceResponseDTO getAttendance(Long eventId, Long memberId) {
+        eventService.validateAndGet(eventId);
+
+        // 권한 체크할 필요 없이 본인 것만 검색됨.
+        EventAttendance entity = validateAndGetAttendance(eventId, memberId);
+        return EventAttendanceResponseDTO.toDTO(entity);
+    }
+
     @Transactional
     public EventAttendanceResponseDTO updateAttendance(Long eventId, Long memberId, EventAttendanceUpdateDTO dto) {
         // 멤버 유효성 검사
@@ -107,6 +116,5 @@ public class EventAttendanceService {
         EventAttendanceId id = new EventAttendanceId(eventId, memberId);
         return eventAttendanceRepository.findById(id).orElseThrow(
                 () -> new CustomException(EventErrorCode.ATTENDANCE_NOT_FOUND));
-
     }
 }

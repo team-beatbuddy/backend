@@ -68,6 +68,7 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_UPDATE_EVENT(HttpStatus.OK, "이벤트를 수정했습니다."),
     SUCCESS_DELETE_ATTENDANCE(HttpStatus.OK, "이벤트 참석을 취소했습니다."),
     SUCCESS_UPDATE_ATTENDANCE(HttpStatus.OK, "이벤트 참석 정보를 수정했습니다."),
+    SUCCESS_GET_ATTENDANCE(HttpStatus.OK, "이벤트 참석 정보를 조회했습니다."),
 
 
     /**
