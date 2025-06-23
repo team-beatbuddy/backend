@@ -107,58 +107,53 @@ public class Event extends BaseTimeEntity {
         this.venue = venue;
     }
 
-// Event.java
-
-    public void setTitle(String title) {
-        this.title = title;
+    public void updateEventInfo(String title, String content, LocalDate startDate,
+                                LocalDate endDate, String location, Boolean isVisible) {
+        if (title != null) this.title = title;
+        if (content != null) this.content = content;
+        if (startDate != null) this.startDate = startDate;
+        if (endDate != null) this.endDate = endDate;
+        if (location != null) this.location = location;
+        if (isVisible != null) this.isVisible = isVisible;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void updateReceiveSettings(Boolean receiveInfo,
+                                      Boolean receiveName,
+                                      Boolean receiveGender,
+                                      Boolean receivePhoneNumber,
+                                      Boolean receiveTotalCount,
+                                      Boolean receiveSNSId) {
+        if (receiveInfo != null) {
+            this.receiveInfo = receiveInfo;
+            if (!receiveInfo) {
+                this.receiveName = false;
+                this.receiveGender = false;
+                this.receivePhoneNumber = false;
+                this.receiveTotalCount = false;
+                this.receiveSNSId = false;
+                return;
+            }
+        }
+        if (Boolean.TRUE.equals(this.receiveInfo)) {
+            if (receiveName != null) this.receiveName = receiveName;
+            if (receiveGender != null) this.receiveGender = receiveGender;
+            if (receivePhoneNumber != null) this.receivePhoneNumber = receivePhoneNumber;
+            if (receiveTotalCount != null) this.receiveTotalCount = receiveTotalCount;
+            if (receiveSNSId != null) this.receiveSNSId = receiveSNSId;
+        }
     }
 
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
-    }
+    public void updateDepositSettings(Boolean receiveMoney, String depositAccount, Integer depositAmount) {
+        if (receiveMoney != null) this.receiveMoney = receiveMoney;
 
-    public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
-    }
+        boolean finalReceiveMoney = receiveMoney != null ? receiveMoney : this.receiveMoney;
 
-    public void setLocation(String location) {
-        this.location = location;
+        if (finalReceiveMoney) {
+            if (depositAccount != null) this.depositAccount = depositAccount;
+            if (depositAmount != null) this.depositAmount = depositAmount;
+        } else {
+            this.depositAccount = null;
+            this.depositAmount = null;
+        }
     }
-
-    public void setVisible(boolean visible) {
-        this.isVisible = visible;
-    }
-
-    public void setReceiveInfo(boolean receiveInfo) {
-        this.receiveInfo = receiveInfo;
-    }
-
-    public void setReceiveName(boolean receiveName) {
-        this.receiveName = receiveName;
-    }
-
-    public void setReceiveGender(boolean receiveGender) {
-        this.receiveGender = receiveGender;
-    }
-
-    public void setReceivePhoneNumber(boolean receivePhoneNumber) {
-        this.receivePhoneNumber = receivePhoneNumber;
-    }
-
-    public void setReceiveTotalCount(boolean receiveTotalCount) {
-        this.receiveTotalCount = receiveTotalCount;
-    }
-
-    public void setReceiveSNSId(boolean receiveSNSId) {
-        this.receiveSNSId = receiveSNSId;
-    }
-
-    public void setReceiveMoney(boolean receiveMoney) {
-        this.receiveMoney = receiveMoney;
-    }
-
 }
