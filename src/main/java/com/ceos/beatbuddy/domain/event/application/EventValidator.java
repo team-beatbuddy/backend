@@ -11,6 +11,7 @@ import com.ceos.beatbuddy.domain.event.repository.EventRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.global.CustomException;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -156,6 +157,13 @@ public class EventValidator {
 
         if (dtoMissing && existingMissing) {
             throw new CustomException(EventErrorCode.MISSING_SNS_ID_OR_TYPE);
+        }
+    }
+
+    // 댓글을 수정하려는 게 본인이 맞는지 확인
+    protected void validateCommentAuthor(Long commentAuthorId, Long memberId) {
+        if (!Objects.equals(commentAuthorId, memberId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
     }
 }

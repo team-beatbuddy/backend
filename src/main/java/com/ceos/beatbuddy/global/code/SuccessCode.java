@@ -57,8 +57,6 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_GET_EVENT_ATTENDANCE_LIST(HttpStatus.OK, "이벤트 참여자 명단을 조회했습니다."),
     SUCCESS_SCRAP_EVENT(HttpStatus.CREATED, "이벤트가 성공적으로 스크랩되었습니다."),
     SUCCESS_LIKE_EVENT(HttpStatus.CREATED, "이벤트에 성공적으로 좋아요 표시하었습니다."),
-    SUCCESS_CREATED_COMMENT(HttpStatus.CREATED, "성공적으로 댓글을 작성했습니다."),
-    SUCCESS_DELETE_COMMENT(HttpStatus.OK, "성공적으로 댓글을 삭제했습니다."),
     SUCCESS_GET_EVENT(HttpStatus.OK, "성공적으로 이벤트를 조회했습니다." ),
     SUCCESS_GET_EVENT_COMMENTS(HttpStatus.OK, "성공적으로 댓글을 조회했습니다."),
     SUCCESS_GET_PAST_EVENT(HttpStatus.OK, "성공적으로 과거 이벤트를 조회했습니다." ),
@@ -69,6 +67,14 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_DELETE_ATTENDANCE(HttpStatus.OK, "이벤트 참석을 취소했습니다."),
     SUCCESS_UPDATE_ATTENDANCE(HttpStatus.OK, "이벤트 참석 정보를 수정했습니다."),
     SUCCESS_GET_ATTENDANCE(HttpStatus.OK, "이벤트 참석 정보를 조회했습니다."),
+
+
+    /**
+     * comment
+     * */
+    SUCCESS_CREATED_COMMENT(HttpStatus.CREATED, "성공적으로 댓글을 작성했습니다."),
+    SUCCESS_DELETE_COMMENT(HttpStatus.OK, "성공적으로 댓글을 삭제했습니다."),
+    SUCCESS_UPDATE_COMMENT(HttpStatus.OK, "성공적으로 댓글을 수정했습니다."),
 
 
     /**
