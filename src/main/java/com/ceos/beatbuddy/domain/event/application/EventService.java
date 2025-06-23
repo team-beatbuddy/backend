@@ -193,6 +193,8 @@ public class EventService {
     }
 
     public EventListResponseDTO getPastEvents(String sort, int page, int limit, Long memberId) {
+        Member member = memberService.validateAndGetMember(memberId);
+
         int offset = (page - 1) * limit;
 
         if ("popular".equals(sort)) {
