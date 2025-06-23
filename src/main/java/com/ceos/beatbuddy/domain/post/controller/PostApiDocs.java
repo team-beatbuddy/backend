@@ -384,29 +384,30 @@ public interface PostApiDocs {
                             mediaType = "application/json",
                             schema = @Schema(implementation = PostListResponseDTO.class),
                             examples = @ExampleObject(value = """
-                                    {
-                                      "status": 200,
-                                      "code": "SUCCESS_GET_POST",
-                                      "message": "포스트를 불러왔습니다.",
-                                      "data":
-                                          {
-                                            "id": 42,
-                                            "title": "string",
-                                            "content": "string",
-                                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/59863c2f-d--.png",
-                                            "role": "BUSINESS",
-                                            "likes": 0,
-                                            "scraps": 12,
-                                            "comments": 0,
-                                            "liked": true,
-                                            "scrapped": true,
-                                            "hasCommented": false,
-                                            "nickname": "길동hong",
-                                            "createAt": "2025-06-19",
-                                            "imageUrls": ["https://", "https://"]
-                                            "views": 1
-                                          }
-                                    }
+                            {
+                              "status": 200,
+                              "code": "SUCCESS_GET_POST",
+                              "message": "포스트를 불러왔습니다",
+                              "data": {
+                                "id": 23,
+                                "title": "",
+                                "content": "",
+                                "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                                "role": "BUSINESS",
+                                "likes": 0,
+                                "scraps": 0,
+                                "comments": 0,
+                                "liked": false,
+                                "scrapped": false,
+                                "hasCommented": false,
+                                "nickname": "길동hong",
+                                "createAt": "2025-06-19",
+                                "imageUrls": [
+                                  "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png"
+                                ],
+                                "views": 4
+                              }
+                            }
                     """))
             ),
             @ApiResponse(responseCode = "400", description = "잘못된 게시글 타입 요청",

@@ -22,7 +22,7 @@ public class Oauth2MemberDto {
                 .name(member.getRealName())
                 .loginId(member.getLoginId())
                 .nickname(member.getNickname())
-                .role(member.getRole())
+                .role(member.getRole().toString())
                 .build();
     }
 }

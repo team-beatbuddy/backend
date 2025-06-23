@@ -22,7 +22,7 @@ public class EventValidator {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
 
-        if (Objects.equals(host.getRole(), "ADMIN")) return;
+        if (host.isAdmin()) return;
 
         if (!Objects.equals(event.getHost().getId(), memberId)) {
             throw new CustomException(EventErrorCode.FORBIDDEN_EVENT_ACCESS);

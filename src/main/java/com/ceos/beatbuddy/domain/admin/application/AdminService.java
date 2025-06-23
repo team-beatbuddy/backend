@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.admin.application;
 
+import com.ceos.beatbuddy.domain.member.constant.Role;
 import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
@@ -31,7 +32,7 @@ public class AdminService {
 
         Member member = Member.builder()
                 .loginId(id)
-                .role("ADMIN")
+                .role(Role.ADMIN)
                 .build();
 
         Member savedMember = memberRepository.save(member);
@@ -74,7 +75,7 @@ public class AdminService {
                 () -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST)
         );
 
-        if(!member.getRole().equals("ADMIN")) {
+        if(!member.getRole().toString().equals("ADMIN")) {
             throw new CustomException(MemberErrorCode.NOT_ADMIN);
         }
 
