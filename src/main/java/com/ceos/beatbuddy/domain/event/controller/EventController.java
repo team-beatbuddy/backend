@@ -242,16 +242,7 @@ public class EventController implements EventApiDocs {
         Long memberId = SecurityUtils.getCurrentMemberId();
         List<EventResponseDTO> result = eventMyPageService.getMyPageEventsUpcoming(memberId, sort);
 
-        if (result.isEmpty()) {
-            return ResponseEntity
-                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
-        }
-        else {
-            return ResponseEntity
-                    .status(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS.getHttpStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS, result));
-        }
+        return buildEventListResponse(result);
     }
 
     @Override
@@ -262,16 +253,7 @@ public class EventController implements EventApiDocs {
         Long memberId = SecurityUtils.getCurrentMemberId();
         List<EventResponseDTO> result = eventMyPageService.getMyPageEventsNow(memberId, sort);
 
-        if (result.isEmpty()) {
-            return ResponseEntity
-                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
-        }
-        else {
-            return ResponseEntity
-                    .status(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS.getHttpStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS, result));
-        }
+        return buildEventListResponse(result);
     }
 
     @Override
@@ -282,16 +264,7 @@ public class EventController implements EventApiDocs {
         Long memberId = SecurityUtils.getCurrentMemberId();
         List<EventResponseDTO> result = eventMyPageService.getMyPageEventsPast(memberId, sort);
 
-        if (result.isEmpty()) {
-            return ResponseEntity
-                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
-        }
-        else {
-            return ResponseEntity
-                    .status(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS.getHttpStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS, result));
-        }
+        return buildEventListResponse(result);
     }
 
     @Override
@@ -309,6 +282,19 @@ public class EventController implements EventApiDocs {
             return ResponseEntity
                     .status(SuccessCode.SUCCESS_GET_MY_EVENTS.getHttpStatus().value())
                     .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_EVENTS, result));
+        }
+    }
+
+    private ResponseEntity<ResponseDTO<List<EventResponseDTO>>> buildEventListResponse(
+            List<EventResponseDTO> result) {
+        if (result.isEmpty()) {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
+        } else {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS.getHttpStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS, result));
         }
     }
 }
