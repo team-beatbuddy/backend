@@ -88,20 +88,16 @@ public class OnboardingService {
         return true;
     }
 
-
     public Boolean isValidate(Long memberId, NicknameDTO nicknameDTO) {
         Member member = memberService.validateAndGetMember(memberId);
 
         String nickname = nicknameDTO.getNickname();
-        // 12글자 초과
         if (nickname.length() > 12) {
             throw new CustomException(MemberErrorCode.NICKNAME_OVER_LENGTH);
         }
-        // 띄어쓰기 존재
         if (nickname.matches(".*\\s+.*")) {
             throw new CustomException(MemberErrorCode.NICKNAME_SPACE_EXIST);
         }
-        // 중복 닉네임
         if (!NICKNAME_PATTERN.matcher(nickname).matches()) {
             throw new CustomException(MemberErrorCode.NICKNAME_SYMBOL_EXIST);
         }
