@@ -192,8 +192,8 @@ public class EventService {
                 .build();
     }
 
-    public EventListResponseDTO getPastEvents(String sort, int offset, int limit, Long memberId) {
-        offset = (offset - 1) * limit;
+    public EventListResponseDTO getPastEvents(String sort, int page, int limit, Long memberId) {
+        int offset = (page - 1) * limit;
 
         if ("popular".equals(sort)) {
             // 월별 인기순으로 전체 데이터 가져와서 그룹핑
