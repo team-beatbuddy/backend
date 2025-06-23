@@ -1,5 +1,7 @@
 package com.ceos.beatbuddy.domain.event.application;
 
+import com.ceos.beatbuddy.domain.event.dto.EventAttendanceRequestDTO;
+import com.ceos.beatbuddy.domain.event.dto.EventAttendanceUpdateDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventUpdateRequestDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventAttendance;
@@ -60,10 +62,100 @@ public class EventValidator {
         }
     }
 
-    public EventAttendance validateAndGetAttendance(Long eventId, Long memberId) {
-        EventAttendanceId id = new EventAttendanceId(eventId, memberId);
-        return eventAttendanceRepository.findById(id).orElseThrow(
-                () -> new CustomException(EventErrorCode.ATTENDANCE_NOT_FOUND));
 
+
+    protected void validateAttendanceInput(EventAttendanceRequestDTO dto, Event event) {
+        if (event.isReceiveInfo()) {
+            if (event.isReceiveName() && isBlank(dto.getName())) {
+                throw new CustomException(EventErrorCode.MISSING_NAME);
+            }
+            if (event.isReceiveGender() && isBlank(dto.getGender())) {
+                throw new CustomException(EventErrorCode.MISSING_GENDER);
+            }
+            if (event.isReceivePhoneNumber() && isBlank(dto.getPhoneNumber())) {
+                throw new CustomException(EventErrorCode.MISSING_PHONE);
+            }
+            if (event.isReceiveTotalCount() && dto.getTotalNumber() == null) {
+                throw new CustomException(EventErrorCode.MISSING_TOTAL_COUNT);
+            }
+            if (event.isReceiveSNSId() && (isBlank(dto.getSnsType()) || isBlank(dto.getSnsId()))) {
+                throw new CustomException(EventErrorCode.MISSING_SNS_ID_OR_TYPE);
+            }
+            if (event.isReceiveMoney() && dto.getIsPaid() == null) {
+                throw new CustomException(EventErrorCode.MISSING_PAYMENT);
+            }
+        }
     }
+
+    @SuppressWarnings("unchecked")
+    private <T> void validateField(boolean isRequired, T dtoValue, T existingValue, EventErrorCode errorCode) {
+        if (!isRequired) return;
+        if (isEmpty(dtoValue) && isEmpty(existingValue)) {
+            throw new CustomException(errorCode);
+        }
+    }
+
+    private boolean isEmpty(Object value) {
+        if (value == null) return true;
+        if (value instanceof String str) return str.trim().isEmpty();
+        return false;
+    }
+
+    protected void validateAttendanceUpdateInput(EventAttendanceUpdateDTO dto, Event event, EventAttendance existing) {
+        if (!event.isReceiveInfo()) return;
+
+        // 이름
+        validateField(
+                event.isReceiveName(),
+                dto.getName(),
+                existing.getName(),
+                EventErrorCode.MISSING_NAME
+        );
+
+        // 성별
+        validateField(
+                event.isReceiveGender(),
+                dto.getGender(),
+                existing.getGender(),
+                EventErrorCode.MISSING_GENDER
+        );
+
+        // 전화번호
+        validateField(
+                event.isReceivePhoneNumber(),
+                dto.getPhoneNumber(),
+                existing.getPhoneNumber(),
+                EventErrorCode.MISSING_PHONE
+        );
+
+        // 동행인원 수
+        validateField(
+                event.isReceiveTotalCount(),
+                dto.getTotalMember(),
+                existing.getTotalMember(),
+                EventErrorCode.MISSING_TOTAL_COUNT
+        );
+
+        // SNS ID & Type
+        if (event.isReceiveSNSId()) {
+            boolean dtoMissing = isBlank(dto.getSnsType()) || isBlank(dto.getSnsId());
+            boolean existingMissing = isBlank(existing.getSnsType()) || isBlank(existing.getSnsId());
+            if (dtoMissing && existingMissing) {
+                throw new CustomException(EventErrorCode.MISSING_SNS_ID_OR_TYPE);
+            }
+        }
+
+        // 예약금 납부 여부
+        validateField(
+                event.isReceiveMoney(),
+                dto.getHasPaid(),
+                existing.getHasPaid(),
+                EventErrorCode.MISSING_PAYMENT
+        );
+    }
+
+    private boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
 }
