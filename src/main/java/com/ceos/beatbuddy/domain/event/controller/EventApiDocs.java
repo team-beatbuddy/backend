@@ -1415,4 +1415,10 @@ public interface EventApiDocs {
     })
     ResponseEntity<ResponseDTO<String>> deleteEventAttendance(@PathVariable Long eventId);
 
+    @Operation(
+            summary = "이벤트 참석 정보 조회",
+            description = "특정 이벤트에 대한 참석 정보를 조회합니다. 이 API는 이벤트 ID를 기반으로 해당 이벤트에 참석한 유저의 정보를 반환합니다."
+    )
+
+    ResponseEntity<ResponseDTO<EventAttendanceResponseDTO>> getEventAttendance(@PathVariable Long eventId);
 }
