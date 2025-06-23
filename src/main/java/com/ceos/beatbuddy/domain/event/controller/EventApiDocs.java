@@ -248,46 +248,48 @@ public interface EventApiDocs {
     );
 
     @Operation(summary = "이벤트 참석 신청",
-                description = "이벤트에서 필요한 정보 수집들을 제대로 입력하지 않으면 아래와 같은 에러가 발생합니다.")
+                description = """
+                이벤트에서 필요한 정보 수집들을 제대로 입력하지 않으면 아래와 같은 에러가 발생합니다.""")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "이벤트 참석 성공", content = @Content(
                     mediaType = "application/json",
                     examples = {@ExampleObject(name = "참석 성공", value = """
-                                   {
-                                     "status": 201,
-                                     "code": "SUCCESS_CREATED_EVENT_ATTENDANCE",
-                                     "message": "이벤트 참여 폼이 성공적으로 작성되었습니다.",
-                                     "data": {
-                                       "eventId": 2,
-                                       "memberId": 156,
-                                       "name": "홍길동",
-                                       "gender": "None",
-                                       "snsType": "Instagram",
-                                       "snsId": "gil_dong",
-                                       "phoneNumber": "010-0000-0000",
-                                       "paid": true
-                                     }
-                                   }
+                        {
+                          "status": 201,
+                          "code": "SUCCESS_CREATED_EVENT_ATTENDANCE",
+                          "message": "이벤트 참여 폼이 성공적으로 작성되었습니다.",
+                          "data": {
+                            "eventId": 8,
+                            "memberId": 156,
+                            "name": "string",
+                            "gender": "MALE",
+                            "snsType": "string",
+                            "snsId": "string",
+                            "phoneNumber": "string",
+                            "isPaid": true,
+                            "totalMember": 0,
+                            "createdAt": "2025-06-23T21:19:03.5783187"
+                          }
+                        }
                             """),
                             @ExampleObject(name = "입력할 필요가 없는 정보", value = """
-                                    {
-                                      "status": 201,
-                                      "code": "SUCCESS_CREATED_EVENT_ATTENDANCE",
-                                      "message": "이벤트 참여 폼이 성공적으로 작성되었습니다.",
-                                      "data": {
-                                        "eventId": 12,
-                                        "memberId": 156,
-                                        "name": null,
-                                        "gender": null,
-                                        "snsType": null,
-                                        "snsId": null,
-                                        "phoneNumber": null,
-                                        "isPaid": null,
-                                        "totalMember": null,
-                                        "createdAt": null
-                                      }
-                                    }
-                                    
+                        {
+                          "status": 201,
+                          "code": "SUCCESS_CREATED_EVENT_ATTENDANCE",
+                          "message": "이벤트 참여 폼이 성공적으로 작성되었습니다.",
+                          "data": {
+                            "eventId": 13,
+                            "memberId": 156,
+                            "name": null,
+                            "gender": null,
+                            "snsType": null,
+                            "snsId": null,
+                            "phoneNumber": null,
+                            "isPaid": null,
+                            "totalMember": null,
+                            "createdAt": "2025-06-23T21:21:17.2462147"
+                          }
+                        }
                                     """)
                     }
             )),
@@ -493,14 +495,14 @@ public interface EventApiDocs {
                     - 종료된 이벤트 (인기순)의 경우에는 작년의 모든 이벤트를 불러옵니다. \n
                     
                     ✅ `sort=popular` \n
-                    - 지난 1년간의 이벤트를 **월 단위로 그룹핑**하여, 각 월 내에서 좋아요 순으로 정렬합니다.\\n
-                    - `page`, `size`는 **월 그룹 단위 페이징**입니다. (예: `size=2`면 2개월치 그룹 반환)\\n
-                    - 예: `GET /events/past?sort=popular&page=1&size=2`\\n
-                    \\n
-                    ⚠️ 응답 구조 주의:\\n
-                    - `sort=latest` → `eventResponseDTOS` 필드 포함 (단일 이벤트 리스트)\\n
-                    - `sort=popular` → `groupedByMonth` 필드 포함 (월별 이벤트 그룹 리스트)\\n
-                    \\n
+                    - 지난 1년간의 이벤트를 **월 단위로 그룹핑**하여, 각 월 내에서 좋아요 순으로 정렬합니다.\n
+                    - `page`, `size`는 **월 그룹 단위 페이징**입니다. (예: `size=2`면 2개월치 그룹 반환)\n
+                    - 예: `GET /events/past?sort=popular&page=1&size=2`\n
+                    \n
+                    ⚠️ 응답 구조 주의:\n
+                    - `sort=latest` → `eventResponseDTOS` 필드 포함 (단일 이벤트 리스트)\n
+                    - `sort=popular` → `groupedByMonth` 필드 포함 (월별 이벤트 그룹 리스트)\n
+                    \n
                     응답에는 `page`, `size`, `totalSize`가 항상 포함됩니다.
                     """)
     @ApiResponses(value = {
