@@ -138,7 +138,7 @@ public interface EventApiDocs {
     })
     ResponseEntity<ResponseDTO<EventResponseDTO>> addEvent(
             @Valid @Schema(implementation = EventCreateRequestDTO.class) @RequestPart("eventCreateRequestDTO") EventCreateRequestDTO eventCreateRequestDTO,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files) throws IOException;
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException;
 
 
 
@@ -244,7 +244,7 @@ public interface EventApiDocs {
     })
     ResponseEntity<ResponseDTO<EventResponseDTO>> updateEvent(@PathVariable Long eventId,
                                                               @RequestPart("eventUpdateRequestDTO") EventUpdateRequestDTO eventUpdateRequestDTO,
-                                                              @RequestPart(value = "files", required = false) List<MultipartFile> files
+                                                              @RequestPart(value = "images", required = false) List<MultipartFile> images
     );
 
     @Operation(summary = "이벤트 참석 신청",

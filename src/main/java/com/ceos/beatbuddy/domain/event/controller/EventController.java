@@ -37,9 +37,9 @@ public class EventController implements EventApiDocs {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO<EventResponseDTO>> addEvent(
             @Valid @RequestPart("eventCreateRequestDTO") EventCreateRequestDTO eventCreateRequestDTO,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files) throws IOException {
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        EventResponseDTO result = eventService.addEvent(memberId, eventCreateRequestDTO, files);
+        EventResponseDTO result = eventService.addEvent(memberId, eventCreateRequestDTO, images);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_CREATED_EVENT.getStatus().value())
@@ -63,10 +63,10 @@ public class EventController implements EventApiDocs {
                     produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO<EventResponseDTO>> updateEvent(@PathVariable Long eventId,
                                                                      @RequestPart("eventUpdateRequestDTO") EventUpdateRequestDTO eventUpdateRequestDTO,
-                                                                     @RequestPart(value = "files", required = false) List<MultipartFile> files
+                                                                     @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        EventResponseDTO result = eventService.updateEvent(eventId, eventUpdateRequestDTO, memberId, files);
+        EventResponseDTO result = eventService.updateEvent(eventId, eventUpdateRequestDTO, memberId, images);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_UPDATE_EVENT.getStatus().value())
