@@ -9,6 +9,8 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -43,7 +45,7 @@ public abstract class Post extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberId")
-    @Setter
+    @Setter(PROTECTED)
     private Member member;
 
     protected Post(String title, String content, Boolean anonymous,
