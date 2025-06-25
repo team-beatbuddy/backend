@@ -7,7 +7,9 @@ import com.ceos.beatbuddy.domain.venue.dto.VenueReviewResponseDTO;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.entity.VenueReview;
 import com.ceos.beatbuddy.domain.venue.repository.VenueReviewRepository;
+import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,6 +25,11 @@ public class VenueReviewService {
     private final UploadUtil uploadUtil;
 
     public VenueReviewResponseDTO createVenueReview(Long venueId, Long memberId, VenueReviewRequestDTO dto, List<MultipartFile> images) {
+        // 이미지 개수 검사
+        if (images != null && images.size() > 5) {
+            throw new CustomException(ErrorCode.TOO_MANY_IMAGES_5);
+        }
+
         // Venue ID와 Member ID 유효성 검사
         Member member = memberService.validateAndGetMember(memberId);
         Venue venue = venueInfoService.validateAndGetVenue(venueId);
