@@ -30,7 +30,6 @@ public class VenueReviewResponseDTO {
                 .content(entity.getContent())
                 .isAnonymous(entity.isAnonymous())
                 .nickname(entity.isAnonymous() ? "익명" : entity.getMember().getNickname())
-                .views(entity.getViews())
                 .likes(entity.getLikes())
                 .liked(liked)
                 .profileImageUrl(entity.getMember().getProfileImage())

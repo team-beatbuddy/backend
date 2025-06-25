@@ -39,7 +39,6 @@ public interface VenueReviewApiDocs {
                                 "venueReviewId": 1,
                                 "content": "string",
                                 "nickname": "길동hong",
-                                "views": 0,
                                 "likes": 0,
                                 "liked": false,
                                 "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/member/01e2e094-3--.png",
@@ -50,10 +49,10 @@ public interface VenueReviewApiDocs {
                             }
                     """))
             ),
-            @ApiResponse(responseCode = "400", description = "필드 정보 누락",
+            @ApiResponse(responseCode = "400", description = "필드 정보 누락, 이미지 개수 초과, 글자수 초과",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(name = "필드 정보 누락", value = """
+                            examples = {@ExampleObject(name = "필드 정보 누락", value = """
                                     {
                                       "status": 400,
                                       "error": "BAD_REQUEST",
@@ -63,7 +62,20 @@ public interface VenueReviewApiDocs {
                                         "content": "리뷰 내용은 필수입니다."
                                       }
                                     }
+                                    """),
+                            @ExampleObject(name = "이미지 개수 초과", value = SwaggerExamples.TOO_MANY_IMAGES_5_EXAMPLE),
+                            @ExampleObject(name = "글자수 초과", value = """
+                                    {
+                                      "status": 400,
+                                      "error": "BAD_REQUEST",
+                                      "code": "BAD_REQUEST_VALIDATION",
+                                      "message": "요청 값이 유효하지 않습니다.",
+                                      "errors": {
+                                        "content": "리뷰 내용은 400자까지만 입력 가능합니다."
+                                      }
+                                    }
                                     """)
+                            }
                     )
             ),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 유저, 베뉴가 존재하지 않는 경우",

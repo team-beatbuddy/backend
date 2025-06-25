@@ -20,13 +20,12 @@ public class VenueReview extends BaseTimeEntity {
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id; // 리뷰 ID
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 400)
     private String content; // 리뷰 내용
 
     @Column(nullable = false)
     private boolean isAnonymous; // 익명 여부
 
-    private int views;
     private int likes;
 
     @ElementCollection
