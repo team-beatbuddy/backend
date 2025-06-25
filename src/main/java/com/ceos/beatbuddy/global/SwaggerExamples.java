@@ -106,6 +106,16 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String TOO_MANY_IMAGES_5_EXAMPLE = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "TOO_MANY_IMAGES_5",
+          "message": "이미지는 최대 5개까지 업로드할 수 있습니다."
+        }
+        """;
+
+
     /**
      * 403 권한 없음
      * */

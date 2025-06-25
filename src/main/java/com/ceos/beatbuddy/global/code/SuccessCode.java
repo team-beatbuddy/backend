@@ -100,6 +100,11 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_UPDATE_POST(HttpStatus.OK, "포스트를 수정했습니다."),
 
     /**
+     * Venue
+     * */
+    SUCCESS_CREATE_VENUE_REVIEW(HttpStatus.CREATED, "베뉴 리뷰를 작성했습니다."),
+
+    /**
      * empty
      * */
     SUCCESS_BUT_EMPTY_LIST(HttpStatus.OK,"성공적으로 조회했으나 리스트가 비었습니다."),
