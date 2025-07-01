@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class VenueReviewRequestDTO {
-    @NotNull(message = "리뷰 내용은 필수입니다. 400자까지만 가능합니다.")
+    @NotNull(message = "리뷰 내용은 필수입니다.")
     @Size(max = 400, message = "리뷰 내용은 400자까지만 입력 가능합니다.")
     private String content; // 리뷰 내용
     private boolean isAnonymous; // 익명 여부
