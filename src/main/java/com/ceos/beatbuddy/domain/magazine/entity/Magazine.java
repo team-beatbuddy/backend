@@ -29,6 +29,7 @@ public class Magazine extends BaseTimeEntity {
     private int views;
 
     @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<MagazineLike> likeList = new ArrayList<>();
 
     private boolean isVisible = true; // 띄워줄 매거진만
