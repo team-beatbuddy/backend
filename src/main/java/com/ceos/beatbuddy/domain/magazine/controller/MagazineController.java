@@ -38,9 +38,9 @@ public class MagazineController implements MagazineApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATED_MAGAZINE, result));
     }
 
-    // 매거진 불러오기 (admin 이 가능하게 한 것만)
+    // 매거진 불러오기 (admin 이 가능하게 한 것만 + 홈에 보이게 한 것만 pinned)
     @Override
-    @GetMapping()
+    @GetMapping("/home")
     public ResponseEntity<ResponseDTO<List<MagazineHomeResponseDTO>>> readMagazineList() {
         Long memberId = SecurityUtils.getCurrentMemberId();
         List<MagazineHomeResponseDTO> result = magazineService.readHomeMagazines(memberId);
@@ -64,48 +64,6 @@ public class MagazineController implements MagazineApiDocs{
     public ResponseEntity<ResponseDTO<MagazineDetailDTO>> readDetailMagazine(@PathVariable Long magazineId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         MagazineDetailDTO result = magazineService.readDetailMagazine(memberId, magazineId);
-
-        return ResponseEntity
-                .status(SuccessCode.SUCCESS_GET_MAGAZINE_LIST.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
-    }
-
-    // 매거진 스크랩 하기
-    @Override
-    @PostMapping("/{magazineId}/scrap")
-    public ResponseEntity<ResponseDTO<MagazineDetailDTO>> scrapMagazine(@PathVariable Long magazineId) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        MagazineDetailDTO result = magazineService.scrapMagazine(memberId, magazineId);
-
-        return ResponseEntity
-                .status(SuccessCode.SUCCESS_SCRAP_MAGAZINE.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_SCRAP_MAGAZINE, result));
-    }
-
-    @Override
-    @DeleteMapping("/{magazineId}/scrap")
-    public ResponseEntity<ResponseDTO<MagazineDetailDTO>> deleteScrapMagazine(@PathVariable Long magazineId) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        MagazineDetailDTO result = magazineService.deleteScrapMagazine(magazineId, memberId);
-
-        return ResponseEntity
-                .status(SuccessCode.SUCCESS_LIKE_MAGAZINE.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_MAGAZINE, result));
-    }
-
-
-    // 내가 스크랩한 매거진 리스트 (admin 이 안 보이게 해둔 것도, 내가 스크랩한 거면 보임 - 홈에는 안 보임)
-    @Override
-    @GetMapping("/scrap")
-    public ResponseEntity<ResponseDTO<List<MagazineHomeResponseDTO>>> getScrapMagazineList() {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        List<MagazineHomeResponseDTO> result = magazineService.getScrapMagazines(memberId);
-
-        if (result.isEmpty()) {
-            return ResponseEntity
-                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
-        }
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_MAGAZINE_LIST.getStatus().value())
