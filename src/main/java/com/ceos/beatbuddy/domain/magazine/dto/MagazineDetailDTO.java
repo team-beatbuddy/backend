@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Builder
@@ -15,8 +16,8 @@ public class MagazineDetailDTO {
     private String content;
     private Long writerId;
     private List<String> imageUrls;
-    private Integer views;
-    private Integer likes;
+    private int views;
+    private int likes;
     private LocalDateTime createdAt;
 
     public static MagazineDetailDTO toDTO(Magazine magazine) {
@@ -24,7 +25,7 @@ public class MagazineDetailDTO {
                 .magazineId(magazine.getId())
                 .title(magazine.getTitle())
                 .content(magazine.getContent())
-                .imageUrls(magazine.getImageUrls())
+                .imageUrls(magazine.getImageUrls() != null ? magazine.getImageUrls() : Collections.emptyList())
                 .writerId(magazine.getMember().getId())
                 .likes(magazine.getLikes())
                 .views(magazine.getViews())
@@ -37,7 +38,7 @@ public class MagazineDetailDTO {
                 .title(magazine.getTitle())
                 .content(magazine.getContent())
                 .createdAt(magazine.getCreatedAt())
-                .imageUrls(magazine.getImageUrls())
+                .imageUrls(magazine.getImageUrls() != null ? magazine.getImageUrls() : Collections.emptyList())
                 .writerId(magazine.getMember().getId())
                 .build();
     }

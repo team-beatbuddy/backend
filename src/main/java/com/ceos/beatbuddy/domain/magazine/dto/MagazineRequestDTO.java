@@ -17,14 +17,14 @@ public class MagazineRequestDTO {
     @Schema(description = "내용")
     private String content;
 
-    public static Magazine toEntity(MagazineRequestDTO dto, Member member, List<String> imageUrls) {
+    public static Magazine toEntity(MagazineRequestDTO dto, Member member) {
         return Magazine.builder()
                 .likes(0)
                 .views(0)
                 .isVisible(true)
+                .isPinned(false)
                 .title(dto.getTitle())
                 .content(dto.getContent())
-                .imageUrls(imageUrls)
                 .member(member)
                 .build();
     }

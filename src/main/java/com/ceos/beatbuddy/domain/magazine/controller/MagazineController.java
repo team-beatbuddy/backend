@@ -38,9 +38,9 @@ public class MagazineController implements MagazineApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATED_MAGAZINE, result));
     }
 
-    // 매거진 불러오기 (admin 이 가능하게 한 것만)
+    // 매거진 불러오기 (admin 이 가능하게 한 것만 + 홈에 보이게 한 것만 pinned)
     @Override
-    @GetMapping()
+    @GetMapping("/home")
     public ResponseEntity<ResponseDTO<List<MagazineHomeResponseDTO>>> readMagazineList() {
         Long memberId = SecurityUtils.getCurrentMemberId();
         List<MagazineHomeResponseDTO> result = magazineService.readHomeMagazines(memberId);

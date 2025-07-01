@@ -45,6 +45,10 @@ public class Magazine extends BaseTimeEntity {
         this.thumbImage = imageUrl;
     }
 
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = imageUrls;
+    }
+
 
     public void increaseView() {
         views++;

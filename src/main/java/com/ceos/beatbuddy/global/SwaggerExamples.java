@@ -146,6 +146,15 @@ public class SwaggerExamples {
     }
     """;
 
+    public static final String CANNOT_ADD_MAGAZINE_UNAUTHORIZED_MEMBER = """
+        {
+          "status": 403,
+          "error": "FORBIDDEN",
+          "code": "CANNOT_ADD_MAGAZINE_UNAUTHORIZED_MEMBER",
+          "message": "매거진을 작성할 수 없는 유저입니다."
+        }
+        """;
+
 
     
     /**
@@ -239,6 +248,15 @@ public class SwaggerExamples {
           "error": "NOT_FOUND",
           "code": "NOT_FOUND_VENUE_REVIEW",
           "message": "존재하지 않는 베뉴 리뷰입니다."
+        }
+        """;
+
+    public static final String NOT_FOUND_MAGAZINE = """
+        {
+          "status": 404,
+          "error": "NOT_FOUND",
+          "code": "NOT_FOUND_MAGAZINE",
+          "message": "존재하지 않는 매거진입니다."
         }
         """;
 
