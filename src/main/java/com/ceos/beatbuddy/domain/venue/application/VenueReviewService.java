@@ -26,7 +26,7 @@ public class VenueReviewService {
 
     public VenueReviewResponseDTO createVenueReview(Long venueId, Long memberId, VenueReviewRequestDTO dto, List<MultipartFile> images) {
         // 이미지 개수 검사
-        if (images != null && images.size() > 5) {
+        if (images != null && images.stream().filter(file -> file != null && !file.isEmpty()).count() > 5) {
             throw new CustomException(ErrorCode.TOO_MANY_IMAGES_5);
         }
 
