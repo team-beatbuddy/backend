@@ -7,6 +7,7 @@ import com.ceos.beatbuddy.domain.scrapandlike.entity.VenueReviewLikeId;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.VenueReviewLikeRepository;
 import com.ceos.beatbuddy.domain.venue.dto.VenueReviewRequestDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueReviewResponseDTO;
+import com.ceos.beatbuddy.domain.venue.dto.VenueReviewUpdateDTO;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.entity.VenueReview;
 import com.ceos.beatbuddy.domain.venue.exception.VenueReviewErrorCode;
@@ -157,5 +158,53 @@ public class VenueReviewService {
         // 리뷰 좋아요 삭제
         venueReviewLikeRepository.deleteById(new VenueReviewLikeId(member.getId(), venueReview.getId()));
         venueReviewRepository.decreaseLikeCount(venueReview.getId());
+    }
+
+    @Transactional
+    public VenueReviewResponseDTO updateVenueReview(Long venueReviewId, Long memberId, VenueReviewUpdateDTO venueReviewUpdateDTO, List<MultipartFile> images) {
+        // VenueReview ID 유효성 검사
+        VenueReview venueReview = validateAndGetVenueReview(venueReviewId);
+        // Member ID 유효성 검사
+        memberService.validateAndGetMember(memberId);
+
+        // 리뷰 작성자와 요청한 사용자가 일치하는지 확인
+        validateReviewAuthor(venueReview, memberId);
+
+        // 리뷰 내용이 존재할 경우에만 업데이트
+        String newContent = venueReviewUpdateDTO.getContent();
+        if (newContent != null && !newContent.trim().isEmpty()) {
+            venueReview.updateContent(newContent);
+        }
+
+        // 기존에 있던 이미지(지우려는 이미지 제외) 와, 추가로 넣는 이미지의 개수 검사
+        int existingCount = venueReview.getImageUrls().size();
+        int deleteCount = venueReviewUpdateDTO.getDeleteImageUrls() != null ? venueReviewUpdateDTO.getDeleteImageUrls().size() : 0;
+        int newUploadCount = images != null ? (int) images.stream().filter(file -> file != null && !file.isEmpty()).count() : 0;
+
+        if (existingCount - deleteCount + newUploadCount > 5) {
+            throw new CustomException(ErrorCode.TOO_MANY_IMAGES_5);
+        }
+
+        // 이미지 삭제
+        if (venueReviewUpdateDTO.getDeleteImageUrls() != null && !venueReviewUpdateDTO.getDeleteImageUrls().isEmpty()) {
+            uploadUtil.deleteImages(venueReviewUpdateDTO.getDeleteImageUrls(), UploadUtil.BucketType.VENUE);
+            venueReview.getImageUrls().removeAll(venueReviewUpdateDTO.getDeleteImageUrls());
+        }
+
+
+        // 이미지 업로드
+        if (images != null && !images.isEmpty()) {
+            List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.VENUE, REVIEW_FOLDER);
+            venueReview.getImageUrls().addAll(imageUrls);
+        }
+
+        // 리뷰 저장
+        venueReviewRepository.save(venueReview);
+
+        // 좋아요 여부 체크
+        boolean isLiked = venueReviewLikeRepository.existsByVenueReview_IdAndMember_Id(venueReviewId, memberId);
+
+        return VenueReviewResponseDTO.toDTO(venueReview, isLiked);
+
     }
 }

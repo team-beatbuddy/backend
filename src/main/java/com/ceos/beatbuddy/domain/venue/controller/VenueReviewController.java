@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.venue.controller;
 import com.ceos.beatbuddy.domain.venue.application.VenueReviewService;
 import com.ceos.beatbuddy.domain.venue.dto.VenueReviewRequestDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueReviewResponseDTO;
+import com.ceos.beatbuddy.domain.venue.dto.VenueReviewUpdateDTO;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
@@ -72,6 +73,21 @@ public class VenueReviewController implements VenueReviewApiDocs {
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_DELETE_VENUE_REVIEW.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_VENUE_REVIEW, "리뷰가 삭제되었습니다."));
+    }
+
+    // 리뷰 수정 구현
+    @Override
+    @PatchMapping(value = "/{venueReviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseDTO<VenueReviewResponseDTO>> updateVenueReview(
+            @PathVariable Long venueReviewId,
+            @Valid @RequestPart("venueReviewRequestDTO") VenueReviewUpdateDTO venueReviewUpdateDTO,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        VenueReviewResponseDTO result = venueReviewService.updateVenueReview(venueReviewId, memberId, venueReviewUpdateDTO, images);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_UPDATE_VENUE_REVIEW.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_VENUE_REVIEW, result));
     }
 
 
