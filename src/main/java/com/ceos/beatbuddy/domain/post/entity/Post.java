@@ -1,18 +1,18 @@
 package com.ceos.beatbuddy.domain.post.entity;
 
-import static lombok.AccessLevel.PROTECTED;
-
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostScrap;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
-
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static lombok.AccessLevel.PROTECTED;
 
 @Getter
 @Entity
@@ -43,7 +43,7 @@ public abstract class Post extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberId")
-    @Setter
+    @Setter(PROTECTED)
     private Member member;
 
     protected Post(String title, String content, Boolean anonymous,

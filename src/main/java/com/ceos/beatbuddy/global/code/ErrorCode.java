@@ -12,6 +12,9 @@ public enum ErrorCode implements ApiCode {
      */
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
     NOT_VALID_ADDRESS(HttpStatus.BAD_REQUEST, "잘못된 주소입니다."),
+    TOO_MANY_IMAGES_5(HttpStatus.BAD_REQUEST, "이미지는 최대 5개까지 업로드할 수 있습니다."),
+    TOO_MANY_IMAGES_10(HttpStatus.BAD_REQUEST, "이미지는 최대 10개까지 업로드할 수 있습니다."),
+    TOO_MANY_IMAGES_20(HttpStatus.BAD_REQUEST, "이미지는 최대 20개까지 업로드할 수 있습니다."),
 
     /**
      * 401
