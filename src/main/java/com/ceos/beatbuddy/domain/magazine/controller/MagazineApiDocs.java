@@ -29,23 +29,23 @@ public interface MagazineApiDocs {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ResponseDTO.class),
                             examples = @ExampleObject(value = """
-                                        {
-                                          "status": 201,
-                                          "code": "SUCCESS_CREATED_MAGAZINE",
-                                          "message": "매거진이 성공적으로 작성되었습니다.",
-                                          "data": {
-                                            "magazineId": 1,
-                                            "title": "제목",
-                                            "content": "내용",
-                                            "imageUrls": [
-                                              "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png"
-                                            ],
-                                            "createdAt": "2025-06-12T14:05:40.216235",
-                                            "writerId": 156,
-                                            "views": 0,
-                                            "likes": 0
-                                          }
-                                        }
+                            {
+                              "status": 201,
+                              "code": "SUCCESS_CREATED_MAGAZINE",
+                              "message": "매거진이 성공적으로 작성되었습니다.",
+                              "data": {
+                                "magazineId": 5,
+                                "title": "string",
+                                "content": "string",
+                                "writerId": 156,
+                                "imageUrls": [
+                                  "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/magazine/20250702_035225_b7c88a0b-f4e0-490a-a318-fd29380b12c1.png"
+                                ],
+                                "views": 0,
+                                "likes": 0,
+                                "createdAt": "2025-07-02T03:52:26.5691433"
+                              }
+                            }
                                     """)
                     )
             ),
