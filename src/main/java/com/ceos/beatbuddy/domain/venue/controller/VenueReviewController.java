@@ -62,6 +62,18 @@ public class VenueReviewController implements VenueReviewApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_VENUE_REVIEW, result));
     }
 
+    @DeleteMapping("/{venueReviewId}")
+    public ResponseEntity<ResponseDTO<String>> deleteVenueReview(
+            @PathVariable Long venueReviewId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        venueReviewService.deleteVenueReview(venueReviewId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_DELETE_VENUE_REVIEW.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_VENUE_REVIEW, "리뷰가 삭제되었습니다."));
+    }
+
+
     @Override
     @PostMapping("/{venueReviewId}/like")
     public ResponseEntity<ResponseDTO<String>> likeVenueReview(
