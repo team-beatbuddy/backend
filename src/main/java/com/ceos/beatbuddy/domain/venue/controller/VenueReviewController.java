@@ -76,6 +76,7 @@ public class VenueReviewController implements VenueReviewApiDocs {
     }
 
     // 리뷰 수정 구현
+    @Override
     @PatchMapping(value = "/{venueReviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO<VenueReviewResponseDTO>> updateVenueReview(
             @PathVariable Long venueReviewId,
