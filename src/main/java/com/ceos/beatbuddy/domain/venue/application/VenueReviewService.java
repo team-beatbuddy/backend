@@ -24,6 +24,8 @@ public class VenueReviewService {
     private final MemberService memberService;
     private final UploadUtil uploadUtil;
 
+    private static final String REVIEW_FOLDER = "review";
+
     public VenueReviewResponseDTO createVenueReview(Long venueId, Long memberId, VenueReviewRequestDTO dto, List<MultipartFile> images) {
         // 이미지 개수 검사
         if (images != null && images.size() > 5) {
@@ -43,12 +45,12 @@ public class VenueReviewService {
 
         // 이미지 업로드
         if (images != null && !images.isEmpty()) {
-            List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.VENUE,"review");
+            List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.VENUE,REVIEW_FOLDER);
             venueReview.setImageUrls(imageUrls);
         }
 
         // 리뷰 저장
         venueReview = venueReviewRepository.save(venueReview);
-        return VenueReviewResponseDTO.toDTO(venueReview, false); // false는 해당 댓글에 대한 좋아요 여부를 나타냄
+        return VenueReviewResponseDTO.toDTO(venueReview, false); // false는 해당 댓글에 대한 좋아요 여부를 나타냄, 새로 생성된 리뷰의 초기 좋아요 상태 (false)
     }
 }

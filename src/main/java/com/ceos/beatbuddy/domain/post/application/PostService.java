@@ -115,9 +115,6 @@ public class PostService {
         Post post = handler.readPost(postId);
 
         // 2. 사용자가 좋아요 / 스크랩 / 댓글 달았는지 여부
-        PostInteractionId interactionId = new PostInteractionId(memberId, postId);
-
-        // 3. 유저 상호작용 상태
         Triple<Boolean, Boolean, Boolean> status = getPostInteractions(memberId, postId);
 
         // 4. 응답 생성

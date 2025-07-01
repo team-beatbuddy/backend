@@ -1,7 +1,5 @@
 package com.ceos.beatbuddy.domain.venue.controller;
 
-import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
-import com.ceos.beatbuddy.domain.post.dto.ResponsePostDto;
 import com.ceos.beatbuddy.domain.venue.application.VenueReviewService;
 import com.ceos.beatbuddy.domain.venue.dto.VenueReviewRequestDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueReviewResponseDTO;
