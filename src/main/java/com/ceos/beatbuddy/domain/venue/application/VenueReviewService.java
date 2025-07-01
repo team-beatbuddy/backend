@@ -76,10 +76,6 @@ public class VenueReviewService {
             reviews = venueReviewRepository.findByVenueId(venue.getId());
         }
 
-        if (Objects.requireNonNull(reviews).isEmpty()) {
-            throw new CustomException(SuccessCode.SUCCESS_BUT_EMPTY_LIST);
-        }
-
         // 리뷰에 대한 좋아요 여부 설정
         return reviews.stream()
                 .map(review -> {
