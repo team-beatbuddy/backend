@@ -93,9 +93,7 @@ public class VenueReviewService {
     public void likeVenueReview(Long venueReviewId, Long memberId) {
         // VenueReview ID 유효성 검사
         VenueReview venueReview = validateAndGetVenueReview(venueReviewId);
-
-        // Venue ID 유효성 검사
-        venueInfoService.validateAndGetVenue(venueReview.getVenue().getId());
+        // Member ID 유효성 검사
         Member member = memberService.validateAndGetMember(memberId);
 
         // 이미 좋아요가 있는지 확인

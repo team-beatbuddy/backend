@@ -191,9 +191,7 @@ public interface VenueReviewApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples = {@ExampleObject(name = "존재하지 않는 베뉴 리뷰", value = SwaggerExamples.NOT_FOUND_VENUE_REVIEW),
-                            @ExampleObject(name = "존재하지 않는 베뉴", value = SwaggerExamples.VENUE_NOT_EXIST),
-                                    @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)
-
+                            @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)
                             }
                     )
             ),
