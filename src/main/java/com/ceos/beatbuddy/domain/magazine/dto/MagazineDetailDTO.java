@@ -29,6 +29,7 @@ public class MagazineDetailDTO {
                 .writerId(magazine.getMember().getId())
                 .likes(magazine.getLikes())
                 .views(magazine.getViews())
+                .createdAt(magazine.getCreatedAt())
                 .build();
     }
 }
