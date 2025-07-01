@@ -99,6 +99,11 @@ public class VenueReviewService {
 
         validateReviewAuthor(venueReview, memberId);
 
+        // 리뷰 이미지 삭제
+        if (venueReview.getImageUrls() != null && !venueReview.getImageUrls().isEmpty()) {
+            uploadUtil.deleteImages(venueReview.getImageUrls(), UploadUtil.BucketType.VENUE);
+        }
+
         // 리뷰 삭제
         venueReviewRepository.delete(venueReview);
     }
