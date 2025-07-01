@@ -89,6 +89,28 @@ public class VenueReviewService {
                 .toList();
     }
 
+    // 리뷰 삭제
+    @Transactional
+    public void deleteVenueReview(Long venueReviewId, Long memberId) {
+        // VenueReview ID 유효성 검사
+        VenueReview venueReview = validateAndGetVenueReview(venueReviewId);
+        // Member ID 유효성 검사
+        memberService.validateAndGetMember(memberId);
+
+        validateReviewAuthor(venueReview, memberId);
+
+        // 리뷰 삭제
+        venueReviewRepository.delete(venueReview);
+    }
+
+    // 리뷰 작성자와 요청한 사용자가 일치하는지 확인
+    protected void validateReviewAuthor(VenueReview venueReview, Long memberId) {
+        if (!venueReview.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
+        }
+    }
+
+
     @Transactional
     public void likeVenueReview(Long venueReviewId, Long memberId) {
         // VenueReview ID 유효성 검사

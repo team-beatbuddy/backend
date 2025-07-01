@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.venue.entity;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.VenueReviewLike;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Builder
@@ -36,6 +38,9 @@ public class VenueReview extends BaseTimeEntity {
     @JoinColumn(name = "memberId")
     private Member member; // 리뷰 작성자 ID
 
+    @OneToMany(mappedBy = "venueReview", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VenueReviewLike> likesList = new ArrayList<>();
+
     public void setVenue(Venue venue) {
         this.venue = venue;
     }
@@ -48,6 +53,4 @@ public class VenueReview extends BaseTimeEntity {
     public void setImageUrls(List<String> imageUrls) {
         this.imageUrls = imageUrls;
     }
-
-
 }

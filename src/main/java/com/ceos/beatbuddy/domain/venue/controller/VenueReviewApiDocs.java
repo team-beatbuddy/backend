@@ -169,6 +169,44 @@ public interface VenueReviewApiDocs {
 
 
     @Operation(
+            summary = "베뉴 리뷰 삭제하기",
+            description = "베뉴 리뷰를 삭제합니다. 리뷰 작성자만 삭제할 수 있습니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "베뉴 리뷰 삭제 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = {@ExampleObject(value = """
+                                    {
+                                      "status": 200,
+                                      "code": "SUCCESS_DELETE_VENUE_REVIEW",
+                                      "message": "베뉴 리뷰를 삭제했습니다.",
+                                      "data": "리뷰가 삭제되었습니다."
+                                    }
+                                    """)}
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 베뉴 리뷰, 유저",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {@ExampleObject(name = "존재하지 않는 베뉴 리뷰", value = SwaggerExamples.NOT_FOUND_VENUE_REVIEW),
+                                    @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)
+                            }
+                    )
+            ),
+            @ApiResponse(responseCode = "403", description = "리뷰 작성자가 아닌 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {@ExampleObject(name = "리뷰 작성자가 아닌 경우", value = SwaggerExamples.UNAUTHORIZED_MEMBER)}
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<String>> deleteVenueReview(
+            @PathVariable Long venueReviewId);
+
+
+    @Operation(
             summary = "베뉴 리뷰 좋아요",
             description = "베뉴 리뷰에 좋아요를 누릅니다. 이미 좋아요가 눌려져 있는 경우, 다시 누르면 예외가 발생합니다."
     )
