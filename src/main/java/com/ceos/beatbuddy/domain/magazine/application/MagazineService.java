@@ -5,6 +5,7 @@ import com.ceos.beatbuddy.domain.magazine.dto.MagazineHomeResponseDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
 import com.ceos.beatbuddy.domain.magazine.entity.Magazine;
 import com.ceos.beatbuddy.domain.magazine.exception.MagazineErrorCode;
+import com.ceos.beatbuddy.domain.magazine.repository.MagazineQueryRepository;
 import com.ceos.beatbuddy.domain.magazine.repository.MagazineRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.constant.Role;
@@ -28,6 +29,7 @@ public class MagazineService {
     private final MagazineRepository magazineRepository;
     private final MemberService memberService;
     private final MagazineLikeRepository magazineLikeRepository;
+    private final MagazineQueryRepository magazineQueryRepository;
 
     private final UploadUtil uploadUtil;
     /**
@@ -47,29 +49,34 @@ public class MagazineService {
             throw new CustomException(MagazineErrorCode.CANNOT_ADD_MAGAZINE_UNAUTHORIZED_MEMBER);
         }
 
-        // 이미지 업로드
-        List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "magazine");
-
         // 엔티티로 변경
-        Magazine entity = MagazineRequestDTO.toEntity(dto, member, imageUrls);
-        // 썸네일 이미지 세팅
-        entity.setThumbImage(imageUrls.get(0));
+        Magazine entity = MagazineRequestDTO.toEntity(dto, member);
+
+        List<String> imageUrls = null;
+        // 이미지 업로드 (이미지가 비어있는 경우는 제외)
+        if (images != null && !images.isEmpty()) {
+            imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "magazine");
+            // 썸네일 저장
+            entity.setThumbImage(imageUrls.get(0));
+            // 엔티티에 이미지 세팅
+            entity.setImageUrls(imageUrls);
+        }
 
         magazineRepository.save(entity);
 
         return MagazineDetailDTO.toResponseDTO(entity);
     }
     /**
-     * 홈 화면에 노출할 매거진 목록을 조회합니다. (표시 가능한 매거진만 반환)
+     * 홈 화면에 노출할 매거진 목록을 조회합니다. (표시 가능한 매거진만 반환) 5개 반환
      *
      * @param memberId 매거진 목록을 요청하는 회원의 ID
      * @return 매거진 홈 카드 정보를 담은 DTO 리스트
      * @throws CustomException 회원이 존재하지 않을 경우
      */
     public List<MagazineHomeResponseDTO> readHomeMagazines(Long memberId) {
-        Member member = memberService.validateAndGetMember(memberId);
+        memberService.validateAndGetMember(memberId);
 
-        List<Magazine> magazines = magazineRepository.findMagazinesByIsVisibleTrue();
+        List<Magazine> magazines = magazineQueryRepository.findPinnedMagazines();
 
         return magazines.stream().map((MagazineHomeResponseDTO::toDTO)).toList();
     }
