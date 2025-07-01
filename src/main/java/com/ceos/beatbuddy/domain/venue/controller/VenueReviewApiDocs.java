@@ -200,7 +200,12 @@ public interface VenueReviewApiDocs {
                             mediaType = "application/json",
                             examples = {@ExampleObject(name = "리뷰 작성자가 아닌 경우", value = SwaggerExamples.UNAUTHORIZED_MEMBER)}
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "500", description = "이미지 삭제 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {@ExampleObject(name = "이미지 삭제 오류", value = SwaggerExamples.IMAGE_DELETE_FAILED)}
+                    ))
     })
     ResponseEntity<ResponseDTO<String>> deleteVenueReview(
             @PathVariable Long venueReviewId);
