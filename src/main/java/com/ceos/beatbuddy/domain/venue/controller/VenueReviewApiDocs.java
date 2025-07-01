@@ -166,4 +166,44 @@ public interface VenueReviewApiDocs {
             @PathVariable Long venueId,
             @PathVariable String sort,
             @RequestParam(name = "hasImage", required = false, defaultValue = "false") boolean hasImage);
+
+
+    @Operation(
+            summary = "베뉴 리뷰 좋아요",
+            description = "베뉴 리뷰에 좋아요를 누릅니다. 이미 좋아요가 눌려져 있는 경우, 다시 누르면 예외가 발생합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "베뉴 리뷰 좋아요 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = {@ExampleObject(value = """
+                                    {
+                                      "status": 201,
+                                      "code": "SUCCESS_LIKE_VENUE_REVIEW",
+                                      "message": "베뉴 리뷰에 좋아요를 눌렀습니다.",
+                                      "data": "좋아요를 눌렀습니다."
+                                    }
+                                    """)}
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 베뉴 리뷰",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {@ExampleObject(name = "존재하지 않는 베뉴 리뷰", value = SwaggerExamples.NOT_FOUND_VENUE_REVIEW),
+                            @ExampleObject(name = "존재하지 않는 베뉴", value = SwaggerExamples.VENUE_NOT_EXIST),
+                                    @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)
+
+                            }
+                    )
+            ),
+            @ApiResponse(responseCode = "409", description = "이미 좋아요가 눌려져 있는 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {@ExampleObject(name = "이미 좋아요가 눌려져 있는 경우", value = SwaggerExamples.ALREADY_LIKED)}
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<String>> likeVenueReview(
+            @PathVariable Long venueReviewId);
 }
