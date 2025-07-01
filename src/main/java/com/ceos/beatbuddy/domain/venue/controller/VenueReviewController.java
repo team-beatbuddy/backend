@@ -48,6 +48,14 @@ public class VenueReviewController implements VenueReviewApiDocs {
         Long memberId = SecurityUtils.getCurrentMemberId();
         List<VenueReviewResponseDTO> result = venueReviewService.getVenueReview(venueId, memberId, hasImage);
 
+        if (result.isEmpty()) {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_GET_VENUE_REVIEW.getStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_VENUE_REVIEW, List.of()));
+        }
+
+         // 리뷰가 존재하는 경우
+
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_VENUE_REVIEW.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_VENUE_REVIEW, result));
