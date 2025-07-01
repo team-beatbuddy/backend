@@ -1,7 +1,6 @@
 package com.ceos.beatbuddy.domain.scrapandlike.entity;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.domain.venue.entity.VenueReview;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
