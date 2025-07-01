@@ -64,7 +64,7 @@ public class MagazineService {
 
         magazineRepository.save(entity);
 
-        return MagazineDetailDTO.toResponseDTO(entity);
+        return MagazineDetailDTO.toDTO(entity);
     }
     /**
      * 홈 화면에 노출할 매거진 목록을 조회합니다. (표시 가능한 매거진만 반환) 5개 반환
@@ -141,10 +141,10 @@ public class MagazineService {
      */
     @Transactional
     public MagazineDetailDTO deleteLikeMagazine(Long magazineId, Long memberId) {
-        Member member = memberService.validateAndGetMember(memberId);
+        memberService.validateAndGetMember(memberId);
 
         // 엔티티 검색
-        Magazine magazine = validateAndGetMagazine(magazineId);
+        validateAndGetMagazine(magazineId);
 
         // 좋아요 삭제
         MagazineLike magazineLike = magazineLikeRepository.findById(

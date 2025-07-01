@@ -31,15 +31,4 @@ public class MagazineDetailDTO {
                 .views(magazine.getViews())
                 .build();
     }
-
-    public static MagazineDetailDTO toResponseDTO(Magazine magazine) {
-        return MagazineDetailDTO.builder()
-                .magazineId(magazine.getId())
-                .title(magazine.getTitle())
-                .content(magazine.getContent())
-                .createdAt(magazine.getCreatedAt())
-                .imageUrls(magazine.getImageUrls() != null ? magazine.getImageUrls() : Collections.emptyList())
-                .writerId(magazine.getMember().getId())
-                .build();
-    }
 }

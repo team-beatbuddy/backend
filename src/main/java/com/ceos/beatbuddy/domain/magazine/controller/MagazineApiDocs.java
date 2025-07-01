@@ -43,7 +43,7 @@ public interface MagazineApiDocs {
                                             "createdAt": "2025-06-12T14:05:40.216235",
                                             "writerId": 156,
                                             "views": 0,
-                                            "likes": 0,
+                                            "likes": 0
                                           }
                                         }
                                     """)
@@ -178,7 +178,6 @@ public interface MagazineApiDocs {
                               "data": {
                                 "magazineId": 1,
                                 "title": "제목",
-                                "content": "내용",
                                 "content": "내용",
                                 "memberId": 156,
                                 "imageUrls": [
