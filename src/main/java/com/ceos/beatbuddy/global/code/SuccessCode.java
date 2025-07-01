@@ -106,6 +106,7 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_GET_VENUE_REVIEW(HttpStatus.OK, "베뉴 리뷰를 조회했습니다."),
     SUCCESS_LIKE_VENUE_REVIEW(HttpStatus.CREATED, "베뉴 리뷰에 좋아요를 눌렀습니다."),
     SUCCESS_DELETE_VENUE_REVIEW(HttpStatus.OK, "베뉴 리뷰를 삭제했습니다."),
+    SUCCESS_DELETE_VENUE_REVIEW_LIKE(HttpStatus.OK, "베뉴 리뷰 좋아요를 취소했습니다."),
 
     /**
      * empty

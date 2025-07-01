@@ -17,4 +17,7 @@ public interface VenueReviewRepository extends JpaRepository<VenueReview, Long> 
     @Modifying
     @Query("UPDATE VenueReview v SET v.likes = v.likes + 1 WHERE v.id = :id")
     void increaseLikeCount(@Param("id") Long id);
+    @Modifying
+    @Query("UPDATE VenueReview v SET v.likes = CASE WHEN v.likes > 0 THEN v.likes - 1 ELSE 0 END WHERE v.id = :id")
+    void decreaseLikeCount(@Param("id") Long id);
 }
