@@ -252,7 +252,7 @@ public interface VenueReviewApiDocs {
     })
     ResponseEntity<ResponseDTO<VenueReviewResponseDTO>> updateVenueReview(
             @PathVariable Long venueReviewId,
-            @Valid @RequestPart("venueReviewRequestDTO") VenueReviewUpdateDTO venueReviewUpdateDTO,
+            @Valid @RequestPart("venueReviewUpdateDTO") VenueReviewUpdateDTO venueReviewUpdateDTO,
             @RequestPart(value = "images", required = false) List<MultipartFile> images);
 
 
