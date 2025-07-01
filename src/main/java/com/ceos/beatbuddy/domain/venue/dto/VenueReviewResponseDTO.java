@@ -16,7 +16,6 @@ import java.util.List;
 public class VenueReviewResponseDTO {
     private Long venueReviewId;
     private String content; // 리뷰 내용
-    private boolean isAnonymous; // 익명 여부
     private String nickname; // 익명이면 "익명"으로 전달
     private int likes; // 좋아요 수
     private boolean liked; // 좋아요 눌렀는지 여부
@@ -29,8 +28,7 @@ public class VenueReviewResponseDTO {
         return VenueReviewResponseDTO.builder()
                 .venueReviewId(entity.getId())
                 .content(entity.getContent())
-                .isAnonymous(entity.isAnonymous())
-                .nickname(entity.isAnonymous() ? "익명" : entity.getMember().getNickname())
+                .nickname(entity.getMember().getNickname())
                 .likes(entity.getLikes())
                 .liked(liked)
                 .profileImageUrl(entity.getMember().getProfileImage())

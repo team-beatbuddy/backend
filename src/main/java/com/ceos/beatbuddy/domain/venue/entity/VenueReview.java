@@ -23,9 +23,6 @@ public class VenueReview extends BaseTimeEntity {
     @Column(nullable = false, length = 400)
     private String content; // 리뷰 내용
 
-    @Column(nullable = false)
-    private boolean isAnonymous; // 익명 여부
-
     private int likes;
 
     @ElementCollection
