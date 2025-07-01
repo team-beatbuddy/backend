@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.venue.application;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.VenueReviewLike;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.VenueReviewLikeId;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.VenueReviewLikeRepository;
 import com.ceos.beatbuddy.domain.venue.dto.VenueReviewRequestDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueReviewResponseDTO;
@@ -139,5 +140,22 @@ public class VenueReviewService {
     protected VenueReview validateAndGetVenueReview(Long venueReviewId) {
         return venueReviewRepository.findById(venueReviewId)
                 .orElseThrow(() -> new CustomException(VenueReviewErrorCode.VENUE_REVIEW_NOT_FOUND));
+    }
+
+    @Transactional
+    public void deleteLikeVenueReview(Long venueReviewId, Long memberId) {
+        // VenueReview ID 유효성 검사
+        VenueReview venueReview = validateAndGetVenueReview(venueReviewId);
+        // Member ID 유효성 검사
+        Member member = memberService.validateAndGetMember(memberId);
+
+        // 좋아요가 있는지 확인
+        if (!venueReviewLikeRepository.existsByVenueReview_IdAndMember_Id(venueReviewId, memberId)) {
+            throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
+        }
+
+        // 리뷰 좋아요 삭제
+        venueReviewLikeRepository.deleteById(new VenueReviewLikeId(member.getId(), venueReview.getId()));
+        venueReviewRepository.decreaseLikeCount(venueReview.getId());
     }
 }

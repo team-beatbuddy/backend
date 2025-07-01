@@ -62,6 +62,7 @@ public class VenueReviewController implements VenueReviewApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_VENUE_REVIEW, result));
     }
 
+    @Override
     @DeleteMapping("/{venueReviewId}")
     public ResponseEntity<ResponseDTO<String>> deleteVenueReview(
             @PathVariable Long venueReviewId) {
@@ -84,6 +85,19 @@ public class VenueReviewController implements VenueReviewApiDocs {
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_LIKE_VENUE_REVIEW.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_VENUE_REVIEW, "좋아요를 눌렀습니다."));
+    }
+
+    // 좋아요 취소
+    @Override
+    @DeleteMapping("/{venueReviewId}/like")
+    public ResponseEntity<ResponseDTO<String>> deleteLikeVenueReview(
+            @PathVariable Long venueReviewId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        venueReviewService.deleteLikeVenueReview(venueReviewId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_DELETE_VENUE_REVIEW_LIKE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_VENUE_REVIEW_LIKE, "좋아요를 취소했습니다."));
     }
 
 

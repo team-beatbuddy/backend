@@ -247,4 +247,43 @@ public interface VenueReviewApiDocs {
     })
     ResponseEntity<ResponseDTO<String>> likeVenueReview(
             @PathVariable Long venueReviewId);
+
+
+    @Operation(
+            summary = "베뉴 리뷰 좋아요 취소",
+            description = "베뉴 리뷰에 좋아요를 취소합니다. 좋아요가 눌려져 있지 않은 경우, 예외가 발생합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "베뉴 리뷰 좋아요 취소 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = {@ExampleObject(value = """
+                                    {
+                                      "status": 200,
+                                      "code": "SUCCESS_DELETE_VENUE_REVIEW_LIKE",
+                                      "message": "베뉴 리뷰 좋아요를 취소했습니다.",
+                                      "data": "좋아요를 취소했습니다."
+                                    }
+                                    """)}
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 베뉴 리뷰, 유저",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {@ExampleObject(name = "존재하지 않는 베뉴 리뷰", value = SwaggerExamples.NOT_FOUND_VENUE_REVIEW),
+                                    @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)
+                            }
+                    )
+            ),
+            @ApiResponse(responseCode = "409", description = "좋아요가 눌려져 있지 않은 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {@ExampleObject(name = "좋아요가 눌려져 있지 않은 경우", value = SwaggerExamples.NOT_FOUND_LIKE)}
+                    )
+            )
+    })
+
+    ResponseEntity<ResponseDTO<String>> deleteLikeVenueReview(
+            @PathVariable Long venueReviewId);
 }
