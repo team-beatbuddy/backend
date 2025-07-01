@@ -41,12 +41,13 @@ public class VenueReviewController implements VenueReviewApiDocs {
 
 
      @Override
-    @GetMapping(value = "/{venueId}")
+    @GetMapping(value = "/{venueId}/{sort}")
     public ResponseEntity<ResponseDTO<List<VenueReviewResponseDTO>>> getReviewFilterImageOrNot(
             @PathVariable Long venueId,
+            @PathVariable String sort,
             @RequestParam(name = "hasImage", required = false, defaultValue = "false") boolean hasImage) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        List<VenueReviewResponseDTO> result = venueReviewService.getVenueReview(venueId, memberId, hasImage);
+        List<VenueReviewResponseDTO> result = venueReviewService.getVenueReview(venueId, memberId, hasImage, sort);
 
         if (result.isEmpty()) {
             return ResponseEntity

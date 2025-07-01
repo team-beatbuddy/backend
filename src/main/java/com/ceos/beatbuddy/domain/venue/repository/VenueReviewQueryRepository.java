@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface VenueReviewQueryRepository {
     // 필요한 쿼리 메서드를 정의합니다.
-    List<VenueReview> findReviewsWithImages(Long venueId);
+    List<VenueReview> findAllReviewsSorted(Long venueId, String sortBy);
+    List<VenueReview> findReviewsWithImagesSorted(Long venueId, String sortBy);
 }

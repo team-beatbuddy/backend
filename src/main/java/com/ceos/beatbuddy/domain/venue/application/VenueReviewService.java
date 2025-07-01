@@ -59,19 +59,20 @@ public class VenueReviewService {
         return VenueReviewResponseDTO.toDTO(venueReview, false); // false는 해당 댓글에 대한 좋아요 여부를 나타냄, 새로 생성된 리뷰의 초기 좋아요 상태 (false)
     }
 
-    public List<VenueReviewResponseDTO> getVenueReview(Long venueId, Long memberId, boolean hasImage) {
+    public List<VenueReviewResponseDTO> getVenueReview(Long venueId, Long memberId, boolean hasImage, String sort) {
         // Venue ID 유효성 검사
         Venue venue = venueInfoService.validateAndGetVenue(venueId);
         memberService.validateAndGetMember(memberId);
 
-        List<VenueReview> reviews = null;
+        // 정렬 기준
+        String sortBy = (sort != null && sort.equals("popular")) ? "popular" : "latest";
+
+        // 리뷰 조회 - 이미지 유무 + 정렬 기준 포함
+        List<VenueReview> reviews;
         if (hasImage) {
-            // 이미지가 있는 리뷰만 조회
-            reviews = venueReviewQueryRepository.findReviewsWithImages(venueId);
-        }
-        else {
-            // 모든 리뷰 조회
-            reviews = venueReviewRepository.findByVenueId(venue.getId());
+            reviews = venueReviewQueryRepository.findReviewsWithImagesSorted(venueId, sortBy);
+        } else {
+            reviews = venueReviewQueryRepository.findAllReviewsSorted(venueId, sortBy);
         }
 
         // 리뷰에 대한 좋아요 여부 설정
