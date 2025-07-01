@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @Getter
@@ -22,6 +23,7 @@ public class VenueReviewResponseDTO {
     private String profileImageUrl; // 프로필 이미지 URL
     private String role; // 사용자 역할 (예: "USER", "ADMIN")
     private LocalDateTime createdAt; // 리뷰 작성 시간
+    private List<String> imageUrls;
 
     public static VenueReviewResponseDTO toDTO(VenueReview entity, boolean liked) {
         return VenueReviewResponseDTO.builder()
@@ -34,6 +36,7 @@ public class VenueReviewResponseDTO {
                 .profileImageUrl(entity.getMember().getProfileImage())
                 .role(entity.getMember().getRole().name())
                 .createdAt(entity.getCreatedAt())
+                .imageUrls(entity.getImageUrls() != null ? entity.getImageUrls() : List.of())
                 .build();
     }
 }
