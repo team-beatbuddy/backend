@@ -28,7 +28,7 @@ public class VenueReview extends BaseTimeEntity {
     private int likes;
 
     @ElementCollection
-    private List<String> imageUrls; // 리뷰 이미지 URL 목록
+    private List<String> imageUrls = new ArrayList<>(); // 리뷰 이미지 URL 목록
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venueId")
@@ -52,5 +52,9 @@ public class VenueReview extends BaseTimeEntity {
 
     public void setImageUrls(List<String> imageUrls) {
         this.imageUrls = imageUrls;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
     }
 }
