@@ -11,9 +11,7 @@ import com.ceos.beatbuddy.domain.member.constant.Role;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineInteractionId;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineLike;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineScrap;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.MagazineLikeRepository;
-import com.ceos.beatbuddy.domain.scrapandlike.repository.MagazineScrapRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
 import com.ceos.beatbuddy.global.code.ErrorCode;
@@ -23,14 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class MagazineService {
     private final MagazineRepository magazineRepository;
     private final MemberService memberService;
-    private final MagazineScrapRepository magazineScrapRepository;
     private final MagazineLikeRepository magazineLikeRepository;
 
     private final UploadUtil uploadUtil;
@@ -97,48 +93,6 @@ public class MagazineService {
     }
 
     /**
-     * 지정된 매거진에 대해 해당 회원이 스크랩(북마크)을 등록합니다.
-     *
-     * @param memberId 스크랩을 수행하는 회원의 ID
-     * @param magazineId 스크랩할 매거진의 ID
-     * @return 스크랩 등록 후의 매거진 상세 DTO
-     * @throws CustomException 매거진이 존재하지 않거나, 표시되지 않거나, 이미 스크랩한 경우
-     */
-    @Transactional
-    public MagazineDetailDTO scrapMagazine(Long memberId, Long magazineId) {
-        Member member = memberService.validateAndGetMember(memberId);
-
-        Magazine magazine = validateAndGetMagazineVisibleTrue(magazineId);
-
-        boolean alreadyScrapped = magazineScrapRepository.existsById(MagazineInteractionId.builder().magazineId(magazineId).memberId(memberId).build());
-
-        if (alreadyScrapped) {
-            throw new CustomException(MagazineErrorCode.ALREADY_SCRAP_MAGAZINE);
-        }
-
-        MagazineScrap magazineScrap = MagazineScrap.toEntity(member, magazine);
-        magazine.getScraps().add(magazineScrap);
-
-        return MagazineDetailDTO.toDTO(magazine);
-    }
-
-    /**
-     * 지정된 회원이 스크랩한 매거진 목록을 조회합니다.
-     *
-     * @param memberId 스크랩한 매거진을 조회할 회원의 ID
-     * @return 스크랩한 매거진을 나타내는 DTO 리스트
-     */
-    public List<MagazineHomeResponseDTO> getScrapMagazines(Long memberId) {
-        Member member = memberService.validateAndGetMember(memberId);
-
-        List<MagazineScrap> magazineScraps = magazineScrapRepository.findAllByMember(member);
-        List<Magazine> magazines = magazineScraps.stream().map((magazineScrap ->
-                validateAndGetMagazine(magazineScrap.getId().getMagazineId()))).toList();
-
-        return magazines.stream().map((MagazineHomeResponseDTO::toDTO)).toList();
-    }
-
-    /**
      * 지정된 회원이 해당 매거진에 좋아요를 등록합니다.
      *
      * @param magazineId 좋아요를 등록할 매거진의 ID
@@ -197,33 +151,6 @@ public class MagazineService {
         Magazine updatedEntity = this.validateAndGetMagazine(magazineId);
 
         return MagazineDetailDTO.toDTO(updatedEntity);
-    }
-
-    /**
-     * 지정된 매거진에 대해 해당 회원의 스크랩(북마크)을 제거합니다.
-     *
-     * @param magazineId 스크랩을 취소할 매거진의 ID
-     * @param memberId 스크랩 취소를 수행하는 회원의 ID
-     * @return 스크랩이 제거된 후의 매거진 상세 DTO
-     * @throws CustomException 회원 또는 매거진이 존재하지 않거나, 스크랩이 존재하지 않을 경우
-     */
-    @Transactional
-    public MagazineDetailDTO deleteScrapMagazine(Long magazineId, Long memberId) {
-        Member member = memberService.validateAndGetMember(memberId);
-
-        // 엔티티 검색
-        Magazine magazine = validateAndGetMagazine(magazineId);
-
-        // 스크랩 삭제
-        MagazineScrap magazineScrap = magazineScrapRepository.findById(
-                MagazineInteractionId.builder().memberId(memberId).magazineId(magazineId).build()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_FOUND_SCRAP)
-        );
-
-        magazineScrapRepository.delete(magazineScrap);
-
-        return MagazineDetailDTO.toDTO(magazine);
-
     }
 
     /**
