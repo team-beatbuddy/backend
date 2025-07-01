@@ -2,10 +2,12 @@ package com.ceos.beatbuddy.domain.venue.application;
 
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.scrapandlike.repository.VenueReviewLikeRepository;
 import com.ceos.beatbuddy.domain.venue.dto.VenueReviewRequestDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueReviewResponseDTO;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.entity.VenueReview;
+import com.ceos.beatbuddy.domain.venue.repository.VenueReviewQueryRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueReviewRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
@@ -23,6 +25,9 @@ public class VenueReviewService {
     private final VenueInfoService venueInfoService;
     private final MemberService memberService;
     private final UploadUtil uploadUtil;
+    private final VenueReviewQueryRepository venueReviewQueryRepository;
+    private final VenueReviewLikeRepository venueReviewLikeRepository;
+
 
     private static final String REVIEW_FOLDER = "review";
 
@@ -52,5 +57,30 @@ public class VenueReviewService {
         // 리뷰 저장
         venueReview = venueReviewRepository.save(venueReview);
         return VenueReviewResponseDTO.toDTO(venueReview, false); // false는 해당 댓글에 대한 좋아요 여부를 나타냄, 새로 생성된 리뷰의 초기 좋아요 상태 (false)
+    }
+
+    public List<VenueReviewResponseDTO> getVenueReview(Long venueId, Long memberId, boolean hasImage, String sort) {
+        // Venue ID 유효성 검사
+        Venue venue = venueInfoService.validateAndGetVenue(venueId);
+        memberService.validateAndGetMember(memberId);
+
+        // 정렬 기준
+        String sortBy = (sort != null && sort.equals("popular")) ? "popular" : "latest";
+
+        // 리뷰 조회 - 이미지 유무 + 정렬 기준 포함
+        List<VenueReview> reviews;
+        if (hasImage) {
+            reviews = venueReviewQueryRepository.findReviewsWithImagesSorted(venueId, sortBy);
+        } else {
+            reviews = venueReviewQueryRepository.findAllReviewsSorted(venueId, sortBy);
+        }
+
+        // 리뷰에 대한 좋아요 여부 설정
+        return reviews.stream()
+                .map(review -> {
+                    boolean isLiked = venueReviewLikeRepository.existsByVenueReview_IdAndMember_Id(review.getId(), memberId);
+                    return VenueReviewResponseDTO.toDTO(review, isLiked);
+                })
+                .toList();
     }
 }

@@ -1,6 +1,5 @@
 package com.ceos.beatbuddy.domain.scrapandlike.entity;
 
-import com.ceos.beatbuddy.domain.magazine.entity.Magazine;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
