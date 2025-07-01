@@ -233,6 +233,15 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String NOT_FOUND_VENUE_REVIEW = """
+        {
+          "status": 404,
+          "error": "NOT_FOUND",
+          "code": "NOT_FOUND_VENUE_REVIEW",
+          "message": "존재하지 않는 베뉴 리뷰입니다."
+        }
+        """;
+
 
     /**
      * 409 already do something

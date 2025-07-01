@@ -48,4 +48,6 @@ public class VenueReview extends BaseTimeEntity {
     public void setImageUrls(List<String> imageUrls) {
         this.imageUrls = imageUrls;
     }
+
+
 }
