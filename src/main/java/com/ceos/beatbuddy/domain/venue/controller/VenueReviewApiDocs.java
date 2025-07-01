@@ -113,9 +113,13 @@ public interface VenueReviewApiDocs {
 
     @Operation(
             summary = "베뉴 리뷰 조회하기",
-            description = "베뉴에 대한 리뷰를 조회합니다. " +
-                    "hasImage 파라미터를 통해 이미지가 있는 리뷰만 필터링할 수 있습니다. " +
-                    "기본값은 false이며, true로 설정하면 이미지가 있는 리뷰만 조회됩니다."
+            description = """
+                    베뉴에 대한 리뷰를 조회합니다.
+                    - hasImage 파라미터를 통해 이미지가 있는 리뷰만 필터링할 수 있습니다.
+                    - 기본값은 false이며, true로 설정하면 이미지가 있는 리뷰만 조회됩니다.
+                    - sort 파라미터를 통해 리뷰 정렬 방식을 지정할 수 있습니다.
+                    - 정렬 방식은 'latest' (기본값) 또는 'popular'로 설정할 수 있습니다.
+                    """
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "베뉴 리뷰 조회 성공",
@@ -158,7 +162,8 @@ public interface VenueReviewApiDocs {
                     )
             )
     })
-    public ResponseEntity<ResponseDTO<List<VenueReviewResponseDTO>>> getReviewFilterImageOrNot(
+    ResponseEntity<ResponseDTO<List<VenueReviewResponseDTO>>> getReviewFilterImageOrNot(
             @PathVariable Long venueId,
+            @PathVariable String sort,
             @RequestParam(name = "hasImage", required = false, defaultValue = "false") boolean hasImage);
 }
