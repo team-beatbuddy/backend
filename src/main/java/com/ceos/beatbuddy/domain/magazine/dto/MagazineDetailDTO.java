@@ -15,7 +15,6 @@ public class MagazineDetailDTO {
     private String content;
     private Long writerId;
     private List<String> imageUrls;
-    private Integer scraps;
     private Integer views;
     private Integer likes;
     private LocalDateTime createdAt;
@@ -29,7 +28,6 @@ public class MagazineDetailDTO {
                 .writerId(magazine.getMember().getId())
                 .likes(magazine.getLikes())
                 .views(magazine.getViews())
-                .scraps(magazine.getScraps() != null ? magazine.getScraps().size() : 0)
                 .build();
     }
 
