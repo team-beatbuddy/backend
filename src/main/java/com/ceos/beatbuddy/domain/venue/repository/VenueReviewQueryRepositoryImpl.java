@@ -38,8 +38,10 @@ public class VenueReviewQueryRepositoryImpl implements VenueReviewQueryRepositor
                 .fetch();
     }
 
+    private static final String SORT_BY_POPULAR = "popular";
+
     private OrderSpecifier<?> getOrderSpecifier(QVenueReview review, String sortBy) {
-        if ("popular".equals(sortBy)) {
+        if (SORT_BY_POPULAR.equalsIgnoreCase(sortBy)) {
             return review.likes.desc();
         } else {
             return review.createdAt.desc(); // 기본은 최신순
