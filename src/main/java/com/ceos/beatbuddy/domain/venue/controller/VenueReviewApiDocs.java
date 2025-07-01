@@ -21,7 +21,11 @@ import java.util.List;
 public interface VenueReviewApiDocs {
     @Operation(
             summary = "베뉴 리뷰 작성하기",
-            description = "베뉴 리뷰를 작성합니다. 리뷰 작성 시 이미지 첨부가 가능합니다."
+            description = "베뉴 리뷰를 작성합니다. 리뷰 작성 시 이미지가 5개까지 첨부 가능합니다. " +
+                    "이미지는 필수 사항이 아니며, 첨부하지 않아도 리뷰 작성이 가능합니다. " +
+                    "리뷰 내용은 최대 400자까지 입력할 수 있습니다. " +
+                    "multipart/form-data 형식으로 요청해야 하며, 파일 1개의 최대 크기는 10MB입니다. " +
+                    "전체 요청 크기는 30MB를 초과할 수 없습니다. "
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "베뉴 리뷰 작성 성공",
@@ -34,14 +38,18 @@ public interface VenueReviewApiDocs {
                               "code": "SUCCESS_CREATE_VENUE_REVIEW",
                               "message": "베뉴 리뷰를 작성했습니다.",
                               "data": {
-                                "venueReviewId": 1,
+                                "venueReviewId": 6,
                                 "content": "string",
                                 "nickname": "길동hong",
                                 "likes": 0,
                                 "liked": false,
                                 "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/member/01e2e094-3--.png",
                                 "role": "BUSINESS",
-                                "createdAt": "2025-06-24T16:35:36.9220865",
+                                "createdAt": "2025-07-01T19:53:56.294687",
+                                "imageUrls": [
+                                  "https://beatbuddy-venue.s3.ap-northeast-2.amazonaws.com/review/20250701_195355_32a97151-fdb7-4334-9d20-e508f3a48fb6.png",
+                                  "https://beatbuddy-venue.s3.ap-northeast-2.amazonaws.com/review/20250701_195355_3d34539f-7521-4bdb-ae4c-d04efbecfe9f.png"
+                                ],
                                 "anonymous": false
                               }
                             }
