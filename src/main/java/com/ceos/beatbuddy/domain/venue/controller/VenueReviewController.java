@@ -23,17 +23,35 @@ import java.util.List;
 @RequestMapping("/venue-reviews")
 public class VenueReviewController implements VenueReviewApiDocs {
     private final VenueReviewService venueReviewService; // 주석 처리된 부분은 실제 서비스 로직을 구현할 때 사용합니다.
+
+    @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE,
             value = "/{venueId}")
-     public ResponseEntity<ResponseDTO<VenueReviewResponseDTO>> createVenueReview(
-             @PathVariable Long venueId,
-             @Valid @RequestPart("venueReviewRequestDTO") VenueReviewRequestDTO venueReviewRequestDTO,
-             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
-         Long memberId = SecurityUtils.getCurrentMemberId();
-         VenueReviewResponseDTO result = venueReviewService.createVenueReview(venueId, memberId, venueReviewRequestDTO, images);
+         public ResponseEntity<ResponseDTO<VenueReviewResponseDTO>> createVenueReview(
+                 @PathVariable Long venueId,
+                 @Valid @RequestPart("venueReviewRequestDTO") VenueReviewRequestDTO venueReviewRequestDTO,
+                 @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+             Long memberId = SecurityUtils.getCurrentMemberId();
+             VenueReviewResponseDTO result = venueReviewService.createVenueReview(venueId, memberId, venueReviewRequestDTO, images);
 
-         return ResponseEntity
-                 .status(SuccessCode.SUCCESS_CREATE_VENUE_REVIEW.getStatus().value())
-                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATE_VENUE_REVIEW, result));
-     }
+             return ResponseEntity
+                     .status(SuccessCode.SUCCESS_CREATE_VENUE_REVIEW.getStatus().value())
+                     .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATE_VENUE_REVIEW, result));
+         }
+
+
+     @Override
+    @GetMapping(value = "/{venueId}")
+    public ResponseEntity<ResponseDTO<List<VenueReviewResponseDTO>>> getReviewFilterImageOrNot(
+            @PathVariable Long venueId,
+            @RequestParam(name = "hasImage", required = false, defaultValue = "false") boolean hasImage) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        List<VenueReviewResponseDTO> result = venueReviewService.getVenueReview(venueId, memberId, hasImage);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_VENUE_REVIEW.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_VENUE_REVIEW, result));
+    }
+
+
 }

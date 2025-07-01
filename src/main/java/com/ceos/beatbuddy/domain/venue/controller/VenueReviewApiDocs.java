@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -107,4 +108,54 @@ public interface VenueReviewApiDocs {
             @PathVariable Long venueId,
             @RequestPart VenueReviewRequestDTO dto,
             @RequestPart(value = "images", required = false) List<MultipartFile> images);
+
+
+
+    @Operation(
+            summary = "베뉴 리뷰 조회하기",
+            description = "베뉴에 대한 리뷰를 조회합니다. " +
+                    "hasImage 파라미터를 통해 이미지가 있는 리뷰만 필터링할 수 있습니다. " +
+                    "기본값은 false이며, true로 설정하면 이미지가 있는 리뷰만 조회됩니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "베뉴 리뷰 조회 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                            {
+                              "status": 200,
+                              "code": "SUCCESS_GET_VENUE_REVIEW",
+                              "message": "베뉴 리뷰를 조회했습니다.",
+                              "data": [
+                                {
+                                  "venueReviewId": 6,
+                                  "content": "string",
+                                  "nickname": "길동hong",
+                                  "likes": 0,
+                                  "liked": false,
+                                  "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/member/01e2e094-3--.png",
+                                  "role": "BUSINESS",
+                                  "createdAt": "2025-07-01T19:53:56.294687",
+                                  "imageUrls": [
+                                    "https://beatbuddy-venue.s3.ap-northeast-2.amazonaws.com/review/20250701_195355_32a97151-fdb7-4334-9d20-e508f3a48fb6.png",
+                                    "https://beatbuddy-venue.s3.ap-northeast-2.amazonaws.com/review/20250701_195355_3d34539f-7521-4bdb-ae4c-d04efbecfe9f.png"
+                                  ]
+                                }
+                              ]
+                            }
+                    """))
+            ),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 유저, 베뉴가 존재하지 않는 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {@ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "존재하지 않는 베뉴", value = SwaggerExamples.VENUE_NOT_EXIST)
+                            }
+                    )
+            )
+    })
+    public ResponseEntity<ResponseDTO<List<VenueReviewResponseDTO>>> getReviewFilterImageOrNot(
+            @PathVariable Long venueId,
+            @RequestParam(name = "hasImage", required = false, defaultValue = "false") boolean hasImage);
 }

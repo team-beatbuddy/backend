@@ -103,6 +103,7 @@ public enum SuccessCode implements ApiCode {
      * Venue
      * */
     SUCCESS_CREATE_VENUE_REVIEW(HttpStatus.CREATED, "베뉴 리뷰를 작성했습니다."),
+    SUCCESS_GET_VENUE_REVIEW(HttpStatus.OK, "베뉴 리뷰를 조회했습니다."),
 
     /**
      * empty
