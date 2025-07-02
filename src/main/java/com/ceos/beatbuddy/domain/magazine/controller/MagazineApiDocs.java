@@ -215,6 +215,14 @@ public interface MagazineApiDocs {
                     )
             ),
             @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청 (페이지 번호가 0 이하인 경우)",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(name = "잘못된 페이지 요청", value = SwaggerExamples.PAGE_OUT_OF_BOUNDS)
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "리소스를 찾을 수 없음",
                     content = @Content(

@@ -231,7 +231,7 @@ public interface PostApiDocs {
                 로그인한 사용자가 스크랩한 게시글 목록을 타입(free/piece)에 따라 조회합니다.
 
                 - type: 게시글 타입. "free" 또는 "piece"
-                - page: 페이지 번호 (0부터 시작)
+                - page: 페이지 번호 (1부터 시작)
                 - size: 한 페이지에 포함할 게시글 수
                 """)
     @ApiResponses(value = {
@@ -247,7 +247,7 @@ public interface PostApiDocs {
                               "data": {
                                 "totalPost": 510,
                                 "size": 1,
-                                "page": 0,
+                                "page": 1,
                                 "responseDTOS": [
                                   {
                                     "id": 532,
@@ -270,10 +270,11 @@ public interface PostApiDocs {
                                 """)
                     )
             ),
-            @ApiResponse(responseCode = "400", description = "잘못된 게시글 타입 요청",
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(name = "잘못된 type 예시", value = SwaggerExamples.INVALID_POST_TYPE)
+                            examples = {@ExampleObject(name = "잘못된 type 예시", value = SwaggerExamples.INVALID_POST_TYPE),
+                                    @ExampleObject(name = "잘못된 페이지 요청", value = SwaggerExamples.PAGE_OUT_OF_BOUNDS)}
                     )
             ),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 유저",
@@ -285,7 +286,7 @@ public interface PostApiDocs {
     })
     ResponseEntity<ResponseDTO<PostListResponseDTO>> getScrappedPosts(
             @RequestParam String type,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size);
 
 
@@ -304,7 +305,7 @@ public interface PostApiDocs {
                                       "data": {
                                         "totalPost": 22,
                                         "size": 10,
-                                        "page": 0,
+                                        "page": 1,
                                         "responseDTOS": [
                                           {
                                             "id": 42,
@@ -326,10 +327,11 @@ public interface PostApiDocs {
                                     }
                     """))
             ),
-            @ApiResponse(responseCode = "400", description = "잘못된 게시글 타입 요청",
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(name = "잘못된 type 예시", value = SwaggerExamples.INVALID_POST_TYPE)
+                            examples = {@ExampleObject(name = "잘못된 type 예시", value = SwaggerExamples.INVALID_POST_TYPE),
+                                    @ExampleObject(name = "잘못된 페이지 요청", value = SwaggerExamples.PAGE_OUT_OF_BOUNDS)}
                     )
             ),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 유저",
@@ -341,7 +343,7 @@ public interface PostApiDocs {
     })
     ResponseEntity<ResponseDTO<PostListResponseDTO>> getMyPosts(
             @RequestParam String type,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size);
 
 
