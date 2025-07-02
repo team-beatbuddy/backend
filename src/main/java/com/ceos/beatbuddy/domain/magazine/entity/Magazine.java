@@ -34,6 +34,8 @@ public class Magazine extends BaseTimeEntity {
 
     private boolean isVisible = true; // 띄워줄 매거진만
     private boolean isPinned = false; // 고정된 매거진인지 여부
+    // 스폰서 여부
+    private boolean isSponsored = false; // 스폰서 매거진인지 여부
 
     @ElementCollection
     private List<String> imageUrls;
