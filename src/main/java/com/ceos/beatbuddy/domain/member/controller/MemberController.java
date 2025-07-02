@@ -3,6 +3,8 @@ package com.ceos.beatbuddy.domain.member.controller;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.application.OnboardingService;
 import com.ceos.beatbuddy.domain.member.dto.*;
+import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
+import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.ResponseTemplate;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
@@ -13,9 +15,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -117,7 +121,7 @@ public class MemberController implements MemberApiDocs{
     }
 
     @PostMapping("/onboarding/nickname")
-    @Operation(summary = "사용자 닉네임 저장 및 닉네임 수정 시 사용", description = "사용자가 입력한 닉네임으로 저장")
+    @Operation(summary = "사용자 닉네임 저장", description = "사용자가 입력한 닉네임으로 저장")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "닉네임을 저장에 성공하면 유저의 정보를 반환합니다."
                     , content = @Content(mediaType = "application/json"
@@ -214,4 +218,21 @@ public class MemberController implements MemberApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_PROFILE_SUMMARY, result));
     }
 
+    @Override
+    @PatchMapping("/nickname")
+    public ResponseEntity<ResponseDTO<MemberResponseDTO>> updateNickname(
+        @Valid @RequestBody NicknameDTO nicknameDTO
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId(); // 현재 로그인된 사용자 ID
+        MemberResponseDTO result = null;
+        try {
+            result = memberService.updateNickname(memberId, nicknameDTO);
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new CustomException(MemberErrorCode.NICKNAME_CONFLICT); // 사용자에게 충돌 알림
+        }
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_UPDATE_NICKNAME.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_NICKNAME, result));
+    }
 }
