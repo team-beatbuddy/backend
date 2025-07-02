@@ -115,6 +115,24 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String SAME_NICKNAME = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "SAME_NICKNAME",
+          "message": "동일한 닉네임으로는 변경이 불가능합니다."
+        }
+        """;
+
+    public static final String NICKNAME_CHANGE_LIMITED = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "NICKNAME_CHANGE_LIMITED",
+          "message": "닉네임 변경은 14일 내에 2번까지만 가능합니다. 14일 뒤에 변경해주세요."
+        }
+        """;
+
 
     /**
      * 403 권한 없음

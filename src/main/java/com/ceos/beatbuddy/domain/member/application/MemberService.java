@@ -5,6 +5,7 @@ import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.constant.Role;
 import com.ceos.beatbuddy.domain.member.dto.MemberProfileSummaryDTO;
+import com.ceos.beatbuddy.domain.member.dto.MemberResponseDTO;
 import com.ceos.beatbuddy.domain.member.dto.NicknameDTO;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.entity.MemberGenre;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -142,6 +144,48 @@ public class MemberService {
 
     public MemberProfileSummaryDTO getProfileSummary(Long memberId) {
         return memberQueryRepository.getMemberSummary(memberId);
+    }
+
+
+    // 14일 내 최대 2회 변경 가능
+    // 3번째 변경 시도 시: “마지막 변경 기준 14일 이후에 변경 가능” 안내
+    @Transactional
+    public MemberResponseDTO updateNickname(Long memberId, NicknameDTO nicknameDTO) {
+        Member member = validateAndGetMember(memberId);
+        String newNickname = nicknameDTO.getNickname();
+
+        // 닉네임 동일하면 예외
+        if (member.getNickname().equals(newNickname)) {
+            throw new CustomException(MemberErrorCode.SAME_NICKNAME);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime lastChangedAt = member.getNicknameChangedAt();
+
+        // 변경 이력이 없는 경우
+        if (lastChangedAt == null) {
+            member.setNicknameChangedAt(now);
+            member.setNicknameChangeCount(1);
+        } else {
+            if (member.getNicknameChangeCount() >= 2) {
+                // 마지막 변경일 기준 14일 이내면 차단
+                if (lastChangedAt.plusDays(14).isAfter(now)) {
+                    throw new CustomException(MemberErrorCode.NICKNAME_CHANGE_LIMITED); // "14일 내 최대 2회까지 변경 가능합니다."
+                } else {
+                    // 14일 지났으므로 초기화 후 1회 카운트
+                    member.setNicknameChangedAt(now);
+                    member.setNicknameChangeCount(1);
+                }
+            } else {
+                // 아직 2회 미만이므로 변경 허용
+                member.setNicknameChangedAt(now);
+                member.setNicknameChangeCount(member.getNicknameChangeCount() + 1);
+            }
+        }
+
+        member.setNickname(newNickname);
+        memberRepository.save(member);
+        return MemberResponseDTO.toSetNicknameDTO(member);
     }
 
     public Member validateAndGetMember(Long memberId) {
