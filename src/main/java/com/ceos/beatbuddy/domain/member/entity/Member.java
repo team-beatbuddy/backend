@@ -42,6 +42,9 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private int nicknameChangeCount = 0;
 
+    @Version
+    private Long version;
+
 
     @Builder.Default
     private Boolean setNewNickname = false;
