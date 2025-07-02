@@ -226,10 +226,10 @@ public class PostController implements PostApiDocs {
 
 
     @Override
-    @GetMapping("/my-page")
+    @GetMapping("/my-page/scrap")
     public ResponseEntity<ResponseDTO<PostListResponseDTO>> getScrappedPosts(
             @RequestParam String type,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Long memberId = SecurityUtils.getCurrentMemberId();
@@ -242,7 +242,7 @@ public class PostController implements PostApiDocs {
     @GetMapping("/my")
     public ResponseEntity<ResponseDTO<PostListResponseDTO>> getMyPosts(
             @RequestParam String type,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Long memberId = SecurityUtils.getCurrentMemberId();
