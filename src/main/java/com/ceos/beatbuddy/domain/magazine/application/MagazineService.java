@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.magazine.application;
 
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineDetailDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineHomeResponseDTO;
+import com.ceos.beatbuddy.domain.magazine.dto.MagazinePageResponseDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
 import com.ceos.beatbuddy.domain.magazine.entity.Magazine;
 import com.ceos.beatbuddy.domain.magazine.exception.MagazineErrorCode;
@@ -17,11 +18,15 @@ import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -64,7 +69,7 @@ public class MagazineService {
 
         magazineRepository.save(entity);
 
-        return MagazineDetailDTO.toDTO(entity);
+        return MagazineDetailDTO.toDTO(entity, false);
     }
     /**
      * 홈 화면에 노출할 매거진 목록을 조회합니다. (표시 가능한 매거진만 반환) 5개 반환
@@ -90,14 +95,43 @@ public class MagazineService {
      * @throws CustomException 회원 또는 매거진이 존재하지 않거나, 매거진이 표시 불가능한 경우
      */
     public MagazineDetailDTO readDetailMagazine(Long memberId, Long magazineId) {
-        Member member = memberService.validateAndGetMember(memberId);
+        memberService.validateAndGetMember(memberId);
 
         Magazine magazine = validateAndGetMagazineVisibleTrue(magazineId);
 
+        // 조회수 증가
         magazine.increaseView();
 
-        return MagazineDetailDTO.toDTO(magazine);
+        // 매거진 좋아요 여부 확인
+        boolean isLiked = magazineLikeRepository.existsById(
+                MagazineInteractionId.builder().memberId(memberId).magazineId(magazineId).build());
+
+        return MagazineDetailDTO.toDTO(magazine, isLiked);
     }
+
+    // 전체 목록 조회, 좋아요 여부 체크
+    public MagazinePageResponseDTO readAllMagazines(Long memberId, int page, int size) {
+        memberService.validateAndGetMember(memberId);
+
+        // 페이지 수는 0부터 시작!
+        Pageable pageable = PageRequest.of(page - 1, Math.min(size, 50));
+
+        List<Magazine> magazines = magazineQueryRepository.findAllVisibleMagazines(pageable);
+        List<Long> likedIds = magazineLikeRepository.findMagazineIdsByMemberId(memberId);
+        Set<Long> likedIdSet = new HashSet<>(likedIds);
+
+        List<MagazineDetailDTO> magazineDetailDTOS = magazines.stream()
+                .map(magazine -> MagazineDetailDTO.toDTO(magazine, likedIdSet.contains(magazine.getId())))
+                .toList();
+
+        return MagazinePageResponseDTO.builder()
+                .page(page)
+                .size(size)
+                .totalCount(magazineQueryRepository.countAllVisibleMagazines())
+                .magazines(magazineDetailDTOS)
+                .build();
+    }
+
 
     /**
      * 지정된 회원이 해당 매거진에 좋아요를 등록합니다.
@@ -128,7 +162,7 @@ public class MagazineService {
 
         Magazine updatedEntity = this.validateAndGetMagazine(magazineId);
 
-        return MagazineDetailDTO.toDTO(updatedEntity);
+        return MagazineDetailDTO.toDTO(updatedEntity, true);
     }
 
     /**
@@ -157,7 +191,7 @@ public class MagazineService {
 
         Magazine updatedEntity = this.validateAndGetMagazine(magazineId);
 
-        return MagazineDetailDTO.toDTO(updatedEntity);
+        return MagazineDetailDTO.toDTO(updatedEntity, false);
     }
 
     /**
