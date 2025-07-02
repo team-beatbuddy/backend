@@ -19,8 +19,9 @@ public class MagazineDetailDTO {
     private int views;
     private int likes;
     private LocalDateTime createdAt;
+    private boolean isLiked; // 좋아요 여부
 
-    public static MagazineDetailDTO toDTO(Magazine magazine) {
+    public static MagazineDetailDTO toDTO(Magazine magazine, boolean isLiked) {
         return MagazineDetailDTO.builder()
                 .magazineId(magazine.getId())
                 .title(magazine.getTitle())
@@ -30,6 +31,7 @@ public class MagazineDetailDTO {
                 .likes(magazine.getLikes())
                 .views(magazine.getViews())
                 .createdAt(magazine.getCreatedAt())
+                .isLiked(isLiked)
                 .build();
     }
 }
