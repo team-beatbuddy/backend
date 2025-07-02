@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -120,7 +121,7 @@ public interface MemberApiDocs {
     })
     ResponseEntity<ResponseDTO<MemberProfileSummaryDTO>> getProfileSummary();
 
-    @Operation(summary = "닉네임 변경", description = "닉네임을 변경합니다. 14일 내 최대 2회 변경 가능")
+    @Operation(summary = "닉네임 변경, 14일 이내 조건이 포함된 변경 API", description = "닉네임을 변경합니다. 14일 내 최대 2회 변경 가능")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -171,7 +172,27 @@ public interface MemberApiDocs {
                                             value = SwaggerExamples.MEMBER_NOT_EXIST)
                             }
                     )
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "동일한 시점에 닉네임 변경 시도가 발생했습니다. 잠시 후 다시 시도해주세요.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "닉네임 변경 충돌",
+                                            value = """
+                                                    
+                                            {
+                                                "status": 409,
+                                                "error": "CONFLICT",
+                                                "code": "NICKNAME_CONFLICT",
+                                                "message": "동일한 시점에 닉네임 변경 시도가 발생했습니다. 잠시 후 다시 시도해주세요."
+                                            }
+                                                    """)
+                            }
+                    )
             )
     })
-    ResponseEntity<ResponseDTO<MemberResponseDTO>> updateNickname(@RequestBody NicknameDTO nicknameDTO);
+    ResponseEntity<ResponseDTO<MemberResponseDTO>> updateNickname(@Valid @RequestBody NicknameDTO nicknameDTO);
 }
