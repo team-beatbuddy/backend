@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.magazine.controller;
 import com.ceos.beatbuddy.domain.magazine.application.MagazineService;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineDetailDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineHomeResponseDTO;
+import com.ceos.beatbuddy.domain.magazine.dto.MagazinePageResponseDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
@@ -57,6 +58,26 @@ public class MagazineController implements MagazineApiDocs{
     }
 
     // 매거진 전체 불러오기도 필요함.
+    // 매거진 전체 불러오기
+    @Override
+    @GetMapping("/all")
+    public ResponseEntity<ResponseDTO<MagazinePageResponseDTO>> readAllMagazines(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        MagazinePageResponseDTO result = magazineService.readAllMagazines(memberId, page, size);
+
+        if (result.getMagazines().isEmpty()) {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
+        }
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_MAGAZINE_LIST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
+    }
 
     // 매거진 상세 보기
     @Override

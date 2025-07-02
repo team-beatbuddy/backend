@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.magazine.controller;
 
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineDetailDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineHomeResponseDTO;
+import com.ceos.beatbuddy.domain.magazine.dto.MagazinePageResponseDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
 import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,7 +45,8 @@ public interface MagazineApiDocs {
                                 ],
                                 "views": 0,
                                 "likes": 0,
-                                "createdAt": "2025-07-02T03:52:26.5691433"
+                                "createdAt": "2025-07-02T03:52:26.5691433",
+                                "isLiked": false
                               }
                             }
                                     """)
@@ -121,6 +124,112 @@ public interface MagazineApiDocs {
     })
     ResponseEntity<ResponseDTO<List<MagazineHomeResponseDTO>>> readMagazineList();
 
+    @Operation(summary = "매거진 전체 조회\n",
+            description = "매거진 전체 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "매거진 리스트를 성공적으로 조회했습니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = {
+                                    @ExampleObject(
+                                            name = "매거진 전체 조회 성공",
+                                            value = """
+                                            {
+                                              "status": 200,
+                                              "code": "SUCCESS_GET_MAGAZINE_LIST",
+                                              "message": "매거진을 성공적으로 불러왔습니다.",
+                                              "data": {
+                                                "page": 1,
+                                                "size": 10,
+                                                "totalCount": 5,
+                                                "magazines": [
+                                                  {
+                                                    "magazineId": 5,
+                                                    "title": "string",
+                                                    "content": "string",
+                                                    "writerId": 156,
+                                                    "imageUrls": [
+                                                      "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/magazine/20250702_035225_b7c88a0b-f4e0-490a-a318-fd29380b12c1.png"
+                                                    ],
+                                                    "views": 0,
+                                                    "likes": 0,
+                                                    "createdAt": "2025-07-02T03:52:26.569143",
+                                                    "liked": false
+                                                  },
+                                                  {
+                                                    "magazineId": 4,
+                                                    "title": "string",
+                                                    "content": "string",
+                                                    "writerId": 156,
+                                                    "imageUrls": [
+                                                      "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/magazine/20250702_035127_a96f05c4-441c-49be-9b41-83d1b7b2aa08.png"
+                                                    ],
+                                                    "views": 0,
+                                                    "likes": 0,
+                                                    "createdAt": "2025-07-02T03:51:28.732743",
+                                                    "liked": false
+                                                  },
+                                                  {
+                                                    "magazineId": 3,
+                                                    "title": "string",
+                                                    "content": "string",
+                                                    "writerId": 156,
+                                                    "imageUrls": [],
+                                                    "views": 0,
+                                                    "likes": 0,
+                                                    "createdAt": "2025-07-02T03:35:20.952583",
+                                                    "liked": false
+                                                  },
+                                                  {
+                                                    "magazineId": 2,
+                                                    "title": "string",
+                                                    "content": "string",
+                                                    "writerId": 156,
+                                                    "imageUrls": [],
+                                                    "views": 0,
+                                                    "likes": 0,
+                                                    "createdAt": "2025-07-02T03:32:48.383555",
+                                                    "liked": false
+                                                  },
+                                                  {
+                                                    "magazineId": 1,
+                                                    "title": "제목",
+                                                    "content": "내용",
+                                                    "writerId": 156,
+                                                    "imageUrls": [
+                                                      "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png"
+                                                    ],
+                                                    "views": 0,
+                                                    "likes": 0,
+                                                    "createdAt": "2025-06-12T14:05:40.216235",
+                                                    "liked": false
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                            """
+                                    ),
+                                    @ExampleObject(name = "빈 매거진 리스트", value = SwaggerExamples.SUCCESS_BUT_EMPTY_LIST)
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "리소스를 찾을 수 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "존재하지 않는 매거진", value = SwaggerExamples.NOT_FOUND_MAGAZINE)
+                            }
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<MagazinePageResponseDTO>> readAllMagazines(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    );
 
     @Operation(summary = "매거진 상세 조회\n",
             description = "매거진 상세 조회")
