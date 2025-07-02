@@ -24,6 +24,8 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_BUSINESS_SETTINGS(HttpStatus.OK, "성공적으로 프로필 세팅을 완료했습니다."),
     SUCCESS_UPLOAD_PROFILE_IMAGE(HttpStatus.OK, "성공적으로 프로필 사진을 추가했습니다."),
     SUCCESS_GET_PROFILE_SUMMARY(HttpStatus.OK, "프로필 요약 조회를 성공했습니다."),
+    SUCCESS_UPDATE_NICKNAME(HttpStatus.OK, "닉네임을 성공적으로 변경했습니다."),
+
     /**
      * Admin
      * */

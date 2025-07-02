@@ -9,6 +9,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,6 +35,13 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private Role role = Role.USER;
+
+    @Column
+    private LocalDateTime nicknameChangedAt;
+
+    @Column(nullable = false)
+    private int nicknameChangeCount = 0;
+
 
     @Builder.Default
     private Boolean setNewNickname = false;
@@ -109,5 +117,17 @@ public class Member extends BaseTimeEntity {
 
     public boolean isAdmin() {
         return Role.ADMIN.equals(this.role);
+    }
+
+    public void setNicknameChangedAt(LocalDateTime now) {
+        this.nicknameChangedAt = now;
+    }
+
+    public void setNicknameChangeCount(int i) {
+        this.nicknameChangeCount = i;
+    }
+
+    public void setNickname(String newNickname) {
+        this.nickname = newNickname;
     }
 }

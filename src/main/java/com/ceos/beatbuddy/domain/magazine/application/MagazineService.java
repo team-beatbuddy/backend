@@ -113,7 +113,7 @@ public class MagazineService {
     public MagazinePageResponseDTO readAllMagazines(Long memberId, int page, int size) {
         memberService.validateAndGetMember(memberId);
 
-        // 페이지 수는 0부터 시작!
+        // 페이지 수는 0부터 시작
         Pageable pageable = PageRequest.of(page - 1, Math.min(size, 50));
 
         List<Magazine> magazines = magazineQueryRepository.findAllVisibleMagazines(pageable);
