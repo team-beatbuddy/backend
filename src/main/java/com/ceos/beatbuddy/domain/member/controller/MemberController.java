@@ -214,9 +214,16 @@ public class MemberController implements MemberApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_PROFILE_SUMMARY, result));
     }
 
+// add this import at the top of the file
+import jakarta.validation.Valid;
+
+...
+
     @Override
     @PatchMapping("/nickname")
-    public ResponseEntity<ResponseDTO<MemberResponseDTO>> updateNickname(@RequestBody NicknameDTO nicknameDTO) {
+    public ResponseEntity<ResponseDTO<MemberResponseDTO>> updateNickname(
+        @Valid @RequestBody NicknameDTO nicknameDTO
+    ) {
         Long memberId = SecurityUtils.getCurrentMemberId(); // 현재 로그인된 사용자 ID
         MemberResponseDTO result = memberService.updateNickname(memberId, nicknameDTO);
 
