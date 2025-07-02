@@ -340,8 +340,11 @@ public class PostService {
     public PostListResponseDTO getScrappedPostsByType(Long memberId, String type, int page, int size) {
         Member member = memberService.validateAndGetMember(memberId);
 
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        // 페이지 1부터 받도록 지시, 0부터 시작하는 Pageable 생성
+        if (page < 1) {
+            throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
+        }
+        Pageable pageable = PageRequest.of(page -1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // 1. 스크랩한 게시글 페이징 조회
         Page<Post> postPage = postScrapRepository.findPostsByMemberId(member.getId(), pageable);
@@ -387,7 +390,11 @@ public class PostService {
     public PostListResponseDTO getMyPostsByType(Long memberId, String type, int page, int size) {
         Member member = memberService.validateAndGetMember(memberId);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        // 페이지 1부터 받도록 지시, 0부터 시작하는 Pageable 생성
+        if (page < 1) {
+            throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
+        }
+        Pageable pageable = PageRequest.of(page-1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<? extends Post> postPage;
 
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);

@@ -133,6 +133,15 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String PAGE_OUT_OF_BOUNDS = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "PAGE_OUT_OF_BOUNDS",
+          "message": "페이지 번호가 범위를 벗어났습니다."
+        }
+        """;
+
 
     /**
      * 403 권한 없음
