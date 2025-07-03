@@ -78,7 +78,12 @@ public class SecurityConfig {
             claims.putIfAbsent("name", "AppleUser");
             claims.putIfAbsent("email", "unknown@apple.com");
 
-            return new DefaultOidcUser(oidcUser.getAuthorities(), userRequest.getIdToken(), "sub");
+            return new DefaultOidcUser(
+                oidcUser.getAuthorities(),
+                oidcUser.getIdToken(),
+                claims,
+                "sub"
+            );
         };
     }
 
