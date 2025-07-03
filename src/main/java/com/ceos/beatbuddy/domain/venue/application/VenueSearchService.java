@@ -7,6 +7,7 @@ import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.entity.VenueDocument;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 
@@ -16,6 +17,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class VenueSearchService {
     private final VenueRepository venueRepository;
@@ -58,7 +60,7 @@ public class VenueSearchService {
                     .document(doc)
             );
         } catch (IOException e) {
-            System.err.println("Venue 인덱싱 실패: " + e.getMessage());
+            log.error("Venue 인덱싱 실패: venueId={}, error={}", venue.getId(), e.getMessage(), e);
         }
     }
 
@@ -69,7 +71,7 @@ public class VenueSearchService {
                     .id(venueId.toString())
             );
         } catch (IOException e) {
-            System.err.println("Venue 삭제 실패: " + e.getMessage());
+            log.error("Venue 삭제 실패: venueId={}, error={}", venueId, e.getMessage(), e);
         }
     }
 
