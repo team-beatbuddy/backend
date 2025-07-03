@@ -42,7 +42,7 @@ public class ElasticsearchPing {
                 log.info("✅ Elasticsearch 연결 성공: {}", response.getStatusLine());
             }
         } catch (IOException e) {
-            log.error("❌ Elasticsearch 연결 실패: {}", e.getMessage());
+            log.error("❌ Elasticsearch 연결 실패", e);
         }
     }
 }
