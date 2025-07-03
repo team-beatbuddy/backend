@@ -70,8 +70,9 @@ public class SecurityConfig {
                         .failureHandler((request, response, exception) -> {
                             if (exception instanceof OAuth2AuthenticationException ex) {
                                 OAuth2Error error = ex.getError();
-                                System.out.println("OAuth2 Error Code: " + error.getErrorCode());
-                                System.out.println("OAuth2 Error Description: " + error.getDescription());
+-                               System.out.println("OAuth2 Error Code: " + error.getErrorCode());
+-                               System.out.println("OAuth2 Error Description: " + error.getDescription());
++                               log.warn("OAuth2 login failure code={}, desc={}", error.getErrorCode(), error.getDescription());
                             }
                             response.sendRedirect("/login?error");
                         })
