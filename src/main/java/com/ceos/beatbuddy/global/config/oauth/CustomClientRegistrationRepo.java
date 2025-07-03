@@ -75,7 +75,7 @@ public class CustomClientRegistrationRepo {
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUri("https://api.beatbuddy.world/login/oauth2/code/apple")
-                .authorizationUri("https://appleid.apple.com/auth/authorize")
+                .authorizationUri("https://appleid.apple.com/auth/authorize?response_mode=form_post")
                 .tokenUri("https://appleid.apple.com/auth/token")
                 .scope("openid","email","name")
                 .userNameAttributeName("sub")
