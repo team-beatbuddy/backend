@@ -61,7 +61,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             provider = "kakao"; // fallback 값
         }
 
-        String redirectUrl = "https://api.beatbuddy.world/login/oauth2/callback/" + provider + "?access=" + access;
+        String redirectUrl = "https://beatbuddy.world/login/oauth2/callback/" + provider + "?access=" + access;
 
         LoginResponseDto loginResponseDto = LoginResponseDto.builder()
                 .memberId(oAuth2User.getMemberId())
