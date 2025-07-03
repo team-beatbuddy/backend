@@ -20,6 +20,19 @@ public class CustomClientRegistrationRepo {
     @Value("${google.client-secret}")
     private String googleClientSecret;
 
+    @Value("${apple.client-id}")
+    private String appleClientId;
+
+    @Value("${apple.team-id}")
+    private String appleTeamId;
+
+    @Value("${apple.private-key}")
+    private String applePrivate;
+
+    @Value("${apple.key-id}")
+    private String appleKeyId;
+
+
     public ClientRegistration kakaoClientRegistration() {
         return ClientRegistration.withRegistrationId("kakao")
                 .clientId(kakaoClientId)
@@ -39,7 +52,7 @@ public class CustomClientRegistrationRepo {
                 .clientSecret(googleClientSecret)
                 .clientAuthenticationMethod(org.springframework.security.oauth2.core.ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("http://localhost:8080/login/oauth2/code/google")
+                .redirectUri("https://api.beatbuddy.world/login/oauth2/code/google")
                 .scope("email", "profile")
                 .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
                 .tokenUri("https://oauth2.googleapis.com/token")
@@ -49,10 +62,25 @@ public class CustomClientRegistrationRepo {
                 .build();
     }
 
+    public ClientRegistration appleClientRegistration() {
+        return ClientRegistration.withRegistrationId("apple")
+                .clientId(appleClientId)
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri("https://api.beatbuddy.world/login/oauth2/code/apple")
+                .authorizationUri("https://appleid.apple.com/auth/authorize")
+                .tokenUri("https://appleid.apple.com/auth/token")
+                .userInfoUri("https://appleid.apple.com/auth/token") // Apple은 별도 userInfoUri 없음
+                .userNameAttributeName("sub") // JWT 내 sub 사용
+                .clientName("Apple")
+                .build();
+    }
+
     public ClientRegistrationRepository clientRegistrationRepository() {
         return new InMemoryClientRegistrationRepository(
                 googleClientRegistration(),
-                kakaoClientRegistration()
+                kakaoClientRegistration(),
+                appleClientRegistration()
         );
     }
 }
