@@ -77,7 +77,7 @@ public class CustomClientRegistrationRepo {
                 .redirectUri("https://api.beatbuddy.world/login/oauth2/code/apple")
                 .authorizationUri("https://appleid.apple.com/auth/authorize")
                 .tokenUri("https://appleid.apple.com/auth/token")
-                // Apple은 userInfoUri 없음. id_token 사용
+                .scope("openid","email","name")
                 .userNameAttributeName("sub")
                 .clientName("Apple")
                 .build();
