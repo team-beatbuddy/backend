@@ -5,6 +5,7 @@ import com.ceos.beatbuddy.global.config.jwt.TokenProvider;
 import com.ceos.beatbuddy.global.config.oauth.CustomClientRegistrationRepo;
 import com.ceos.beatbuddy.global.config.oauth.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,6 +20,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -33,6 +36,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
+@Slf4j
 public class SecurityConfig {
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final DefaultOAuth2UserService oAuth2UserService;
@@ -65,6 +69,13 @@ public class SecurityConfig {
                                 .oidcUserService(customOidcUserService())
                         )
                         .successHandler(oAuth2SuccessHandler)
+                        .failureHandler((request, response, exception) -> {
+                            if (exception instanceof OAuth2AuthenticationException ex) {
+                                OAuth2Error error = ex.getError();
+                                log.warn("OAuth2 login failure code={}, desc={}", error.getErrorCode(), error.getDescription());
+                            }
+                            response.sendRedirect("/login?error");
+                        })
                 );
 
         return http.build();
@@ -80,6 +91,7 @@ public class SecurityConfig {
             claims.putIfAbsent("email", "unknown@apple.com");
 
             OidcUserInfo userInfo = new OidcUserInfo(claims);
+
             return new DefaultOidcUser(
                     oidcUser.getAuthorities(),
                     oidcUser.getIdToken(),
