@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableJpaAuditing
 @EnableCaching
 @EnableScheduling
+@EnableElasticsearchRepositories
 public class BeatBuddyApplication {
 
     public static void main(String[] args) {
