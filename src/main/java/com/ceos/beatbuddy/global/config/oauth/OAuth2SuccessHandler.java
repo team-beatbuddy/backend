@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +42,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             Authentication authentication
     ) throws IOException, ServletException {
 
-        String username;
+        String username = null;
         Long memberId;
         String name;
         String role;
@@ -53,16 +54,13 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             memberId = oAuth2User.getMemberId();
             name = oAuth2User.getName();
 
-        } else if (principal instanceof org.springframework.security.oauth2.core.oidc.user.OidcUser oidcUser) {
-            // Apple 로그인 처리
-            username = oidcUser.getAttribute("email"); // or "sub"
-            memberId = 0L; // 필요시 DB에서 연동
+        } else if (principal instanceof OidcUser oidcUser) {
+            String sub = oidcUser.getSubject();
+            String appleLoginId = "apple_" + sub;
             name = oidcUser.getAttribute("name");
             if (name == null) name = "AppleUser";
 
-            // ✅ 여기에 Apple 사용자 저장/조회 추가
             String finalName = name;
-            String appleLoginId = "apple_" + username;
             Member member = memberRepository.findByLoginId(appleLoginId)
                     .orElseGet(() -> memberRepository.save(
                             Member.builder()
@@ -72,7 +70,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                                     .build()
                     ));
 
-            memberId = member.getId(); // 🔥 실제 DB에서 가져온 ID로 설정
+            memberId = member.getId();
 
 
         } else {
