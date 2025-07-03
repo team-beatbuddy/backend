@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
@@ -48,9 +49,12 @@ public class SecurityConfig {
                                 "http://localhost:3000/**","/admin/**").permitAll()
                         .anyRequest().authenticated())
                 //oauth2
-                .oauth2Login(oath2 -> oath2
+                .oauth2Login(oauth2 -> oauth2
                         .clientRegistrationRepository(customClientRegistrationRepo.clientRegistrationRepository())
-                        .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService))
+                        .userInfoEndpoint(endpoint -> endpoint
+                                .userService(oAuth2UserService)       // 일반 OAuth2 (카카오, 구글 등)
+                                .oidcUserService(new OidcUserService()) // OIDC 전용 (애플)
+                        )
                         .successHandler(oAuth2SuccessHandler)
                 );
 
