@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
@@ -78,11 +79,12 @@ public class SecurityConfig {
             claims.putIfAbsent("name", "AppleUser");
             claims.putIfAbsent("email", "unknown@apple.com");
 
+            OidcUserInfo userInfo = new OidcUserInfo(claims);
             return new DefaultOidcUser(
-                oidcUser.getAuthorities(),
-                oidcUser.getIdToken(),
-                claims,
-                "sub"
+                    oidcUser.getAuthorities(),
+                    oidcUser.getIdToken(),
+                    userInfo,
+                    "sub"
             );
         };
     }
