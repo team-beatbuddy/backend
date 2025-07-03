@@ -4,7 +4,9 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
+import org.apache.http.Header;
 import org.apache.http.HttpHost;
+import org.apache.http.message.BasicHeader;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,21 +25,21 @@ public class ElasticsearchConfig {
     @Value("${spring.data.elasticsearch.api-key}")
     private String apiKey;
 
-    @Bean
-    public ElasticsearchClient elasticsearchClient() {
+    @Bean(destroyMethod = "close")
+    public RestClient restClient() {
         URI uri = URI.create(elasticsearchUri);
-
         RestClientBuilder builder = RestClient.builder(
                         new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme()))
-                .setDefaultHeaders(new org.apache.http.Header[]{
-                        new org.apache.http.message.BasicHeader("Authorization", "ApiKey " + apiKey)
+                .setDefaultHeaders(new Header[]{
+                        new BasicHeader("Authorization", "ApiKey " + apiKey)
                 });
+        return builder.build();
+    }
 
-        RestClient restClient = builder.build();
-
-        ElasticsearchTransport transport = new RestClientTransport(
-                restClient, new JacksonJsonpMapper());
-
+    @Bean
+    public ElasticsearchClient elasticsearchClient() {
+        RestClient client = restClient(); // 여기 직접 호출 (생성자 주입 X)
+        ElasticsearchTransport transport = new RestClientTransport(client, new JacksonJsonpMapper());
         return new ElasticsearchClient(transport);
     }
 }
