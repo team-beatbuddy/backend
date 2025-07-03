@@ -78,12 +78,7 @@ public class VenueSearchService {
         List<Venue> venues = venueRepository.findAll(); // SQL DB에서 가져옴
 
         for (Venue venue : venues) {
-            VenueDocument doc = new VenueDocument(
-                    venue.getId(),
-                    venue.getEnglishName(),
-                    venue.getKoreanName(),
-                    venue.getAddress()
-            );
+            VenueDocument doc = VenueDocument.from(venue);
 
             elasticsearchClient.index(i -> i
                     .index("venue")
