@@ -36,43 +36,60 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             HttpServletResponse response,
             Authentication authentication
     ) throws IOException, ServletException {
-        CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
 
-        String username = oAuth2User.getUsername();
+        String username;
+        Long memberId;
+        String name;
+        String role;
+
+        // ✅ principal 타입별 분기 처리
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof CustomOAuth2User oAuth2User) {
+            username = oAuth2User.getUsername();
+            memberId = oAuth2User.getMemberId();
+            name = oAuth2User.getName();
+
+        } else if (principal instanceof org.springframework.security.oauth2.core.oidc.user.OidcUser oidcUser) {
+            // Apple 로그인 처리
+            username = oidcUser.getAttribute("email"); // or "sub"
+            memberId = 0L; // 필요시 DB에서 연동
+            name = oidcUser.getAttribute("name");
+            if (name == null) name = "AppleUser";
+
+        } else {
+            throw new ClassCastException("Unsupported principal type: " + principal.getClass());
+        }
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-        GrantedAuthority auth = iterator.next();
-        String role = auth.getAuthority();
-        Long memberId = oAuth2User.getMemberId();
+        GrantedAuthority auth = iterator.hasNext() ? iterator.next() : () -> "ROLE_USER";
+        role = auth.getAuthority();
 
         String access = tokenProvider.createToken("access", memberId, username, role, 1000 * 60 * 60 * 2L);
         String refresh = tokenProvider.createToken("refresh", memberId, username, role, 1000 * 3600 * 24 * 14L);
 
         saveRefreshToken(memberId, refresh);
 
-        String uri = request.getRequestURI(); // ex: /login/oauth2/code/google
+        String uri = request.getRequestURI(); // ex: /login/oauth2/code/apple
         String[] segments = uri.split("/");
         String provider = segments.length > 0 ? segments[segments.length - 1] : "unknown";
 
-        // 지원하는 provider인지 검증
         if (!provider.equals("google") && !provider.equals("kakao") && !provider.equals("apple")) {
             log.warn("Unsupported OAuth2 provider: {}", provider);
-            provider = "kakao"; // fallback 값
+            provider = "kakao";
         }
 
         String redirectUrl = "https://beatbuddy.world/login/oauth2/callback/" + provider + "?access=" + access;
 
         LoginResponseDto loginResponseDto = LoginResponseDto.builder()
-                .memberId(oAuth2User.getMemberId())
-                .loginId(oAuth2User.getUsername())
-                .username(oAuth2User.getName())
+                .memberId(memberId)
+                .loginId(username)
+                .username(name)
                 .accessToken(access)
                 .refreshToken(refresh)
                 .build();
 
         log.info("saved: " + access);
-
 
         ResponseCookie cookie = ResponseCookie.from("refresh", refresh)
                 .path("/")

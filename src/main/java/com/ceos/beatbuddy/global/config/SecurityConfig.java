@@ -19,6 +19,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -65,6 +67,14 @@ public class SecurityConfig {
                                 .oidcUserService(customOidcUserService())
                         )
                         .successHandler(oAuth2SuccessHandler)
+                        .failureHandler((request, response, exception) -> {
+                            if (exception instanceof OAuth2AuthenticationException ex) {
+                                OAuth2Error error = ex.getError();
+                                System.out.println("OAuth2 Error Code: " + error.getErrorCode());
+                                System.out.println("OAuth2 Error Description: " + error.getDescription());
+                            }
+                            response.sendRedirect("/login?error");
+                        })
                 );
 
         return http.build();
@@ -80,6 +90,7 @@ public class SecurityConfig {
             claims.putIfAbsent("email", "unknown@apple.com");
 
             OidcUserInfo userInfo = new OidcUserInfo(claims);
+
             return new DefaultOidcUser(
                     oidcUser.getAuthorities(),
                     oidcUser.getIdToken(),

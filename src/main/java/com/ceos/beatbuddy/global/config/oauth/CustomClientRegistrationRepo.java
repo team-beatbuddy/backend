@@ -24,7 +24,7 @@ public class CustomClientRegistrationRepo {
     @Value("${google.client-secret}")
     private String googleClientSecret;
 
-    @Value("${apple.client-id}")
+    @Value("${spring.security.oauth2.client.registration.apple.client-id}")
     private String appleClientId;
     @Value("${apple.team-id}")
     private String appleTeamId;
@@ -79,6 +79,7 @@ public class CustomClientRegistrationRepo {
                 .redirectUri("https://api.beatbuddy.world/login/oauth2/code/apple")
                 .authorizationUri("https://appleid.apple.com/auth/authorize?response_mode=form_post")
                 .tokenUri("https://appleid.apple.com/auth/token")
+                .jwkSetUri("https://appleid.apple.com/auth/keys")
                 .scope("openid","email","name")
                 .userNameAttributeName("sub")
                 .clientName("Apple")
