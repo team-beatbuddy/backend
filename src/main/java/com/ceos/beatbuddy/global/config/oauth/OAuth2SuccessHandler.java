@@ -57,7 +57,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             if (name == null) name = "AppleUser";
 
         } else {
-            throw new ClassCastException("Unsupported principal type: " + principal.getClass());
+            log.error("Unsupported principal type: {}", principal.getClass());
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unsupported principal");
+            return;
         }
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
