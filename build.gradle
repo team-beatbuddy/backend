@@ -111,6 +111,9 @@ dependencies {
     //엑셀 명단
     implementation 'org.apache.poi:poi-ooxml:5.2.2'
 
+    //elasticSearch
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+
 }
 
 test {
