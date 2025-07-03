@@ -134,6 +134,7 @@ public class VenueInfoService {
         Venue updatedVenue = venueRepository.save(venue);
         venueSearchService.saveVenueToES(updatedVenue);
         return updatedVenue;
+    }
 
     public Venue validateAndGetVenue(Long venueId) {
         return venueRepository.findById(venueId)
