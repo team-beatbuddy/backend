@@ -1,16 +1,28 @@
 package com.ceos.beatbuddy.domain.venue.entity;
 
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VenueDocument {
+@Document(indexName = "venue")
+public class VenueDocument implements java.io.Serializable {
+    @Id
     private Long id;
+
+    @Field(type = FieldType.Text)
     private String englishName;
+
+    @Field(type = FieldType.Text)
     private String koreanName;
+
+    @Field(type = FieldType.Text)
     private String address;
 
     public static VenueDocument from(Venue venue) {
