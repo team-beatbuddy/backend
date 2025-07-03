@@ -5,6 +5,7 @@ import com.ceos.beatbuddy.global.config.jwt.TokenProvider;
 import com.ceos.beatbuddy.global.config.oauth.CustomClientRegistrationRepo;
 import com.ceos.beatbuddy.global.config.oauth.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,6 +36,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
+@Slf4j
 public class SecurityConfig {
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final DefaultOAuth2UserService oAuth2UserService;
@@ -70,9 +72,7 @@ public class SecurityConfig {
                         .failureHandler((request, response, exception) -> {
                             if (exception instanceof OAuth2AuthenticationException ex) {
                                 OAuth2Error error = ex.getError();
--                               System.out.println("OAuth2 Error Code: " + error.getErrorCode());
--                               System.out.println("OAuth2 Error Description: " + error.getDescription());
-+                               log.warn("OAuth2 login failure code={}, desc={}", error.getErrorCode(), error.getDescription());
+                                log.warn("OAuth2 login failure code={}, desc={}", error.getErrorCode(), error.getDescription());
                             }
                             response.sendRedirect("/login?error");
                         })
