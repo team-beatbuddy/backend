@@ -1,6 +1,8 @@
 package com.ceos.beatbuddy.global.config.oauth;
 
+import com.ceos.beatbuddy.global.config.AppleClientSecretUtil;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -22,13 +24,10 @@ public class CustomClientRegistrationRepo {
 
     @Value("${apple.client-id}")
     private String appleClientId;
-
     @Value("${apple.team-id}")
     private String appleTeamId;
-
     @Value("${apple.private-key}")
     private String applePrivate;
-
     @Value("${apple.key-id}")
     private String appleKeyId;
 
@@ -63,19 +62,28 @@ public class CustomClientRegistrationRepo {
     }
 
     public ClientRegistration appleClientRegistration() {
+        String clientSecret = AppleClientSecretUtil.generateClientSecretFromString(
+                appleTeamId,
+                appleClientId,
+                appleKeyId,
+                applePrivate
+        );
+
         return ClientRegistration.withRegistrationId("apple")
                 .clientId(appleClientId)
+                .clientSecret(clientSecret) // ✅ JWT 기반 secret
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUri("https://api.beatbuddy.world/login/oauth2/code/apple")
                 .authorizationUri("https://appleid.apple.com/auth/authorize")
                 .tokenUri("https://appleid.apple.com/auth/token")
-                .userInfoUri("https://appleid.apple.com/auth/token") // Apple은 별도 userInfoUri 없음
-                .userNameAttributeName("sub") // JWT 내 sub 사용
+                // Apple은 userInfoUri 없음. id_token 사용
+                .userNameAttributeName("sub")
                 .clientName("Apple")
                 .build();
     }
 
+    @Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
         return new InMemoryClientRegistrationRepository(
                 googleClientRegistration(),
