@@ -83,7 +83,6 @@ public class CustomClientRegistrationRepo {
                 .build();
     }
 
-    @Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
         return new InMemoryClientRegistrationRepository(
                 googleClientRegistration(),
