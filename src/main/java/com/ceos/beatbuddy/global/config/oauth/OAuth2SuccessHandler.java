@@ -62,10 +62,11 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             // ✅ 여기에 Apple 사용자 저장/조회 추가
             String finalName = name;
-            Member member = memberRepository.findByLoginId(username)
+            String appleLoginId = "apple_" + username;
+            Member member = memberRepository.findByLoginId(appleLoginId)
                     .orElseGet(() -> memberRepository.save(
                             Member.builder()
-                                    .loginId("apple_" + username)
+                                    .loginId(appleLoginId)
                                     .nickname(finalName)
                                     .role(Role.USER)
                                     .build()
