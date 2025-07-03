@@ -42,6 +42,7 @@ public class VenueInfoService {
     private final MemberRepository memberRepository;
     private final VenueGenreRepository venueGenreRepository;
     private final VenueMoodRepository venueMoodRepository;
+    private final VenueSearchService venueSearchService;
 
     private final AmazonS3 amazonS3;
 
@@ -83,6 +84,7 @@ public class VenueInfoService {
                 .orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
         uploadUtil.deleteImage(venue.getLogoUrl(), UploadUtil.BucketType.VENUE);
         uploadUtil.deleteImages(venue.getBackgroundUrl(), UploadUtil.BucketType.VENUE);
+        venueSearchService.deleteVenueFromES(venueId); // 삭제 반영
         return venueRepository.deleteByVenueId(venueId);
     }
 
@@ -101,7 +103,11 @@ public class VenueInfoService {
             uploadUtil.uploadImages(backgroundImage, UploadUtil.BucketType.VENUE, null);
         }
 
-        return venueRepository.save(Venue.of(request, logoImageUrl, backgroundImageUrls));
+        Venue venue =venueRepository.save(Venue.of(request, logoImageUrl, backgroundImageUrls));
+
+        venueSearchService.saveVenueToES(venue); // Venue 정보를 Elasticsearch에 저장
+
+        return venue;
     }
 
     @Transactional
@@ -124,6 +130,8 @@ public class VenueInfoService {
         }
 
         venue.update(venueRequestDTO, logoImageUrl, backgroundImageUrls);
+
+        venueSearchService.saveVenueToES(venue);
         return venueRepository.save(venue);
     }
 

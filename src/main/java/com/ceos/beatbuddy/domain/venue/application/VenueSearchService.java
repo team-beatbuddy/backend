@@ -1,0 +1,96 @@
+package com.ceos.beatbuddy.domain.venue.application;
+
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import com.ceos.beatbuddy.domain.venue.dto.VenueSearchResponseDTO;
+import com.ceos.beatbuddy.domain.venue.entity.Venue;
+import com.ceos.beatbuddy.domain.venue.entity.VenueDocument;
+import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class VenueSearchService {
+    private final VenueRepository venueRepository;
+
+    private final ElasticsearchClient elasticsearchClient;
+
+    public void indexVenue(VenueDocument venue) throws IOException {
+        elasticsearchClient.index(i -> i
+                .index("venue")
+                .id(String.valueOf(venue.getId()))
+                .document(venue)
+        );
+    }
+
+    public List<VenueSearchResponseDTO> searchByKeyword(String keyword) throws IOException {
+        SearchResponse<VenueDocument> response = elasticsearchClient.search(s -> s
+                        .index("venue")
+                        .query(q -> q
+                                .multiMatch(m -> m
+                                        .fields("englishName", "koreanName", "address")
+                                        .query(keyword)
+                                        .fuzziness("AUTO")
+                                )
+                        ),
+                VenueDocument.class
+        );
+
+        return response.hits().hits().stream()
+                .map(Hit::source).filter(Objects::nonNull)
+                .map(VenueSearchResponseDTO::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public void saveVenueToES(Venue venue) {
+        try {
+            VenueDocument doc = VenueDocument.from(venue);
+            elasticsearchClient.index(i -> i
+                    .index("venue")
+                    .id(doc.getId().toString())
+                    .document(doc)
+            );
+        } catch (IOException e) {
+            System.err.println("Venue 인덱싱 실패: " + e.getMessage());
+        }
+    }
+
+    public void deleteVenueFromES(Long venueId) {
+        try {
+            elasticsearchClient.delete(d -> d
+                    .index("venue")
+                    .id(venueId.toString())
+            );
+        } catch (IOException e) {
+            System.err.println("Venue 삭제 실패: " + e.getMessage());
+        }
+    }
+
+
+    public void syncVenueFromDBToES() throws IOException {
+        List<Venue> venues = venueRepository.findAll(); // SQL DB에서 가져옴
+
+        for (Venue venue : venues) {
+            VenueDocument doc = new VenueDocument(
+                    venue.getId(),
+                    venue.getEnglishName(),
+                    venue.getKoreanName(),
+                    venue.getAddress()
+            );
+
+            elasticsearchClient.index(i -> i
+                    .index("venue")
+                    .id(doc.getId().toString())
+                    .document(doc)
+            );
+        }
+    }
+
+}
