@@ -13,22 +13,30 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-@EnableWebSecurity
+import java.util.HashMap;
+import java.util.Map;
+
 @RequiredArgsConstructor
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
+    private final ClientRegistrationRepository clientRegistrationRepository;
     private final DefaultOAuth2UserService oAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final TokenProvider tokenProvider;
-    private final CustomClientRegistrationRepo customClientRegistrationRepo;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -50,15 +58,28 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 //oauth2
                 .oauth2Login(oauth2 -> oauth2
-                        .clientRegistrationRepository(customClientRegistrationRepo.clientRegistrationRepository())
+                        .clientRegistrationRepository(clientRegistrationRepository)
                         .userInfoEndpoint(endpoint -> endpoint
-                                .userService(oAuth2UserService)       // 일반 OAuth2 (카카오, 구글 등)
-                                .oidcUserService(new OidcUserService()) // OIDC 전용 (애플)
+                                .userService(oAuth2UserService)
+                                .oidcUserService(customOidcUserService())
                         )
                         .successHandler(oAuth2SuccessHandler)
                 );
 
         return http.build();
+    }
+    @Bean
+    public OAuth2UserService<OidcUserRequest, OidcUser> customOidcUserService() {
+        return userRequest -> {
+            OidcUserService delegate = new OidcUserService();
+            OidcUser oidcUser = delegate.loadUser(userRequest);
+
+            Map<String, Object> claims = new HashMap<>(oidcUser.getClaims());
+            claims.putIfAbsent("name", "AppleUser");
+            claims.putIfAbsent("email", "unknown@apple.com");
+
+            return new DefaultOidcUser(oidcUser.getAuthorities(), userRequest.getIdToken(), "sub");
+        };
     }
 
     @Bean
