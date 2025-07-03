@@ -84,8 +84,10 @@ public class VenueInfoService {
                 .orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
         uploadUtil.deleteImage(venue.getLogoUrl(), UploadUtil.BucketType.VENUE);
         uploadUtil.deleteImages(venue.getBackgroundUrl(), UploadUtil.BucketType.VENUE);
-        venueSearchService.deleteVenueFromES(venueId); // 삭제 반영
-        return venueRepository.deleteByVenueId(venueId);
+
+        Long deletedCount = venueRepository.deleteByVenueId(venueId);
+        venueSearchService.deleteVenueFromES(venueId); // DB 삭제 후 ES 삭제
+        return deletedCount;
     }
 
     @Transactional
