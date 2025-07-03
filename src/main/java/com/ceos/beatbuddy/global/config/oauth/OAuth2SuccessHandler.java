@@ -1,5 +1,8 @@
 package com.ceos.beatbuddy.global.config.oauth;
 
+import com.ceos.beatbuddy.domain.member.constant.Role;
+import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.global.config.jwt.TokenProvider;
 import com.ceos.beatbuddy.global.config.jwt.redis.RefreshToken;
 import com.ceos.beatbuddy.global.config.jwt.redis.RefreshTokenRepository;
@@ -28,6 +31,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final MemberRepository memberRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -55,6 +59,20 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             memberId = 0L; // 필요시 DB에서 연동
             name = oidcUser.getAttribute("name");
             if (name == null) name = "AppleUser";
+
+            // ✅ 여기에 Apple 사용자 저장/조회 추가
+            String finalName = name;
+            Member member = memberRepository.findByLoginId(username)
+                    .orElseGet(() -> memberRepository.save(
+                            Member.builder()
+                                    .loginId("apple_" + username)
+                                    .nickname(finalName)
+                                    .role(Role.USER)
+                                    .build()
+                    ));
+
+            memberId = member.getId(); // 🔥 실제 DB에서 가져온 ID로 설정
+
 
         } else {
             log.error("Unsupported principal type: {}", principal.getClass());
