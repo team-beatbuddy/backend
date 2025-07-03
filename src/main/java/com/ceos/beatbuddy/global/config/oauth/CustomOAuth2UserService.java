@@ -1,10 +1,7 @@
 package com.ceos.beatbuddy.global.config.oauth;
 
 import com.ceos.beatbuddy.domain.member.application.MemberService;
-import com.ceos.beatbuddy.global.config.oauth.dto.GoogleResponse;
-import com.ceos.beatbuddy.global.config.oauth.dto.KakaoResponse;
-import com.ceos.beatbuddy.global.config.oauth.dto.OAuth2Response;
-import com.ceos.beatbuddy.global.config.oauth.dto.Oauth2MemberDto;
+import com.ceos.beatbuddy.global.config.oauth.dto.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -35,6 +32,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 break;
             case "google":
                 oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
+                break;
+            case "apple":
+                oAuth2Response = new AppleResponse(oAuth2User.getAttributes());
                 break;
             default:
                 throw new IllegalArgumentException("지원하지 않는 OAuth2 공급자입니다.");
