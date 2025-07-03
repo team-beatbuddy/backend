@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.global.config.oauth;
 
 import com.ceos.beatbuddy.global.config.AppleClientSecretUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 @Configuration
+@Slf4j
 public class CustomClientRegistrationRepo {
 
     @Value("${kakao.client-id}")
@@ -83,7 +85,9 @@ public class CustomClientRegistrationRepo {
                 .build();
     }
 
+    @Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
+        log.info("Creating custom client registration repository...");
         return new InMemoryClientRegistrationRepository(
                 googleClientRegistration(),
                 kakaoClientRegistration(),
