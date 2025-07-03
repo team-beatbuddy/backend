@@ -131,9 +131,9 @@ public class VenueInfoService {
 
         venue.update(venueRequestDTO, logoImageUrl, backgroundImageUrls);
 
-        venueSearchService.saveVenueToES(venue);
-        return venueRepository.save(venue);
-    }
+        Venue updatedVenue = venueRepository.save(venue);
+        venueSearchService.saveVenueToES(updatedVenue);
+        return updatedVenue;
 
     public Venue validateAndGetVenue(Long venueId) {
         return venueRepository.findById(venueId)
