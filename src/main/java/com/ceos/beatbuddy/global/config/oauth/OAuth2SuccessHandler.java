@@ -58,7 +58,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             String sub = oidcUser.getSubject();
             String appleLoginId = "apple_" + sub;
             name = oidcUser.getAttribute("name");
-            if (name == null) name = "AppleUser";
+            if (name == null) name = "beatbuddy";
 
             String finalName = name;
             Member member = memberRepository.findByLoginId(appleLoginId)
@@ -66,6 +66,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                             Member.builder()
                                     .loginId(appleLoginId)
                                     .nickname(finalName)
+                                    .realName(finalName)
                                     .role(Role.USER)
                                     .build()
                     ));

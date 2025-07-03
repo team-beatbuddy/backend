@@ -26,7 +26,7 @@ import java.util.Map;
 @OpenAPIDefinition(
         servers = {
                 @Server(url = "https://api.beatbuddy.world"),
-                @Server(url = "http://localhost:8080") // 👈 로컬 서버 추가
+                @Server(url = "http://localhost:8080")
         }
 )
 @Configuration
@@ -76,7 +76,10 @@ public class SwaggerConfig {
     public GroupedOpenApi loginApi() {
         return GroupedOpenApi.builder()
                 .group("login")
-                .pathsToMatch("/login", "/oauth2/authorization/kakao", "/oauth2/authorization/google")
+                .pathsToMatch("/login",
+                        "/oauth2/authorization/kakao",
+                        "/oauth2/authorization/google",
+                        "/oauth2/authorization/apple")
                 .addOpenApiCustomizer(openApi -> {
 
                     // 1. Kakao OAuth2 SecurityScheme
@@ -96,13 +99,24 @@ public class SwaggerConfig {
                                             .authorizationUrl("https://accounts.google.com/o/oauth2/v2/auth")
                                             .tokenUrl("https://oauth2.googleapis.com/token")
                                     ));
+                    // 3. Apple
+                    SecurityScheme appleScheme = new SecurityScheme()
+                            .type(SecurityScheme.Type.OAUTH2)
+                            .flows(new OAuthFlows()
+                                    .authorizationCode(new OAuthFlow()
+                                            .authorizationUrl("https://appleid.apple.com/auth/authorize?response_mode=query")
+                                            .tokenUrl("https://appleid.apple.com/auth/token")
+                                    ));
+
 
                     openApi.components(new Components()
                             .addSecuritySchemes("kakaoOAuth", kakaoScheme)
-                            .addSecuritySchemes("googleOAuth", googleScheme));
+                            .addSecuritySchemes("googleOAuth", googleScheme)
+                            .addSecuritySchemes("appleOAuth", appleScheme)); // Apple 추가
 
                     openApi.path("/oauth2/authorization/kakao", createOAuthPathItem("kakao", "카카오", "kakaoOAuth"));
                     openApi.path("/oauth2/authorization/google", createOAuthPathItem("google", "구글", "googleOAuth"));
+                    openApi.path("/oauth2/authorization/apple", createOAuthPathItem("apple", "애플", "appleOAuth"));
                 }).build();
     }
 
