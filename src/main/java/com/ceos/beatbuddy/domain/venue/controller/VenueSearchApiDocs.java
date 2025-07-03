@@ -55,13 +55,13 @@ public interface VenueSearchApiDocs {
                                        "message": "장소 검색 성공",
                                        "data": [
                                            {
-                                               "id": 1,
+                                               "venueId": 1,
                                                "englishName": "Venue One",
                                                "koreanName": "장소 하나",
                                                "address": "123 Main St"
                                            },
                                            {
-                                               "id": 2,
+                                               "venueId": 2,
                                                "englishName": "Venue Two",
                                                "koreanName": "장소 둘",
                                                "address": "456 Elm St"
@@ -74,7 +74,7 @@ public interface VenueSearchApiDocs {
                                    name = "검색 결과가 없을 때",
                                    value = """
                                            {
-                                               "status": 204,
+                                               "status": 200,
                                                "code": "SUCCESS_BUT_EMPTY_LIST",
                                                "message": "검색 결과가 없습니다.",
                                                "data": []
