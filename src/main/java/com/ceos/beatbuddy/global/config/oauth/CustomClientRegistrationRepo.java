@@ -1,6 +1,8 @@
 package com.ceos.beatbuddy.global.config.oauth;
 
+import com.ceos.beatbuddy.global.config.AppleClientSecretUtil;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -19,6 +21,16 @@ public class CustomClientRegistrationRepo {
     private String googleClientId;
     @Value("${google.client-secret}")
     private String googleClientSecret;
+
+    @Value("${apple.client-id}")
+    private String appleClientId;
+    @Value("${apple.team-id}")
+    private String appleTeamId;
+    @Value("${apple.private-key}")
+    private String applePrivate;
+    @Value("${apple.key-id}")
+    private String appleKeyId;
+
 
     public ClientRegistration kakaoClientRegistration() {
         return ClientRegistration.withRegistrationId("kakao")
@@ -39,7 +51,7 @@ public class CustomClientRegistrationRepo {
                 .clientSecret(googleClientSecret)
                 .clientAuthenticationMethod(org.springframework.security.oauth2.core.ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("http://localhost:8080/login/oauth2/code/google")
+                .redirectUri("https://api.beatbuddy.world/login/oauth2/code/google")
                 .scope("email", "profile")
                 .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
                 .tokenUri("https://oauth2.googleapis.com/token")
@@ -49,10 +61,34 @@ public class CustomClientRegistrationRepo {
                 .build();
     }
 
+    public ClientRegistration appleClientRegistration() {
+        String clientSecret = AppleClientSecretUtil.generateClientSecretFromString(
+                appleTeamId,
+                appleClientId,
+                appleKeyId,
+                applePrivate
+        );
+
+        return ClientRegistration.withRegistrationId("apple")
+                .clientId(appleClientId)
+                .clientSecret(clientSecret) // ✅ JWT 기반 secret
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri("https://api.beatbuddy.world/login/oauth2/code/apple")
+                .authorizationUri("https://appleid.apple.com/auth/authorize")
+                .tokenUri("https://appleid.apple.com/auth/token")
+                .scope("openid","email","name")
+                .userNameAttributeName("sub")
+                .clientName("Apple")
+                .build();
+    }
+
+    @Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
         return new InMemoryClientRegistrationRepository(
                 googleClientRegistration(),
-                kakaoClientRegistration()
+                kakaoClientRegistration(),
+                appleClientRegistration()
         );
     }
 }

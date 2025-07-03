@@ -114,6 +114,10 @@ dependencies {
     //elasticSearch
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
+    // 애플 로그인 jwt 만들기
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.37'
+
+
 }
 
 test {
