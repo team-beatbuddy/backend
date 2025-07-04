@@ -119,11 +119,15 @@ public class FreePostHandler implements PostTypeHandler{
         return post;
     }
 
+    @Override
+    public Page<? extends Post> readAllPostsByUserExcludingAnonymous(Long userId, Pageable pageable) {
+        return postQueryRepository.readAllPostsByUserExcludingAnonymous(userId, pageable);
+    }
 
     // 해시태그로 게시글 목록 불러오기
     @Override
     @Transactional(readOnly = true)
-    public PostListResponseDTO hashTagPostList(List<String> hashtags, int page, int size, Member member) {
+    public PostListResponseDTO hashTagPostList(List<String> hashtags, Pageable pageable, Member member) {
         if (hashtags == null || hashtags.isEmpty()) {
             throw new CustomException(PostErrorCode.NOT_FOUND_HASHTAG);
         }
@@ -131,17 +135,14 @@ public class FreePostHandler implements PostTypeHandler{
         // 해시태그 유효성 검사 및 변환
         List<FixedHashtag> fixedHashtags = validateAndGetHashtags(hashtags);
 
-        // 최신순 정렬
-        Pageable pageable = PageRequest.of(Math.max(page - 1, 0), size);
-
         // 정렬은 QueryDSL 내부에서 처리 (createdAt DESC)
         Page<FreePost> posts = postQueryRepository.findPostsByHashtags(fixedHashtags, pageable);
 
         if (posts.isEmpty()) {
             return PostListResponseDTO.builder()
                     .totalPost(0)
-                    .page(page)
-                    .size(size)
+                    .page(pageable.getPageNumber())
+                    .size(pageable.getPageSize())
                     .responseDTOS(Collections.emptyList())
                     .build();
         }
@@ -165,8 +166,8 @@ public class FreePostHandler implements PostTypeHandler{
 
         return PostListResponseDTO.builder()
                 .totalPost((int) posts.getTotalElements())
-                .page(page)
-                .size(size)
+                .page(pageable.getPageNumber())
+                .size(pageable.getPageSize())
                 .responseDTOS(dtos)
                 .build();
     }

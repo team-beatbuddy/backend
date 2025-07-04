@@ -159,6 +159,7 @@ public class PostController implements PostApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.GET_SCRAPPED_POST_LIST, result));
     }
 
+    @Override
     @GetMapping("/my")
     public ResponseEntity<ResponseDTO<PostListResponseDTO>> getMyPosts(
             @RequestParam String type,
@@ -171,6 +172,18 @@ public class PostController implements PostApiDocs {
         return ResponseEntity
                 .status(SuccessCode.GET_MY_POST_LIST.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.GET_MY_POST_LIST, result));
+    }
+
+    @Override
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<PostListResponseDTO> getUserPosts(
+            @PathVariable Long userId,
+            @RequestParam String type,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size)  {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        PostListResponseDTO result = postService.getUserPostsByType(memberId, userId, type, page, size);
+        return ResponseEntity.ok(result);
     }
 
 

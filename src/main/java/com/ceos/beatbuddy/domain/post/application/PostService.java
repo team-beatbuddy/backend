@@ -98,41 +98,15 @@ public class PostService {
         if (page < 1) {
             throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
         }
-        int offset = page - 1;
-        Pageable pageable = PageRequest.of(offset, size, sortOption);
+
+        Pageable pageable = PageRequest.of(page-1, size, sortOption);
 
         Member member = memberService.validateAndGetMember(memberId);
 
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
         Page<? extends Post> postPage = handler.readAllPosts(pageable);
 
-        List<? extends Post> posts = postPage.getContent();
-        List<Long> postIds = posts.stream().map(Post::getId).toList();
-
-        // 좋아요/스크랩/댓글 여부를 IN 쿼리로 한 번에 조회
-        Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(member.getId(), postIds);
-
-        Set<Long> scrappedPostIds = postLikeScrapService.getScrappedPostIds(member.getId(), postIds);
-
-        Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(member.getId(), postIds);
-
-
-        List<PostPageResponseDTO> dtoList = posts.stream()
-                .map(post -> PostPageResponseDTO.toDTO(
-                        post,
-                        likedPostIds.contains(post.getId()),
-                        scrappedPostIds.contains(post.getId()),
-                        commentedPostIds.contains(post.getId()),
-                        postRepository.findHashtagsByPostId(post.getId())
-                ))
-                .toList();
-
-        return PostListResponseDTO.builder()
-                .totalPost((int) postPage.getTotalElements())
-                .page(postPage.getNumber())
-                .size(postPage.getSize())
-                .responseDTOS(dtoList)
-                .build();
+        return getPostListResponseDTO(postPage, memberId);
     }
 
 
@@ -174,8 +148,15 @@ public class PostService {
     public PostListResponseDTO getHashtagPosts(Long memberId, List<String> hashtags, int page, int size) {
         Member member = memberService.validateAndGetMember(memberId);
 
+        if (page < 1) {
+            throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
+        }
+
+        Pageable pageable = PageRequest.of(page -1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
         PostTypeHandler handler = postTypeHandlerFactory.getHandler("free");
-        return handler.hashTagPostList(hashtags, page, size, member);
+
+        return handler.hashTagPostList(hashtags, pageable, member);
     }
 
 
@@ -256,24 +237,52 @@ public class PostService {
         if (page < 1) {
             throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
         }
+
+        // 타입 유효성 검사
+        validatePostType(type);
+
         Pageable pageable = PageRequest.of(page-1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<? extends Post> postPage;
 
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
         postPage = handler.readAllPosts(pageable);
 
+        return getPostListResponseDTO(postPage, memberId);
+    }
+
+    public PostListResponseDTO getUserPostsByType(Long memberId, Long userId, String type, int page, int size) {
+        // 로그인한 사용자의 유효성 검사
+        memberService.validateAndGetMember(memberId);
+        // 조회하고자 하는 사용자
+        memberService.validateAndGetMember(userId);
+
+
+        // 타입 유효성 검사
+        validatePostType(type);
+
+        if (page < 1) {
+            throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
+        }
+
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
+        Page<? extends Post> postPage = handler.readAllPostsByUserExcludingAnonymous(userId, pageable);
+
+        return getPostListResponseDTO(postPage, memberId);
+    }
+
+
+    private PostListResponseDTO getPostListResponseDTO(Page<? extends Post> postPage, Long memberId) {
         List<? extends Post> posts = postPage.getContent();
         List<Long> postIds = posts.stream().map(Post::getId).toList();
 
-        // 연관 정보 bulk 조회
-        Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(member.getId(), postIds);
+        // 좋아요/스크랩/댓글 여부를 IN 쿼리로 한 번에 조회
+        Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(memberId, postIds);
+        Set<Long> scrappedPostIds = postLikeScrapService.getScrappedPostIds(memberId, postIds);
+        Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(memberId, postIds);
 
-        Set<Long> scrappedPostIds = postLikeScrapService.getScrappedPostIds(member.getId(), postIds);
-
-        Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(member.getId(), postIds);
-
-        // DTO 매핑
-        List<PostPageResponseDTO> dtos = posts.stream()
+        List<PostPageResponseDTO> dtoList = posts.stream()
                 .map(post -> PostPageResponseDTO.toDTO(
                         post,
                         likedPostIds.contains(post.getId()),
@@ -287,13 +296,16 @@ public class PostService {
                 .totalPost((int) postPage.getTotalElements())
                 .page(postPage.getNumber())
                 .size(postPage.getSize())
-                .responseDTOS(dtos)
+                .responseDTOS(dtoList)
                 .build();
     }
+
+
 
     // 주어진 타입이 올바른지 확인
     private void validatePostType(String type) {
         if (!VALID_POST_TYPES.contains(type)) {
+            System.err.println("Invalid post type: " + type);
             throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
         }
     }

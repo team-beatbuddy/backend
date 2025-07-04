@@ -63,4 +63,27 @@ public class PostQueryRepositoryImpl implements PostQueryRepository{
 
         return new PageImpl<>(content, pageable, count != null ? count : 0L);
     }
+
+    @Override
+    public Page<FreePost> readAllPostsByUserExcludingAnonymous(Long userId, Pageable pageable) {
+        QFreePost post = QFreePost.freePost;
+
+        // 데이터 조회
+        List<FreePost> content = queryFactory
+                .selectFrom(post)
+                .where(post.member.id.eq(userId).and(post.anonymous.isFalse()))
+                .orderBy(post.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // 전체 개수 조회
+        Long count = queryFactory
+                .select(post.count())
+                .from(post)
+                .where(post.member.id.eq(userId).and(post.anonymous.isFalse()))
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, count != null ? count : 0);
+    }
 }
