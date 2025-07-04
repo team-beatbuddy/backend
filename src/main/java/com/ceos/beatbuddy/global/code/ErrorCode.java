@@ -42,6 +42,7 @@ public enum ErrorCode implements ApiCode {
     NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다."),
     // 댓글이 속하지 않을 때
     NOT_FOUND_COMMENT_IN_EVENT(HttpStatus.NOT_FOUND, "해당 댓글이 이벤트에 속하지 않습니다."),
+    // 존재하지 않는 해시태그를 선택했을 때
 
     /**
      * 409

@@ -27,7 +27,10 @@ public class FreePostDocument {
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .hashtags(post.getHashtag())
+                .hashtags(post.getHashtag() != null ?
+                        post.getHashtag().stream()
+                                .map(FixedHashtag::getDisplayName)
+                                .toList() : List.of())
                 .build();
     }
 }

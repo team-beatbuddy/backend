@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.post.dto;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.post.entity.FixedHashtag;
 import com.ceos.beatbuddy.domain.post.entity.FreePost;
 import com.ceos.beatbuddy.domain.post.entity.Piece;
 import com.ceos.beatbuddy.domain.post.entity.PiecePost;
@@ -26,16 +27,16 @@ public class PostCreateRequestDTO {
 
     private Boolean anonymous;
     private Long venueId;
-    private List<String> hashtag;
+    private List<String> hashtags;
 
     private int totalPrice;
     private int totalMembers;
     private LocalDateTime eventDate;
 
 
-    public static FreePost toEntity(PostCreateRequestDTO dto, List<String> imageUrls, Member member, Venue venue) {
+    public static FreePost toEntity(PostCreateRequestDTO dto, List<String> imageUrls, Member member, Venue venue, List<FixedHashtag> hashtag) {
         return FreePost.builder()
-                .hashtag(dto.getHashtag())
+                .hashtag(hashtag)
                 .imageUrls(imageUrls)
                 .title(dto.getTitle())
                 .content(dto.getContent())

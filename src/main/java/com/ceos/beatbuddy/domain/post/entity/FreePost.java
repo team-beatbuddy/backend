@@ -27,5 +27,6 @@ public class FreePost extends Post{
 
     @ElementCollection
     @Getter
-    private List<String> hashtag;
+    @Enumerated(EnumType.STRING)
+    private List<FixedHashtag> hashtag;
 }

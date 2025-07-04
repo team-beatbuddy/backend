@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.post.application;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
 import com.ceos.beatbuddy.domain.post.dto.UpdatePostRequestDTO;
+import com.ceos.beatbuddy.domain.post.entity.FixedHashtag;
 import com.ceos.beatbuddy.domain.post.entity.FreePost;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
@@ -39,7 +40,10 @@ public class FreePostHandler implements PostTypeHandler{
                 .map(venueInfoService::validateAndGetVenue)
                 .orElse(null);
 
-        FreePost freePost = PostCreateRequestDTO.toEntity(dto, imageUrls, member, venue);
+
+        List<FixedHashtag> hashtags = validateAndGetHashtags(dto.getHashtags());
+
+        FreePost freePost = PostCreateRequestDTO.toEntity(dto, imageUrls, member, venue, hashtags);
 
         freePost = freePostRepository.save(freePost);
         freePostSearchService.save(freePost); // 게시글 생성 시 검색 인덱스에 저장
@@ -103,6 +107,22 @@ public class FreePostHandler implements PostTypeHandler{
     public Post updatePost(UpdatePostRequestDTO dto, Post post, Member member) {
         updateCommonFields(dto, post);
         return post;
+    }
+
+    public List<FixedHashtag> validateAndGetHashtags(List<String> hashtags) {
+        if (hashtags == null || hashtags.isEmpty()) {
+            return List.of();
+        }
+
+        // 중복 체크
+        long distinctCount = hashtags.stream().distinct().count();
+        if (distinctCount != hashtags.size()) {
+            throw new CustomException(PostErrorCode.DUPLICATE_HASHTAG_NOT_ALLOWED);
+        }
+
+        return hashtags.stream()
+                .map(FixedHashtag::fromDisplayName)
+                .toList();
     }
 
 }

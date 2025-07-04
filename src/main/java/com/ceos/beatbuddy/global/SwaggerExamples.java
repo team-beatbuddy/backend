@@ -167,6 +167,15 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String DUPLICATED_HASHTAG = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "DUPLICATED_HASHTAG",
+          "message": "해시태그는 중복될 수 없습니다."
+        }
+        """;
+
     /**
      * 403 권한 없음
      * */
@@ -308,6 +317,15 @@ public class SwaggerExamples {
           "error": "NOT_FOUND",
           "code": "NOT_FOUND_MAGAZINE",
           "message": "존재하지 않는 매거진입니다."
+        }
+        """;
+
+    public static final String NOT_FOUND_HASHTAG = """
+        {
+          "status": 404,
+          "error": "NOT_FOUND",
+          "code": "NOT_FOUND_HASHTAG",
+          "message": "존재하지 않는 해시태그입니다."
         }
         """;
 
