@@ -4,6 +4,7 @@ import com.ceos.beatbuddy.domain.post.dto.*;
 import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,8 +20,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface PostApiDocs {
-    @Operation(summary = "#####게시물 생성 - 새로운 버전", description = "게시물을 생성합니다 (type: free/piece), 공통으로는 title(필수), content(필수), anonymous, venueId 입니다." +
-            "free: hashtag, piece: totalPrice, totalMembers, eventDate; ")
+    @Operation(summary = "#####게시물 생성 - 새로운 버전",
+            description = """
+            게시물을 생성합니다 (type: free/piece)
+            - 공통으로는 title(필수), content(필수), anonymous, venueId 입니다.
+            - free: hashtag (압구정로데오/홍대/이태원/강남.신사/뮤직/자유/번개 모임/International/19+/LGBTQ/짤.밈) 중 하나입니다.
+            - piece: totalPrice, totalMembers, eventDate
+            """
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "게시물 생성 성공",
                     content = @Content(
@@ -43,17 +50,20 @@ public interface PostApiDocs {
                             }
                     """))
             ),
-            @ApiResponse(responseCode = "400", description = "잘못된 게시글 타입 요청",
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(name = "잘못된 type 예시", value = SwaggerExamples.INVALID_POST_TYPE)
+                            examples = {@ExampleObject(name = "잘못된 type 예시", value = SwaggerExamples.INVALID_POST_TYPE),
+                                        @ExampleObject(name = "중복된 해시태그", value = SwaggerExamples.DUPLICATED_HASHTAG),
+                            }
                     )
             ),
-            @ApiResponse(responseCode = "404", description = "존재하지 않는 유저, 베뉴가 존재하지 않는 경우",
+            @ApiResponse(responseCode = "404", description = "리소스 없음",
                     content = @Content(
                             mediaType = "application/json",
                             examples = {@ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
-                                    @ExampleObject(name = "존재하지 않는 베뉴", value = SwaggerExamples.VENUE_NOT_EXIST)
+                                    @ExampleObject(name = "존재하지 않는 베뉴", value = SwaggerExamples.VENUE_NOT_EXIST),
+                                    @ExampleObject(name = "존재하지 않는 해시태그", value = SwaggerExamples.NOT_FOUND_HASHTAG)
                             }
                     )
             ),
@@ -63,10 +73,8 @@ public interface PostApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
-                                    @ExampleObject(
-                                            name = "s3에 이미지 등록을 실패했을 경우", value = SwaggerExamples.IMAGE_UPLOAD_FAILED),
-                                    @ExampleObject(
-                                            name = "Elasticsearch에 게시글 등록을 실패했을 경우", value = SwaggerExamples.ELASTICSEARCH_POST_CREATE_FAILED)
+                                    @ExampleObject(name = "s3에 이미지 등록을 실패했을 경우", value = SwaggerExamples.IMAGE_UPLOAD_FAILED),
+                                    @ExampleObject(name = "Elasticsearch에 게시글 등록을 실패했을 경우", value = SwaggerExamples.ELASTICSEARCH_POST_CREATE_FAILED)
                             }
                     )
             )
@@ -234,51 +242,45 @@ public interface PostApiDocs {
 
     @Operation(summary = "게시물 조회", description = "게시물을 조회합니다 (type: free/piece)")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "선택한 포스트 성공",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = PostListResponseDTO.class),
-                            examples = @ExampleObject(value = """
-                            {
-                              "status": 200,
-                              "code": "SUCCESS_GET_POST",
-                              "message": "포스트를 불러왔습니다",
-                              "data": {
-                                "id": 23,
-                                "title": "",
-                                "content": "",
-                                "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                "role": "BUSINESS",
-                                "likes": 0,
-                                "scraps": 0,
-                                "comments": 0,
-                                "liked": false,
-                                "scrapped": false,
-                                "hasCommented": false,
-                                "nickname": "길동hong",
-                                "createAt": "2025-06-19",
-                                "imageUrls": [
-                                  "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png"
-                                ],
-                                "views": 4
-                              }
-                            }
-                    """))
-            ),
-            @ApiResponse(responseCode = "400", description = "잘못된 게시글 타입 요청",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(name = "잘못된 type 예시", value = SwaggerExamples.INVALID_POST_TYPE))
-            ),
-            @ApiResponse(responseCode = "404", description = "존재하지 않는 유저",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = { @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
-                                    @ExampleObject(
-                                            name = "존재하지 않는 포스트", value = SwaggerExamples.POST_NOT_EXIST)})
-            )
-
-    })
+    @ApiResponse(responseCode = "200", description = "선택한 포스트 성공",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = PostListResponseDTO.class),
+                    examples = @ExampleObject(value = """
+                    {
+                      "status": 200,
+                      "code": "SUCCESS_GET_POST",
+                      "message": "포스트를 불러왔습니다",
+                      "data": {
+                        "id": 23,
+                        "title": "",
+                        "content": "",
+                        "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                        "role": "BUSINESS",
+                        "likes": 0,
+                        "scraps": 0,
+                        "comments": 0,
+                        "liked": false,
+                        "scrapped": false,
+                        "hasCommented": false,
+                        "nickname": "길동hong",
+                        "createAt": "2025-06-19",
+                        "imageUrls": [
+                          "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png"
+                        ],
+                        "views": 4
+                      }
+                    }
+            """))
+    ),
+    @ApiResponse(responseCode = "400", description = "잘못된 게시글 타입 요청",
+            content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "잘못된 type 예시", value = SwaggerExamples.INVALID_POST_TYPE))
+    ),
+    @ApiResponse(responseCode = "404", description = "존재하지 않는 유저",
+            content = @Content(mediaType = "application/json",
+                    examples = { @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                            @ExampleObject(name = "존재하지 않는 포스트", value = SwaggerExamples.POST_NOT_EXIST)})
+    )})
     ResponseEntity<ResponseDTO<PostReadDetailDTO>> newReadPost(
             @PathVariable String type,
             @PathVariable Long postId);
@@ -335,14 +337,8 @@ public interface PostApiDocs {
             @ApiResponse(responseCode = "404", description = "리소스 없음",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = {@ExampleObject(
-                                    name = "유저가 존재하지 않음",
-                                    value = SwaggerExamples.MEMBER_NOT_EXIST
-                            ),
-                            @ExampleObject(
-                                    name = "글이 존재하지 않음",
-                                    value = SwaggerExamples.POST_NOT_EXIST
-                            )}
+                            examples = {@ExampleObject(name = "유저가 존재하지 않음", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                            @ExampleObject(name = "글이 존재하지 않음", value = SwaggerExamples.POST_NOT_EXIST)}
                     )
             ),
             @ApiResponse(
@@ -364,5 +360,57 @@ public interface PostApiDocs {
             @RequestPart("updatePostRequestDTO") UpdatePostRequestDTO updatePostRequestDTO,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     );
+
+    @Operation(summary = "전체 게시물 조회, 최신순 정렬이 기본입니다.)", description = """
+    전체 게시물을 조회합니다 (type: free/piece), (sort: latest)
+    
+    """)
+    @ApiResponse(
+            responseCode = "200",
+            description = "게시글 목록 조회 성공",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ResponseDTO.class),
+                    examples = @ExampleObject(value = """
+                    {
+                      "status": 200,
+                      "code": "SUCCESS_GET_POST_SORT_LIST",
+                      "message": "type 에 맞는 post를 불러왔습니다.",
+                      "data": {
+                        "totalPost": 44,
+                        "size": 10,
+                        "page": 1,
+                        "responseDTOS": [
+                          {
+                            "id": 537,
+                            "title": "string",
+                            "content": "string",
+                            "role": "USER",
+                            "likes": 0,
+                            "scraps": 0,
+                            "comments": 0,
+                            "liked": false,
+                            "scrapped": false,
+                            "hasCommented": false,
+                            "nickname": "BeatBuddy",
+                            "createAt": "2025-07-04",
+                            "hashtags": [
+                              "이태원",
+                              "홍대",
+                              "강남.신사"
+                            ]
+                          }
+                        ]
+                      }
+                    }
+        """)
+            )
+    )
+    ResponseEntity<ResponseDTO<PostListResponseDTO>> readAllPostsSort(
+            @PathVariable String type,
+            @Parameter(description = "페이지 번호")
+            @RequestParam(defaultValue = "1") int page,
+            @Parameter(description = "페이지 당 요청할 게시물 개수")
+            @RequestParam(defaultValue = "10") int size);
 
 }

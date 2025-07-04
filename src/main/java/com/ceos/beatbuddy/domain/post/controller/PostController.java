@@ -102,54 +102,17 @@ public class PostController implements PostApiDocs {
         return ResponseEntity.ok(postService.readAllPosts(type, page, size));
     }
 
-    @Operation(summary = "전체 게시물 조회, 최신순 / 인기순 정렬이 추가되었습니다.)", description = "전체 게시물을 조회합니다 (type: free/piece), (sort: latest/popular)")
-    @ApiResponse(
-            responseCode = "200",
-            description = "게시글 목록 조회 성공",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ResponseDTO.class),
-                    examples = @ExampleObject(value = """
-                    {
-                      "status": 200,
-                      "code": "SUCCESS_GET_POST_SORT_LIST",
-                      "message": "type 에 맞는 post를 sort 해서 불러왔습니다.",
-                      "data": {
-                        "totalPost": 40,
-                        "size": 10,
-                        "page": 0,
-                        "responseDTOS": [
-                          {
-                            "id": 533,
-                            "title": "string",
-                            "content": "string",
-                            "role": "BUSINESS",
-                            "likes": 0,
-                            "scraps": 0,
-                            "comments": 0,
-                            "liked": false,
-                            "scrapped": false,
-                            "hasCommented": false,
-                            "nickname": "길동hong",
-                            "createAt": "2025-06-22"
-                          }
-                        ]
-                      }
-                    }
-        """)
-            )
-    )
-    @GetMapping("/{type}/sort/{sort}")
-    public ResponseEntity<ResponseDTO<PostListResponseDTO>> readAllPosts(
+
+    @GetMapping("/{type}/sorted")
+    public ResponseEntity<ResponseDTO<PostListResponseDTO>> readAllPostsSort(
             @PathVariable String type,
-            @PathVariable String sort,
             @Parameter(description = "페이지 번호")
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @Parameter(description = "페이지 당 요청할 게시물 개수")
             @RequestParam(defaultValue = "10") int size) {
 
         Long memberId = SecurityUtils.getCurrentMemberId();
-        PostListResponseDTO result = postService.readAllPostsSort(memberId, type, sort, page, size);
+        PostListResponseDTO result = postService.readAllPostsSort(memberId, type, page, size);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_POST_SORT_LIST.getStatus().value())
