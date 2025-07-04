@@ -74,6 +74,10 @@ public interface FreePostApiDocs {
     @ApiResponse(responseCode = "400", description = "잘못된 요청",
     content = @Content(examples = {@ExampleObject(name = "검색어가 2글자 미만인 경우", description = "검색어가 2글자 미만인 경우", value = SwaggerExamples.KEYWORD_TOO_SHORT),
             @ExampleObject(name = "검색어가 비어있는 경우", description = "검색어가 비어있는 경우", value = SwaggerExamples.EMPTY_KEYWORD)}))
+    @ApiResponse(responseCode = "500", description = "서버 오류",
+    content = @Content(examples = {@ExampleObject(name = "서버 오류", description = "elasticsearch 검색 실패", value = SwaggerExamples.ELASTICSEARCH_SEARCH_FAILED)})
+    )
+
     ResponseEntity<ResponseDTO<PostListResponseDTO>> searchPosts(
             @RequestParam(required = false) @NotBlank(message = "검색 시, 키워드는 필수입니다.") @Size(min = 2, message = "2글자 이상 입력해야 합니다.") String keyword,
             @RequestParam(defaultValue = "1") int page,
