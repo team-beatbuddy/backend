@@ -17,10 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -97,13 +95,19 @@ public class FreePostSearchService {
             // 3. DB에서 실제 FreePost 조회
             List<FreePost> posts = freePostRepository.findAllById(postIds);
 
+            Map<Long, FreePost> postMap = posts.stream()
+                    .collect(Collectors.toMap(FreePost::getId, Function.identity()));
+            List<FreePost> orderedPosts = postIds.stream()
+                    .map(postMap::get)
+                    .toList();
+
             // 4. 좋아요/스크랩/댓글 여부 IN 쿼리
             Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(memberId, postIds);
             Set<Long> scrappedPostIds = postLikeScrapService.getScrappedPostIds(memberId, postIds);
             Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(memberId, postIds);
 
             // 5. DTO로 변환
-            List<PostPageResponseDTO> dtoList = posts.stream()
+            List<PostPageResponseDTO> dtoList = orderedPosts.stream()
                     .map(post -> PostPageResponseDTO.toDTO(
                             post,
                             likedPostIds.contains(post.getId()),
