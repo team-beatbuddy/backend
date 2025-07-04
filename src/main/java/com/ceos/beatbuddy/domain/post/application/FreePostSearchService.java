@@ -8,9 +8,11 @@ import com.ceos.beatbuddy.domain.post.entity.FreePost;
 import com.ceos.beatbuddy.domain.post.entity.FreePostDocument;
 import com.ceos.beatbuddy.domain.post.repository.FreePostRepository;
 import com.ceos.beatbuddy.global.CustomException;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import lombok.RequiredArgsConstructor;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class FreePostSearchService {
 
     private final ElasticsearchClient elasticsearchClient;
@@ -38,7 +41,8 @@ public class FreePostSearchService {
                     .document(document)
             );
         } catch (IOException e) {
-            throw new RuntimeException("인덱싱 실패", e);
+            log.warn("ES 인덱싱 실패: postId={}, error={}", post.getId(), e.getMessage());
+            throw new CustomException(ErrorCode.ELASTICSEARCH_INDEXING_FAILED);
         }
     }
 
@@ -49,29 +53,8 @@ public class FreePostSearchService {
                     .id(postId.toString())
             );
         } catch (IOException e) {
-            throw new RuntimeException("삭제 실패", e);
-        }
-    }
-
-    public List<FreePostDocument> search(String keyword) {
-        try {
-            SearchResponse<FreePostDocument> response = elasticsearchClient.search(s -> s
-                            .index("post")
-                            .query(q -> q
-                                    .multiMatch(m -> m
-                                            .fields("title", "content", "hashtags")
-                                            .query(keyword)
-                                    )
-                            ),
-                    FreePostDocument.class
-            );
-
-            return response.hits().hits().stream()
-                    .map(Hit::source)
-                    .collect(Collectors.toList());
-
-        } catch (IOException e) {
-            throw new RuntimeException("검색 실패", e);
+            log.warn("ES 인덱싱 삭제 실패: postId={}, error={}", postId, e.getMessage());
+            throw new CustomException(ErrorCode.ELASTICSEARCH_DELETION_FAILED);
         }
     }
 

@@ -59,12 +59,14 @@ public interface PostApiDocs {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "S3에 이미지 등록 실패했을 경우",
+                    description = "서버 에러",
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
                                     @ExampleObject(
-                                            name = "s3에 이미지 등록을 실패했을 경우", value = SwaggerExamples.IMAGE_UPLOAD_FAILED)
+                                            name = "s3에 이미지 등록을 실패했을 경우", value = SwaggerExamples.IMAGE_UPLOAD_FAILED),
+                                    @ExampleObject(
+                                            name = "Elasticsearch에 게시글 등록을 실패했을 경우", value = SwaggerExamples.ELASTICSEARCH_POST_CREATE_FAILED)
                             }
                     )
             )
@@ -283,7 +285,7 @@ public interface PostApiDocs {
 
 
 
-    @Operation(summary = "포스트 수정 API", description = "기존 게시글을 수정합니다.")
+    @Operation(summary = "게시글 수정 API", description = "기존 게시글을 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "포스트 수정 성공",
                     content = @Content(
@@ -345,12 +347,13 @@ public interface PostApiDocs {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "S3에 이미지 등록 실패했을 경우",
+                    description = "S3에 이미지 등록 실패했을 경우 / Elasticsearch 에러",
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
                                     @ExampleObject(name = "s3에 이미지 등록을 실패했을 경우", value = SwaggerExamples.IMAGE_UPLOAD_FAILED),
-                                    @ExampleObject(name = "s3에서 이미지 삭제를 실패한 경우", value = SwaggerExamples.IMAGE_DELETE_FAILED)
+                                    @ExampleObject(name = "s3에서 이미지 삭제를 실패한 경우", value = SwaggerExamples.IMAGE_DELETE_FAILED),
+                                    @ExampleObject(name = "Elasticsearch에 게시글 수정 실패", value = SwaggerExamples.ELASTICSEARCH_POST_CREATE_FAILED)
                             }
                     )
             )
