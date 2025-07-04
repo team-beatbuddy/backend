@@ -31,8 +31,9 @@ public class PiecePostHandler implements PostTypeHandler {
     }
 
     @Override
-    public PostListResponseDTO hashTagPostList(List<String> hashtags, int page, int size) {
+    public PostListResponseDTO hashTagPostList(List<String> hashtags, int page, int size, Member member) {
         throw new UnsupportedOperationException("PiecePost 생성 기능이 아직 구현되지 않았습니다.");
+
     }
 
     @Override

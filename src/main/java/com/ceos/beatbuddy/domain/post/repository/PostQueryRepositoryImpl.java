@@ -44,6 +44,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository{
         // where 조건을 변수로 추출하여 중복 제거
         BooleanExpression whereCondition = freePost.hashtag.any().in(hashtags);
 
+        // 최신순 정렬
         JPQLQuery<FreePost> query = queryFactory
                 .selectFrom(freePost)
                 .where(whereCondition)

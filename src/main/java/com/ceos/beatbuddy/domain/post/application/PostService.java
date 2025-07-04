@@ -172,10 +172,10 @@ public class PostService {
     }
 
     public PostListResponseDTO getHashtagPosts(Long memberId, List<String> hashtags, int page, int size) {
-        memberService.validateAndGetMember(memberId);
+        Member member = memberService.validateAndGetMember(memberId);
 
         PostTypeHandler handler = postTypeHandlerFactory.getHandler("free");
-        return handler.hashTagPostList(hashtags, page, size);
+        return handler.hashTagPostList(hashtags, page, size, member);
     }
 
 
@@ -222,7 +222,7 @@ public class PostService {
                 .map(Post::getId)
                 .toList();
 
-        // 4. 연관 정보 bulk 조회
+        // 4. 연관 정보 bulk 조회ㅎ
         Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(member.getId(), postIds);
 
         Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(member.getId(), postIds);

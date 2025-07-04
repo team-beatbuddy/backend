@@ -59,7 +59,7 @@ public interface PostTypeHandler {
      */
     boolean supports(Post post);
 
-    PostListResponseDTO hashTagPostList(List<String> hashtags, int page, int size);
+    PostListResponseDTO hashTagPostList(List<String> hashtags, int page, int size, Member member    );
 
     Post updatePost(UpdatePostRequestDTO dto, Post post, Member member);
 }
