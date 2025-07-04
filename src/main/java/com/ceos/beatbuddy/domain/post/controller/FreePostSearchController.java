@@ -34,6 +34,12 @@ public class FreePostSearchController implements FreePostApiDocs {
         Long memberId = SecurityUtils.getCurrentMemberId();
         PostListResponseDTO result = freePostSearchService.searchPosts(keyword, page, size, memberId);
 
+        if (result.getResponseDTOS().isEmpty()) {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
+        }
+
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_POST_SEARCH.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_POST_SEARCH, result));

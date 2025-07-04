@@ -57,7 +57,19 @@ public interface FreePostApiDocs {
                     }
                     """),
             @ExampleObject(name = "게시글 검색 성공, 비어있음", description = "비어있는 검색 결과",
-            value = SwaggerExamples.SUCCESS_BUT_EMPTY_LIST)
+            value = """
+                    {
+                      "status": 200,
+                      "code": "SUCCESS_BUT_EMPTY_LIST",
+                      "message": "성공적으로 조회했으나 리스트가 비었습니다.",
+                      "data": {
+                        "totalPost": 0,
+                        "size": 10,
+                        "page": 1,
+                        "responseDTOS": []
+                      }
+                    }
+                    """)
     }))
     @ApiResponse(responseCode = "400", description = "잘못된 요청",
     content = @Content(examples = {@ExampleObject(
