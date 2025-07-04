@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.post.application;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
+import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
 import com.ceos.beatbuddy.domain.post.dto.UpdatePostRequestDTO;
 import com.ceos.beatbuddy.domain.post.entity.PiecePost;
 import com.ceos.beatbuddy.domain.post.entity.Post;
@@ -27,6 +28,11 @@ public class PiecePostHandler implements PostTypeHandler {
     @Override
     public boolean supports(Post post) {
         return post instanceof PiecePost;
+    }
+
+    @Override
+    public PostListResponseDTO hashTagPostList(List<String> hashtags, int page, int size) {
+        throw new UnsupportedOperationException("PiecePost 생성 기능이 아직 구현되지 않았습니다.");
     }
 
     @Override

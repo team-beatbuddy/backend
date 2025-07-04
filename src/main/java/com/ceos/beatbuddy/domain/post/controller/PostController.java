@@ -196,4 +196,20 @@ public class PostController implements PostApiDocs {
                 .status(SuccessCode.SUCCESS_UPDATE_POST.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_POST, result));
     }
+
+    @Override
+    @GetMapping("/hashtags-search")
+    public     ResponseEntity<ResponseDTO<PostListResponseDTO>> hashTagPostList(
+            @RequestParam List<String> hashtags,
+            @Parameter(description = "페이지 번호")
+            @RequestParam(defaultValue = "1") int page,
+            @Parameter(description = "페이지 당 요청할 게시물 개수")
+            @RequestParam(defaultValue = "10") int size) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        PostListResponseDTO result = postService.getHashtagPosts(memberId, hashtags, page, size);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_POST_LIST_BY_HASHTAG.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_POST_LIST_BY_HASHTAG, result));
+    }
 }
