@@ -86,7 +86,7 @@ public class VenueInfoService {
         uploadUtil.deleteImages(venue.getBackgroundUrl(), UploadUtil.BucketType.VENUE);
 
         Long deletedCount = venueRepository.deleteByVenueId(venueId);
-        venueSearchService.deleteVenueFromES(venueId); // DB 삭제 후 ES 삭제
+        venueSearchService.delete(venueId); // DB 삭제 후 ES 삭제
         return deletedCount;
     }
 
@@ -107,7 +107,7 @@ public class VenueInfoService {
 
         Venue venue =venueRepository.save(Venue.of(request, logoImageUrl, backgroundImageUrls));
 
-        venueSearchService.saveVenueToES(venue); // Venue 정보를 Elasticsearch에 저장
+        venueSearchService.save(venue); // Venue 정보를 Elasticsearch에 저장
 
         return venue;
     }
@@ -134,7 +134,7 @@ public class VenueInfoService {
         venue.update(venueRequestDTO, logoImageUrl, backgroundImageUrls);
 
         Venue updatedVenue = venueRepository.save(venue);
-        venueSearchService.saveVenueToES(updatedVenue);
+        venueSearchService.save(updatedVenue);
         return updatedVenue;
     }
 

@@ -142,6 +142,30 @@ public class SwaggerExamples {
         }
         """;
 
+    // 두글자 이상 검색
+    public static final String KEYWORD_TOO_SHORT = """
+        {
+            "status":400,
+            "error":"BAD_REQUEST",
+            "code":"BAD_REQUEST_VALIDATION",
+            "message":"요청 값이 유효하지 않습니다."
+            "errors": {
+                "keyword": "2글자 이상 입력해야 합니다."
+            }
+        }
+        """;
+
+    public static final String EMPTY_KEYWORD = """
+        {
+            "status":400,
+            "error":"BAD_REQUEST",
+            "code":"BAD_REQUEST_VALIDATION",
+            "message":"요청 값이 유효하지 않습니다."
+            "errors": {
+                "keyword": "검색 시, 키워드는 필수입니다."
+            }
+        }
+        """;
 
     /**
      * 403 권한 없음
@@ -340,6 +364,32 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String ELASTICSEARCH_POST_CREATE_FAILED = """
+        {
+          "status": 500,
+          "error": "INTERNAL_SERVER_ERROR",
+          "code": "ELASTICSEARCH_POST_CREATE_FAILED",
+          "message": "Elasticsearch 인덱싱에 실패했습니다."
+        }
+        """;
+
+    public static final String ELASTICSEARCH_POST_DELETE_FAILED = """
+        {
+          "status": 500,
+          "error": "INTERNAL_SERVER_ERROR",
+          "code": "ELASTICSEARCH_POST_DELETE_FAILED",
+          "message": "Elasticsearch 삭제에 실패했습니다."
+        }
+        """;
+
+    public static final String ELASTICSEARCH_SEARCH_FAILED = """
+        {
+          "status": 500,
+          "error": "INTERNAL_SERVER_ERROR",
+          "code": "ELASTICSEARCH_SEARCH_FAILED",
+          "message": "Elasticsearch 검색에 실패했습니다."
+        }
+        """;
 
     // 다른 공통 예시도 여기에 추가 가능
 }

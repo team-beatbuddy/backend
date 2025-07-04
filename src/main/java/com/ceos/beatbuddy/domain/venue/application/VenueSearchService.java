@@ -6,6 +6,9 @@ import com.ceos.beatbuddy.domain.venue.dto.VenueSearchResponseDTO;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.entity.VenueDocument;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
+import com.ceos.beatbuddy.global.CustomException;
+import com.ceos.beatbuddy.global.code.ErrorCode;
+import com.ceos.beatbuddy.global.code.SuccessCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,13 +48,17 @@ public class VenueSearchService {
                 VenueDocument.class
         );
 
+        if (response.hits().hits().isEmpty()) {
+            throw new CustomException(SuccessCode.SUCCESS_BUT_EMPTY_LIST);
+        }
+
         return response.hits().hits().stream()
                 .map(Hit::source).filter(Objects::nonNull)
                 .map(VenueSearchResponseDTO::toDTO)
                 .collect(Collectors.toList());
     }
 
-    public void saveVenueToES(Venue venue) {
+    public void save(Venue venue) {
         try {
             VenueDocument doc = VenueDocument.from(venue);
             elasticsearchClient.index(i -> i
@@ -61,10 +68,11 @@ public class VenueSearchService {
             );
         } catch (IOException e) {
             log.error("Venue 인덱싱 실패: venueId={}, error={}", venue.getId(), e.getMessage(), e);
+            throw new CustomException(ErrorCode.ELASTICSEARCH_INDEXING_FAILED);
         }
     }
 
-    public void deleteVenueFromES(Long venueId) {
+    public void delete(Long venueId) {
         try {
             elasticsearchClient.delete(d -> d
                     .index("venue")
@@ -72,6 +80,7 @@ public class VenueSearchService {
             );
         } catch (IOException e) {
             log.error("Venue 삭제 실패: venueId={}, error={}", venueId, e.getMessage(), e);
+            throw new CustomException(ErrorCode.ELASTICSEARCH_DELETION_FAILED);
         }
     }
 

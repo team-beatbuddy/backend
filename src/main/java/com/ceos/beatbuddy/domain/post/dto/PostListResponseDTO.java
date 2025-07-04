@@ -12,8 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostListResponseDTO {
-    private Integer totalPost;
-    private Integer size;
-    private Integer page;
+    private int totalPost;
+    private int size;
+    private int page;
     private List<PostPageResponseDTO> responseDTOS;
 }
