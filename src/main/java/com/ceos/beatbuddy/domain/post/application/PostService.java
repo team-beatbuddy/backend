@@ -53,20 +53,6 @@ public class PostService {
 
     private static final List<String> VALID_POST_TYPES = List.of("free", "piece");
 
-
-    // 프론트 개발 완료 후 삭제 예정
-    @Transactional
-    public Post addPost(Long memberId, String type, PostRequestDto requestDto) {
-        Member member = memberService.validateAndGetMember(memberId);
-        List<String> imageUrls = uploadUtil.uploadImages(requestDto.images(), UploadUtil.BucketType.MEDIA, "post");
-
-        return switch (type) {
-            case "free" -> createFreePost(member, requestDto, imageUrls);
-            case "piece" -> createPiecePost(member, requestDto, imageUrls);
-            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
-        };
-    }
-
     @Transactional
     public ResponsePostDto addNewPost(String type, PostCreateRequestDTO dto, Long memberId, List<MultipartFile> images) {
         validatePostType(type);
@@ -86,25 +72,6 @@ public class PostService {
         return ResponsePostDto.of(post);
     }
 
-    
-    // 추후 삭제 예정
-    public Post readPost(String type, Long postId) {
-        switch (type) {
-            case "free" -> {
-                FreePost post = freePostRepository.findById(postId)
-                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
-                post.increaseView();  // 예: 조회수 증가
-                return post;
-            }
-            case "piece" -> {
-                PiecePost post = piecePostRepository.findById(postId)
-                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
-                post.increaseView();  // 예: 조회수 증가
-                return post;
-            }
-            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
-        }
-    }
 
     @Transactional
     public PostReadDetailDTO newReadPost(String type, Long postId, Long memberId) {
@@ -122,16 +89,6 @@ public class PostService {
 
         // 4. 응답 생성
         return PostReadDetailDTO.toDTO(post, status.getLeft(), status.getMiddle(), status.getRight(), hashtags);
-    }
-
-    // 삭제 예정
-    public Page<ResponsePostDto> readAllPosts(String type, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return switch (type) {
-            case "free" -> freePostRepository.findAll(pageable).map(ResponsePostDto::of);
-            case "piece" -> piecePostRepository.findAll(pageable).map(ResponsePostDto::of);
-            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
-        };
     }
 
     public PostListResponseDTO readAllPostsSort(Long memberId, String type, int page, int size) {
@@ -214,6 +171,15 @@ public class PostService {
                 .toList();
     }
 
+    public PostListResponseDTO getHashtagPosts(Long memberId, List<String> hashtags, int page, int size) {
+        Member member = memberService.validateAndGetMember(memberId);
+
+        PostTypeHandler handler = postTypeHandlerFactory.getHandler("free");
+        return handler.hashTagPostList(hashtags, page, size, member);
+    }
+
+
+
     @Transactional
     public void deletePost(String type, Long postId, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
@@ -229,49 +195,7 @@ public class PostService {
         handler.deletePost(postId, member);
     }
 
-    // 이후 삭제할 예정
-    private FreePost createFreePost(Member member, PostRequestDto requestDto, List<String> imageUrls) {
-        FreePost post = FreePost.builder()
-                .title(requestDto.title())
-                .content(requestDto.content())
-                .imageUrls(imageUrls)
-                .member(member)
-                .anonymous(requestDto.anonymous())
-                .build();
-        return freePostRepository.save(post);
-    }
 
-    // 삭제 예정
-    private PiecePost createPiecePost(Member member, PostRequestDto requestDto, List<String> imageUrls) {
-        Piece piece = pieceService.createPiece(member, requestDto.venueId(), (PiecePostRequestDto) requestDto);
-
-        PiecePost post = PiecePost.builder()
-                .title(requestDto.title())
-                .content(requestDto.content())
-                .imageUrls(imageUrls)
-                .member(member)
-                .anonymous(requestDto.anonymous())
-                .piece(piece)
-                .build();
-        return piecePostRepository.save(post);
-    }
-
-    // 삭제 예정
-    public Post findPostByIdWithDiscriminator(Long postId) {
-        // 먼저 자유 게시글 확인
-        Optional<FreePost> freePost = freePostRepository.findById(postId);
-        if (freePost.isPresent()) {
-            return freePost.get();
-        }
-
-        // 없다면 조각모집 게시글 확인
-        Optional<PiecePost> piecePost = piecePostRepository.findById(postId);
-        if (piecePost.isPresent()) {
-            return piecePost.get();
-        }
-
-        throw new CustomException(PostErrorCode.POST_NOT_EXIST);
-    }
 
     @Transactional(readOnly = true)
     public PostListResponseDTO getScrappedPostsByType(Long memberId, String type, int page, int size) {
@@ -298,7 +222,7 @@ public class PostService {
                 .map(Post::getId)
                 .toList();
 
-        // 4. 연관 정보 bulk 조회
+        // 4. 연관 정보 bulk 조회ㅎ
         Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(member.getId(), postIds);
 
         Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(member.getId(), postIds);
@@ -457,4 +381,73 @@ public class PostService {
     }
 
 
+
+    // 이후 삭제할 예정
+    private FreePost createFreePost(Member member, PostRequestDto requestDto, List<String> imageUrls) {
+        FreePost post = FreePost.builder()
+                .title(requestDto.title())
+                .content(requestDto.content())
+                .imageUrls(imageUrls)
+                .member(member)
+                .anonymous(requestDto.anonymous())
+                .build();
+        return freePostRepository.save(post);
+    }
+
+    // 삭제 예정
+    private PiecePost createPiecePost(Member member, PostRequestDto requestDto, List<String> imageUrls) {
+        Piece piece = pieceService.createPiece(member, requestDto.venueId(), (PiecePostRequestDto) requestDto);
+
+        PiecePost post = PiecePost.builder()
+                .title(requestDto.title())
+                .content(requestDto.content())
+                .imageUrls(imageUrls)
+                .member(member)
+                .anonymous(requestDto.anonymous())
+                .piece(piece)
+                .build();
+        return piecePostRepository.save(post);
+    }
+
+    // 프론트 개발 완료 후 삭제 예정
+    @Transactional
+    public Post addPost(Long memberId, String type, PostRequestDto requestDto) {
+        Member member = memberService.validateAndGetMember(memberId);
+        List<String> imageUrls = uploadUtil.uploadImages(requestDto.images(), UploadUtil.BucketType.MEDIA, "post");
+
+        return switch (type) {
+            case "free" -> createFreePost(member, requestDto, imageUrls);
+            case "piece" -> createPiecePost(member, requestDto, imageUrls);
+            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
+        };
+    }
+
+    // 삭제 예정
+    public Page<ResponsePostDto> readAllPosts(String type, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return switch (type) {
+            case "free" -> freePostRepository.findAll(pageable).map(ResponsePostDto::of);
+            case "piece" -> piecePostRepository.findAll(pageable).map(ResponsePostDto::of);
+            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
+        };
+    }
+
+    // 추후 삭제 예정
+    public Post readPost(String type, Long postId) {
+        switch (type) {
+            case "free" -> {
+                FreePost post = freePostRepository.findById(postId)
+                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
+                post.increaseView();  // 예: 조회수 증가
+                return post;
+            }
+            case "piece" -> {
+                PiecePost post = piecePostRepository.findById(postId)
+                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
+                post.increaseView();  // 예: 조회수 증가
+                return post;
+            }
+            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
+        }
+    }
 }
