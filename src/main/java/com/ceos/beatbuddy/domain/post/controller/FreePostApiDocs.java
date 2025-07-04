@@ -80,7 +80,7 @@ public interface FreePostApiDocs {
             @ExampleObject(
             name = "검색어가 비어있는 경우", description = "검색어가 비어있는 경우", value = SwaggerExamples.EMPTY_KEYWORD)}))
     ResponseEntity<ResponseDTO<PostListResponseDTO>> searchPosts(
-            @RequestParam (required = false) @NotNull(message = "검색 시, 키워드는 필수입니다.") @Size(min = 2, message = "2글자 이상 입력해야 합니다.") String keyword,
+            @RequestParam(required = false) @NotBlank(message = "검색 시, 키워드는 필수입니다.") @Size(min = 2, message = "2글자 이상 입력해야 합니다.") String keyword,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     );
