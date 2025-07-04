@@ -1,6 +1,8 @@
 package com.ceos.beatbuddy.domain.post.repository;
 
+import com.ceos.beatbuddy.domain.post.entity.FixedHashtag;
 import com.ceos.beatbuddy.domain.post.entity.Post;
+import com.ceos.beatbuddy.domain.post.entity.QFreePost;
 import com.ceos.beatbuddy.domain.post.entity.QPost;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +28,4 @@ public class PostQueryRepositoryImpl implements PostQueryRepository{
                 .limit(2)
                 .fetch();
     }
-
 }

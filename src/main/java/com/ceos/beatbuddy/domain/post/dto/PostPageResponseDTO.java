@@ -1,5 +1,7 @@
 package com.ceos.beatbuddy.domain.post.dto;
 
+import com.ceos.beatbuddy.domain.post.entity.FixedHashtag;
+import com.ceos.beatbuddy.domain.post.entity.FreePost;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -8,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Builder
 @Getter
@@ -28,8 +31,9 @@ public class PostPageResponseDTO {
     private boolean hasCommented;
     private String nickname;
     private LocalDate createAt;
+    private List<String> hashtags;
 
-    public static PostPageResponseDTO toDTO(Post post, Boolean liked, Boolean scrapped, Boolean hasCommented) {
+    public static PostPageResponseDTO toDTO(Post post, Boolean liked, Boolean scrapped, Boolean hasCommented, List<FixedHashtag> hashtags) {
         return PostPageResponseDTO.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -44,6 +48,9 @@ public class PostPageResponseDTO {
                 .scrapped(scrapped)
                 .hasCommented(hasCommented)
                 .role(post.getMember().getRole().toString())
+                .hashtags(hashtags != null ? hashtags.stream()
+                        .map(FixedHashtag::getDisplayName)
+                        .toList() : List.of())
                 .build();
     }
 }
