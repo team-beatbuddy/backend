@@ -59,12 +59,14 @@ public interface PostApiDocs {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "S3에 이미지 등록 실패했을 경우",
+                    description = "서버 에러",
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
                                     @ExampleObject(
-                                            name = "s3에 이미지 등록을 실패했을 경우", value = SwaggerExamples.IMAGE_UPLOAD_FAILED)
+                                            name = "s3에 이미지 등록을 실패했을 경우", value = SwaggerExamples.IMAGE_UPLOAD_FAILED),
+                                    @ExampleObject(
+                                            name = "Elasticsearch에 게시글 등록을 실패했을 경우", value = SwaggerExamples.ELASTICSEARCH_POST_CREATE_FAILED)
                             }
                     )
             )
@@ -76,155 +78,6 @@ public interface PostApiDocs {
             @RequestPart(value = "images", required = false) List<MultipartFile> images);
 
 
-
-    @Operation(summary = "포스트 좋아요\n",
-            description = "포스트 좋아요 눌기")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "좋아요를 눌렀습니다.",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class),
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "status": 201,
-                                      "code": "SUCCESS_LIKE_POST",
-                                      "message": "좋아요를 눌렀습니다.",
-                                      "data": "좋아요를 눌렀습니다."
-                                    }
-                                    """)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 유저, 존재하지 않는 포스트인 경우",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples =
-                                    {
-                                            @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST ),
-                                            @ExampleObject(name = "존재하지 않는 포스트", value = SwaggerExamples.POST_NOT_EXIST)
-
-                                    }
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "이미 좋아요한 경우",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(name = "이미 좋아요한 경우", value = SwaggerExamples.ALREADY_LIKED)))
-    })
-    ResponseEntity<ResponseDTO<String>> addPostLike(@PathVariable Long postId);
-
-
-
-
-
-
-
-    @Operation(summary = "포스트 좋아요 취소\n",
-            description = "포스트에 눌렀던 좋아요를 취소합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "좋아요가 취소되었습니다.",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class),
-                            examples = @ExampleObject(value = """
-                                {
-                                  "status": 200,
-                                  "code": "SUCCESS_CANCEL_LIKE_POST",
-                                  "message": "좋아요를 취소했습니다.",
-                                  "data": "좋아요를 취소했습니다."
-                                }
-                                """)
-                    )
-            ),
-            @ApiResponse(responseCode = "404", description = "좋아요를 누른 적 없는 경우, 유저가 존재하지 않는 경우, 글이 존재하지 않는 경우",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(name="삭제할 좋아요가 존재하지 않음.", value = SwaggerExamples.NOT_FOUND_LIKE),
-                                    @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
-                                    @ExampleObject(name = "존재하지 않는 포스트", value = SwaggerExamples.POST_NOT_EXIST)
-                            }
-                    )
-            )
-    })
-    ResponseEntity<ResponseDTO<String>> deletePostLike(@PathVariable Long postId);
-
-
-
-    @Operation(summary = "포스트 스크랩\n",
-            description = "포스트를 스크랩합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "포스트를 스크랩했습니다.",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class),
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "status": 201,
-                                      "code": "SUCCESS_SCRAP_POST",
-                                      "message": "스크랩을 완료했습니다.",
-                                      "data": "스크랩을 완료했습니다."
-                                    }
-                                    """)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 유저, 존재하지 않는 포스트인 경우",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples =
-                                    {
-                                            @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
-                                            @ExampleObject(name = "존재하지 않는 포스트", value = SwaggerExamples.POST_NOT_EXIST)
-
-                                    }
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "이미 스크랩한 경우",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    name = "이미 스크랩한 경우", value = SwaggerExamples.ALREADY_SCRAPPED )
-                    )
-            )
-    })
-    ResponseEntity<ResponseDTO<String>> scrapPost(@PathVariable Long postId);
-
-    @Operation(summary = "포스트 스크랩 취소\n",
-            description = "포스트에 눌렀던 스크랩을 취소합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "스크랩이 취소되었습니다.",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class),
-                            examples = @ExampleObject(value = """
-                            {
-                              "status": 200,
-                              "code": "SUCCESS_DELETE_SCRAP",
-                              "message": "스크랩을 취소했습니다.",
-                              "data": "스크랩을 취소했습니다."
-                            }
-                                """)
-                    )
-            ),
-            @ApiResponse(responseCode = "404", description = "스크랩을 누른 적 없는 경우, 유저가 존재하지 않는 경우, 글이 존재하지 않는 경우",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {@ExampleObject(name="삭제할 스크랩이 존재하지 않음.", value = SwaggerExamples.NOT_FOUND_SCRAP),
-                                    @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
-                                    @ExampleObject(name = "존재하지 않는 포스트", value = SwaggerExamples.POST_NOT_EXIST)
-                            }
-                    )
-            )
-    })
-
-    ResponseEntity<ResponseDTO<String>> deleteScrapPost(@PathVariable Long postId);
 
     @Operation(summary = "내가 스크랩한 게시글 목록 조회",
             description = """
@@ -432,7 +285,7 @@ public interface PostApiDocs {
 
 
 
-    @Operation(summary = "포스트 수정 API", description = "기존 게시글을 수정합니다.")
+    @Operation(summary = "게시글 수정 API", description = "기존 게시글을 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "포스트 수정 성공",
                     content = @Content(
@@ -494,12 +347,13 @@ public interface PostApiDocs {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "S3에 이미지 등록 실패했을 경우",
+                    description = "S3에 이미지 등록 실패했을 경우 / Elasticsearch 에러",
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
                                     @ExampleObject(name = "s3에 이미지 등록을 실패했을 경우", value = SwaggerExamples.IMAGE_UPLOAD_FAILED),
-                                    @ExampleObject(name = "s3에서 이미지 삭제를 실패한 경우", value = SwaggerExamples.IMAGE_DELETE_FAILED)
+                                    @ExampleObject(name = "s3에서 이미지 삭제를 실패한 경우", value = SwaggerExamples.IMAGE_DELETE_FAILED),
+                                    @ExampleObject(name = "Elasticsearch에 게시글 수정 실패", value = SwaggerExamples.ELASTICSEARCH_POST_CREATE_FAILED)
                             }
                     )
             )

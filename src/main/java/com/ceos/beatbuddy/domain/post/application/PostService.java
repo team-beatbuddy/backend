@@ -52,6 +52,7 @@ public class PostService {
     private final PostTypeHandlerFactory postTypeHandlerFactory;
     private final UploadUtil uploadUtil;
     private final PostRepository postRepository;
+    private final PostLikeScrapService postLikeScrapService;
 
     private static final List<String> VALID_POST_TYPES = List.of("free", "piece");
 
@@ -144,11 +145,11 @@ public class PostService {
         List<Long> postIds = posts.stream().map(Post::getId).toList();
 
         // 좋아요/스크랩/댓글 여부를 IN 쿼리로 한 번에 조회
-        Set<Long> likedPostIds = getLikedPostIds(member.getId(), postIds);
+        Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(member.getId(), postIds);
 
-        Set<Long> scrappedPostIds = getScrappedPostIds(member.getId(), postIds);
+        Set<Long> scrappedPostIds = postLikeScrapService.getScrappedPostIds(member.getId(), postIds);
 
-        Set<Long> commentedPostIds = getCommentedPostIds(member.getId(), postIds);
+        Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(member.getId(), postIds);
 
 
         List<PostPageResponseDTO> dtoList = posts.stream()
@@ -186,11 +187,11 @@ public class PostService {
                 .map(Post::getId)
                 .toList();
 
-        Set<Long> likedPostIds = getLikedPostIds(member.getId(), postIds);
+        Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(member.getId(), postIds);
 
-        Set<Long> scrappedPostIds = getScrappedPostIds(member.getId(), postIds);
+        Set<Long> scrappedPostIds = postLikeScrapService.getScrappedPostIds(member.getId(), postIds);
 
-        Set<Long> commentedPostIds = getCommentedPostIds(member.getId(), postIds);
+        Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(member.getId(), postIds);
 
 
         return posts.stream()
@@ -214,6 +215,7 @@ public class PostService {
         }
 
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
+        // 포스트 삭제 시 이미지 s3 에서 삭제
         handler.deletePost(postId, member);
     }
 
@@ -261,81 +263,6 @@ public class PostService {
         throw new CustomException(PostErrorCode.POST_NOT_EXIST);
     }
 
-
-    @Transactional
-    public void likePost(Long postId, Long memberId) {
-        Member member = memberService.validateAndGetMember(memberId);
-
-        Post post = findPostByIdWithDiscriminator(postId);
-
-        PostInteractionId likeId = new PostInteractionId(memberId, post.getId());
-        if (postLikeRepository.existsById(likeId)) {
-            throw new CustomException(ErrorCode.ALREADY_LIKED);
-        }
-
-        PostLike postLike = PostLike.builder()
-                .post(post)
-                .member(member)
-                .id(likeId)
-                .build();
-
-        postLikeRepository.save(postLike);
-        postRepository.increaseLike(postId);
-    }
-
-
-    @Transactional
-    public void deletePostLike(Long postId, Long memberId) {
-        Member member = memberService.validateAndGetMember(memberId);
-
-
-        Post post = findPostByIdWithDiscriminator(postId);
-
-        PostInteractionId likeId = new PostInteractionId(member.getId(), post.getId());
-        PostLike postLike = postLikeRepository.findById(likeId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_LIKE));
-
-        postLikeRepository.delete(postLike);
-        postRepository.decreaseLike(postId);
-
-    }
-
-    @Transactional
-    public void scrapPost(Long postId, Long memberId) {
-        Member member = memberService.validateAndGetMember(memberId);
-
-
-        Post post = findPostByIdWithDiscriminator(postId);
-
-        PostInteractionId scrapId = new PostInteractionId(memberId, post.getId());
-        if (postScrapRepository.existsById(scrapId)) {
-            throw new CustomException(ErrorCode.ALREADY_SCRAPPED);
-        }
-
-        PostScrap postScrap = PostScrap.builder()
-                .post(post)
-                .member(member)
-                .id(scrapId)
-                .build();
-
-        postScrapRepository.save(postScrap);
-    }
-
-
-    @Transactional
-    public void deletePostScrap(Long postId, Long memberId) {
-        Member member = memberService.validateAndGetMember(memberId);
-
-
-        Post post = findPostByIdWithDiscriminator(postId);
-
-        PostInteractionId scrapId = new PostInteractionId(member.getId(), post.getId());
-        PostScrap postScrap = postScrapRepository.findById(scrapId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_SCRAP));
-
-        postScrapRepository.delete(postScrap);
-    }
-
     @Transactional(readOnly = true)
     public PostListResponseDTO getScrappedPostsByType(Long memberId, String type, int page, int size) {
         Member member = memberService.validateAndGetMember(memberId);
@@ -362,9 +289,9 @@ public class PostService {
                 .toList();
 
         // 4. 연관 정보 bulk 조회
-        Set<Long> likedPostIds = getLikedPostIds(member.getId(), postIds);
+        Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(member.getId(), postIds);
 
-        Set<Long> commentedPostIds = getCommentedPostIds(member.getId(), postIds);
+        Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(member.getId(), postIds);
 
         // 5. DTO 매핑
         List<PostPageResponseDTO> dtos = filteredPosts.stream()
@@ -404,11 +331,11 @@ public class PostService {
         List<Long> postIds = posts.stream().map(Post::getId).toList();
 
         // 연관 정보 bulk 조회
-        Set<Long> likedPostIds = getLikedPostIds(member.getId(), postIds);
+        Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(member.getId(), postIds);
 
-        Set<Long> scrappedPostIds = getScrappedPostIds(member.getId(), postIds);
+        Set<Long> scrappedPostIds = postLikeScrapService.getScrappedPostIds(member.getId(), postIds);
 
-        Set<Long> commentedPostIds = getCommentedPostIds(member.getId(), postIds);
+        Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(member.getId(), postIds);
 
         // DTO 매핑
         List<PostPageResponseDTO> dtos = posts.stream()
@@ -426,27 +353,6 @@ public class PostService {
                 .size(postPage.getSize())
                 .responseDTOS(dtos)
                 .build();
-    }
-
-    private Set<Long> getLikedPostIds(Long memberId, List<Long> postIds) {
-        return postLikeRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
-                .stream()
-                .map(pl -> pl.getPost().getId())
-                .collect(Collectors.toSet());
-    }
-
-    private Set<Long> getCommentedPostIds(Long memberId, List<Long> postIds) {
-        return commentRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
-                .stream()
-                .map(c -> c.getPost().getId())
-                .collect(Collectors.toSet());
-    }
-
-    private Set<Long> getScrappedPostIds(Long memberId, List<Long> postIds) {
-        return postScrapRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
-                .stream()
-                .map(ps -> ps.getPost().getId())
-                .collect(Collectors.toSet());
     }
 
     // 주어진 타입이 올바른지 확인
