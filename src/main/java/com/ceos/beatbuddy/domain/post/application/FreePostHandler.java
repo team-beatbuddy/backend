@@ -25,6 +25,7 @@ import java.util.Optional;
 public class FreePostHandler implements PostTypeHandler{
     private final FreePostRepository freePostRepository;
     private final VenueInfoService venueInfoService;
+    private final FreePostSearchService freePostSearchService;
 
     @Override
     public boolean supports(Post post) {
@@ -39,7 +40,10 @@ public class FreePostHandler implements PostTypeHandler{
                 .orElse(null);
 
         FreePost freePost = PostCreateRequestDTO.toEntity(dto, imageUrls, member, venue);
-        return freePostRepository.save(freePost);
+
+        freePost = freePostRepository.save(freePost);
+        freePostSearchService.save(freePost); // 게시글 생성 시 검색 인덱스에 저장
+        return freePost;
     }
 
     @Override
@@ -62,6 +66,7 @@ public class FreePostHandler implements PostTypeHandler{
         Post post = validateAndGetPost(postId);
         validateWriter(post, member);
         freePostRepository.deleteById(post.getId());
+        freePostSearchService.delete(postId); // 게시글 삭제 시 검색 인덱스에서 제거
     }
 
     @Override

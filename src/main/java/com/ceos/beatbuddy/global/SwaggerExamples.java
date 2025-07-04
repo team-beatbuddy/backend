@@ -142,6 +142,30 @@ public class SwaggerExamples {
         }
         """;
 
+    // 두글자 이상 검색
+    public static final String KEYWORD_TOO_SHORT = """
+        {
+            "status":400,
+            "error":"BAD_REQUEST",
+            "code":"BAD_REQUEST_VALIDATION",
+            "message":"요청 값이 유효하지 않습니다."
+            "errors": {
+                "keyword": "2글자 이상 입력해야 합니다."
+            }
+        }
+        """;
+
+    public static final String EMPTY_KEYWORD = """
+        {
+            "status":400,
+            "error":"BAD_REQUEST",
+            "code":"BAD_REQUEST_VALIDATION",
+            "message":"요청 값이 유효하지 않습니다."
+            "errors": {
+                "keyword": "검색 시, 키워드는 필수입니다."
+            }
+        }
+        """;
 
     /**
      * 403 권한 없음

@@ -100,6 +100,7 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_GET_HOT_POSTS(HttpStatus.OK, "인기 게시글 상위 2개 조회했습니다."),
     SUCCESS_GET_POST(HttpStatus.OK, "포스트를 불러왔습니다"),
     SUCCESS_UPDATE_POST(HttpStatus.OK, "포스트를 수정했습니다."),
+    SUCCESS_POST_SEARCH(HttpStatus.OK, "포스트 검색을 성공적으로 했습니다."),
 
     /**
      * Venue
