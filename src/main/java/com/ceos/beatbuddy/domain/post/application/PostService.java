@@ -5,10 +5,7 @@ import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.post.dto.*;
 import com.ceos.beatbuddy.domain.post.dto.PostRequestDto.PiecePostRequestDto;
-import com.ceos.beatbuddy.domain.post.entity.FreePost;
-import com.ceos.beatbuddy.domain.post.entity.Piece;
-import com.ceos.beatbuddy.domain.post.entity.PiecePost;
-import com.ceos.beatbuddy.domain.post.entity.Post;
+import com.ceos.beatbuddy.domain.post.entity.*;
 import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
 import com.ceos.beatbuddy.domain.post.repository.FreePostRepository;
 import com.ceos.beatbuddy.domain.post.repository.PiecePostRepository;
@@ -115,11 +112,16 @@ public class PostService {
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
         Post post = handler.readPost(postId);
 
-        // 2. 사용자가 좋아요 / 스크랩 / 댓글 달았는지 여부
+        // 2. 사용자의 좋아요 / 스크랩 / 댓글 여부
         Triple<Boolean, Boolean, Boolean> status = getPostInteractions(memberId, postId);
 
+        // 3. 해시태그 분기 처리
+        List<FixedHashtag> hashtags = (post instanceof FreePost freePost)
+                ? freePost.getHashtag()
+                : List.of();
+
         // 4. 응답 생성
-        return PostReadDetailDTO.toDTO(post, status.getLeft(), status.getMiddle(), status.getRight());
+        return PostReadDetailDTO.toDTO(post, status.getLeft(), status.getMiddle(), status.getRight(), hashtags);
     }
 
     // 삭제 예정
@@ -132,9 +134,15 @@ public class PostService {
         };
     }
 
-    public PostListResponseDTO readAllPostsSort(Long memberId, String type, String sort, int page, int size) {
-        Sort sortOption = getSortOption(sort);
-        Pageable pageable = PageRequest.of(page, size, sortOption);
+    public PostListResponseDTO readAllPostsSort(Long memberId, String type, int page, int size) {
+        Sort sortOption = getSortOption("latest");
+
+        // 페이지 1부터 받도록 지시, 0부터 시작하는 Pageable 생성
+        if (page < 1) {
+            throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
+        }
+        int offset = page - 1;
+        Pageable pageable = PageRequest.of(offset, size, sortOption);
 
         Member member = memberService.validateAndGetMember(memberId);
 
@@ -157,7 +165,8 @@ public class PostService {
                         post,
                         likedPostIds.contains(post.getId()),
                         scrappedPostIds.contains(post.getId()),
-                        commentedPostIds.contains(post.getId())
+                        commentedPostIds.contains(post.getId()),
+                        postRepository.findHashtagsByPostId(post.getId())
                 ))
                 .toList();
 
@@ -199,7 +208,8 @@ public class PostService {
                         post,
                         likedPostIds.contains(post.getId()),
                         scrappedPostIds.contains(post.getId()),
-                        commentedPostIds.contains(post.getId())
+                        commentedPostIds.contains(post.getId()),
+                        postRepository.findHashtagsByPostId(post.getId())
                 ))
                 .toList();
     }
@@ -299,7 +309,8 @@ public class PostService {
                         post,
                         likedPostIds.contains(post.getId()),
                         true, // 어차피 스크랩된 게시글이니까
-                        commentedPostIds.contains(post.getId())
+                        commentedPostIds.contains(post.getId()),
+                        postRepository.findHashtagsByPostId(post.getId())
                 ))
                 .toList();
 
@@ -343,7 +354,8 @@ public class PostService {
                         post,
                         likedPostIds.contains(post.getId()),
                         scrappedPostIds.contains(post.getId()),
-                        commentedPostIds.contains(post.getId())
+                        commentedPostIds.contains(post.getId()),
+                        postRepository.findHashtagsByPostId(post.getId())
                 ))
                 .toList();
 
@@ -435,8 +447,13 @@ public class PostService {
         // 5. 유저 상호작용 상태
         Triple<Boolean, Boolean, Boolean> status = getPostInteractions(memberId, postId);
 
-        // 6. 응답 생성
-        return PostReadDetailDTO.toDTO(post, status.getLeft(), status.getMiddle(), status.getRight());
+        // 6. 해시태그 분기 처리
+        List<FixedHashtag> hashtags = (post instanceof FreePost freePost)
+                ? freePost.getHashtag()
+                : List.of();
+
+        // 7. 응답 생성
+        return PostReadDetailDTO.toDTO(post, status.getLeft(), status.getMiddle(), status.getRight(), hashtags);
     }
 
 

@@ -91,7 +91,7 @@ public enum SuccessCode implements ApiCode {
     /**
      * post
      * */
-    SUCCESS_GET_POST_SORT_LIST(HttpStatus.OK, "type 에 맞는 post를 sort 해서 불러왔습니다."),
+    SUCCESS_GET_POST_SORT_LIST(HttpStatus.OK, "type 에 맞는 post를 불러왔습니다."),
     SUCCESS_LIKE_POST(HttpStatus.CREATED, "좋아요를 눌렀습니다."),
     SUCCESS_SCRAP_POST(HttpStatus.CREATED, "스크랩을 완료했습니다."),
     GET_SCRAPPED_POST_LIST(HttpStatus.OK, "스크랩한 글을 불러왔습니다."),
