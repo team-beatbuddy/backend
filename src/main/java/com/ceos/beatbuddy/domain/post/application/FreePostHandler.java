@@ -23,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -122,10 +123,7 @@ public class FreePostHandler implements PostTypeHandler{
     // 해시태그로 게시글 목록 불러오기
     @Override
     @Transactional(readOnly = true)
-    public PostListResponseDTO hashTagPostList(List<String> hashtags, int page, int size) {
-        // 최신순 정렬 추가
-        Pageable pageable = PageRequest.of(Math.max(page - 1, 0), size, Sort.by(Sort.Direction.DESC, "createdAt"));
-
+    public PostListResponseDTO hashTagPostList(List<String> hashtags, int page, int size, Member member) {
         if (hashtags == null || hashtags.isEmpty()) {
             throw new CustomException(PostErrorCode.NOT_FOUND_HASHTAG);
         }
@@ -133,17 +131,27 @@ public class FreePostHandler implements PostTypeHandler{
         // 해시태그 유효성 검사 및 변환
         List<FixedHashtag> fixedHashtags = validateAndGetHashtags(hashtags);
 
+        // 최신순 정렬
+        Pageable pageable = PageRequest.of(Math.max(page - 1, 0), size);
+
+        // 정렬은 QueryDSL 내부에서 처리 (createdAt DESC)
         Page<FreePost> posts = postQueryRepository.findPostsByHashtags(fixedHashtags, pageable);
 
         if (posts.isEmpty()) {
-            throw new CustomException(PostErrorCode.POST_NOT_EXIST);
+            return PostListResponseDTO.builder()
+                    .totalPost(0)
+                    .page(page)
+                    .size(size)
+                    .responseDTOS(Collections.emptyList())
+                    .build();
         }
 
         List<Long> postIds = posts.stream().map(Post::getId).toList();
 
-        Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(null, postIds);
-        Set<Long> scrappedPostIds = postLikeScrapService.getScrappedPostIds(null, postIds);
-        Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(null, postIds);
+
+        Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(member.getId(), postIds);
+        Set<Long> scrappedPostIds = postLikeScrapService.getScrappedPostIds(member.getId(), postIds);
+        Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(member.getId(), postIds);
 
         List<PostPageResponseDTO> dtos = posts.stream()
                 .map(post -> PostPageResponseDTO.toDTO(
