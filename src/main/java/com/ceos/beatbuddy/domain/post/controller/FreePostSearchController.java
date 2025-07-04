@@ -27,7 +27,7 @@ public class FreePostSearchController implements FreePostApiDocs {
     @Override
     @GetMapping("/search")
     public ResponseEntity<ResponseDTO<PostListResponseDTO>> searchPosts(
-            @RequestParam (required = false) @NotNull(message = "검색 시, 키워드는 필수입니다.") @Size(min = 2, message = "2글자 이상 입력해야 합니다.") String keyword,
+            @RequestParam (required = false) @NotBlank(message = "검색 시, 키워드는 필수입니다.") @Size(min = 2, message = "2글자 이상 입력해야 합니다.") String keyword,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {

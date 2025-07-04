@@ -6,6 +6,7 @@ import com.ceos.beatbuddy.domain.venue.entity.VenueDocument;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class VenueSearchController implements VenueSearchApiDocs {
     }
     @Override
     @GetMapping("/search")
-    public ResponseEntity<ResponseDTO<List<VenueSearchResponseDTO>>> search(@RequestParam (required = false) @NotNull(message = "검색 시, 키워드는 필수입니다.") String keyword) throws IOException {
+    public ResponseEntity<ResponseDTO<List<VenueSearchResponseDTO>>> search(@RequestParam (required = false) @NotBlank(message = "검색 시, 키워드는 필수입니다.") String keyword) throws IOException {
         List<VenueSearchResponseDTO> results = venueSearchService.searchByKeyword(keyword);
 
         return ResponseEntity
