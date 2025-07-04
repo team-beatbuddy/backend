@@ -382,5 +382,14 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String ELASTICSEARCH_SEARCH_FAILED = """
+        {
+          "status": 500,
+          "error": "INTERNAL_SERVER_ERROR",
+          "code": "ELASTICSEARCH_SEARCH_FAILED",
+          "message": "Elasticsearch 검색에 실패했습니다."
+        }
+        """;
+
     // 다른 공통 예시도 여기에 추가 가능
 }

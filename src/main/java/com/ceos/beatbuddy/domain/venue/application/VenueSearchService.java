@@ -7,6 +7,7 @@ import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.entity.VenueDocument;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import com.ceos.beatbuddy.global.CustomException;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,6 +68,7 @@ public class VenueSearchService {
             );
         } catch (IOException e) {
             log.error("Venue 인덱싱 실패: venueId={}, error={}", venue.getId(), e.getMessage(), e);
+            throw new CustomException(ErrorCode.ELASTICSEARCH_INDEXING_FAILED);
         }
     }
 
@@ -78,6 +80,7 @@ public class VenueSearchService {
             );
         } catch (IOException e) {
             log.error("Venue 삭제 실패: venueId={}, error={}", venueId, e.getMessage(), e);
+            throw new CustomException(ErrorCode.ELASTICSEARCH_DELETION_FAILED);
         }
     }
 

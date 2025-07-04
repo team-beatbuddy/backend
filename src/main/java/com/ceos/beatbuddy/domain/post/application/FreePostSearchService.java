@@ -127,7 +127,8 @@ public class FreePostSearchService {
                     .build();
 
         } catch (IOException e) {
-            throw new RuntimeException("검색 실패", e);
+            log.warn("ES 검색 실패: keyword={}, error={}", keyword, e.getMessage());
+            throw new CustomException(ErrorCode.ELASTICSEARCH_SEARCH_FAILED);
         }
     }
 }
