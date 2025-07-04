@@ -15,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -92,7 +94,12 @@ public class FreePostSearchService {
             );
 
             if (response.hits().hits().isEmpty()) {
-                throw new CustomException(SuccessCode.SUCCESS_BUT_EMPTY_LIST);
+                return PostListResponseDTO.builder()
+                        .totalPost(0)
+                        .page(page)
+                        .size(size)
+                        .responseDTOS(Collections.emptyList())
+                        .build();
             }
 
             // 2. 검색 결과 ID 추출
