@@ -413,4 +413,70 @@ public interface PostApiDocs {
             @Parameter(description = "페이지 당 요청할 게시물 개수")
             @RequestParam(defaultValue = "10") int size);
 
+
+
+    @Operation(summary = "해시태그로 게시글 목록 조회", description = """
+            해시태그로 게시글 목록을 조회합니다.
+            - hashtags: (압구정로데오/홍대/이태원/강남.신사/뮤직/자유/번개 모임/International/19+/LGBTQ/짤.밈) 중 하나입니다.
+            """)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "해시태그에 해당하는 포스트 목록을 성공적으로 조회했습니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = PostListResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                            {
+                              "status": 200,
+                              "code": "SUCCESS_GET_POST_LIST_BY_HASHTAG",
+                              "message": "해시태그에 해당하는 포스트 목록을 성공적으로 조회했습니다.",
+                              "data": {
+                                "totalPost": 1,
+                                "size": 10,
+                                "page": 1,
+                                "responseDTOS": [
+                                  {
+                                    "id": 537,
+                                    "title": "string",
+                                    "content": "string",
+                                    "role": "BUSINESS",
+                                    "likes": 0,
+                                    "scraps": 0,
+                                    "comments": 0,
+                                    "liked": false,
+                                    "scrapped": false,
+                                    "hasCommented": false,
+                                    "nickname": "BeatBuddy",
+                                    "createAt": "2025-07-04",
+                                    "hashtags": [
+                                      "이태원",
+                                      "홍대",
+                                      "강남.신사"
+                                    ]
+                                  }
+                                ]
+                              }
+                            }
+                            """))
+            ),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {@ExampleObject(name = "중복된 해시태그", value = SwaggerExamples.DUPLICATED_HASHTAG),
+                                        @ExampleObject(name = "잘못된 페이지 요청", value = SwaggerExamples.PAGE_OUT_OF_BOUNDS)}
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "해시태그가 존재하지 않음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {@ExampleObject(name = "존재하지 않는 해시태그", value = SwaggerExamples.NOT_FOUND_HASHTAG)}
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<PostListResponseDTO>> hashTagPostList(
+            @RequestParam List<String> hashtags,
+            @Parameter(description = "페이지 번호")
+            @RequestParam(defaultValue = "1") int page,
+            @Parameter(description = "페이지 당 요청할 게시물 개수")
+            @RequestParam(defaultValue = "10") int size);
+
 }
