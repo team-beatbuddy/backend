@@ -27,7 +27,7 @@ public class PostLikeScrapController implements PostLikeScrapApiDocs {
                 .status(SuccessCode.SUCCESS_LIKE_POST.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_POST, "좋아요를 눌렀습니다."));
     }
-
+    @Override
     @DeleteMapping("/{postId}/like")
     public ResponseEntity<ResponseDTO<String>> deletePostLike(@PathVariable Long postId) {
         Long memberId = SecurityUtils.getCurrentMemberId();

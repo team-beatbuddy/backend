@@ -51,12 +51,6 @@ public interface PostLikeScrapApiDocs {
     })
     ResponseEntity<ResponseDTO<String>> addPostLike(@PathVariable Long postId);
 
-
-
-
-
-
-
     @Operation(summary = "포스트 좋아요 취소\n",
             description = "포스트에 눌렀던 좋아요를 취소합니다.")
     @ApiResponses(value = {

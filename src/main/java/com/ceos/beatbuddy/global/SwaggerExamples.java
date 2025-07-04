@@ -364,6 +364,23 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String ELASTICSEARCH_POST_CREATE_FAILED = """
+        {
+          "status": 500,
+          "error": "INTERNAL_SERVER_ERROR",
+          "code": "ELASTICSEARCH_POST_CREATE_FAILED",
+          "message": "Elasticsearch 인덱싱에 실패했습니다."
+        }
+        """;
+
+    public static final String ELASTICSEARCH_POST_DELETE_FAILED = """
+        {
+          "status": 500,
+          "error": "INTERNAL_SERVER_ERROR",
+          "code": "ELASTICSEARCH_POST_DELETE_FAILED",
+          "message": "Elasticsearch 삭제에 실패했습니다."
+        }
+        """;
 
     // 다른 공통 예시도 여기에 추가 가능
 }
