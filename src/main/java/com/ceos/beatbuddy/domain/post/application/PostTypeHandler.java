@@ -59,7 +59,9 @@ public interface PostTypeHandler {
      */
     boolean supports(Post post);
 
-    PostListResponseDTO hashTagPostList(List<String> hashtags, int page, int size, Member member    );
+    PostListResponseDTO hashTagPostList(List<String> hashtags, Pageable pageable,  Member member);
 
     Post updatePost(UpdatePostRequestDTO dto, Post post, Member member);
+
+    Page<? extends Post> readAllPostsByUserExcludingAnonymous(Long userId, Pageable pageable);
 }
