@@ -2,11 +2,14 @@ package com.ceos.beatbuddy.domain.venue.controller;
 
 import com.ceos.beatbuddy.domain.venue.dto.VenueSearchResponseDTO;
 import com.ceos.beatbuddy.domain.venue.entity.VenueDocument;
+import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -83,9 +86,13 @@ public interface VenueSearchApiDocs {
                            )
                      }
            )
-
     )
-    ResponseEntity<ResponseDTO<List<VenueSearchResponseDTO>>> search(@RequestParam String keyword) throws IOException;
+    @ApiResponse(responseCode = "400", description = "잘못된 요청",
+            content = @Content(examples = {@ExampleObject(
+                    name = "검색어가 비어있는 경우",
+                    description = "검색어가 비어있는 경우",
+                    value = SwaggerExamples.EMPTY_KEYWORD)}))
+    ResponseEntity<ResponseDTO<List<VenueSearchResponseDTO>>> search(@RequestParam (required = false) @NotNull(message = "검색 시, 키워드는 필수입니다.") String keyword) throws IOException;
 
     /**
      * 데이터베이스의 장소 정보를 Elasticsearch에 동기화합니다.
