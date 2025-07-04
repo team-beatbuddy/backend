@@ -103,7 +103,7 @@ public class PostController implements PostApiDocs {
     }
 
 
-    @GetMapping("/{type}/sort/{sort}")
+    @GetMapping("/{type}/sorted")
     public ResponseEntity<ResponseDTO<PostListResponseDTO>> readAllPostsSort(
             @PathVariable String type,
             @Parameter(description = "페이지 번호")
