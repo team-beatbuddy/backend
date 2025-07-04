@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -92,7 +93,7 @@ public interface VenueSearchApiDocs {
                     name = "검색어가 비어있는 경우",
                     description = "검색어가 비어있는 경우",
                     value = SwaggerExamples.EMPTY_KEYWORD)}))
-    ResponseEntity<ResponseDTO<List<VenueSearchResponseDTO>>> search(@RequestParam (required = false) @NotNull(message = "검색 시, 키워드는 필수입니다.") String keyword) throws IOException;
+    ResponseEntity<ResponseDTO<List<VenueSearchResponseDTO>>> search(@RequestParam (required = false) @NotBlank(message = "검색 시, 키워드는 필수입니다.") String keyword) throws IOException;
 
     /**
      * 데이터베이스의 장소 정보를 Elasticsearch에 동기화합니다.
