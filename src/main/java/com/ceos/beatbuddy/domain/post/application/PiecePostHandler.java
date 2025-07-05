@@ -31,7 +31,7 @@ public class PiecePostHandler implements PostTypeHandler {
     }
 
     @Override
-    public PostListResponseDTO hashTagPostList(List<String> hashtags, int page, int size, Member member) {
+    public PostListResponseDTO hashTagPostList(List<String> hashtags, Pageable pageable, Member member) {
         throw new UnsupportedOperationException("PiecePost 생성 기능이 아직 구현되지 않았습니다.");
 
     }
@@ -76,6 +76,11 @@ public class PiecePostHandler implements PostTypeHandler {
 
     @Override
     public Post updatePost(UpdatePostRequestDTO dto, Post post, Member member) {
+        throw new UnsupportedOperationException("PiecePost 생성 기능이 아직 구현되지 않았습니다.");
+    }
+
+    @Override
+    public Page<? extends Post> readAllPostsByUserExcludingAnonymous(Long userId, Pageable pageable) {
         throw new UnsupportedOperationException("PiecePost 생성 기능이 아직 구현되지 않았습니다.");
     }
 }

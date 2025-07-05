@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.post.application;
 import com.ceos.beatbuddy.domain.comment.repository.CommentRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.post.dto.PostInteractionStatus;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
 import com.ceos.beatbuddy.domain.post.repository.PostRepository;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PostLikeScrapService {
+public class PostInteractionService {
     private final MemberService memberService;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
@@ -104,21 +105,21 @@ public class PostLikeScrapService {
     }
 
 
-    protected Set<Long> getLikedPostIds(Long memberId, List<Long> postIds) {
+    private Set<Long> getLikedPostIds(Long memberId, List<Long> postIds) {
         return postLikeRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
                 .stream()
                 .map(pl -> pl.getPost().getId())
                 .collect(Collectors.toSet());
     }
 
-    protected Set<Long> getCommentedPostIds(Long memberId, List<Long> postIds) {
+    private Set<Long> getCommentedPostIds(Long memberId, List<Long> postIds) {
         return commentRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
                 .stream()
                 .map(c -> c.getPost().getId())
                 .collect(Collectors.toSet());
     }
 
-    protected Set<Long> getScrappedPostIds(Long memberId, List<Long> postIds) {
+    private Set<Long> getScrappedPostIds(Long memberId, List<Long> postIds) {
         return postScrapRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
                 .stream()
                 .map(ps -> ps.getPost().getId())
@@ -129,6 +130,14 @@ public class PostLikeScrapService {
         return  postRepository.findById(postId).orElseThrow(
                 () -> new CustomException(PostErrorCode.POST_NOT_EXIST)
         );
+    }
+
+    public PostInteractionStatus getAllPostInteractions(Long memberId, List<Long> postIds) {
+        Set<Long> liked = getLikedPostIds(memberId, postIds);
+        Set<Long> scrapped = getScrappedPostIds(memberId, postIds);
+        Set<Long> commented = getCommentedPostIds(memberId, postIds);
+
+        return new PostInteractionStatus(liked, scrapped, commented);
     }
 
 }

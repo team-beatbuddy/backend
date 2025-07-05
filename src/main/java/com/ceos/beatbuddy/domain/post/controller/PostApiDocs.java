@@ -468,7 +468,9 @@ public interface PostApiDocs {
             @ApiResponse(responseCode = "404", description = "해시태그가 존재하지 않음",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = {@ExampleObject(name = "존재하지 않는 해시태그", value = SwaggerExamples.NOT_FOUND_HASHTAG)}
+                            examples = {@ExampleObject(name = "존재하지 않는 해시태그", value = SwaggerExamples.NOT_FOUND_HASHTAG),
+                                        @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)
+                            }
                     )
             )
     })
@@ -477,6 +479,78 @@ public interface PostApiDocs {
             @Parameter(description = "페이지 번호")
             @RequestParam(defaultValue = "1") int page,
             @Parameter(description = "페이지 당 요청할 게시물 개수")
+            @RequestParam(defaultValue = "10") int size);
+
+
+    @Operation(summary = "사용자 게시글 조회", description = "특정 사용자의 게시글을 조회합니다. 익명으로 작성한 글은 뜨지 않습니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "사용자 게시글 조회 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = PostListResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                            {
+                              "status": 200,
+                              "code": "GET_USER_POST_LIST",
+                              "message": "사용자가 작성한 포스트 목록을 성공적으로 조회했습니다.",
+                              "data": {
+                                "totalPost": 2,
+                                "size": 10,
+                                "page": 1,
+                                "responseDTOS": [
+                                  {
+                                    "id": 15,
+                                    "title": "ㄷㅇㄷ",
+                                    "content": "ㄷㄱㄷㄱㄷ",
+                                    "role": "ADMIN",
+                                    "likes": 0,
+                                    "scraps": 0,
+                                    "comments": 0,
+                                    "liked": false,
+                                    "scrapped": false,
+                                    "hasCommented": false,
+                                    "nickname": "노태1",
+                                    "createAt": "2025-04-16",
+                                    "hashtags": []
+                                  },
+                                  {
+                                    "id": 14,
+                                    "title": "ㅎ",
+                                    "content": "ㄹㄹ",
+                                    "role": "ADMIN",
+                                    "likes": 0,
+                                    "scraps": 0,
+                                    "comments": 0,
+                                    "liked": false,
+                                    "scrapped": false,
+                                    "hasCommented": false,
+                                    "nickname": "노태1",
+                                    "createAt": "2025-04-16",
+                                    "hashtags": ["홍대", "이태원"]
+                                  }
+                                ]
+                              }
+                            }
+                            """))
+            ),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {@ExampleObject(name = "잘못된 type 예시", value = SwaggerExamples.INVALID_POST_TYPE),
+                                        @ExampleObject(name = "잘못된 페이지 요청", value = SwaggerExamples.PAGE_OUT_OF_BOUNDS)}
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 유저",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<PostListResponseDTO>> getUserPosts(
+            @PathVariable Long userId,
+            @RequestParam String type,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size);
 
 }

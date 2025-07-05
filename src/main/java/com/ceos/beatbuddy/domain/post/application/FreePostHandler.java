@@ -1,10 +1,7 @@
 package com.ceos.beatbuddy.domain.post.application;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
-import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
-import com.ceos.beatbuddy.domain.post.dto.PostPageResponseDTO;
-import com.ceos.beatbuddy.domain.post.dto.UpdatePostRequestDTO;
+import com.ceos.beatbuddy.domain.post.dto.*;
 import com.ceos.beatbuddy.domain.post.entity.FixedHashtag;
 import com.ceos.beatbuddy.domain.post.entity.FreePost;
 import com.ceos.beatbuddy.domain.post.entity.Post;
@@ -17,17 +14,13 @@ import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component("free")
 @RequiredArgsConstructor
@@ -35,7 +28,7 @@ public class FreePostHandler implements PostTypeHandler{
     private final FreePostRepository freePostRepository;
     private final VenueInfoService venueInfoService;
     private final FreePostSearchService freePostSearchService;
-    private final PostLikeScrapService postLikeScrapService;
+    private final PostInteractionService postInteractionService;
     private final PostQueryRepository postQueryRepository;
 
     @Override
@@ -119,11 +112,15 @@ public class FreePostHandler implements PostTypeHandler{
         return post;
     }
 
+    @Override
+    public Page<? extends Post> readAllPostsByUserExcludingAnonymous(Long userId, Pageable pageable) {
+        return postQueryRepository.readAllPostsByUserExcludingAnonymous(userId, pageable);
+    }
 
     // 해시태그로 게시글 목록 불러오기
     @Override
     @Transactional(readOnly = true)
-    public PostListResponseDTO hashTagPostList(List<String> hashtags, int page, int size, Member member) {
+    public PostListResponseDTO hashTagPostList(List<String> hashtags, Pageable pageable, Member member) {
         if (hashtags == null || hashtags.isEmpty()) {
             throw new CustomException(PostErrorCode.NOT_FOUND_HASHTAG);
         }
@@ -131,17 +128,14 @@ public class FreePostHandler implements PostTypeHandler{
         // 해시태그 유효성 검사 및 변환
         List<FixedHashtag> fixedHashtags = validateAndGetHashtags(hashtags);
 
-        // 최신순 정렬
-        Pageable pageable = PageRequest.of(Math.max(page - 1, 0), size);
-
         // 정렬은 QueryDSL 내부에서 처리 (createdAt DESC)
         Page<FreePost> posts = postQueryRepository.findPostsByHashtags(fixedHashtags, pageable);
 
         if (posts.isEmpty()) {
             return PostListResponseDTO.builder()
                     .totalPost(0)
-                    .page(page)
-                    .size(size)
+                    .page(pageable.getPageNumber())
+                    .size(pageable.getPageSize())
                     .responseDTOS(Collections.emptyList())
                     .build();
         }
@@ -149,24 +143,24 @@ public class FreePostHandler implements PostTypeHandler{
         List<Long> postIds = posts.stream().map(Post::getId).toList();
 
 
-        Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(member.getId(), postIds);
-        Set<Long> scrappedPostIds = postLikeScrapService.getScrappedPostIds(member.getId(), postIds);
-        Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(member.getId(), postIds);
+        // 회원의 상호작용 정보 조회
+        PostInteractionStatus status = postInteractionService.getAllPostInteractions(member.getId(), postIds);
+
 
         List<PostPageResponseDTO> dtos = posts.stream()
                 .map(post -> PostPageResponseDTO.toDTO(
                         post,
-                        likedPostIds.contains(post.getId()),
-                        scrappedPostIds.contains(post.getId()),
-                        commentedPostIds.contains(post.getId()),
+                        status.likedPostIds().contains(post.getId()),
+                        status.scrappedPostIds().contains(post.getId()),
+                        status.commentedPostIds().contains(post.getId()),
                         post.getHashtag()
                 ))
                 .toList();
 
         return PostListResponseDTO.builder()
                 .totalPost((int) posts.getTotalElements())
-                .page(page)
-                .size(size)
+                .page(pageable.getPageNumber())
+                .size(pageable.getPageSize())
                 .responseDTOS(dtos)
                 .build();
     }
