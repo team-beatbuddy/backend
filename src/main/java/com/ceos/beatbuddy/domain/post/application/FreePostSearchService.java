@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.post.application;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import com.ceos.beatbuddy.domain.post.dto.PostInteractionStatus;
 import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
 import com.ceos.beatbuddy.domain.post.dto.PostPageResponseDTO;
 import com.ceos.beatbuddy.domain.post.entity.FreePost;
@@ -28,7 +29,7 @@ public class FreePostSearchService {
 
     private final ElasticsearchClient elasticsearchClient;
     private final FreePostRepository freePostRepository;
-    private final PostLikeScrapService postLikeScrapService;
+    private final PostInteractionService postInteractionService;
 
     public void save(FreePost post) {
         try {
@@ -102,17 +103,15 @@ public class FreePostSearchService {
                     .toList();
 
             // 4. 좋아요/스크랩/댓글 여부 IN 쿼리
-            Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(memberId, postIds);
-            Set<Long> scrappedPostIds = postLikeScrapService.getScrappedPostIds(memberId, postIds);
-            Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(memberId, postIds);
+            PostInteractionStatus status = postInteractionService.getAllPostInteractions(memberId, postIds);
 
             // 5. DTO로 변환
             List<PostPageResponseDTO> dtoList = orderedPosts.stream()
                     .map(post -> PostPageResponseDTO.toDTO(
                             post,
-                            likedPostIds.contains(post.getId()),
-                            scrappedPostIds.contains(post.getId()),
-                            commentedPostIds.contains(post.getId()),
+                            status.likedPostIds().contains(post.getId()),
+                            status.scrappedPostIds().contains(post.getId()),
+                            status.commentedPostIds().contains(post.getId()),
                             post.getHashtag() != null ? post.getHashtag() : Collections.emptyList()
                     ))
                     .toList();
