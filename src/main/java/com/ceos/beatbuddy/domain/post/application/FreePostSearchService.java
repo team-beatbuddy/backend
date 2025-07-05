@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.post.application;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.ceos.beatbuddy.domain.post.dto.PostInteractionStatus;
 import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
 import com.ceos.beatbuddy.domain.post.dto.PostPageResponseDTO;
@@ -10,15 +11,14 @@ import com.ceos.beatbuddy.domain.post.entity.FreePostDocument;
 import com.ceos.beatbuddy.domain.post.repository.FreePostRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
-import com.ceos.beatbuddy.global.code.SuccessCode;
 import lombok.RequiredArgsConstructor;
-import co.elastic.clients.elasticsearch.core.search.Hit;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 

@@ -1,7 +1,6 @@
 package com.ceos.beatbuddy.domain.post.controller;
 
 import com.ceos.beatbuddy.domain.post.application.PostInteractionService;
-import com.ceos.beatbuddy.domain.post.application.PostLikeScrapService;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;

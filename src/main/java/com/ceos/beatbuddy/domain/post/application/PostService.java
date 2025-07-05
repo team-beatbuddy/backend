@@ -12,8 +12,6 @@ import com.ceos.beatbuddy.domain.post.repository.PiecePostRepository;
 import com.ceos.beatbuddy.domain.post.repository.PostQueryRepository;
 import com.ceos.beatbuddy.domain.post.repository.PostRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostInteractionId;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.PostLike;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.PostScrap;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostLikeRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostScrapRepository;
 import com.ceos.beatbuddy.global.CustomException;
@@ -30,9 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -249,7 +244,6 @@ public class PostService {
         // 조회하고자 하는 사용자
         memberService.validateAndGetMember(userId);
 
-
         // 타입 유효성 검사
         validatePostType(type);
 
@@ -285,7 +279,7 @@ public class PostService {
 
         return PostListResponseDTO.builder()
                 .totalPost((int) postPage.getTotalElements())
-                .page(postPage.getNumber())
+                .page(postPage.getNumber() + 1)
                 .size(postPage.getSize())
                 .responseDTOS(dtoList)
                 .build();
