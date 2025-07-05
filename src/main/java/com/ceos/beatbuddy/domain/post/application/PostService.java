@@ -290,7 +290,6 @@ public class PostService {
     // 주어진 타입이 올바른지 확인
     private void validatePostType(String type) {
         if (!VALID_POST_TYPES.contains(type)) {
-            System.err.println("Invalid post type: " + type);
             throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
         }
     }

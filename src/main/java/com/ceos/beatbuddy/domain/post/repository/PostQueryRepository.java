@@ -13,5 +13,5 @@ public interface PostQueryRepository {
 
     Page<FreePost> findPostsByHashtags(List<FixedHashtag> hashtags, Pageable pageable);
 
-    Page<FreePost>readAllPostsByUserExcludingAnonymous(Long userId, Pageable pageable);
+    Page<FreePost> readAllPostsByUserExcludingAnonymous(Long userId, Pageable pageable);
 }
