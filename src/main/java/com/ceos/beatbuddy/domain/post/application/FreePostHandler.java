@@ -1,10 +1,7 @@
 package com.ceos.beatbuddy.domain.post.application;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
-import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
-import com.ceos.beatbuddy.domain.post.dto.PostPageResponseDTO;
-import com.ceos.beatbuddy.domain.post.dto.UpdatePostRequestDTO;
+import com.ceos.beatbuddy.domain.post.dto.*;
 import com.ceos.beatbuddy.domain.post.entity.FixedHashtag;
 import com.ceos.beatbuddy.domain.post.entity.FreePost;
 import com.ceos.beatbuddy.domain.post.entity.Post;
@@ -35,7 +32,7 @@ public class FreePostHandler implements PostTypeHandler{
     private final FreePostRepository freePostRepository;
     private final VenueInfoService venueInfoService;
     private final FreePostSearchService freePostSearchService;
-    private final PostLikeScrapService postLikeScrapService;
+    private final PostInteractionService postInteractionService;
     private final PostQueryRepository postQueryRepository;
 
     @Override
@@ -150,16 +147,16 @@ public class FreePostHandler implements PostTypeHandler{
         List<Long> postIds = posts.stream().map(Post::getId).toList();
 
 
-        Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(member.getId(), postIds);
-        Set<Long> scrappedPostIds = postLikeScrapService.getScrappedPostIds(member.getId(), postIds);
-        Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(member.getId(), postIds);
+        // 회원의 상호작용 정보 조회
+        PostInteractionStatus status = postInteractionService.getAllPostInteractions(member.getId(), postIds);
+
 
         List<PostPageResponseDTO> dtos = posts.stream()
                 .map(post -> PostPageResponseDTO.toDTO(
                         post,
-                        likedPostIds.contains(post.getId()),
-                        scrappedPostIds.contains(post.getId()),
-                        commentedPostIds.contains(post.getId()),
+                        status.likedPostIds().contains(post.getId()),
+                        status.scrappedPostIds().contains(post.getId()),
+                        status.commentedPostIds().contains(post.getId()),
                         post.getHashtag()
                 ))
                 .toList();
