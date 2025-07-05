@@ -12,4 +12,6 @@ public interface PostQueryRepository {
     List<Post> findHotPostsWithin12Hours();
 
     Page<FreePost> findPostsByHashtags(List<FixedHashtag> hashtags, Pageable pageable);
+
+    Page<FreePost> readAllPostsByUserExcludingAnonymous(Long userId, Pageable pageable);
 }

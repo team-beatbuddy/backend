@@ -12,8 +12,6 @@ import com.ceos.beatbuddy.domain.post.repository.PiecePostRepository;
 import com.ceos.beatbuddy.domain.post.repository.PostQueryRepository;
 import com.ceos.beatbuddy.domain.post.repository.PostRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostInteractionId;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.PostLike;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.PostScrap;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostLikeRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostScrapRepository;
 import com.ceos.beatbuddy.global.CustomException;
@@ -30,9 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -49,7 +44,7 @@ public class PostService {
     private final PostTypeHandlerFactory postTypeHandlerFactory;
     private final UploadUtil uploadUtil;
     private final PostRepository postRepository;
-    private final PostLikeScrapService postLikeScrapService;
+    private final PostInteractionService postInteractionService;
 
     private static final List<String> VALID_POST_TYPES = List.of("free", "piece");
 
@@ -98,41 +93,15 @@ public class PostService {
         if (page < 1) {
             throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
         }
-        int offset = page - 1;
-        Pageable pageable = PageRequest.of(offset, size, sortOption);
+
+        Pageable pageable = PageRequest.of(page-1, size, sortOption);
 
         Member member = memberService.validateAndGetMember(memberId);
 
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
         Page<? extends Post> postPage = handler.readAllPosts(pageable);
 
-        List<? extends Post> posts = postPage.getContent();
-        List<Long> postIds = posts.stream().map(Post::getId).toList();
-
-        // 좋아요/스크랩/댓글 여부를 IN 쿼리로 한 번에 조회
-        Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(member.getId(), postIds);
-
-        Set<Long> scrappedPostIds = postLikeScrapService.getScrappedPostIds(member.getId(), postIds);
-
-        Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(member.getId(), postIds);
-
-
-        List<PostPageResponseDTO> dtoList = posts.stream()
-                .map(post -> PostPageResponseDTO.toDTO(
-                        post,
-                        likedPostIds.contains(post.getId()),
-                        scrappedPostIds.contains(post.getId()),
-                        commentedPostIds.contains(post.getId()),
-                        postRepository.findHashtagsByPostId(post.getId())
-                ))
-                .toList();
-
-        return PostListResponseDTO.builder()
-                .totalPost((int) postPage.getTotalElements())
-                .page(postPage.getNumber())
-                .size(postPage.getSize())
-                .responseDTOS(dtoList)
-                .build();
+        return getPostListResponseDTO(postPage, memberId);
     }
 
 
@@ -153,19 +122,14 @@ public class PostService {
                 .map(Post::getId)
                 .toList();
 
-        Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(member.getId(), postIds);
-
-        Set<Long> scrappedPostIds = postLikeScrapService.getScrappedPostIds(member.getId(), postIds);
-
-        Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(member.getId(), postIds);
-
+        PostInteractionStatus status = postInteractionService.getAllPostInteractions(memberId, postIds);
 
         return posts.stream()
                 .map(post -> PostPageResponseDTO.toDTO(
                         post,
-                        likedPostIds.contains(post.getId()),
-                        scrappedPostIds.contains(post.getId()),
-                        commentedPostIds.contains(post.getId()),
+                        status.likedPostIds().contains(post.getId()),
+                        status.scrappedPostIds().contains(post.getId()),
+                        status.commentedPostIds().contains(post.getId()),
                         postRepository.findHashtagsByPostId(post.getId())
                 ))
                 .toList();
@@ -174,8 +138,15 @@ public class PostService {
     public PostListResponseDTO getHashtagPosts(Long memberId, List<String> hashtags, int page, int size) {
         Member member = memberService.validateAndGetMember(memberId);
 
+        if (page < 1) {
+            throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
+        }
+
+        Pageable pageable = PageRequest.of(page -1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
         PostTypeHandler handler = postTypeHandlerFactory.getHandler("free");
-        return handler.hashTagPostList(hashtags, page, size, member);
+
+        return handler.hashTagPostList(hashtags, pageable, member);
     }
 
 
@@ -222,18 +193,16 @@ public class PostService {
                 .map(Post::getId)
                 .toList();
 
-        // 4. 연관 정보 bulk 조회ㅎ
-        Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(member.getId(), postIds);
-
-        Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(member.getId(), postIds);
+        // 4. 연관 정보 bulk 조회
+        PostInteractionStatus status = postInteractionService.getAllPostInteractions(memberId, postIds);
 
         // 5. DTO 매핑
         List<PostPageResponseDTO> dtos = filteredPosts.stream()
                 .map(post -> PostPageResponseDTO.toDTO(
                         post,
-                        likedPostIds.contains(post.getId()),
+                        status.likedPostIds().contains(post.getId()),
                         true, // 어차피 스크랩된 게시글이니까
-                        commentedPostIds.contains(post.getId()),
+                        status.commentedPostIds().contains(post.getId()),
                         postRepository.findHashtagsByPostId(post.getId())
                 ))
                 .toList();
@@ -256,40 +225,67 @@ public class PostService {
         if (page < 1) {
             throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
         }
+
+        // 타입 유효성 검사
+        validatePostType(type);
+
         Pageable pageable = PageRequest.of(page-1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<? extends Post> postPage;
 
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
         postPage = handler.readAllPosts(pageable);
 
+        return getPostListResponseDTO(postPage, memberId);
+    }
+
+    public PostListResponseDTO getUserPostsByType(Long memberId, Long userId, String type, int page, int size) {
+        // 로그인한 사용자의 유효성 검사
+        memberService.validateAndGetMember(memberId);
+        // 조회하고자 하는 사용자
+        memberService.validateAndGetMember(userId);
+
+        // 타입 유효성 검사
+        validatePostType(type);
+
+        if (page < 1) {
+            throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
+        }
+
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
+        Page<? extends Post> postPage = handler.readAllPostsByUserExcludingAnonymous(userId, pageable);
+
+        return getPostListResponseDTO(postPage, memberId);
+    }
+
+
+    private PostListResponseDTO getPostListResponseDTO(Page<? extends Post> postPage, Long memberId) {
         List<? extends Post> posts = postPage.getContent();
         List<Long> postIds = posts.stream().map(Post::getId).toList();
 
-        // 연관 정보 bulk 조회
-        Set<Long> likedPostIds = postLikeScrapService.getLikedPostIds(member.getId(), postIds);
+        // 좋아요/스크랩/댓글 여부를 IN 쿼리로 한 번에 조회
+        PostInteractionStatus status = postInteractionService.getAllPostInteractions(memberId, postIds);
 
-        Set<Long> scrappedPostIds = postLikeScrapService.getScrappedPostIds(member.getId(), postIds);
-
-        Set<Long> commentedPostIds = postLikeScrapService.getCommentedPostIds(member.getId(), postIds);
-
-        // DTO 매핑
-        List<PostPageResponseDTO> dtos = posts.stream()
+        List<PostPageResponseDTO> dtoList = posts.stream()
                 .map(post -> PostPageResponseDTO.toDTO(
                         post,
-                        likedPostIds.contains(post.getId()),
-                        scrappedPostIds.contains(post.getId()),
-                        commentedPostIds.contains(post.getId()),
+                        status.likedPostIds().contains(post.getId()),
+                        status.scrappedPostIds().contains(post.getId()),
+                        status.commentedPostIds().contains(post.getId()),
                         postRepository.findHashtagsByPostId(post.getId())
                 ))
                 .toList();
 
         return PostListResponseDTO.builder()
                 .totalPost((int) postPage.getTotalElements())
-                .page(postPage.getNumber())
+                .page(postPage.getNumber() + 1)
                 .size(postPage.getSize())
-                .responseDTOS(dtos)
+                .responseDTOS(dtoList)
                 .build();
     }
+
+
 
     // 주어진 타입이 올바른지 확인
     private void validatePostType(String type) {
