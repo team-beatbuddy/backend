@@ -1,7 +1,6 @@
 package com.ceos.beatbuddy.domain.post.dto;
 
 import com.ceos.beatbuddy.domain.post.entity.FixedHashtag;
-import com.ceos.beatbuddy.domain.post.entity.FreePost;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.AllArgsConstructor;

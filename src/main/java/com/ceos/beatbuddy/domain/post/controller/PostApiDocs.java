@@ -490,56 +490,46 @@ public interface PostApiDocs {
                             schema = @Schema(implementation = PostListResponseDTO.class),
                             examples = @ExampleObject(value = """
                             {
-                              "totalPost": 9,
-                              "size": 20,
-                              "page": 0,
-                              "responseDTOS": [
-                                {
-                                  "id": 11,
-                                  "title": "ddfdfsdf",
-                                  "content": "dfdfsdfasdfasdf",
-                                  "role": "ADMIN",
-                                  "likes": 0,
-                                  "scraps": 1,
-                                  "comments": 0,
-                                  "liked": false,
-                                  "scrapped": false,
-                                  "hasCommented": false,
-                                  "nickname": "노태1",
-                                  "createAt": "2025-04-16",
-                                  "hashtags": ["홍대"]
-                                },
-                                {
-                                  "id": 10,
-                                  "title": "ddkkdkdk",
-                                  "content": "sdkdkkdd",
-                                  "role": "ADMIN",
-                                  "likes": 0,
-                                  "scraps": 1,
-                                  "comments": 0,
-                                  "liked": false,
-                                  "scrapped": false,
-                                  "hasCommented": false,
-                                  "nickname": "노태1",
-                                  "createAt": "2025-04-16",
-                                  "hashtags": []
-                                },
-                                {
-                                  "id": 9,
-                                  "title": "dd",
-                                  "content": "ddd",
-                                  "role": "ADMIN",
-                                  "likes": 0,
-                                  "scraps": 1,
-                                  "comments": 0,
-                                  "liked": false,
-                                  "scrapped": false,
-                                  "hasCommented": false,
-                                  "nickname": "노태1",
-                                  "createAt": "2025-04-16",
-                                  "hashtags": []
-                                }
-                              ]
+                              "status": 200,
+                              "code": "GET_USER_POST_LIST",
+                              "message": "사용자가 작성한 포스트 목록을 성공적으로 조회했습니다.",
+                              "data": {
+                                "totalPost": 2,
+                                "size": 10,
+                                "page": 1,
+                                "responseDTOS": [
+                                  {
+                                    "id": 15,
+                                    "title": "ㄷㅇㄷ",
+                                    "content": "ㄷㄱㄷㄱㄷ",
+                                    "role": "ADMIN",
+                                    "likes": 0,
+                                    "scraps": 0,
+                                    "comments": 0,
+                                    "liked": false,
+                                    "scrapped": false,
+                                    "hasCommented": false,
+                                    "nickname": "노태1",
+                                    "createAt": "2025-04-16",
+                                    "hashtags": []
+                                  },
+                                  {
+                                    "id": 14,
+                                    "title": "ㅎ",
+                                    "content": "ㄹㄹ",
+                                    "role": "ADMIN",
+                                    "likes": 0,
+                                    "scraps": 0,
+                                    "comments": 0,
+                                    "liked": false,
+                                    "scrapped": false,
+                                    "hasCommented": false,
+                                    "nickname": "노태1",
+                                    "createAt": "2025-04-16",
+                                    "hashtags": ["홍대", "이태원"]
+                                  }
+                                ]
+                              }
                             }
                             """))
             ),
@@ -557,7 +547,7 @@ public interface PostApiDocs {
                     )
             )
     })
-    ResponseEntity<PostListResponseDTO> getUserPosts(
+    ResponseEntity<ResponseDTO<PostListResponseDTO>> getUserPosts(
             @PathVariable Long userId,
             @RequestParam String type,
             @RequestParam(defaultValue = "1") int page,

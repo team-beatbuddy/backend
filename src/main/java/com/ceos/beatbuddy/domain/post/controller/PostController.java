@@ -8,9 +8,6 @@ import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -176,14 +173,16 @@ public class PostController implements PostApiDocs {
 
     @Override
     @GetMapping("/user/{userId}")
-    public ResponseEntity<PostListResponseDTO> getUserPosts(
+    public ResponseEntity<ResponseDTO<PostListResponseDTO>> getUserPosts(
             @PathVariable Long userId,
             @RequestParam String type,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size)  {
         Long memberId = SecurityUtils.getCurrentMemberId();
         PostListResponseDTO result = postService.getUserPostsByType(memberId, userId, type, page, size);
-        return ResponseEntity.ok(result);
+        return ResponseEntity
+                .status(SuccessCode.GET_USER_POST_LIST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.GET_USER_POST_LIST, result));
     }
 
 
