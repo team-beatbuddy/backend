@@ -190,7 +190,7 @@ public class MagazineService {
      * @throws CustomException 매거진이 존재하지 않거나, 표시되지 않거나, 이미 좋아요를 등록한 경우
      */
     @Transactional
-    public MagazineDetailDTO likeMagazine(Long magazineId, Long memberId) {
+    public void likeMagazine(Long magazineId, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
 
         // 엔티티 검색
@@ -207,10 +207,6 @@ public class MagazineService {
         MagazineLike entity = MagazineLike.toEntity(member, magazine);
         magazineLikeRepository.save(entity);
         magazineRepository.increaseLike(magazineId);
-
-        Magazine updatedEntity = this.validateAndGetMagazine(magazineId);
-
-        return MagazineDetailDTO.toDTO(updatedEntity, true);
     }
 
     /**
@@ -222,7 +218,7 @@ public class MagazineService {
      * @throws CustomException 좋아요가 존재하지 않거나, 매거진/회원이 존재하지 않는 경우
      */
     @Transactional
-    public MagazineDetailDTO deleteLikeMagazine(Long magazineId, Long memberId) {
+    public void deleteLikeMagazine(Long magazineId, Long memberId) {
         memberService.validateAndGetMember(memberId);
 
         // 엔티티 검색
@@ -236,10 +232,6 @@ public class MagazineService {
 
         magazineLikeRepository.delete(magazineLike);
         magazineRepository.decreaseLike(magazineId);
-
-        Magazine updatedEntity = this.validateAndGetMagazine(magazineId);
-
-        return MagazineDetailDTO.toDTO(updatedEntity, false);
     }
 
     /**

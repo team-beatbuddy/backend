@@ -34,7 +34,7 @@ public class MagazineDetailDTO {
                 .magazineId(magazine.getId())
                 .title(magazine.getTitle())
                 .content(magazine.getContent())
-                .thumbImage(magazine.getThumbImage())
+                .thumbImage(magazine.getThumbImage() != null ? magazine.getThumbImage() : "")
                 .imageUrls(magazine.getImageUrls() != null ? magazine.getImageUrls() : Collections.emptyList())
                 .writerId(magazine.getMember().getId())
                 .likes(magazine.getLikes())

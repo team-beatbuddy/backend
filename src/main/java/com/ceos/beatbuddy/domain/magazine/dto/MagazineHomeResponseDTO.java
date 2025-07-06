@@ -21,7 +21,7 @@ public class MagazineHomeResponseDTO {
     public static MagazineHomeResponseDTO toDTO(Magazine magazine, boolean liked) {
         return MagazineHomeResponseDTO.builder()
                 .magazineId(magazine.getId())
-                .thumbImageUrl(magazine.getThumbImage())
+                .thumbImageUrl(magazine.getThumbImage() != null ? magazine.getThumbImage() : "")
                 .title(magazine.getTitle())
                 .content(magazine.getContent())
                 .liked(liked)
