@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.event.dto;
 
 import com.ceos.beatbuddy.domain.event.entity.EventComment;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,7 +21,15 @@ public class EventCommentResponseDTO {
     private boolean anonymous;
     private LocalDateTime createdAt;
 
-    public static EventCommentResponseDTO toDTO(EventComment eventComment) {
+
+    @JsonProperty("isAuthor")
+    private Boolean isAuthor;
+
+    public Boolean getIsAuthor() {
+        return isAuthor;
+    }
+
+    public static EventCommentResponseDTO toDTO(EventComment eventComment, boolean isAuthor) {
         return EventCommentResponseDTO.builder()
                 .commentId(eventComment.getId())
                 .commentLevel(eventComment.getLevel())
@@ -28,6 +37,7 @@ public class EventCommentResponseDTO {
                 .authorNickname(eventComment.isAnonymous() ? "익명" : eventComment.getAuthor().getNickname())
                 .anonymous(eventComment.isAnonymous())
                 .createdAt(eventComment.getCreatedAt())
+                .isAuthor(isAuthor)
                 .build();
     }
 }

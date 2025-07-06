@@ -118,24 +118,49 @@ public interface PostApiDocs {
                               "code": "GET_SCRAPPED_POST_LIST",
                               "message": "스크랩한 글을 불러왔습니다.",
                               "data": {
-                                "totalPost": 510,
-                                "size": 1,
-                                "page": 1,
+                                "totalPost": 2,
+                                "size": 10,
+                                "page": 0,
                                 "responseDTOS": [
                                   {
-                                    "id": 532,
-                                    "title": "제목 532",
-                                    "content": "내용 532",
-                                    "thumbImage": null,
+                                    "id": 537,
+                                    "title": "string",
+                                    "content": "string",
                                     "role": "BUSINESS",
-                                    "likes": 0,
-                                    "scraps": 12,
+                                    "likes": 1,
+                                    "scraps": 1,
                                     "comments": 0,
-                                    "liked": true,
+                                    "liked": false,
                                     "scrapped": true,
                                     "hasCommented": false,
-                                    "nickname": "길동hong",
-                                    "createAt": "2025-06-19"
+                                    "nickname": "BeatBuddy",
+                                    "createAt": "2025-07-04",
+                                    "hashtags": [
+                                      "이태원",
+                                      "홍대",
+                                      "강남.신사"
+                                    ],
+                                    "isAuthor": true
+                                  },
+                                  {
+                                    "id": 539,
+                                    "title": "string",
+                                    "content": "string",
+                                    "role": "BUSINESS",
+                                    "likes": 1,
+                                    "scraps": 1,
+                                    "comments": 1,
+                                    "liked": true,
+                                    "scrapped": true,
+                                    "hasCommented": true,
+                                    "nickname": "BeatBuddy",
+                                    "createAt": "2025-07-06",
+                                    "hashtags": [
+                                      "홍대",
+                                      "이태원",
+                                      "뮤직"
+                                    ],
+                                    "isAuthor": true
                                   }
                                 ]
                               }
@@ -171,33 +196,57 @@ public interface PostApiDocs {
                             mediaType = "application/json",
                             schema = @Schema(implementation = PostListResponseDTO.class),
                             examples = @ExampleObject(value = """
-                                    {
-                                      "status": 200,
-                                      "code": "GET_MY_POST_LIST",
-                                      "message": "내가 작성한 글을 불러왔습니다.",
-                                      "data": {
-                                        "totalPost": 22,
-                                        "size": 10,
-                                        "page": 1,
-                                        "responseDTOS": [
-                                          {
-                                            "id": 42,
-                                            "title": "string",
-                                            "content": "string",
-                                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/59863c2f-d--.png",
-                                            "role": "BUSINESS",
-                                            "likes": 0,
-                                            "scraps": 12,
-                                            "comments": 0,
-                                            "liked": true,
-                                            "scrapped": true,
-                                            "hasCommented": false,
-                                            "nickname": "길동hong",
-                                            "createAt": "2025-06-19"
-                                          }
-                                        ]
-                                      }
-                                    }
+                            {
+                              "status": 200,
+                              "code": "GET_MY_POST_LIST",
+                              "message": "내가 작성한 글을 불러왔습니다.",
+                              "data": {
+                                "totalPost": 46,
+                                "size": 10,
+                                "page": 1,
+                                "responseDTOS": [
+                                  {
+                                    "id": 537,
+                                    "title": "string",
+                                    "content": "string",
+                                    "role": "BUSINESS",
+                                    "likes": 1,
+                                    "scraps": 1,
+                                    "comments": 0,
+                                    "liked": false,
+                                    "scrapped": true,
+                                    "hasCommented": false,
+                                    "nickname": "BeatBuddy",
+                                    "createAt": "2025-07-04",
+                                    "hashtags": [
+                                      "이태원",
+                                      "홍대",
+                                      "강남.신사"
+                                    ],
+                                    "isAuthor": true
+                                  },
+                                  {
+                                    "id": 41,
+                                    "title": "string",
+                                    "content": "string",
+                                    "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/3d50a441-6--.png",
+                                    "role": "ADMIN",
+                                    "likes": 0,
+                                    "scraps": 0,
+                                    "comments": 0,
+                                    "liked": false,
+                                    "scrapped": false,
+                                    "hasCommented": false,
+                                    "nickname": "닉네임 수정1",
+                                    "createAt": "2025-06-19",
+                                    "hashtags": [
+                                      "홍대"
+                                    ],
+                                    "isAuthor": false
+                                  }
+                                ]
+                              }
+                            }
                     """))
             ),
             @ApiResponse(responseCode = "400", description = "잘못된 요청",
@@ -252,7 +301,8 @@ public interface PostApiDocs {
                                     "홍대",
                                     "이태원",
                                     "뮤직"
-                                  ]
+                                  ],
+                                  "isAuthor": false
                                 },
                                 {
                                   "id": 538,
@@ -269,7 +319,8 @@ public interface PostApiDocs {
                                   "createAt": "2025-07-06",
                                   "hashtags": [
                                     "홍대"
-                                  ]
+                                  ],
+                                  "isAuthor": false
                                 }
                               ]
                             }
@@ -290,23 +341,26 @@ public interface PostApiDocs {
                       "code": "SUCCESS_GET_POST",
                       "message": "포스트를 불러왔습니다",
                       "data": {
-                        "id": 23,
-                        "title": "",
-                        "content": "",
-                        "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                        "id": 537,
+                        "title": "string",
+                        "content": "string",
                         "role": "BUSINESS",
-                        "likes": 0,
-                        "scraps": 0,
+                        "likes": 1,
+                        "scraps": 1,
                         "comments": 0,
                         "liked": false,
-                        "scrapped": false,
+                        "scrapped": true,
                         "hasCommented": false,
-                        "nickname": "길동hong",
-                        "createAt": "2025-06-19",
-                        "imageUrls": [
-                          "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png"
+                        "nickname": "BeatBuddy",
+                        "createAt": "2025-07-04",
+                        "hashtags": [
+                          "이태원",
+                          "홍대",
+                          "강남.신사"
                         ],
-                        "views": 4
+                        "isAuthor": true,
+                        "imageUrls": ["https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png"],
+                        "views": 1
                       }
                     }
             """))
@@ -358,7 +412,14 @@ public interface PostApiDocs {
                                         "createAt": "2025-06-19",
                                         "imageUrls": [
                                           "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png"
-                                        ]
+                                        ],
+                                        "hashtags": [
+                                          "홍대",
+                                          "이태원",
+                                          "뮤직"
+                                        ],
+                                        "views": 1,
+                                        "isAuthor": true
                                       }
                                     }
                         """
@@ -426,15 +487,94 @@ public interface PostApiDocs {
                       "code": "SUCCESS_GET_POST_SORT_LIST",
                       "message": "type 에 맞는 post를 불러왔습니다.",
                       "data": {
-                        "totalPost": 44,
+                        "totalPost": 46,
                         "size": 10,
                         "page": 1,
                         "responseDTOS": [
                           {
+                            "id": 539,
+                            "title": "제목 수정",
+                            "content": "string",
+                            "thumbImage": "",
+                            "role": "BUSINESS",
+                            "likes": 1,
+                            "scraps": 1,
+                            "comments": 1,
+                            "liked": true,
+                            "scrapped": true,
+                            "hasCommented": true,
+                            "nickname": "BeatBuddy",
+                            "createAt": "2025-07-06",
+                            "hashtags": [
+                              "홍대",
+                              "이태원",
+                              "뮤직"
+                            ],
+                            "isAuthor": true
+                          },
+                          {
+                            "id": 538,
+                            "title": "",
+                            "content": "string",
+                            "thumbImage": "",
+                            "role": "BUSINESS",
+                            "likes": 1,
+                            "scraps": 0,
+                            "comments": 0,
+                            "liked": false,
+                            "scrapped": false,
+                            "hasCommented": false,
+                            "nickname": "BeatBuddy",
+                            "createAt": "2025-07-06",
+                            "hashtags": [
+                              "홍대"
+                            ],
+                            "isAuthor": true
+                          },
+                          {
                             "id": 537,
                             "title": "string",
                             "content": "string",
-                            "role": "USER",
+                            "thumbImage": "",
+                            "role": "BUSINESS",
+                            "likes": 1,
+                            "scraps": 1,
+                            "comments": 0,
+                            "liked": false,
+                            "scrapped": true,
+                            "hasCommented": false,
+                            "nickname": "BeatBuddy",
+                            "createAt": "2025-07-04",
+                            "hashtags": [
+                              "이태원",
+                              "홍대",
+                              "강남.신사"
+                            ],
+                            "isAuthor": true
+                          },
+                          {
+                            "id": 536,
+                            "title": "string",
+                            "content": "string",
+                            "thumbImage": "",
+                            "role": "BUSINESS",
+                            "likes": 0,
+                            "scraps": 0,
+                            "comments": 0,
+                            "liked": false,
+                            "scrapped": false,
+                            "hasCommented": false,
+                            "nickname": "BeatBuddy",
+                            "createAt": "2025-07-04",
+                            "hashtags": [],
+                            "isAuthor": true
+                          },
+                          {
+                            "id": 535,
+                            "title": "string",
+                            "content": "string",
+                            "thumbImage": "",
+                            "role": "BUSINESS",
                             "likes": 0,
                             "scraps": 0,
                             "comments": 0,
@@ -444,10 +584,104 @@ public interface PostApiDocs {
                             "nickname": "BeatBuddy",
                             "createAt": "2025-07-04",
                             "hashtags": [
-                              "이태원",
-                              "홍대",
-                              "강남.신사"
-                            ]
+                              "홍대"
+                            ],
+                            "isAuthor": true
+                          },
+                          {
+                            "id": 534,
+                            "title": "string",
+                            "content": "string",
+                            "thumbImage": "",
+                            "role": "BUSINESS",
+                            "likes": 0,
+                            "scraps": 0,
+                            "comments": 0,
+                            "liked": false,
+                            "scrapped": false,
+                            "hasCommented": false,
+                            "nickname": "BeatBuddy",
+                            "createAt": "2025-07-04",
+                            "hashtags": [
+                              "홍대"
+                            ],
+                            "isAuthor": true
+                          },
+                          {
+                            "id": 533,
+                            "title": "string",
+                            "content": "string",
+                            "thumbImage": "",
+                            "role": "ADMIN",
+                            "likes": 1,
+                            "scraps": 0,
+                            "comments": 0,
+                            "liked": false,
+                            "scrapped": false,
+                            "hasCommented": false,
+                            "nickname": "닉네임 수정1",
+                            "createAt": "2025-06-22",
+                            "hashtags": [
+                              "홍대"
+                            ],
+                            "isAuthor": false
+                          },
+                          {
+                            "id": 42,
+                            "title": "string",
+                            "content": "string",
+                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/59863c2f-d--.png",
+                            "role": "ADMIN",
+                            "likes": 0,
+                            "scraps": 0,
+                            "comments": 0,
+                            "liked": false,
+                            "scrapped": false,
+                            "hasCommented": false,
+                            "nickname": "닉네임 수정1",
+                            "createAt": "2025-06-19",
+                            "hashtags": [
+                              "홍대"
+                            ],
+                            "isAuthor": false
+                          },
+                          {
+                            "id": 41,
+                            "title": "string",
+                            "content": "string",
+                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/3d50a441-6--.png",
+                            "role": "ADMIN",
+                            "likes": 0,
+                            "scraps": 0,
+                            "comments": 0,
+                            "liked": false,
+                            "scrapped": false,
+                            "hasCommented": false,
+                            "nickname": "닉네임 수정1",
+                            "createAt": "2025-06-19",
+                            "hashtags": [
+                              "홍대"
+                            ],
+                            "isAuthor": false
+                          },
+                          {
+                            "id": 40,
+                            "title": "string",
+                            "content": "string",
+                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/bb16118a-a--.png",
+                            "role": "ADMIN",
+                            "likes": 0,
+                            "scraps": 0,
+                            "comments": 0,
+                            "liked": false,
+                            "scrapped": false,
+                            "hasCommented": false,
+                            "nickname": "닉네임 수정1",
+                            "createAt": "2025-06-19",
+                            "hashtags": [
+                              "홍대"
+                            ],
+                            "isAuthor": false
                           }
                         ]
                       }
@@ -479,20 +713,42 @@ public interface PostApiDocs {
                               "code": "SUCCESS_GET_POST_LIST_BY_HASHTAG",
                               "message": "해시태그에 해당하는 포스트 목록을 성공적으로 조회했습니다.",
                               "data": {
-                                "totalPost": 1,
+                                "totalPost": 2,
                                 "size": 10,
-                                "page": 1,
+                                "page": 0,
                                 "responseDTOS": [
+                                  {
+                                    "id": 539,
+                                    "title": "제목 수정",
+                                    "content": "string",
+                                    "thumbImage": "",
+                                    "role": "BUSINESS",
+                                    "likes": 1,
+                                    "scraps": 1,
+                                    "comments": 1,
+                                    "liked": true,
+                                    "scrapped": true,
+                                    "hasCommented": true,
+                                    "nickname": "BeatBuddy",
+                                    "createAt": "2025-07-06",
+                                    "hashtags": [
+                                      "홍대",
+                                      "이태원",
+                                      "뮤직"
+                                    ],
+                                    "isAuthor": true
+                                  },
                                   {
                                     "id": 537,
                                     "title": "string",
                                     "content": "string",
+                                    "thumbImage": "",
                                     "role": "BUSINESS",
-                                    "likes": 0,
-                                    "scraps": 0,
+                                    "likes": 1,
+                                    "scraps": 1,
                                     "comments": 0,
                                     "liked": false,
-                                    "scrapped": false,
+                                    "scrapped": true,
                                     "hasCommented": false,
                                     "nickname": "BeatBuddy",
                                     "createAt": "2025-07-04",
@@ -500,7 +756,8 @@ public interface PostApiDocs {
                                       "이태원",
                                       "홍대",
                                       "강남.신사"
-                                    ]
+                                    ],
+                                    "isAuthor": true
                                   }
                                 ]
                               }
@@ -543,39 +800,64 @@ public interface PostApiDocs {
                               "code": "GET_USER_POST_LIST",
                               "message": "사용자가 작성한 포스트 목록을 성공적으로 조회했습니다.",
                               "data": {
-                                "totalPost": 2,
+                                "totalPost": 3,
                                 "size": 10,
                                 "page": 1,
                                 "responseDTOS": [
                                   {
-                                    "id": 15,
-                                    "title": "ㄷㅇㄷ",
-                                    "content": "ㄷㄱㄷㄱㄷ",
-                                    "role": "ADMIN",
+                                    "id": 536,
+                                    "title": "string",
+                                    "content": "string",
+                                    "thumbImage": "",
+                                    "role": "BUSINESS",
                                     "likes": 0,
                                     "scraps": 0,
                                     "comments": 0,
                                     "liked": false,
                                     "scrapped": false,
                                     "hasCommented": false,
-                                    "nickname": "노태1",
-                                    "createAt": "2025-04-16",
-                                    "hashtags": []
+                                    "nickname": "BeatBuddy",
+                                    "createAt": "2025-07-04",
+                                    "hashtags": [],
+                                    "isAuthor": false
                                   },
                                   {
-                                    "id": 14,
-                                    "title": "ㅎ",
-                                    "content": "ㄹㄹ",
-                                    "role": "ADMIN",
+                                    "id": 535,
+                                    "title": "string",
+                                    "content": "string",
+                                    "thumbImage": "",
+                                    "role": "BUSINESS",
                                     "likes": 0,
                                     "scraps": 0,
                                     "comments": 0,
                                     "liked": false,
                                     "scrapped": false,
                                     "hasCommented": false,
-                                    "nickname": "노태1",
-                                    "createAt": "2025-04-16",
-                                    "hashtags": ["홍대", "이태원"]
+                                    "nickname": "BeatBuddy",
+                                    "createAt": "2025-07-04",
+                                    "hashtags": [
+                                      "홍대"
+                                    ],
+                                    "isAuthor": false
+                                  },
+                                  {
+                                    "id": 534,
+                                    "title": "string",
+                                    "content": "string",
+                                    "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250704_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                                    "role": "BUSINESS",
+                                    "likes": 0,
+                                    "scraps": 0,
+                                    "comments": 0,
+                                    "liked": false,
+                                    "scrapped": false,
+                                    "hasCommented": false,
+                                    "nickname": "BeatBuddy",
+                                    "createAt": "2025-07-04",
+                                    "hashtags": [
+                                      "홍대"
+                                    ],
+                                    "isAuthor": false
                                   }
                                 ]
                               }
@@ -601,5 +883,6 @@ public interface PostApiDocs {
             @RequestParam String type,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size);
+
 
 }

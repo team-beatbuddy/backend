@@ -64,7 +64,8 @@ public class CommentController {
     public ResponseEntity<CommentResponseDto> getComment(
             @PathVariable Long postId,
             @PathVariable Long commentId) {
-        return ResponseEntity.ok(commentService.getComment(commentId));
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        return ResponseEntity.ok(commentService.getComment(commentId, memberId));
     }
 
     @GetMapping
@@ -76,7 +77,8 @@ public class CommentController {
             @PathVariable Long postId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(commentService.getAllComments(postId, page, size));
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        return ResponseEntity.ok(commentService.getAllComments(postId, page, size, memberId));
     }
 
     @PutMapping("/{commentId}")
@@ -115,7 +117,8 @@ public class CommentController {
     public ResponseEntity<CommentResponseDto> addLike(
             @PathVariable Long postId,
             @PathVariable Long commentId) {
-        return ResponseEntity.ok(commentService.addLike(commentId));
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        return ResponseEntity.ok(commentService.addLike(commentId, memberId));
     }
 
     @DeleteMapping("/{commentId}/like")
@@ -126,6 +129,7 @@ public class CommentController {
     public ResponseEntity<CommentResponseDto> deleteLike(
             @PathVariable Long postId,
             @PathVariable Long commentId) {
-        return ResponseEntity.ok(commentService.deleteLike(commentId));
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        return ResponseEntity.ok(commentService.deleteLike(commentId, memberId));
     }
 }
