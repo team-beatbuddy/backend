@@ -85,7 +85,7 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponseDto updateComment(Long commentId, Long memberId, CommentRequestDto requestDto, Long id) {
+public CommentResponseDto updateComment(Long commentId, Long memberId, CommentRequestDto requestDto) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
