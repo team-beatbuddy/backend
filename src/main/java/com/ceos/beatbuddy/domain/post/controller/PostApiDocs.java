@@ -66,6 +66,7 @@ public interface PostApiDocs {
                                               }
                                             }
                                           """),
+                                    @ExampleObject(name = "이미지 최대 20장", value = SwaggerExamples.TOO_MANY_IMAGES_20_EXAMPLE),
                             }
                     )
             ),
@@ -308,31 +309,39 @@ public interface PostApiDocs {
                                     name = "SuccessResponse",
                                     summary = "성공 응답 예시",
                                     value = """
-                        {
-                          "status": 200,
-                          "code": "SUCCESS_UPDATE_POST",
-                          "message": "포스트를 수정했습니다.",
-                          "data": {
-                            "id": 23,
-                            "title": "수정임",
-                            "content": "수정임",
-                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                            "role": "BUSINESS",
-                            "likes": 0,
-                            "scraps": 0,
-                            "comments": 0,
-                            "liked": false,
-                            "scrapped": false,
-                            "hasCommented": false,
-                            "nickname": "길동hong",
-                            "createAt": "2025-06-19",
-                            "imageUrls": [
-                              "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png"
-                            ]
-                          }
-                        }
+                                    {
+                                      "status": 200,
+                                      "code": "SUCCESS_UPDATE_POST",
+                                      "message": "포스트를 수정했습니다.",
+                                      "data": {
+                                        "id": 23,
+                                        "title": "수정임",
+                                        "content": "수정임",
+                                        "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                                        "role": "BUSINESS",
+                                        "likes": 0,
+                                        "scraps": 0,
+                                        "comments": 0,
+                                        "liked": false,
+                                        "scrapped": false,
+                                        "hasCommented": false,
+                                        "nickname": "길동hong",
+                                        "createAt": "2025-06-19",
+                                        "imageUrls": [
+                                          "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png"
+                                        ]
+                                      }
+                                    }
                         """
                             )
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {@ExampleObject(name = "잘못된 type 예시", value = SwaggerExamples.INVALID_POST_TYPE),
+                                    @ExampleObject(name = "이미지 최대 20장", value = SwaggerExamples.TOO_MANY_IMAGES_20_EXAMPLE)
+                            }
                     )
             ),
             @ApiResponse(responseCode = "403", description = "권한 없음",
