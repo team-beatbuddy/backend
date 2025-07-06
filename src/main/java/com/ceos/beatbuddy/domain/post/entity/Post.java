@@ -82,4 +82,9 @@ public abstract class Post extends BaseTimeEntity {
         this.content = content;
     }
 
+    public void setAnonymous(Boolean anonymous) {
+        if (anonymous != null) {
+            this.anonymous = anonymous;
+        }
+    }
 }
