@@ -7,6 +7,9 @@ import com.ceos.beatbuddy.domain.admin.application.AdminService;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.dto.LoginRequest;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
+import com.ceos.beatbuddy.global.code.SuccessCode;
+import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
+import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import java.io.IOException;
@@ -79,11 +82,38 @@ public class AdminController implements AdminApiDocs {
         return adminService.createAdminToken(adminId, request.getId());
     }
 
-
+    @Override
     @PostMapping("/coupons")
-    public void createCoupon(@RequestBody CouponCreateRequestDTO request) {
+    public ResponseEntity<ResponseDTO<String>> createCoupon(@RequestBody CouponCreateRequestDTO request) {
         couponService.createCoupon(request);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_CREATE_COUPON.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATE_COUPON, "쿠폰 등록 성공"));
     }
+
+    @PostMapping("/{receiveCouponId}/use")
+    public ResponseEntity<ResponseDTO<String>> useCoupon(
+            @PathVariable Long receiveCouponId
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        couponService.useCoupon(receiveCouponId, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_USE_COUPON.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_USE_COUPON, "쿠폰 사용 성공"));
+    }
+
+//    @PatchMapping("/{couponId}")
+//    public ResponseEntity<ResponseDTO<String>> approveCoupon(
+//            @PathVariable Long couponId
+//    ) {
+//        Long memberId = SecurityUtils.getCurrentMemberId();
+//        couponService.approveCoupon(couponId, memberId);
+//
+//        return ResponseEntity
+//                .status(SuccessCode.SUCCESS_APPROVE_COUPON.getStatus().value())
+//                .body(new ResponseDTO<>(SuccessCode.SUCCESS_APPROVE_COUPON, "쿠폰 승인 성공"));
+//    }
 
 //
 //    @GetMapping("/business/approved")

@@ -7,10 +7,13 @@ import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 public interface MemberCouponRepository extends JpaRepository<MemberCoupon, Long> {
 
     boolean existsByMemberAndCouponAndReceivedDate(Member member, Coupon coupon, LocalDate receivedDate);
 
     boolean existsByMemberAndCoupon(Member member, Coupon coupon);
+
+    Optional<MemberCoupon> findByMemberAndCouponAndReceivedDate(Member member, Coupon coupon, LocalDate date);
 }

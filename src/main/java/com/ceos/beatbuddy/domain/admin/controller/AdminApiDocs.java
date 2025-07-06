@@ -1,11 +1,15 @@
 package com.ceos.beatbuddy.domain.admin.controller;
 
+import com.ceos.beatbuddy.domain.coupon.dto.CouponCreateRequestDTO;
 import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
 import com.ceos.beatbuddy.domain.venue.dto.LoginRequest;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
+import com.ceos.beatbuddy.global.SwaggerExamples;
+import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -66,4 +70,36 @@ public interface AdminApiDocs {
             @ApiResponse(responseCode = "404", description = "베뉴 정보가 존재하지 않음")
     })
     ResponseEntity<Long> DeleteVenueInfo(@PathVariable Long venueId);
+
+
+    @Operation(summary = "쿠폰 등록", description = """
+            새로운 쿠폰을 등록합니다.
+            - 쿠폰 등록 시 쿠폰의 이름, 설명, 만료일, 수량 등을 포함해야 합니다.
+            - active: DAILY, ONCE (매일 새롭게 발급되는 쿠폰, 아니면 한 번만 발급되는 쿠폰)
+            - 매일 새롭게 발급되는 쿠폰의 경우 당일에 발급을 받았으면 다시 발급받을 수 없습니다. 하루가 지나면 발급 가능해집니다.
+            - 한 번만 발급되는 쿠폰의 경우, 발급받으면 다시 발급받을 수 없습니다.
+            - 쿠폰 등록 시, 쿠폰의 수량이 초기화되어야 합니다.
+            - 쿠폰 등록 후, 쿠폰의 수량이 초기화되지 않으면 쿠폰을 발급받을 수 없습니다.
+            """)
+    @ApiResponse(responseCode = "200", description = "쿠폰 등록 성공",
+            content = @Content(mediaType = "application/json",
+                                 examples = @ExampleObject(name = "쿠폰 등록 성공 예시",
+                            value = """
+                                    {
+                                      "status": 201,
+                                      "code": "SUCCESS_CREATE_COUPON",
+                                      "message": "쿠폰을 성공적으로 등록했습니다.",
+                                      "data": "쿠폰 등록 성공"
+                                    }
+                                    """)))
+    @ApiResponse(responseCode = "400", description = "쿠폰 등록 실패",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "쿠폰 수량 초기화 X", value = SwaggerExamples.COUPON_QUOTA_NOT_INITIALIZED, description = "쿠폰 수량이 초기화되지 않았을 때의 응답 예시"),
+                            @ExampleObject(name = "쿠폰을 만료된 날짜로 등록 시", value = SwaggerExamples.COUPON_EXPIRED, description = "쿠폰이 만료되었을 때의 응답 예시")}))
+    @ApiResponse(responseCode = "404", description = "리소스 없음",
+            content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "존재하지 않는 베뉴", value = SwaggerExamples.VENUE_NOT_EXIST, description = "존재하지 않는 업장에 쿠폰을 등록하려 할 때의 응답 예시"),
+                            @ExampleObject(name = "존재하지 않는 멤버", value = SwaggerExamples.MEMBER_NOT_EXIST, description = "존재하지 않는 멤버에 쿠폰을 등록하려 할 때의 응답 예시")}))
+    ResponseEntity<ResponseDTO<String>> createCoupon(@RequestBody CouponCreateRequestDTO request);
 }
