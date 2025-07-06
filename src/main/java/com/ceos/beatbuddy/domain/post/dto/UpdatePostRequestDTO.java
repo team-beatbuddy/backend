@@ -14,5 +14,6 @@ import java.util.List;
 public class UpdatePostRequestDTO {
     private String title;
     private String content;
+    private List<String> hashtags;
     private List<String> deleteImageUrls;
 }

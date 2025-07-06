@@ -36,7 +36,7 @@ public class PostCreateRequestDTO {
     private LocalDateTime eventDate;
 
 
-    public static FreePost toEntity(PostCreateRequestDTO dto, List<String> imageUrls, Member member, Venue venue, List<FixedHashtag> hashtag) {
+    public static FreePost toEntity(PostCreateRequestDTO dto, List<String> imageUrls, Member member, List<FixedHashtag> hashtag) {
         return FreePost.builder()
                 .hashtag(hashtag)
                 .imageUrls(imageUrls)
@@ -44,7 +44,6 @@ public class PostCreateRequestDTO {
                 .content(dto.getContent())
                 .anonymous(dto.getAnonymous())
                 .member(member)
-                .venue(venue)
                 .build();
     }
 
