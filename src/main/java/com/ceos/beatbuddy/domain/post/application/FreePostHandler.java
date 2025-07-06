@@ -107,6 +107,9 @@ public class FreePostHandler implements PostTypeHandler{
             List<FixedHashtag> hashtags = validateAndGetHashtags(dto.getHashtags());
             post.updateHashtags(hashtags);
         }
+        if (dto.getAnonymous() != null) {
+            post.setAnonymous(dto.getAnonymous());
+        }
     }
 
     @Override
