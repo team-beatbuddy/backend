@@ -14,6 +14,9 @@ public class MagazineHomeResponseDTO {
     private String title;
     private String content;
     private boolean liked;
+    private boolean sponsored; // 스폰서 매거진인지 여부
+    private boolean picked; // 픽된 매거진인지 여부
+
 
     public static MagazineHomeResponseDTO toDTO(Magazine magazine, boolean liked) {
         return MagazineHomeResponseDTO.builder()
@@ -22,6 +25,8 @@ public class MagazineHomeResponseDTO {
                 .title(magazine.getTitle())
                 .content(magazine.getContent())
                 .liked(liked)
+                .picked(magazine.isPicked())
+                .sponsored(magazine.isSponsored())
                 .build();
 
     }

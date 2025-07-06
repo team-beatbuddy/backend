@@ -35,7 +35,7 @@ public class MagazineRequestDTO {
                 .isPinned(dto.isPinned())
                 .isSponsored(dto.isSponsored())
                 .isPicked(dto.isPicked())
-                .orderInHome(dto.getOrderInHome())
+                .orderInHome(dto.isPinned() ? dto.getOrderInHome() : 0)
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .member(member)
