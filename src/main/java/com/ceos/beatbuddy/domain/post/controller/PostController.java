@@ -187,7 +187,7 @@ public class PostController implements PostApiDocs {
 
 
     @Operation(summary = "게시글 수정", description = "자유 게시판 또는 조각 모집 게시판의 게시글을 수정합니다.")
-    @PutMapping(
+    @PatchMapping(
             value = "/{type}/{postId}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE

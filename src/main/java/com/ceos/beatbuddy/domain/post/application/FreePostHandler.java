@@ -46,7 +46,7 @@ public class FreePostHandler implements PostTypeHandler{
 
         List<FixedHashtag> hashtags = validateAndGetHashtags(dto.getHashtags());
 
-        FreePost freePost = PostCreateRequestDTO.toEntity(dto, imageUrls, member, venue, hashtags);
+        FreePost freePost = PostCreateRequestDTO.toEntity(dto, imageUrls, member, hashtags);
 
         freePost = freePostRepository.save(freePost);
         freePostSearchService.save(freePost); // 게시글 생성 시 검색 인덱스에 저장
@@ -96,19 +96,27 @@ public class FreePostHandler implements PostTypeHandler{
      *
      * DTO의 각 필드 값이 null이 아니고 앞뒤 공백을 제외했을 때 비어 있지 않은 경우에만 해당 필드를 업데이트합니다.
      */
-    protected void updateCommonFields(UpdatePostRequestDTO dto, Post post) {
+    protected void updateCommonFields(UpdatePostRequestDTO dto, FreePost post) {
         if ((dto.getTitle() != null) && (!dto.getTitle().trim().isEmpty())) {
             post.updateTitle(dto.getTitle());
         }
         if ((dto.getContent() != null) && (!dto.getContent().trim().isEmpty())) {
             post.updateContent(dto.getContent());
         }
+        if (dto.getHashtags() != null && !dto.getHashtags().isEmpty()) {
+            List<FixedHashtag> hashtags = validateAndGetHashtags(dto.getHashtags());
+            post.updateHashtags(hashtags);
+        }
+        if (dto.getAnonymous() != null) {
+            post.setAnonymous(dto.getAnonymous());
+        }
     }
 
     @Override
     @Transactional
     public Post updatePost(UpdatePostRequestDTO dto, Post post, Member member) {
-        updateCommonFields(dto, post);
+        FreePost freepost = (FreePost) post;
+        updateCommonFields(dto, freepost);
         return post;
     }
 
