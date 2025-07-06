@@ -23,4 +23,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("select f.hashtag from FreePost f where f.id = :id")
     List<FixedHashtag> findHashtagsByPostId(@Param("id") Long id);
+
+
+    @Modifying
+    @Query("UPDATE Post p SET p.scraps = p.scraps + 1 WHERE p.id = :postId")
+    void increaseScrap(@Param("postId") Long postId);
+
+    // 좋아요를 누른 것이 확인되어야만 좋아요 취소가 가능
+    @Modifying
+    @Query("UPDATE Post p SET p.scraps = p.scraps - 1 WHERE p.id = :postId")
+    void decreaseScrap(@Param("postId") Long postId);
 }

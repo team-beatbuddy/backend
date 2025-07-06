@@ -27,7 +27,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository{
         return queryFactory
                 .selectFrom(post)
                 .where(post.createdAt.goe(twelveHoursAgo))
-                .orderBy(post.likes.add(post.scraps.size()).desc())
+                .orderBy(post.likes.add(post.comments).desc())
                 .limit(2)
                 .fetch();
     }

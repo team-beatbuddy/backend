@@ -230,25 +230,49 @@ public interface PostApiDocs {
                             mediaType = "application/json",
                             schema = @Schema(implementation = PostListResponseDTO.class),
                             examples = @ExampleObject(value = """
-                                            {
-                                              "status": 200,
-                                              "code": "SUCCESS_GET_HOT_POSTS",
-                                              "message": "인기 게시글 상위 2개 조회했습니다.",
-                                              "data": [
-                                                  {
-                                                    "id": 21,
-                                                    "title": "string",
-                                                    "content": "string",
-                                                    "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/69196aa6-6--.png",
-                                                    "role": "BUSINESS",
-                                                    "likes": 0,
-                                                    "scraps": 0,
-                                                    "comments": 0,
-                                                    "nickname": "길동hong",
-                                                    "createAt": "2025-06-19"
-                                                  }
-                                              ]
-                                            }
+                            {
+                              "status": 200,
+                              "code": "SUCCESS_GET_HOT_POSTS",
+                              "message": "인기 게시글 상위 2개 조회했습니다.",
+                              "data": [
+                                {
+                                  "id": 539,
+                                  "title": "string",
+                                  "content": "string",
+                                  "role": "BUSINESS",
+                                  "likes": 1,
+                                  "scraps": 0,
+                                  "comments": 1,
+                                  "liked": true,
+                                  "scrapped": false,
+                                  "hasCommented": true,
+                                  "nickname": "BeatBuddy",
+                                  "createAt": "2025-07-06",
+                                  "hashtags": [
+                                    "홍대",
+                                    "이태원",
+                                    "뮤직"
+                                  ]
+                                },
+                                {
+                                  "id": 538,
+                                  "title": "",
+                                  "content": "string",
+                                  "role": "BUSINESS",
+                                  "likes": 1,
+                                  "scraps": 0,
+                                  "comments": 0,
+                                  "liked": false,
+                                  "scrapped": false,
+                                  "hasCommented": false,
+                                  "nickname": "BeatBuddy",
+                                  "createAt": "2025-07-06",
+                                  "hashtags": [
+                                    "홍대"
+                                  ]
+                                }
+                              ]
+                            }
                                     """))
             )
     })

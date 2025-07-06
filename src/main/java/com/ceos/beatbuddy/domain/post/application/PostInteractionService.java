@@ -87,6 +87,7 @@ public class PostInteractionService {
                 .build();
 
         postScrapRepository.save(postScrap);
+        postRepository.increaseScrap(postId);
     }
 
 
@@ -102,6 +103,7 @@ public class PostInteractionService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_SCRAP));
 
         postScrapRepository.delete(postScrap);
+        postRepository.decreaseScrap(postId);
     }
 
 
