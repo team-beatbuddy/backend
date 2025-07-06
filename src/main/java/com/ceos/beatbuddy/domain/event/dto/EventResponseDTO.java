@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.event.dto;
 
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -45,7 +46,15 @@ public class EventResponseDTO {
     private Integer depositAmount;
 
 
-    public static EventResponseDTO toDTO(Event event, boolean liked) {
+    @JsonProperty("isAuthor")
+    private Boolean isAuthor;
+
+    public Boolean getIsAuthor() {
+        return isAuthor;
+    }
+
+
+    public static EventResponseDTO toDTO(Event event, boolean liked, boolean isAuthor) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
@@ -64,10 +73,11 @@ public class EventResponseDTO {
                 .receiveSNSId(event.isReceiveSNSId())
                 .depositAccount(Optional.ofNullable(event.getDepositAccount()).orElse(""))
                 .depositAmount(Optional.ofNullable(event.getDepositAmount()).orElse(0))
+                .isAuthor(isAuthor)
                 .build();
     }
 
-    public static EventResponseDTO toUpcomingListDTO(Event event) {
+    public static EventResponseDTO toUpcomingListDTO(Event event, boolean isAuthor) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
@@ -79,10 +89,11 @@ public class EventResponseDTO {
                 .likes(event.getLikes())
                 .views(event.getViews())
                 .location(event.getLocation())
+                .isAuthor(isAuthor)
                 .build();
     }
 
-    public static EventResponseDTO toPastListDTO(Event event) {
+    public static EventResponseDTO toPastListDTO(Event event, boolean isAuthor) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
@@ -93,10 +104,11 @@ public class EventResponseDTO {
                 .likes(event.getLikes())
                 .views(event.getViews())
                 .location(event.getLocation())
+                .isAuthor(isAuthor)
                 .build();
     }
 
-    public static EventResponseDTO toNowListDTO(Event event) {
+    public static EventResponseDTO toNowListDTO(Event event, boolean isAuthor) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
@@ -107,6 +119,7 @@ public class EventResponseDTO {
                 .likes(event.getLikes())
                 .views(event.getViews())
                 .location(event.getLocation())
+                .isAuthor(isAuthor)
                 .build();
     }
 }

@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.magazine.dto;
 
 import com.ceos.beatbuddy.domain.magazine.entity.Magazine;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,8 +18,15 @@ public class MagazineHomeResponseDTO {
     private boolean sponsored; // 스폰서 매거진인지 여부
     private boolean picked; // 픽된 매거진인지 여부
 
+    @JsonProperty("isAuthor")
+    private Boolean isAuthor;
 
-    public static MagazineHomeResponseDTO toDTO(Magazine magazine, boolean liked) {
+    public Boolean getIsAuthor() {
+        return isAuthor;
+    }
+
+
+    public static MagazineHomeResponseDTO toDTO(Magazine magazine, boolean liked, boolean isAuthor) {
         return MagazineHomeResponseDTO.builder()
                 .magazineId(magazine.getId())
                 .thumbImageUrl(magazine.getThumbImage() != null ? magazine.getThumbImage() : "")
@@ -27,6 +35,7 @@ public class MagazineHomeResponseDTO {
                 .liked(liked)
                 .picked(magazine.isPicked())
                 .sponsored(magazine.isSponsored())
+                .isAuthor(isAuthor)
                 .build();
 
     }

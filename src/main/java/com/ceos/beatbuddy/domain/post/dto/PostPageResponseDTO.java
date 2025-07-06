@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.post.dto;
 import com.ceos.beatbuddy.domain.post.entity.FixedHashtag;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,12 +33,19 @@ public class PostPageResponseDTO {
     private LocalDate createAt;
     private List<String> hashtags;
 
-    public static PostPageResponseDTO toDTO(Post post, Boolean liked, Boolean scrapped, Boolean hasCommented, List<FixedHashtag> hashtags) {
+    @JsonProperty("isAuthor")
+    private Boolean isAuthor;
+
+    public Boolean getIsAuthor() {
+        return isAuthor;
+    }
+
+    public static PostPageResponseDTO toDTO(Post post, Boolean liked, Boolean scrapped, Boolean hasCommented, List<FixedHashtag> hashtags, boolean isAuthor) {
         return PostPageResponseDTO.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .thumbImage(post.getImageUrls().isEmpty() ? null : post.getImageUrls().get(0))
+                .thumbImage(post.getImageUrls().isEmpty() || post.getImageUrls().get(0) == null ? "" : post.getImageUrls().get(0))
                 .nickname(post.getMember().getNickname())
                 .createAt(post.getCreatedAt().toLocalDate())
                 .likes(post.getLikes())
@@ -50,6 +58,7 @@ public class PostPageResponseDTO {
                 .hashtags(hashtags != null ? hashtags.stream()
                         .map(FixedHashtag::getDisplayName)
                         .toList() : List.of())
+                .isAuthor(isAuthor)
                 .build();
     }
 }

@@ -125,7 +125,8 @@ public interface MagazineApiDocs {
                                                   "content": "매거진 1 1111111",
                                                   "liked": false,
                                                   "sponsored": false,
-                                                  "picked": false
+                                                  "picked": false,
+                                                  "isAuthor": false
                                                 },
                                                 {
                                                   "magazineId": 1,
@@ -134,7 +135,8 @@ public interface MagazineApiDocs {
                                                   "content": "내용",
                                                   "liked": false,
                                                   "sponsored": false,
-                                                  "picked": false
+                                                  "picked": false,
+                                                  "isAuthor": false
                                                 }
                                               ]
                                             }
@@ -211,7 +213,8 @@ public interface MagazineApiDocs {
                                                                 "koreanName": "플러스82",
                                                                 "englishName": "PLUS82SEOUL"
                                                               }
-                                                            ]
+                                                            ],
+                                                            "isAuthor": false
                                                           },
                                                           {
                                                             "magazineId": 21,
@@ -227,7 +230,8 @@ public interface MagazineApiDocs {
                                                             "sponsored": false,
                                                             "picked": false,
                                                             "eventSimpleDTO": null,
-                                                            "venueSimpleDTOS": []
+                                                            "venueSimpleDTOS": [],
+                                                            "isAuthor": false
                                                           },
                                                           {
                                                             "magazineId": 7,
@@ -246,7 +250,8 @@ public interface MagazineApiDocs {
                                                             "sponsored": false,
                                                             "picked": false,
                                                             "eventSimpleDTO": null,
-                                                            "venueSimpleDTOS": []
+                                                            "venueSimpleDTOS": [],
+                                                            "isAuthor": false
                                                           }
                                                         ]
                                                       }
@@ -327,7 +332,8 @@ public interface MagazineApiDocs {
                                     "koreanName": "플러스82",
                                     "englishName": "PLUS82SEOUL"
                                   }
-                                ]
+                                ],
+                                "isAuthor": false
                               }
                             }
                                     """)
