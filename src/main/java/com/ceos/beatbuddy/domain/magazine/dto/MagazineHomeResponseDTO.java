@@ -13,13 +13,15 @@ public class MagazineHomeResponseDTO {
     private String thumbImageUrl;
     private String title;
     private String content;
+    private boolean liked;
 
-    public static MagazineHomeResponseDTO toDTO(Magazine magazine) {
+    public static MagazineHomeResponseDTO toDTO(Magazine magazine, boolean liked) {
         return MagazineHomeResponseDTO.builder()
                 .magazineId(magazine.getId())
                 .thumbImageUrl(magazine.getThumbImage())
                 .title(magazine.getTitle())
                 .content(magazine.getContent())
+                .liked(liked)
                 .build();
 
     }
