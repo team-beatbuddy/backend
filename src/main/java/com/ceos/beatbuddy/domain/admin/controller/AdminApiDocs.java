@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -96,10 +97,41 @@ public interface AdminApiDocs {
             content = @Content(mediaType = "application/json",
                     examples = {
                             @ExampleObject(name = "쿠폰 수량 초기화 X", value = SwaggerExamples.COUPON_QUOTA_NOT_INITIALIZED, description = "쿠폰 수량이 초기화되지 않았을 때의 응답 예시"),
-                            @ExampleObject(name = "쿠폰을 만료된 날짜로 등록 시", value = SwaggerExamples.COUPON_EXPIRED, description = "쿠폰이 만료되었을 때의 응답 예시")}))
+                            @ExampleObject(name = "쿠폰을 만료된 날짜로 등록 시", value = SwaggerExamples.COUPON_EXPIRED, description = "쿠폰이 만료되었을 때의 응답 예시"),
+                            @ExampleObject(name = "잘못된 쿠폰 정책", value = SwaggerExamples.COUPON_INVALID_POLICY, description = "쿠폰 정책이 잘못되었을 때의 응답 예시"),
+                    }))
     @ApiResponse(responseCode = "404", description = "리소스 없음",
             content = @Content(mediaType = "application/json",
                     examples = {@ExampleObject(name = "존재하지 않는 베뉴", value = SwaggerExamples.VENUE_NOT_EXIST, description = "존재하지 않는 업장에 쿠폰을 등록하려 할 때의 응답 예시"),
                             @ExampleObject(name = "존재하지 않는 멤버", value = SwaggerExamples.MEMBER_NOT_EXIST, description = "존재하지 않는 멤버에 쿠폰을 등록하려 할 때의 응답 예시")}))
     ResponseEntity<ResponseDTO<String>> createCoupon(@RequestBody CouponCreateRequestDTO request);
+
+
+    @Operation(summary = "쿠폰 사용", description = "쿠폰을 사용합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "쿠폰 사용 성공",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(name = "쿠폰 사용 성공 예시",
+                                    value = """
+                                            {
+                                              "status": 200,
+                                              "code": "SUCCESS_USE_COUPON",
+                                              "message": "쿠폰을 성공적으로 사용했습니다.",
+                                              "data": "쿠폰 사용 성공"
+                                            }
+                                            """))),
+            @ApiResponse(responseCode = "404", description = "쿠폰을 찾을 수 없음",
+                    content = @Content(mediaType = "application/json",
+                            examples = {@ExampleObject(name = "존재하지 않는 쿠폰", value = SwaggerExamples.NOT_FOUND_COUPON_RECEIVE, description = "존재하지 않는 쿠폰을 사용하려 할 때의 응답 예시"),
+                                    @ExampleObject(name = "admin이 등록하지 않은 쿠폰", value = SwaggerExamples.COUPON_NOT_FOUND, description = "존재하지 않는 쿠폰을 사용하려 할 때의 응답 예시"),
+                                    @ExampleObject(name = "존재하지 않는 멤버", value = SwaggerExamples.MEMBER_NOT_EXIST, description = "존재하지 않는 멤버에 쿠폰을 사용하려 할 때의 응답 예시")}))
+    })
+    @ApiResponse(responseCode = "400", description = "쿠폰 사용 실패",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "쿠폰 만료", value = SwaggerExamples.COUPON_EXPIRED, description = "쿠폰이 만료되었을 때의 응답 예시"),
+                            @ExampleObject(name = "이미 사용된 쿠폰", value = SwaggerExamples.COUPON_ALREADY_USED, description = "이미 사용된 쿠폰을 다시 사용하려 할 때의 응답 예시")
+                    }))
+    ResponseEntity<ResponseDTO<String>> useCoupon(
+            @PathVariable Long receiveCouponId);
 }

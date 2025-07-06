@@ -258,6 +258,24 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String COUPON_INVALID_POLICY = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "COUPON_INVALID_POLICY",
+          "message": "유효하지 않은 쿠폰 정책입니다."
+        }
+        """;
+
+    public static final String COUPON_ALREADY_USED = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "COUPON_ALREADY_USED",
+          "message": "이미 사용된 쿠폰입니다."
+        }
+        """;
+
     /**
      * 403 권한 없음
      * */
@@ -408,6 +426,24 @@ public class SwaggerExamples {
           "error": "NOT_FOUND",
           "code": "NOT_FOUND_HASHTAG",
           "message": "존재하지 않는 해시태그입니다."
+        }
+        """;
+
+    public static final String NOT_FOUND_COUPON = """
+        {
+          "status": 404,
+          "error": "NOT_FOUND",
+          "code": "NOT_FOUND_COUPON",
+          "message": "존재하지 않는 쿠폰입니다."
+        }
+        """;
+
+    public static final String NOT_FOUND_COUPON_RECEIVE = """
+        {
+          "status": 404,
+          "error": "NOT_FOUND",
+          "code": "NOT_FOUND_COUPON_RECEIVE",
+          "message": "존재하지 않는 쿠폰 수령 정보입니다."
         }
         """;
 

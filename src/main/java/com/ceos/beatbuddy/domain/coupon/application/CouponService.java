@@ -80,11 +80,6 @@ public class CouponService {
         return CouponReceiveResponseDTO.toDTO(memberCoupon.getId(), coupon, memberCoupon.getReceivedDate());
     }
 
-    public Coupon validateAndGetCoupon(Long couponId) {
-        return couponRepository.findById(couponId)
-                .orElseThrow(() -> new CustomException(CouponErrorCode.COUPON_NOT_FOUND));
-    }
-
     @Transactional
     public void createCoupon(CouponCreateRequestDTO request) {
         // 쿠폰 유효성 검사
@@ -114,19 +109,20 @@ public class CouponService {
     }
 
     @Transactional
-    public void useCoupon(Long couponId, Long memberId) {
+    public void useCoupon(Long receiveCouponId, Long memberId) {
         // Member, Coupon 조회
-        Member member = memberService.validateAndGetMember(memberId);
-        Coupon coupon = validateAndGetCoupon(couponId);
+        memberService.validateAndGetMember(memberId);
+
+        // 쿠폰 유효성 검사 및 조회
+        MemberCoupon memberCoupon = validateAndGetMemberCoupon(receiveCouponId);
+
+        Coupon coupon = validateAndGetCoupon(memberCoupon.getCoupon().getId());
 
         if (coupon.getExpireDate().isBefore(LocalDate.now())) {
             throw new CustomException(CouponErrorCode.COUPON_EXPIRED);
         }
 
         // 수령한 쿠폰 있는지 확인
-        MemberCoupon memberCoupon = memberCouponRepository.findByMemberAndCouponAndReceivedDate(
-                        member, coupon, LocalDate.now())
-                .orElseThrow(() -> new CustomException(CouponErrorCode.COUPON_NOT_FOUND));
 
         // 이미 사용했는지 확인
         if (memberCoupon.getStatus() == MemberCoupon.CouponStatus.USED) {
@@ -135,5 +131,16 @@ public class CouponService {
 
         // 상태 변경
         memberCoupon.markUsed(); // status = USED
+    }
+
+
+    public Coupon validateAndGetCoupon(Long couponId) {
+        return couponRepository.findById(couponId)
+                .orElseThrow(() -> new CustomException(CouponErrorCode.COUPON_NOT_FOUND));
+    }
+
+    public MemberCoupon validateAndGetMemberCoupon(Long memberCouponId) {
+        return memberCouponRepository.findById(memberCouponId)
+                .orElseThrow(() -> new CustomException(CouponErrorCode.MEMBER_COUPON_NOT_FOUND));
     }
 }

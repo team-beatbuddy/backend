@@ -14,7 +14,8 @@ public enum CouponErrorCode implements ApiCode {
     COUPON_QUOTA_SOLD_OUT(HttpStatus.BAD_REQUEST, "쿠폰의 수량이 모두 소진되었습니다."),
     COUPON_INVALID_POLICY(HttpStatus.BAD_REQUEST, "유효하지 않은 쿠폰 정책입니다."),
     COUPON_ALREADY_USED(HttpStatus.BAD_REQUEST, "이미 사용된 쿠폰입니다."),
-    COUPON_DISABLED(HttpStatus.BAD_REQUEST, "사용할 수 없는 쿠폰입니다.")
+    COUPON_DISABLED(HttpStatus.BAD_REQUEST, "사용할 수 없는 쿠폰입니다."),
+    MEMBER_COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회원의 쿠폰을 찾을 수 없습니다.")
     ;
 
     private final HttpStatus httpStatus;
