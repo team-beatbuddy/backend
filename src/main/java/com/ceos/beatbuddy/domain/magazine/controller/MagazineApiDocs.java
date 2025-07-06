@@ -35,6 +35,7 @@ public interface MagazineApiDocs {
                         - 만약 pinned 가 false 인데 orderInHome 을 넣었다면 자동으로 0으로 저장됩니다.
                     - eventId: 이 매거진이 속한 이벤트의 ID (선택 사항)
                     - thumbnailImage: 매거진의 썸네일 이미지 (현재까지는 선택 사항...)
+                    - venueIds: 매거진에 포함된 장소들의 ID 리스트 (선택 사항)
                     """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "매거진이 성공적으로 작성되었습니다.",
