@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -83,8 +84,22 @@ public class MagazineService {
 
         List<Magazine> magazines = magazineQueryRepository.findPinnedMagazines();
 
-        return magazines.stream().map((MagazineHomeResponseDTO::toDTO)).toList();
+        // 좋아요 여부 확인
+        Set<Long> likedMagazineIds = magazineLikeRepository
+                .findAllByMember_IdAndMagazine_IdIn(
+                        memberId,
+                        magazines.stream().map(Magazine::getId).toList()
+                )
+                .stream()
+                .map(like -> like.getMagazine().getId())
+                .collect(Collectors.toSet());
+
+        // 매거진 + 좋아요 여부 DTO 매핑
+        return magazines.stream()
+                .map(magazine -> MagazineHomeResponseDTO.toDTO(magazine, likedMagazineIds.contains(magazine.getId())))
+                .toList();
     }
+
 
     /**
      * 표시 가능한(visible) 매거진의 상세 정보를 조회하고, 조회수를 증가시킵니다.

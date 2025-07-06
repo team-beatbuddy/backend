@@ -100,7 +100,8 @@ public interface MagazineApiDocs {
                                                   "magazineId": 1,
                                                   "thumbImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png",
                                                   "title": "제목",
-                                                  "content": "내용"
+                                                  "content": "내용",
+                                                  "liked": false
                                                 }
                                               ]
                                             }
