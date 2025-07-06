@@ -10,8 +10,11 @@ public record CommentResponseDto(
         Long replyId,
         String memberName,
         Integer likes,
-        LocalDateTime createdAt) {
-    public static CommentResponseDto from(Comment comment) {
+        LocalDateTime createdAt,
+        Boolean isAuthor
+
+        ) {
+    public static CommentResponseDto from(Comment comment, Boolean isAuthor) {
         return new CommentResponseDto(
                 comment.getId(),
                 comment.getContent(),
@@ -19,7 +22,8 @@ public record CommentResponseDto(
                 comment.getReply() != null ? comment.getReply().getId() : null,
                 comment.isAnonymous() ? "익명" : comment.getMember().getRealName(),
                 comment.getLikes(),
-                comment.getCreatedAt()
+                comment.getCreatedAt(),
+                isAuthor
         );
     }
 }
