@@ -115,6 +115,24 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String TOO_MANY_IMAGES_10_EXAMPLE = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "TOO_MANY_IMAGES_10",
+          "message": "이미지는 최대 10개까지 업로드할 수 있습니다."
+        }
+        """;
+
+    public static final String TOO_MANY_IMAGES_20_EXAMPLE = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "TOO_MANY_IMAGES_20",
+          "message": "이미지는 최대 20개까지 업로드할 수 있습니다."
+        }
+        """;
+
     public static final String SAME_NICKNAME = """
         {
           "status": 400,
