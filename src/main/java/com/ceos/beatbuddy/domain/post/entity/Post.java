@@ -26,7 +26,10 @@ public abstract class Post extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = true)
     private String title;
+
+    @Column(nullable = false, columnDefinition = "TEXT", length = 1000)
     private String content;
     private boolean anonymous;
     private int likes;

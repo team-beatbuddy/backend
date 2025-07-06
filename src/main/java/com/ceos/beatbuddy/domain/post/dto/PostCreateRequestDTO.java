@@ -7,6 +7,7 @@ import com.ceos.beatbuddy.domain.post.entity.Piece;
 import com.ceos.beatbuddy.domain.post.entity.PiecePost;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,15 +15,16 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class PostCreateRequestDTO {
-    @NotNull(message = "제목은 비어있을 수 없습니다.")
     private String title;
     @NotNull(message = "내용은 비어있을 수 없습니다.")
+    @Size(min = 1, max = 1000, message = "내용은 1자 이상 1000자 이하로 작성해주세요.")
     private String content;
 
     private Boolean anonymous;
@@ -38,7 +40,7 @@ public class PostCreateRequestDTO {
         return FreePost.builder()
                 .hashtag(hashtag)
                 .imageUrls(imageUrls)
-                .title(dto.getTitle())
+                .title(Optional.ofNullable(dto.getTitle()).orElse("")) // null 방지
                 .content(dto.getContent())
                 .anonymous(dto.getAnonymous())
                 .member(member)
