@@ -41,7 +41,7 @@ public class PostPageResponseDTO {
                 .nickname(post.getMember().getNickname())
                 .createAt(post.getCreatedAt().toLocalDate())
                 .likes(post.getLikes())
-                .scraps(post.getScraps().size())
+                .scraps(post.getScraps())
                 .comments(post.getComments())
                 .liked(liked)
                 .scrapped(scrapped)
