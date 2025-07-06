@@ -26,12 +26,13 @@ public interface MagazineApiDocs {
             description = """
                     admin과 business 멤버에 한해서만 매거진을 작성할 수 있도록 해두었습니다. (추후 변경 가능)
                     - 데이터 전달은 multipart/form-data이며, 'magazineRequestDTO'는 JSON 문자열 형태로 전송해야 합니다.
-                    - pinned: 홈에 고정된 매거진
-                    - visible: 매거진이 보이는지 여부
-                    - sponsored: 스폰서 매거진인지 여부
-                    - picked: 비트버디 픽된 매거진인지 여부
+                    - pinned: 홈에 고정된 매거진 (null 이면 false)
+                    - visible: 매거진이 보이는지 여부 (null 이면 false)
+                    - sponsored: 스폰서 매거진인지 여부 (null 이면 false)
+                    - picked: 비트버디 픽된 매거진인지 여부 (null 이면 false)
                     - orderInHome: 홈에서의 순서 (1부터 시작)
-                        - pinned (고정된 매거진)인 경우, orderInHome(홈에서의 순서)가 1 이상이어야 합니다.
+                        - pinned (고정된 매거진)인 경우, orderInHome(홈에서의 순서)가 1 이상이어야 합니다.\
+                        - 만약 pinned 가 false 인데 orderInHome 을 넣었다면 자동으로 0으로 저장됩니다.
                     - eventId: 이 매거진이 속한 이벤트의 ID (선택 사항)
                     - thumbnailImage: 매거진의 썸네일 이미지 (현재까지는 선택 사항...)
                     """)
