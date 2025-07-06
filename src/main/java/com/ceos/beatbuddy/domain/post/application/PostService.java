@@ -52,6 +52,11 @@ public class PostService {
     public ResponsePostDto addNewPost(String type, PostCreateRequestDTO dto, Long memberId, List<MultipartFile> images) {
         validatePostType(type);
         Member member = memberService.validateAndGetMember(memberId);
+        // 이미지 개수 검사
+        if (images != null && images.stream().filter(file -> file != null && !file.isEmpty()).count() > 20) {
+            throw new CustomException(ErrorCode.TOO_MANY_IMAGES_20);
+        }
+
         // 이미지 s3 올리기
         List<String> imageUrls = null;
 
@@ -342,8 +347,19 @@ public class PostService {
     public PostReadDetailDTO updatePost(String type, Long postId, Long memberId,
                                             UpdatePostRequestDTO requestDTO, List<MultipartFile> files,
                                             List<String> deleteFiles) {
+
         // 1. 게시글 조회 및 작성자 검증
         Post post = this.validateAndGetPost(postId);
+
+        // 삭제할 이미지 개수와 새로운 이미지의 합이 20개를 초과하는지 검사
+        int currentCount = post.getImageUrls().size();
+        int deleteCount = (deleteFiles != null) ? deleteFiles.size() : 0;
+        int newCount = (files != null) ? files.size() : 0;
+
+        if (currentCount - deleteCount + newCount > 20) {
+            throw new CustomException(ErrorCode.TOO_MANY_IMAGES_20);
+        }
+
         Member member = memberService.validateAndGetMember(memberId);
         validatePostAuthor(post, memberId);
 
