@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.coupon.application;
 
 import com.ceos.beatbuddy.domain.coupon.domain.Coupon;
 import com.ceos.beatbuddy.domain.coupon.domain.MemberCoupon;
+import com.ceos.beatbuddy.domain.coupon.dto.CouponCreateRequestDTO;
 import com.ceos.beatbuddy.domain.coupon.dto.CouponReceiveResponseDTO;
 import com.ceos.beatbuddy.domain.coupon.exception.CouponErrorCode;
 import com.ceos.beatbuddy.domain.coupon.redis.CouponLuaScriptService;
@@ -14,6 +15,7 @@ import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ public class CouponService {
     private final MemberService memberService;
     private final VenueInfoService venueInfoService;
     private final CouponRepository couponRepository;
+    private final StringRedisTemplate redisTemplate;
     private final MemberCouponRepository memberCouponRepository;
 
     @Transactional
@@ -74,5 +77,34 @@ public class CouponService {
     public Coupon validateAndGetCoupon(Long couponId) {
         return couponRepository.findById(couponId)
                 .orElseThrow(() -> new CustomException(CouponErrorCode.COUPON_NOT_FOUND));
+    }
+
+    @Transactional
+    public void createCoupon(CouponCreateRequestDTO request) {
+        // 쿠폰 유효성 검사
+        if (request.getQuota() <= 0) {
+            throw new CustomException(CouponErrorCode.COUPON_QUOTA_NOT_INITIALIZED);
+        }
+
+        if (request.getExpireDate().isBefore(LocalDate.now())) {
+            throw new CustomException(CouponErrorCode.COUPON_EXPIRED);
+        }
+
+        // 1. 업장 유효성 검사
+        Venue venue = null;
+        if (request.getVenueId() != null) {
+            venue = venueInfoService.validateAndGetVenue(request.getVenueId());
+        }
+
+        // 쿠폰 엔티티 생성
+        Coupon coupon = CouponCreateRequestDTO.toEntity(request, venue);
+        couponRepository.save(coupon);
+
+        // 4. Redis quota 설정
+        String redisKey = CouponRedisKeyUtil.getQuotaKey(
+                request.getVenueId(), coupon.getId(), LocalDate.now());
+
+        redisTemplate.opsForValue().set(redisKey, String.valueOf(request.getQuota()));
+
     }
 }
