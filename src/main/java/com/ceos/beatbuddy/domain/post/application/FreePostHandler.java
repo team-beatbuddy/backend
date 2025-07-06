@@ -161,7 +161,8 @@ public class FreePostHandler implements PostTypeHandler{
                         status.likedPostIds().contains(post.getId()),
                         status.scrappedPostIds().contains(post.getId()),
                         status.commentedPostIds().contains(post.getId()),
-                        post.getHashtag()
+                        post.getHashtag(),
+                        post.getMember().getId().equals(member.getId())
                 ))
                 .toList();
 

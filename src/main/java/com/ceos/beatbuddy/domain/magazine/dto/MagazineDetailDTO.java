@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.magazine.dto;
 
 import com.ceos.beatbuddy.domain.magazine.entity.Magazine;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,7 +30,12 @@ public class MagazineDetailDTO {
     private EventSimpleDTO eventSimpleDTO; // 이벤트 ID (optional, if applicable)
     private List<VenueSimpleDTO> venueSimpleDTOS; // 장소 ID 리스트 (optional, if applicable)
 
-    private boolean isAuthor; // 작성자 여부
+    @JsonProperty("isAuthor")
+    private Boolean isAuthor;
+
+    public Boolean getIsAuthor() {
+        return isAuthor;
+    }
 
     public static MagazineDetailDTO toDTO(Magazine magazine, boolean isLiked, boolean isAuthor) {
         return MagazineDetailDTO.builder()

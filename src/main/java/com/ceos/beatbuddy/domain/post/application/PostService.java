@@ -88,7 +88,7 @@ public class PostService {
                 : List.of();
 
         // 4. 응답 생성
-        return PostReadDetailDTO.toDTO(post, status.getLeft(), status.getMiddle(), status.getRight(), hashtags);
+        return PostReadDetailDTO.toDTO(post, status.getLeft(), status.getMiddle(), status.getRight(), hashtags, post.getMember().getId().equals(memberId));
     }
 
     public PostListResponseDTO readAllPostsSort(Long memberId, String type, int page, int size) {
@@ -135,7 +135,8 @@ public class PostService {
                         status.likedPostIds().contains(post.getId()),
                         status.scrappedPostIds().contains(post.getId()),
                         status.commentedPostIds().contains(post.getId()),
-                        postRepository.findHashtagsByPostId(post.getId())
+                        postRepository.findHashtagsByPostId(post.getId()),
+                        post.getMember().getId().equals(member.getId())
                 ))
                 .toList();
     }
@@ -208,7 +209,8 @@ public class PostService {
                         status.likedPostIds().contains(post.getId()),
                         true, // 어차피 스크랩된 게시글이니까
                         status.commentedPostIds().contains(post.getId()),
-                        postRepository.findHashtagsByPostId(post.getId())
+                        postRepository.findHashtagsByPostId(post.getId()),
+                        post.getMember().getId().equals(memberId)
                 ))
                 .toList();
 
@@ -278,7 +280,8 @@ public class PostService {
                         status.likedPostIds().contains(post.getId()),
                         status.scrappedPostIds().contains(post.getId()),
                         status.commentedPostIds().contains(post.getId()),
-                        postRepository.findHashtagsByPostId(post.getId())
+                        postRepository.findHashtagsByPostId(post.getId()),
+                        post.getMember().getId().equals(memberId)
                 ))
                 .toList();
 
@@ -389,7 +392,7 @@ public class PostService {
                 : List.of();
 
         // 7. 응답 생성
-        return PostReadDetailDTO.toDTO(post, status.getLeft(), status.getMiddle(), status.getRight(), hashtags);
+        return PostReadDetailDTO.toDTO(post, status.getLeft(), status.getMiddle(), status.getRight(), hashtags, post.getMember().getId().equals(memberId));
     }
 
 
