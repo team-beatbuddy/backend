@@ -24,4 +24,6 @@ public interface MagazineRepository extends JpaRepository<Magazine, Long> {
     @Modifying
     @Query("UPDATE Magazine m SET m.likes = m.likes - 1 WHERE m.id = :magazineId")
     void decreaseLike(@Param("magazineId") Long magazineId);
+
+    boolean existsByIsPinnedTrueAndOrderInHome(int orderInHome);
 }

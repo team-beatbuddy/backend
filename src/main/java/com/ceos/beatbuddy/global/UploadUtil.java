@@ -66,23 +66,19 @@ public class UploadUtil {
                 .build();
     }
 
-    public String upload(MultipartFile image, BucketType type, String folder) throws IOException {
+    public String upload(MultipartFile image, BucketType type, String folder) {
         if (image.isEmpty() || Objects.isNull(image.getOriginalFilename())) {
             throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
         }
 
+        // 확장자 및 파일명 검증
         validationImage(image.getOriginalFilename());
+
         return uploadImageS3(image, getBucketName(type), folder);
     }
 
-    public List<String> uploadImages(List<MultipartFile> images, BucketType type, String directory) {
-        return images.stream().map(image -> {
-            try {
-                return this.upload(image, type, directory);
-            } catch (IOException e) {
-                throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
-            }
-        }).toList();
+    public List<String> uploadImages(List<MultipartFile> images, BucketType type, String folder) {
+        return images.stream().map(image -> upload(image, type, folder)).toList();
     }
 
     private String uploadImageS3(MultipartFile image, String bucketName, String folder) throws UncheckedIOException {
