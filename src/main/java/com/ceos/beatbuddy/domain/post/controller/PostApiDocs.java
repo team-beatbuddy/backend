@@ -23,7 +23,7 @@ public interface PostApiDocs {
     @Operation(summary = "#####게시물 생성 - 새로운 버전",
             description = """
             게시물을 생성합니다 (type: free/piece)
-            - 공통으로는 title(필수), content(필수), anonymous, venueId 입니다.
+            - 공통으로는 title(옵션), content(필수), anonymous, venueId 입니다.
             - free: hashtag (압구정로데오/홍대/이태원/강남.신사/뮤직/자유/번개 모임/International/19+/LGBTQ/짤.밈) 중 하나입니다.
             - piece: totalPrice, totalMembers, eventDate
             """
@@ -55,6 +55,17 @@ public interface PostApiDocs {
                             mediaType = "application/json",
                             examples = {@ExampleObject(name = "잘못된 type 예시", value = SwaggerExamples.INVALID_POST_TYPE),
                                         @ExampleObject(name = "중복된 해시태그", value = SwaggerExamples.DUPLICATED_HASHTAG),
+                                    @ExampleObject(name = "필수 입력 내용을 입력하지 않았을 경우", value = """
+                                            {
+                                              "status": 400,
+                                              "error": "BAD_REQUEST",
+                                              "code": "BAD_REQUEST_VALIDATION",
+                                              "message": "요청 값이 유효하지 않습니다.",
+                                              "errors": {
+                                                "content": "내용은 1자 이상 1000자 이하로 작성해주세요."
+                                              }
+                                            }
+                                          """),
                             }
                     )
             ),
