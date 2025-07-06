@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.scrapandlike.repository;
 
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineInteractionId;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineLike;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.PostLike;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,4 +16,6 @@ public interface MagazineLikeRepository extends JpaRepository<MagazineLike, Maga
 
     @Query("SELECT m.id.magazineId FROM MagazineLike m WHERE m.id.memberId = :memberId")
     List<Long> findMagazineIdsByMemberId(@Param("memberId") Long memberId);
+
+    List<MagazineLike> findAllByMember_IdAndMagazine_IdIn(Long memberId, List<Long> magazineIds);
 }
