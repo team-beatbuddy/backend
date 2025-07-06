@@ -60,7 +60,7 @@ public class EventCommentService {
                 .build();
 
         EventComment saved = eventCommentRepository.save(comment);
-        return EventCommentResponseDTO.toDTO(saved);
+        return EventCommentResponseDTO.toDTO(saved, true); // 내가 작성자이므로
     }
 
 
@@ -110,12 +110,13 @@ public class EventCommentService {
                     List<EventCommentResponseDTO> replies = list.stream()
                             .filter(c -> c.getLevel() > 0)
                             .sorted(Comparator.comparing(EventComment::getCreatedAt))
-                            .map(EventCommentResponseDTO::toDTO)
+                            .map((reply -> EventCommentResponseDTO.toDTO(reply, reply.getAuthor().getId().equals(member.getId()))))
                             .toList();
 
-                    return EventCommentTreeResponseDTO.toDTO(parent, replies);
+                    return EventCommentTreeResponseDTO.toDTO(parent, replies,
+                            parent.getAuthor().getId().equals(member.getId()));
                 })
-                .sorted(Comparator.comparing((EventCommentTreeResponseDTO dto) -> dto.getCreatedAt()).reversed())
+                .sorted(Comparator.comparing(EventCommentTreeResponseDTO::getCreatedAt).reversed())
                 .toList();
     }
 
@@ -142,7 +143,7 @@ public class EventCommentService {
             comment.updateAnonymous(dto.getAnonymous());
         }
 
-        return EventCommentResponseDTO.toDTO(comment);
+        return EventCommentResponseDTO.toDTO(comment, comment.getAuthor().getId().equals(member.getId()));
     }
 
     private EventComment validateAndGetComment(Long commentId, Integer level) {

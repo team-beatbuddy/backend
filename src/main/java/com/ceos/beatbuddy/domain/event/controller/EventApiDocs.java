@@ -66,7 +66,8 @@ public interface EventApiDocs {
                                     "receiveSNSId": true,
                                     "receiveMoney": false,
                                     "depositAccount": "",
-                                    "depositAmount": 0
+                                    "depositAmount": 0,
+                                    "isAuthor": true
                                   }
                                 }
                                     """)
@@ -195,7 +196,8 @@ public interface EventApiDocs {
                                 "receiveSNSId": true,
                                 "receiveMoney": false,
                                 "depositAccount": "",
-                                "depositAmount": 0
+                                "depositAmount": 0,
+                                "isAuthor": true
                               }
                             }
                                     """)
@@ -347,7 +349,8 @@ public interface EventApiDocs {
                             "startDate": "2025-06-17",
                             "endDate": "2025-06-17",
                             "dday": "D-0",
-                            "location": "경기도 파주"
+                            "location": "경기도 파주",
+                            "isAuthor": false
                           },
                           {
                             "eventId": 2,
@@ -359,8 +362,8 @@ public interface EventApiDocs {
                             "startDate": "2025-06-18",
                             "endDate": "2025-06-23",
                             "dday": "D-1",
-                            "location": "서울시"
-                            
+                            "location": "서울시",
+                            "isAuthor": false
                           }
                         ]
                       }
@@ -410,7 +413,8 @@ public interface EventApiDocs {
                             "likes": 5,
                             "views": 0,
                             "startDate": "2025-06-17",
-                            "endDate": "2025-06-17"
+                            "endDate": "2025-06-17",
+                            "isAuthor": false
                           },
                           { ... }
                         ]
@@ -485,7 +489,8 @@ public interface EventApiDocs {
                             "receivePhoneNumber": false,
                             "receiveTotalCount": false,
                             "receiveSNSId": false,
-                            "receiveMoney": false
+                            "receiveMoney": false,
+                            "isAuthor": false
                           },
                           {
                             "eventId": 1,
@@ -504,7 +509,8 @@ public interface EventApiDocs {
                             "receivePhoneNumber": false,
                             "receiveTotalCount": false,
                             "receiveSNSId": false,
-                            "receiveMoney": false
+                            "receiveMoney": false,
+                            "isAuthor": false
                           }
                         ]
                       }
@@ -541,7 +547,8 @@ public interface EventApiDocs {
                                         "receivePhoneNumber": false,
                                         "receiveTotalCount": false,
                                         "receiveSNSId": false,
-                                        "receiveMoney": false
+                                        "receiveMoney": false,
+                                        "isAuthor": false
                                       },
                                       {
                                         "eventId": 7,
@@ -560,7 +567,8 @@ public interface EventApiDocs {
                                         "receivePhoneNumber": false,
                                         "receiveTotalCount": false,
                                         "receiveSNSId": false,
-                                        "receiveMoney": false
+                                        "receiveMoney": false,
+                                        "isAuthor": false
                                       }
                                     ]
                                   },
@@ -584,7 +592,8 @@ public interface EventApiDocs {
                                         "receivePhoneNumber": false,
                                         "receiveTotalCount": false,
                                         "receiveSNSId": false,
-                                        "receiveMoney": false
+                                        "receiveMoney": false,
+                                        "isAuthor": false
                                       }
                                     ]
                                   }
@@ -816,7 +825,8 @@ public interface EventApiDocs {
                                 "content": "댓글 써봄",
                                 "authorNickname": "익명",
                                 "anonymous": true,
-                                "createdAt": "2025-06-18T02:08:31.4185432"
+                                "createdAt": "2025-06-18T02:08:31.4185432",
+                                "isAuthor": true
                               }
                             }
                                         """)
@@ -883,7 +893,8 @@ public interface EventApiDocs {
                                 "content": "댓글 수정해봄",
                                 "authorNickname": "익명",
                                 "anonymous": true,
-                                "createdAt": "2025-06-18T02:56:10.818788"
+                                "createdAt": "2025-06-18T02:56:10.818788",
+                                "isAuthor": true
                               }
                             }
                                         """)
@@ -1002,7 +1013,8 @@ public interface EventApiDocs {
                                 "receiveSNSId": true,
                                 "receiveMoney": true,
                                 "depositAccount": "국민 XXXXXXXX",
-                                "depositAmount": 10000
+                                "depositAmount": 10000,
+                                "isAuthor": false
                               }
                             }
                                         """)
@@ -1050,6 +1062,7 @@ public interface EventApiDocs {
                                           "authorNickname": "BeatBuddy",
                                           "anonymous": false,
                                           "createdAt": "2025-06-18T02:28:19.423835",
+                                          "isAuthor": true,
                                           "replies": []
                                         },
                                         {
@@ -1059,6 +1072,7 @@ public interface EventApiDocs {
                                           "authorNickname": "익명",
                                           "anonymous": true,
                                           "createdAt": "2025-06-18T02:08:31.418543",
+                                          "isAuthor": false,
                                           "replies": [
                                             {
                                               "commentId": 1,
@@ -1066,6 +1080,7 @@ public interface EventApiDocs {
                                               "content": "대댓",
                                               "authorNickname": "익명",
                                               "anonymous": true,
+                                              "isAuthor": false,
                                               "createdAt": "2025-06-18T02:56:10.818788"
                                             },
                                             {
@@ -1074,6 +1089,7 @@ public interface EventApiDocs {
                                               "content": "string",
                                               "authorNickname": "익명",
                                               "anonymous": true,
+                                              "isAuthor": false,
                                               "createdAt": "2025-06-18T03:03:16.206686"
                                             }
                                           ]
@@ -1157,7 +1173,8 @@ public interface EventApiDocs {
                                                       "receiveTotalCount": false,
                                                       "receiveSNSId": false,
                                                       "receiveMoney": false,
-                                                      "dday": "D-1"
+                                                      "dday": "D-1",
+                                                      "isAuthor": true
                                                     },
                                                     {
                                                       "eventId": 12,
@@ -1177,7 +1194,8 @@ public interface EventApiDocs {
                                                       "receiveTotalCount": false,
                                                       "receiveSNSId": false,
                                                       "receiveMoney": false,
-                                                      "dday": "D-60"
+                                                      "dday": "D-60",
+                                                      "isAuthor": false
                                                     }
                                                   ]
                                                 }
@@ -1252,7 +1270,8 @@ public interface EventApiDocs {
                                                       "receivePhoneNumber": false,
                                                       "receiveTotalCount": false,
                                                       "receiveSNSId": false,
-                                                      "receiveMoney": false
+                                                      "receiveMoney": false,
+                                                      "isAuthor": false
                                                     }
                                                   ]
                                                 }
@@ -1330,7 +1349,8 @@ public interface EventApiDocs {
                                                       "receivePhoneNumber": false,
                                                       "receiveTotalCount": false,
                                                       "receiveSNSId": false,
-                                                      "receiveMoney": false
+                                                      "receiveMoney": false,
+                                                      "isAuthor": false
                                                     },
                                                     {
                                                       "eventId": 5,
@@ -1349,7 +1369,8 @@ public interface EventApiDocs {
                                                       "receivePhoneNumber": false,
                                                       "receiveTotalCount": false,
                                                       "receiveSNSId": false,
-                                                      "receiveMoney": false
+                                                      "receiveMoney": false,
+                                                      "isAuthor": false
                                                     }
                                                   ]
                                                 }
