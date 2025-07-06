@@ -36,16 +36,6 @@ public class CouponService {
     public CouponReceiveResponseDTO receiveCoupon(Long couponId, Long memberId) {
         String redisKey = CouponRedisKeyUtil.getQuotaKey(couponId, LocalDate.now());
 
-        CouponLuaScriptService.LuaResult result = luaScriptService.decreaseQuota(redisKey);
-
-        if (result == CouponLuaScriptService.LuaResult.SOLD_OUT) {
-            throw new CustomException(CouponErrorCode.COUPON_QUOTA_SOLD_OUT);
-        }
-
-        if (result == CouponLuaScriptService.LuaResult.NOT_INITIALIZED) {
-            throw new CustomException(CouponErrorCode.COUPON_QUOTA_NOT_INITIALIZED);
-        }
-
         Member member = memberService.validateAndGetMember(memberId);
 
         Coupon coupon = validateAndGetCoupon(couponId);
@@ -72,10 +62,19 @@ public class CouponService {
                 throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED_TODAY);
             }
         }
-
         // DB 저장
         MemberCoupon memberCoupon = MemberCoupon.toEntity(member, coupon);
         memberCouponRepository.save(memberCoupon);
+
+        CouponLuaScriptService.LuaResult result = luaScriptService.decreaseQuota(redisKey);
+
+        if (result == CouponLuaScriptService.LuaResult.SOLD_OUT) {
+            throw new CustomException(CouponErrorCode.COUPON_QUOTA_SOLD_OUT);
+        }
+
+        if (result == CouponLuaScriptService.LuaResult.NOT_INITIALIZED) {
+            throw new CustomException(CouponErrorCode.COUPON_QUOTA_NOT_INITIALIZED);
+        }
 
         return CouponReceiveResponseDTO.toDTO(memberCoupon.getId(), coupon, memberCoupon.getReceivedDate());
     }
@@ -121,8 +120,6 @@ public class CouponService {
         if (coupon.getExpireDate().isBefore(LocalDate.now())) {
             throw new CustomException(CouponErrorCode.COUPON_EXPIRED);
         }
-
-        // 수령한 쿠폰 있는지 확인
 
         // 이미 사용했는지 확인
         if (memberCoupon.getStatus() == MemberCoupon.CouponStatus.USED) {
