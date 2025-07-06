@@ -114,6 +114,14 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_UPDATE_VENUE_REVIEW(HttpStatus.OK, "베뉴 리뷰를 수정했습니다."),
     SUCCESS_VENUE_SEARCH(HttpStatus.OK, "베뉴 검색을 성공적으로 했습니다."),
     /**
+     * Coupon
+     * */
+    SUCCESS_GET_COUPON_LIST(HttpStatus.OK, "쿠폰 목록을 성공적으로 조회했습니다."),
+    SUCCESS_GET_COUPON_DETAIL(HttpStatus.OK, "쿠폰 상세 정보를 성공적으로 조회했습니다."),
+    SUCCESS_GET_MEMBER_COUPON_LIST(HttpStatus.OK, "내 쿠폰 목록을 성공적으로 조회했습니다."),
+    SUCCESS_RECEIVE_COUPON(HttpStatus.CREATED, "쿠폰을 성공적으로 발급했습니다."),
+
+    /**
      * empty
      * */
     SUCCESS_BUT_EMPTY_LIST(HttpStatus.OK,"성공적으로 조회했으나 리스트가 비었습니다."),
