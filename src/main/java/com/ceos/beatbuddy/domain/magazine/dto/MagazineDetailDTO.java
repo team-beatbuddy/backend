@@ -29,7 +29,9 @@ public class MagazineDetailDTO {
     private EventSimpleDTO eventSimpleDTO; // 이벤트 ID (optional, if applicable)
     private List<VenueSimpleDTO> venueSimpleDTOS; // 장소 ID 리스트 (optional, if applicable)
 
-    public static MagazineDetailDTO toDTO(Magazine magazine, boolean isLiked) {
+    private boolean isAuthor; // 작성자 여부
+
+    public static MagazineDetailDTO toDTO(Magazine magazine, boolean isLiked, boolean isAuthor) {
         return MagazineDetailDTO.builder()
                 .magazineId(magazine.getId())
                 .title(magazine.getTitle())
@@ -48,6 +50,7 @@ public class MagazineDetailDTO {
                         magazine.getVenues().stream()
                                 .map(VenueSimpleDTO::toDTO)
                                 .toList() : Collections.emptyList())
+                .isAuthor(isAuthor)
                 .build();
     }
 

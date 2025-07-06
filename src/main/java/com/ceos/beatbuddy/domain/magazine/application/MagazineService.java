@@ -99,7 +99,7 @@ public class MagazineService {
 
         magazineRepository.save(entity);
 
-        return MagazineDetailDTO.toDTO(entity, false);
+        return MagazineDetailDTO.toDTO(entity, false, true); // 작성자는 항상 좋아요가 false로 설정됨
     }
     /**
      * 홈 화면에 노출할 매거진 목록을 조회합니다. (표시 가능한 매거진만 반환) 5개 반환
@@ -123,9 +123,13 @@ public class MagazineService {
                 .map(like -> like.getMagazine().getId())
                 .collect(Collectors.toSet());
 
-        // 매거진 + 좋아요 여부 DTO 매핑
+        // 매거진 + 좋아요 여부 + 본인 글 여부 DTO 매핑
         return magazines.stream()
-                .map(magazine -> MagazineHomeResponseDTO.toDTO(magazine, likedMagazineIds.contains(magazine.getId())))
+                .map(magazine -> MagazineHomeResponseDTO.toDTO(
+                        magazine,
+                        likedMagazineIds.contains(magazine.getId()),
+                        magazine.getMember().getId().equals(memberId) // 본인 글 여부
+                ))
                 .toList();
     }
 
@@ -150,7 +154,7 @@ public class MagazineService {
         boolean isLiked = magazineLikeRepository.existsById(
                 MagazineInteractionId.builder().memberId(memberId).magazineId(magazineId).build());
 
-        return MagazineDetailDTO.toDTO(magazine, isLiked);
+        return MagazineDetailDTO.toDTO(magazine, isLiked, magazine.getMember().getId().equals(memberId));
     }
 
     // 전체 목록 조회, 좋아요 여부 체크
@@ -169,7 +173,8 @@ public class MagazineService {
         Set<Long> likedIdSet = new HashSet<>(likedIds);
 
         List<MagazineDetailDTO> magazineDetailDTOS = magazines.stream()
-                .map(magazine -> MagazineDetailDTO.toDTO(magazine, likedIdSet.contains(magazine.getId())))
+                .map(magazine -> MagazineDetailDTO.toDTO(magazine, likedIdSet.contains(magazine.getId()),
+                        magazine.getMember().getId().equals(memberId)))
                 .toList();
 
         return MagazinePageResponseDTO.builder()
