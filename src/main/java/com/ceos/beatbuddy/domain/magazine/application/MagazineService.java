@@ -16,6 +16,8 @@ import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineInteractionId;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineLike;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.MagazineLikeRepository;
+import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
+import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
 import com.ceos.beatbuddy.global.code.ErrorCode;
@@ -39,6 +41,7 @@ public class MagazineService {
     private final MagazineLikeRepository magazineLikeRepository;
     private final MagazineQueryRepository magazineQueryRepository;
     private final EventService eventService;
+    private final VenueInfoService venueInfoService;
 
     private final UploadUtil uploadUtil;
     /**
@@ -75,6 +78,11 @@ public class MagazineService {
             entity.setEvent(event);
         }
 
+        // 관련 베뉴 존재 시, 유효성 검사 및 추가
+        if (dto.getVenueIds() != null && !dto.getVenueIds().isEmpty()) {
+            List<Venue> venues = dto.getVenueIds().stream().map(venueInfoService::validateAndGetVenue).collect(Collectors.toList());
+            entity.setVenues(venues);
+        }
 
         // 썸네일 업로드
         if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
@@ -261,13 +269,15 @@ public class MagazineService {
     // 홈에 고정되는 매거진의 유효성 검사
     private void validatePinnedMagazine(MagazineRequestDTO dto) {
         if (dto.isPinned()) {
-            // 1. orderInHome 필드 유효성 검사
-            if (dto.getOrderInHome() <= 0) {
+            Integer order = dto.getOrderInHome();
+
+            // 1. null 또는 1~5 범위 밖이면 에러
+            if (order == null || order < 1 || order > 5) {
                 throw new CustomException(MagazineErrorCode.INVALID_ORDER_IN_HOME);
             }
 
-            // 2. 동일한 orderInHome 값이 이미 존재하는지 체크
-            boolean exists = magazineRepository.existsByIsPinnedTrueAndOrderInHome(dto.getOrderInHome());
+            // 2. 동일한 orderInHome이 이미 존재하면 에러
+            boolean exists = magazineRepository.existsByIsPinnedTrueAndOrderInHome(order);
             if (exists) {
                 throw new CustomException(MagazineErrorCode.DUPLICATE_ORDER_IN_HOME);
             }
