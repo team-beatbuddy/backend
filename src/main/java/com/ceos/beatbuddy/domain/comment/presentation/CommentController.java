@@ -92,7 +92,7 @@ public class CommentController {
             @PathVariable Long commentId,
             @RequestBody CommentRequestDto requestDto) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(commentService.updateComment(commentId, memberId, requestDto, memberId));
+        return ResponseEntity.ok(commentService.updateComment(commentId, memberId, requestDto));
     }
 
     @DeleteMapping("/{commentId}")
