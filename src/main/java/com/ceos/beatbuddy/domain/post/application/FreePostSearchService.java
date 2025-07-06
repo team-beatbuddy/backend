@@ -112,7 +112,8 @@ public class FreePostSearchService {
                             status.likedPostIds().contains(post.getId()),
                             status.scrappedPostIds().contains(post.getId()),
                             status.commentedPostIds().contains(post.getId()),
-                            post.getHashtag() != null ? post.getHashtag() : Collections.emptyList()
+                            post.getHashtag() != null ? post.getHashtag() : Collections.emptyList(),
+                            post.getMember().getId().equals(memberId)
                     ))
                     .toList();
 
