@@ -63,7 +63,7 @@ public class EventService {
 
         eventRepository.save(event);
 
-        return EventResponseDTO.toDTO(event, false);
+        return EventResponseDTO.toDTO(event, false, true); // 좋아요 여부는 false, 내가 작성자 여부는 true로 설정
     }
 
     @Transactional
@@ -116,7 +116,7 @@ public class EventService {
 
         // 5. 응답 생성
         boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, eventId));
-        return EventResponseDTO.toDTO(event, liked);
+        return EventResponseDTO.toDTO(event, liked, true); // 좋아요 여부는 조회 후 설정, 내가 작성자 여부는 true로 설정
     }
 
     @Transactional
@@ -149,7 +149,7 @@ public class EventService {
         List<Event> events = eventQueryRepository.findUpcomingEvents(sort, offset, size);
 
         List<EventResponseDTO> dto = events.stream()
-                .map(EventResponseDTO::toUpcomingListDTO)
+                .map(event -> EventResponseDTO.toUpcomingListDTO(event, member.getId().equals(event.getHost().getId())))
                 .toList();
 
         int totalSize = eventQueryRepository.countUpcomingEvents(); // 총 개수 (페이지네이션용)
@@ -171,7 +171,7 @@ public class EventService {
         List<Event> events = eventQueryRepository.findNowEvents(sort, offset, size);
 
         List<EventResponseDTO> dto = events.stream()
-                .map(EventResponseDTO::toNowListDTO)
+                .map(event -> EventResponseDTO.toNowListDTO(event, member.getId().equals(event.getHost().getId())))
                 .toList();
 
         int totalSize = eventQueryRepository.countNowEvents(); // 총 개수 (페이지네이션용)
@@ -231,7 +231,7 @@ public class EventService {
         int total = eventQueryRepository.countPastEvents();
 
         List<EventResponseDTO> responseList = events.stream()
-                .map(EventResponseDTO::toPastListDTO)
+                .map(event -> EventResponseDTO.toPastListDTO(event, member.getId().equals(event.getHost().getId())))
                 .toList();
 
         return EventListResponseDTO.builder()
@@ -292,7 +292,7 @@ public class EventService {
         // 좋아요 여부 확인
         boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, eventId));
 
-        return EventResponseDTO.toDTO(event, liked);
+        return EventResponseDTO.toDTO(event, liked, member.getId().equals(event.getHost().getId()));
     }
 
     // 내가 작성한 이벤트
@@ -301,17 +301,17 @@ public class EventService {
 
         List<EventResponseDTO> upcoming = eventQueryRepository.findMyUpcomingEvents(member)
                 .stream()
-                .map(EventResponseDTO::toUpcomingListDTO)
+                .map(event -> EventResponseDTO.toUpcomingListDTO(event, member.getId().equals(event.getHost().getId())))
                 .toList();
 
         List<EventResponseDTO> now = eventQueryRepository.findMyNowEvents(member)
                 .stream()
-                .map(EventResponseDTO::toNowListDTO)
+                .map(event -> EventResponseDTO.toNowListDTO(event, member.getId().equals(event.getHost().getId())))
                 .toList();
 
         List<EventResponseDTO> past = eventQueryRepository.findMyPastEvents(member)
                 .stream()
-                .map(EventResponseDTO::toPastListDTO)
+                .map(event -> EventResponseDTO.toPastListDTO(event, member.getId().equals(event.getHost().getId())))
                 .toList();
 
         Map<String, List<EventResponseDTO>> result = new HashMap<>();
