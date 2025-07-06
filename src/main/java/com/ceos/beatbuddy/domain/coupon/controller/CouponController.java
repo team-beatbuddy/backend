@@ -17,11 +17,9 @@ public class CouponController {
 
     @PostMapping("/{couponId}/receive")
     public ResponseEntity<ResponseDTO<CouponReceiveResponseDTO>> receiveCoupon(
-            @PathVariable Long couponId,
-            @RequestParam Long venueId
-    ) {
+            @PathVariable Long couponId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        CouponReceiveResponseDTO result = couponService.receiveCoupon(couponId, venueId, memberId);
+        CouponReceiveResponseDTO result = couponService.receiveCoupon(couponId, memberId);
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_RECEIVE_COUPON.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_RECEIVE_COUPON, result));

@@ -13,14 +13,13 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CouponReceiveResponseDTO {
-    private Long couponId;
-    private String message;
+    private Long receivedCouponId;
     private LocalDate receivedDate;
     private LocalDate expireDate;
 
-    public static CouponReceiveResponseDTO toDTO(Long couponId, Coupon coupon, LocalDate receivedDate) {
+    public static CouponReceiveResponseDTO toDTO(Long receivedCouponId, Coupon coupon, LocalDate receivedDate) {
         return CouponReceiveResponseDTO.builder()
-                .couponId(couponId)
+                .receivedCouponId(receivedCouponId)
                 .receivedDate(receivedDate)
                 .expireDate(coupon.getExpireDate())
                 .build();

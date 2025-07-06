@@ -33,8 +33,8 @@ public class CouponService {
     private final MemberCouponRepository memberCouponRepository;
 
     @Transactional
-    public CouponReceiveResponseDTO receiveCoupon(Long couponId, Long venueId, Long memberId) {
-        String redisKey = CouponRedisKeyUtil.getQuotaKey(venueId, couponId, LocalDate.now());
+    public CouponReceiveResponseDTO receiveCoupon(Long couponId, Long memberId) {
+        String redisKey = CouponRedisKeyUtil.getQuotaKey(couponId, LocalDate.now());
 
         CouponLuaScriptService.LuaResult result = luaScriptService.decreaseQuota(redisKey);
 
@@ -50,7 +50,13 @@ public class CouponService {
 
         Coupon coupon = validateAndGetCoupon(couponId);
 
-        Venue venue = venueInfoService.validateAndGetVenue(venueId);
+        if (coupon.getExpireDate().isBefore(LocalDate.now())) {
+            throw new CustomException(CouponErrorCode.COUPON_EXPIRED);
+        }
+
+        if (coupon.getActive() != null && !coupon.getActive()) {
+            throw new CustomException(CouponErrorCode.COUPON_DISABLED);
+        }
 
         // 중복 수령 방지 로직
         boolean alreadyReceived;
@@ -68,10 +74,10 @@ public class CouponService {
         }
 
         // DB 저장
-        MemberCoupon memberCoupon = MemberCoupon.toEntity(member, coupon, venue);
+        MemberCoupon memberCoupon = MemberCoupon.toEntity(member, coupon);
         memberCouponRepository.save(memberCoupon);
 
-        return CouponReceiveResponseDTO.toDTO(couponId, coupon, memberCoupon.getReceivedDate());
+        return CouponReceiveResponseDTO.toDTO(memberCoupon.getId(), coupon, memberCoupon.getReceivedDate());
     }
 
     public Coupon validateAndGetCoupon(Long couponId) {
@@ -101,10 +107,33 @@ public class CouponService {
         couponRepository.save(coupon);
 
         // 4. Redis quota 설정
-        String redisKey = CouponRedisKeyUtil.getQuotaKey(
-                request.getVenueId(), coupon.getId(), LocalDate.now());
+        String redisKey = CouponRedisKeyUtil.getQuotaKey(coupon.getId(), LocalDate.now());
 
         redisTemplate.opsForValue().set(redisKey, String.valueOf(request.getQuota()));
 
+    }
+
+    @Transactional
+    public void useCoupon(Long couponId, Long memberId) {
+        // Member, Coupon 조회
+        Member member = memberService.validateAndGetMember(memberId);
+        Coupon coupon = validateAndGetCoupon(couponId);
+
+        if (coupon.getExpireDate().isBefore(LocalDate.now())) {
+            throw new CustomException(CouponErrorCode.COUPON_EXPIRED);
+        }
+
+        // 수령한 쿠폰 있는지 확인
+        MemberCoupon memberCoupon = memberCouponRepository.findByMemberAndCouponAndReceivedDate(
+                        member, coupon, LocalDate.now())
+                .orElseThrow(() -> new CustomException(CouponErrorCode.COUPON_NOT_FOUND));
+
+        // 이미 사용했는지 확인
+        if (memberCoupon.getStatus() == MemberCoupon.CouponStatus.USED) {
+            throw new CustomException(CouponErrorCode.COUPON_ALREADY_USED);
+        }
+
+        // 상태 변경
+        memberCoupon.markUsed(); // status = USED
     }
 }
