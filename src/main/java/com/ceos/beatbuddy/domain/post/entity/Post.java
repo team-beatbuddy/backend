@@ -34,9 +34,7 @@ public abstract class Post extends BaseTimeEntity {
     private boolean anonymous;
     private int likes;
     private int views;
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostScrap> scraps = new ArrayList<>();
+    private int scraps;
 
     private int comments;
 
@@ -58,7 +56,7 @@ public abstract class Post extends BaseTimeEntity {
         this.member = member;
         this.likes = 0;
         this.views = 0;
-        this.scraps = null;
+        this.scraps = 0;
         this.comments = 0;
     }
 
