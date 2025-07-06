@@ -97,6 +97,13 @@ public interface MagazineApiDocs {
                                               "message": "매거진이 성공적으로 불러왔습니다.",
                                               "data": [
                                                 {
+                                                  "magazineId": 6,
+                                                  "thumbImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/magazine/20250704_223455_99e8329b-486b-4aea-ae1b-e83b5c55e895.png",
+                                                  "title": "매거진 1 작성작성성",
+                                                  "content": "매거진 1 1111111",
+                                                  "liked": false
+                                                },
+                                                {
                                                   "magazineId": 1,
                                                   "thumbImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png",
                                                   "title": "제목",
