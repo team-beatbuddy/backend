@@ -95,25 +95,25 @@ public class MagazineController implements MagazineApiDocs{
     // 매거진에 좋아요 표시하기
     @Override
     @PostMapping("/{magazineId}/like")
-    public ResponseEntity<ResponseDTO<MagazineDetailDTO>> likeMagazine(@PathVariable Long magazineId) {
+    public ResponseEntity<ResponseDTO<String>> likeMagazine(@PathVariable Long magazineId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        MagazineDetailDTO result = magazineService.likeMagazine(magazineId, memberId);
+        magazineService.likeMagazine(magazineId, memberId);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_LIKE_MAGAZINE.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_MAGAZINE, result));
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_MAGAZINE, "좋아요를 표시했습니다."));
     }
 
     // 매거진 좋아요 삭제
     @Override
     @DeleteMapping("/{magazineId}/like")
-    public ResponseEntity<ResponseDTO<MagazineDetailDTO>> deleteLikeMagazine(@PathVariable Long magazineId) {
+    public ResponseEntity<ResponseDTO<String>> deleteLikeMagazine(@PathVariable Long magazineId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        MagazineDetailDTO result = magazineService.deleteLikeMagazine(magazineId, memberId);
+        magazineService.deleteLikeMagazine(magazineId, memberId);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_LIKE_MAGAZINE.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_MAGAZINE, result));
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_MAGAZINE, "좋아요를 취소했습니다."));
     }
 
 }
