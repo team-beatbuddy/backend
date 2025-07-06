@@ -1,5 +1,7 @@
 package com.ceos.beatbuddy.domain.magazine.application;
 
+import com.ceos.beatbuddy.domain.event.application.EventService;
+import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineDetailDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineHomeResponseDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazinePageResponseDTO;
@@ -14,6 +16,8 @@ import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineInteractionId;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineLike;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.MagazineLikeRepository;
+import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
+import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
 import com.ceos.beatbuddy.global.code.ErrorCode;
@@ -36,20 +40,30 @@ public class MagazineService {
     private final MemberService memberService;
     private final MagazineLikeRepository magazineLikeRepository;
     private final MagazineQueryRepository magazineQueryRepository;
+    private final EventService eventService;
+    private final VenueInfoService venueInfoService;
 
     private final UploadUtil uploadUtil;
     /**
      * 매거진을 생성합니다. (관리자 또는 비즈니스 회원만 가능)
      *
-     * @param memberId 매거진을 작성하는 회원의 ID
-     * @param dto 매거진 생성 요청 DTO
-     * @param images 첨부 이미지 리스트
+     * @param memberId       매거진을 작성하는 회원의 ID
+     * @param dto            매거진 생성 요청 DTO
+     * @param images         첨부 이미지 리스트
+     * @param thumbnailImage 썸네일 이미지
      * @return 생성된 매거진의 상세 DTO
      * @throws CustomException 권한이 없는 회원이 요청한 경우
      */
     @Transactional
-    public MagazineDetailDTO addMagazine(Long memberId, MagazineRequestDTO dto, List<MultipartFile> images) throws RuntimeException {
+    public MagazineDetailDTO addMagazine(Long memberId, MagazineRequestDTO dto, List<MultipartFile> images, MultipartFile thumbnailImage) throws RuntimeException {
         Member member = memberService.validateAndGetMember(memberId);
+        // 고정된 매거진이라면 숫자가 있어야 함. 유효성 검사 (또한, 따로 isPinned 된 매거진 중 같은 숫자일 수 없음)
+        validatePinnedMagazine(dto);
+
+        // 이미지 20장 넘지 않도록 체크
+        if (images != null && images.size() > 20) {
+            throw new CustomException(ErrorCode.TOO_MANY_IMAGES_20);
+        }
 
         if (member.getRole() != Role.ADMIN && member.getRole() != Role.BUSINESS) {
             throw new CustomException(MagazineErrorCode.CANNOT_ADD_MAGAZINE_UNAUTHORIZED_MEMBER);
@@ -58,12 +72,27 @@ public class MagazineService {
         // 엔티티로 변경
         Magazine entity = MagazineRequestDTO.toEntity(dto, member);
 
-        List<String> imageUrls = null;
+        // 이벤트 유효성 검사
+        if (dto.getEventId() != null) {
+            Event event = eventService.validateAndGet(dto.getEventId());
+            entity.setEvent(event);
+        }
+
+        // 관련 베뉴 존재 시, 유효성 검사 및 추가
+        if (dto.getVenueIds() != null && !dto.getVenueIds().isEmpty()) {
+            List<Venue> venues = dto.getVenueIds().stream().map(venueInfoService::validateAndGetVenue).collect(Collectors.toList());
+            entity.setVenues(venues);
+        }
+
+        // 썸네일 업로드
+        if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
+            String thumbImageUrl = uploadUtil.upload(thumbnailImage, UploadUtil.BucketType.MEDIA, "magazine");
+            entity.setThumbImage(thumbImageUrl);
+        }
+
         // 이미지 업로드 (이미지가 비어있는 경우는 제외)
         if (images != null && !images.isEmpty()) {
-            imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "magazine");
-            // 썸네일 저장
-            entity.setThumbImage(imageUrls.get(0));
+            List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "magazine");
             // 엔티티에 이미지 세팅
             entity.setImageUrls(imageUrls);
         }
@@ -161,7 +190,7 @@ public class MagazineService {
      * @throws CustomException 매거진이 존재하지 않거나, 표시되지 않거나, 이미 좋아요를 등록한 경우
      */
     @Transactional
-    public MagazineDetailDTO likeMagazine(Long magazineId, Long memberId) {
+    public void likeMagazine(Long magazineId, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
 
         // 엔티티 검색
@@ -172,16 +201,12 @@ public class MagazineService {
                 MagazineInteractionId.builder().memberId(memberId).magazineId(magazineId).build());
 
         if (alreadyLiked) {
-            throw new CustomException(MagazineErrorCode.ALREADY_LIKE_MAGAZINE);
+            throw new CustomException(ErrorCode.ALREADY_LIKED);
         }
 
         MagazineLike entity = MagazineLike.toEntity(member, magazine);
         magazineLikeRepository.save(entity);
         magazineRepository.increaseLike(magazineId);
-
-        Magazine updatedEntity = this.validateAndGetMagazine(magazineId);
-
-        return MagazineDetailDTO.toDTO(updatedEntity, true);
     }
 
     /**
@@ -193,7 +218,7 @@ public class MagazineService {
      * @throws CustomException 좋아요가 존재하지 않거나, 매거진/회원이 존재하지 않는 경우
      */
     @Transactional
-    public MagazineDetailDTO deleteLikeMagazine(Long magazineId, Long memberId) {
+    public void deleteLikeMagazine(Long magazineId, Long memberId) {
         memberService.validateAndGetMember(memberId);
 
         // 엔티티 검색
@@ -207,10 +232,6 @@ public class MagazineService {
 
         magazineLikeRepository.delete(magazineLike);
         magazineRepository.decreaseLike(magazineId);
-
-        Magazine updatedEntity = this.validateAndGetMagazine(magazineId);
-
-        return MagazineDetailDTO.toDTO(updatedEntity, false);
     }
 
     /**
@@ -235,5 +256,23 @@ public class MagazineService {
     private Magazine validateAndGetMagazine(Long magazineId) {
         return magazineRepository.findById(magazineId).orElseThrow(() ->
                 new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST));
+    }
+
+    // 홈에 고정되는 매거진의 유효성 검사
+    private void validatePinnedMagazine(MagazineRequestDTO dto) {
+        if (dto.isPinned()) {
+            Integer order = dto.getOrderInHome();
+
+            // 1. null 또는 1~5 범위 밖이면 에러
+            if (order == null || order < 1 || order > 5) {
+                throw new CustomException(MagazineErrorCode.INVALID_ORDER_IN_HOME);
+            }
+
+            // 2. 동일한 orderInHome이 이미 존재하면 에러
+            boolean exists = magazineRepository.existsByIsPinnedTrueAndOrderInHome(order);
+            if (exists) {
+                throw new CustomException(MagazineErrorCode.DUPLICATE_ORDER_IN_HOME);
+            }
+        }
     }
 }

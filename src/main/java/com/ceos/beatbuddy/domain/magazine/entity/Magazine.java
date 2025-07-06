@@ -1,7 +1,9 @@
 package com.ceos.beatbuddy.domain.magazine.entity;
 
+import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineLike;
+import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,14 +30,28 @@ public class Magazine extends BaseTimeEntity {
     private int likes;
     private int views;
 
-    @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<MagazineLike> likeList = new ArrayList<>();
-
     private boolean isVisible = true; // 띄워줄 매거진만
     private boolean isPinned = false; // 고정된 매거진인지 여부
     // 스폰서 여부
     private boolean isSponsored = false; // 스폰서 매거진인지 여부
+    private boolean isPicked = false; // 픽된 매거진인지 여부
+
+    @OneToOne
+    @JoinColumn(name = "eventId") // Magazine 테이블에 eventId 외래키 생성됨
+    private Event event;
+
+    @ManyToMany
+    @JoinTable(
+            name = "magazineVenue",
+            joinColumns = @JoinColumn(name = "magazineId"),
+            inverseJoinColumns = @JoinColumn(name = "venueId")
+    )
+    @Builder.Default
+    private List<Venue> venues = new ArrayList<>();
+
+
+
+    private int orderInHome; // 홈에서의 순서
 
     @ElementCollection
     private List<String> imageUrls;
@@ -57,4 +73,10 @@ public class Magazine extends BaseTimeEntity {
         views++;
     }
 
+    public void setEvent(Event event) {this.event = event;
+    }
+
+    public void setVenues(List<Venue> venues) {
+        this.venues = venues;
+    }
 }

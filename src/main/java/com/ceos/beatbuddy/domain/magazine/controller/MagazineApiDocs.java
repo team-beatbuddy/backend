@@ -23,8 +23,20 @@ import java.util.List;
 
 public interface MagazineApiDocs {
     @Operation(summary = "홈에 보이는 매거진, 작성 기능\n",
-            description = "admin과 business 멤버에 한해서만 매거진을 작성할 수 있도록 해두었습니다. (추후 변경 가능), 데이터 전달은 multipart/form-data이며, \n" +
-                    "        'magazineRequestDTO'는 JSON 문자열 형태로 전송해야 합니다.")
+            description = """
+                    admin과 business 멤버에 한해서만 매거진을 작성할 수 있도록 해두었습니다. (추후 변경 가능)
+                    - 데이터 전달은 multipart/form-data이며, 'magazineRequestDTO'는 JSON 문자열 형태로 전송해야 합니다.
+                    - pinned: 홈에 고정된 매거진 (null 이면 false)
+                    - visible: 매거진이 보이는지 여부 (null 이면 false)
+                    - sponsored: 스폰서 매거진인지 여부 (null 이면 false)
+                    - picked: 비트버디 픽된 매거진인지 여부 (null 이면 false)
+                    - orderInHome: 홈에서의 순서 (1부터 시작)
+                        - pinned (고정된 매거진)인 경우, orderInHome(홈에서의 순서)가 1 이상이어야 합니다.\
+                        - 만약 pinned 가 false 인데 orderInHome 을 넣었다면 자동으로 0으로 저장됩니다.
+                    - eventId: 이 매거진이 속한 이벤트의 ID (선택 사항)
+                    - thumbnailImage: 매거진의 썸네일 이미지 (현재까지는 선택 사항...)
+                    - venueIds: 매거진에 포함된 장소들의 ID 리스트 (선택 사항)
+                    """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "매거진이 성공적으로 작성되었습니다.",
                     content = @Content(
@@ -53,12 +65,21 @@ public interface MagazineApiDocs {
                     )
             ),
             @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청",
+                    content = @Content(mediaType = "application/json",
+                            examples = {@ExampleObject(name = "홈에서의 순서가 잘못되었습니다.", value = SwaggerExamples.INVALID_ORDER_IN_HOME),
+                                    @ExampleObject(name = "홈에서의 순서가 중복되었습니다.", value = SwaggerExamples.DUPLICATE_ORDER_IN_HOME) }
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "404",
-                    description = "존재하지 않는 유저",
+                    description = "리소스 없음",
                     content = @Content(
                             mediaType = "application/json",
                             examples =
-                                    @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)
+                                    {@ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                     @ExampleObject(name = "존재하지 않는 이벤트", value = SwaggerExamples.NOT_FOUND_EVENT) }
                     )
             ),
             @ApiResponse(
@@ -76,10 +97,11 @@ public interface MagazineApiDocs {
     })
     ResponseEntity<ResponseDTO<MagazineDetailDTO>> addMagazine(
             @Valid @RequestPart("magazineRequestDTO") MagazineRequestDTO magazineRequestDTO,
+            @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage,
             @RequestPart(value = "images", required = false) List<MultipartFile> images);
 
     @Operation(summary = "홈에 보이는 매거진, 조회 기능\n",
-            description = "매거진 리스트 조회 기능")
+            description = "매거진 리스트 조회 기능, 어드민의 요청 순서대로 정렬해서 전달합니다.")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -94,21 +116,25 @@ public interface MagazineApiDocs {
                                             {
                                               "status": 200,
                                               "code": "SUCCESS_GET_MAGAZINE_LIST",
-                                              "message": "매거진이 성공적으로 불러왔습니다.",
+                                              "message": "매거진을 성공적으로 불러왔습니다.",
                                               "data": [
                                                 {
                                                   "magazineId": 6,
                                                   "thumbImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/magazine/20250704_223455_99e8329b-486b-4aea-ae1b-e83b5c55e895.png",
                                                   "title": "매거진 1 작성작성성",
                                                   "content": "매거진 1 1111111",
-                                                  "liked": false
+                                                  "liked": false,
+                                                  "sponsored": false,
+                                                  "picked": false
                                                 },
                                                 {
                                                   "magazineId": 1,
-                                                  "thumbImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png",
+                                                  "thumbImageUrl": "",
                                                   "title": "제목",
                                                   "content": "내용",
-                                                  "liked": false
+                                                  "liked": false,
+                                                  "sponsored": false,
+                                                  "picked": false
                                                 }
                                               ]
                                             }
@@ -143,79 +169,88 @@ public interface MagazineApiDocs {
                                     @ExampleObject(
                                             name = "매거진 전체 조회 성공",
                                             value = """
-                                            {
-                                              "status": 200,
-                                              "code": "SUCCESS_GET_MAGAZINE_LIST",
-                                              "message": "매거진을 성공적으로 불러왔습니다.",
-                                              "data": {
-                                                "page": 1,
-                                                "size": 10,
-                                                "totalCount": 5,
-                                                "magazines": [
-                                                  {
-                                                    "magazineId": 5,
-                                                    "title": "string",
-                                                    "content": "string",
-                                                    "writerId": 156,
-                                                    "imageUrls": [
-                                                      "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/magazine/20250702_035225_b7c88a0b-f4e0-490a-a318-fd29380b12c1.png"
-                                                    ],
-                                                    "views": 0,
-                                                    "likes": 0,
-                                                    "createdAt": "2025-07-02T03:52:26.569143",
-                                                    "liked": false
-                                                  },
-                                                  {
-                                                    "magazineId": 4,
-                                                    "title": "string",
-                                                    "content": "string",
-                                                    "writerId": 156,
-                                                    "imageUrls": [
-                                                      "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/magazine/20250702_035127_a96f05c4-441c-49be-9b41-83d1b7b2aa08.png"
-                                                    ],
-                                                    "views": 0,
-                                                    "likes": 0,
-                                                    "createdAt": "2025-07-02T03:51:28.732743",
-                                                    "liked": false
-                                                  },
-                                                  {
-                                                    "magazineId": 3,
-                                                    "title": "string",
-                                                    "content": "string",
-                                                    "writerId": 156,
-                                                    "imageUrls": [],
-                                                    "views": 0,
-                                                    "likes": 0,
-                                                    "createdAt": "2025-07-02T03:35:20.952583",
-                                                    "liked": false
-                                                  },
-                                                  {
-                                                    "magazineId": 2,
-                                                    "title": "string",
-                                                    "content": "string",
-                                                    "writerId": 156,
-                                                    "imageUrls": [],
-                                                    "views": 0,
-                                                    "likes": 0,
-                                                    "createdAt": "2025-07-02T03:32:48.383555",
-                                                    "liked": false
-                                                  },
-                                                  {
-                                                    "magazineId": 1,
-                                                    "title": "제목",
-                                                    "content": "내용",
-                                                    "writerId": 156,
-                                                    "imageUrls": [
-                                                      "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png"
-                                                    ],
-                                                    "views": 0,
-                                                    "likes": 0,
-                                                    "createdAt": "2025-06-12T14:05:40.216235",
-                                                    "liked": false
-                                                  }
-                                                ]
-                                              }
-                                            }
+                                                    {
+                                                      "status": 200,
+                                                      "code": "SUCCESS_GET_MAGAZINE_LIST",
+                                                      "message": "매거진을 성공적으로 불러왔습니다.",
+                                                      "data": {
+                                                        "page": 1,
+                                                        "size": 10,
+                                                        "totalCount": 10,
+                                                        "magazines": [
+                                                          {
+                                                            "magazineId": 22,
+                                                            "title": "string",
+                                                            "content": "string",
+                                                            "writerId": 168,
+                                                            "imageUrls": [],
+                                                            "thumbImage": "",
+                                                            "views": 0,
+                                                            "likes": 0,
+                                                            "createdAt": "2025-07-06T20:32:38.659096",
+                                                            "liked": false,
+                                                            "sponsored": true,
+                                                            "picked": true,
+                                                            "eventSimpleDTO": {
+                                                              "eventId": 1,
+                                                              "title": "이벤트 시작"
+                                                            },
+                                                            "venueSimpleDTOS": [
+                                                              {
+                                                                "venueId": 1,
+                                                                "koreanName": "클럽 트립",
+                                                                "englishName": "CLUB TRIP"
+                                                              },
+                                                              {
+                                                                "venueId": 2,
+                                                                "koreanName": "클럽 어스",
+                                                                "englishName": "CLUB US"
+                                                              },
+                                                              {
+                                                                "venueId": 3,
+                                                                "koreanName": "플러스82",
+                                                                "englishName": "PLUS82SEOUL"
+                                                              }
+                                                            ]
+                                                          },
+                                                          {
+                                                            "magazineId": 21,
+                                                            "title": "string",
+                                                            "content": "string",
+                                                            "writerId": 168,
+                                                            "imageUrls": [],
+                                                            "thumbImage": "",
+                                                            "views": 0,
+                                                            "likes": 0,
+                                                            "createdAt": "2025-07-06T20:19:15.398591",
+                                                            "liked": false,
+                                                            "sponsored": false,
+                                                            "picked": false,
+                                                            "eventSimpleDTO": null,
+                                                            "venueSimpleDTOS": []
+                                                          },
+                                                          {
+                                                            "magazineId": 7,
+                                                            "title": "매거진 222222 작성작성성",
+                                                            "content": "매거진 222222222222222",
+                                                            "writerId": 168,
+                                                            "imageUrls": [
+                                                              "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/magazine/20250704_223543_68e20252-bce3-4b1d-892b-69f420c0cfa5.jpg",
+                                                              "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/magazine/20250704_223543_16c0661f-9cea-46f6-a275-3d0d518f5ee2.jpg"
+                                                            ],
+                                                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/magazine/20250704_223543_68e20252-bce3-4b1d-892b-69f420c0cfa5.jpg",
+                                                            "views": 0,
+                                                            "likes": 0,
+                                                            "createdAt": "2025-07-04T22:35:43.57882",
+                                                            "liked": false,
+                                                            "sponsored": false,
+                                                            "picked": false,
+                                                            "eventSimpleDTO": null,
+                                                            "venueSimpleDTOS": []
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
                                             """
                                     ),
                                     @ExampleObject(name = "빈 매거진 리스트", value = SwaggerExamples.SUCCESS_BUT_EMPTY_LIST)
@@ -258,17 +293,41 @@ public interface MagazineApiDocs {
                             {
                               "status": 200,
                               "code": "SUCCESS_GET_MAGAZINE_LIST",
-                              "message": "매거진이 성공적으로 불러왔습니다.",
+                              "message": "매거진을 성공적으로 불러왔습니다.",
                               "data": {
-                                "magazineId": 1,
-                                "title": "제목",
-                                "content": "내용",
-                                "memberId": 156,
-                                "imageUrls": [
-                                  "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png"
-                                ],
-                                "views": 0,
-                                "likes": 0
+                                "magazineId": 22,
+                                "title": "string",
+                                "content": "string",
+                                "writerId": 168,
+                                "imageUrls": [],
+                                "thumbImage": "",
+                                "views": 1,
+                                "likes": 0,
+                                "createdAt": "2025-07-06T20:32:38.659096",
+                                "liked": false,
+                                "sponsored": true,
+                                "picked": true,
+                                "eventSimpleDTO": {
+                                  "eventId": 1,
+                                  "title": "이벤트 시작"
+                                },
+                                "venueSimpleDTOS": [
+                                  {
+                                    "venueId": 1,
+                                    "koreanName": "클럽 트립",
+                                    "englishName": "CLUB TRIP"
+                                  },
+                                  {
+                                    "venueId": 2,
+                                    "koreanName": "클럽 어스",
+                                    "englishName": "CLUB US"
+                                  },
+                                  {
+                                    "venueId": 3,
+                                    "koreanName": "플러스82",
+                                    "englishName": "PLUS82SEOUL"
+                                  }
+                                ]
                               }
                             }
                                     """)
@@ -300,17 +359,7 @@ public interface MagazineApiDocs {
                               "status": 201,
                               "code": "SUCCESS_LIKE_MAGAZINE",
                               "message": "매거진에 성공적으로 좋아요를 표시했습니다.",
-                              "data": {
-                                "magazineId": 1,
-                                "title": "제목",
-                                "content": "내용",
-                                "memberId": 156,
-                                "imageUrls": [
-                                  "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png"
-                                ],
-                                "views": 0,
-                                "likes": 1
-                              }
+                              "data": "좋아요를 표시했습니다."
                             }
                                     """)
                     )
@@ -334,7 +383,7 @@ public interface MagazineApiDocs {
                             examples = @ExampleObject(name = "이미 좋아요를 누른 경우", value = SwaggerExamples.ALREADY_LIKED))
             )
     })
-    ResponseEntity<ResponseDTO<MagazineDetailDTO>> likeMagazine(@PathVariable Long magazineId);
+    ResponseEntity<ResponseDTO<String>> likeMagazine(@PathVariable Long magazineId);
 
     @Operation(
             summary = "매거진 좋아요 취소",
@@ -352,17 +401,7 @@ public interface MagazineApiDocs {
                                           "status": 200,
                                           "code": "SUCCESS_DELETE_LIKE",
                                           "message": "좋아요를 취소했습니다.",
-                                          "data": {
-                                            "magazineId": 1,
-                                            "title": "제목",
-                                            "content": "내용",
-                                            "memberId": 156,
-                                            "imageUrls": [
-                                              "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ab37ac94-4Group%201000003259.png"
-                                            ],
-                                            "views": 0,
-                                            "likes": 0
-                                          }
+                                          "data": "좋아요를 취소했습니다"
                                         }
                                     """)
                     )
@@ -380,5 +419,5 @@ public interface MagazineApiDocs {
                     )
             )
     })
-    ResponseEntity<ResponseDTO<MagazineDetailDTO>> deleteLikeMagazine(@PathVariable Long magazineId);
+    ResponseEntity<ResponseDTO<String>> deleteLikeMagazine(@PathVariable Long magazineId);
 }

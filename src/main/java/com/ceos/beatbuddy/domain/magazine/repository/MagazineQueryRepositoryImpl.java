@@ -19,11 +19,8 @@ public class MagazineQueryRepositoryImpl implements MagazineQueryRepository {
     public List<Magazine> findPinnedMagazines() {
         return queryFactory
                 .selectFrom(magazine)
-                .where(
-                        magazine.isPinned.isTrue(),
-                        magazine.isVisible.isTrue()
-                )
-                .orderBy(magazine.createdAt.desc())
+                .where(magazine.isPinned.isTrue())
+                .orderBy(magazine.orderInHome.asc())
                 .limit(5)
                 .fetch();
     }
