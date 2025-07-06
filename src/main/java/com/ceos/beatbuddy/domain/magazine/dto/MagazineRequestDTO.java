@@ -31,7 +31,7 @@ public class MagazineRequestDTO {
                 .isPinned(dto.isPinned())
                 .isSponsored(dto.isSponsored())
                 .isPicked(dto.isPicked())
-                .orderInHome(dto.getOrderInHome())
+                .orderInHome(dto.isPinned() ? dto.getOrderInHome() : 0) // isPinned가 true일 때만 orderInHome이 필요
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .member(member)
