@@ -23,9 +23,9 @@ public interface PostApiDocs {
     @Operation(summary = "#####게시물 생성 - 새로운 버전",
             description = """
             게시물을 생성합니다 (type: free/piece)
-            - 공통으로는 title(옵션), content(필수), anonymous, venueId 입니다.
+            - 공통으로는 title(옵션), content(필수), anonymous 입니다.
             - free: hashtag (압구정로데오/홍대/이태원/강남.신사/뮤직/자유/번개 모임/International/19+/LGBTQ/짤.밈) 중 하나입니다.
-            - piece: totalPrice, totalMembers, eventDate
+            - piece: totalPrice, totalMembers, eventDate, venueId
             """
     )
     @ApiResponses(value = {
@@ -204,7 +204,9 @@ public interface PostApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples = {@ExampleObject(name = "잘못된 type 예시", value = SwaggerExamples.INVALID_POST_TYPE),
-                                    @ExampleObject(name = "잘못된 페이지 요청", value = SwaggerExamples.PAGE_OUT_OF_BOUNDS)}
+                                    @ExampleObject(name = "잘못된 페이지 요청", value = SwaggerExamples.PAGE_OUT_OF_BOUNDS),
+                                    @ExampleObject(name = "중복된 해시태그", value = SwaggerExamples.DUPLICATED_HASHTAG)
+                            }
                     )
             ),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 유저",
@@ -299,15 +301,18 @@ public interface PostApiDocs {
 
 
 
-    @Operation(summary = "게시글 수정 API", description = "기존 게시글을 수정합니다.")
+    @Operation(summary = "게시글 수정 API", description = """
+                기존 게시글을 수정합니다. 수정되는 필드만 넣으면 됩니다.
+                - 만약 title 을 수정하지 않았다면, 넣지 않고 전달하면 됩니다.
+                - 해시태그는 기존 해시태그를 지우고, 새로 작성한 해시태그로 덮어씌워집니다.
+                """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "포스트 수정 성공",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ResponseDTO.class),
                             examples = @ExampleObject(
-                                    name = "SuccessResponse",
-                                    summary = "성공 응답 예시",
+                                    name = "SuccessResponse", summary = "성공 응답 예시",
                                     value = """
                                     {
                                       "status": 200,

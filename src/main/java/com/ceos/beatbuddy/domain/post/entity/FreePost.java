@@ -20,13 +20,12 @@ import org.springframework.lang.Nullable;
 @SuperBuilder
 @AllArgsConstructor
 public class FreePost extends Post{
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Nullable
-    @JoinColumn(name = "venueId")
-    private Venue venue;
-
     @ElementCollection
     @Getter
     @Enumerated(EnumType.STRING)
     private List<FixedHashtag> hashtag;
+
+    public void updateHashtags(List<FixedHashtag> hashtags) {
+        this.hashtag = hashtags;
+    }
 }
