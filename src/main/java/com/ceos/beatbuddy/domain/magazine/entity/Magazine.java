@@ -73,15 +73,10 @@ public class Magazine extends BaseTimeEntity {
         views++;
     }
 
-    public void setEvent(Event event) {
-
+    public void setEvent(Event event) {this.event = event;
     }
 
     public void setVenues(List<Venue> venues) {
-        if (venues == null) {
-            this.venues = new ArrayList<>();
-        } else {
-            this.venues = venues;
-        }
+        this.venues = venues;
     }
 }
