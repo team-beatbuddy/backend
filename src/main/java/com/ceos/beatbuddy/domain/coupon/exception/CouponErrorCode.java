@@ -12,7 +12,7 @@ public enum CouponErrorCode implements ApiCode {
     COUPON_ALREADY_RECEIVED_TODAY(HttpStatus.CONFLICT, "이미 오늘 해당 쿠폰을 수령하셨습니다."),
     COUPON_QUOTA_NOT_INITIALIZED(HttpStatus.BAD_REQUEST, "쿠폰의 수량이 초기화되지 않았습니다."),
     COUPON_QUOTA_SOLD_OUT(HttpStatus.BAD_REQUEST, "쿠폰의 수량이 모두 소진되었습니다."),
-
+    COUPON_INVALID_POLICY(HttpStatus.BAD_REQUEST, "유효하지 않은 쿠폰 정책입니다.")
     ;
 
     private final HttpStatus httpStatus;

@@ -1,5 +1,7 @@
 package com.ceos.beatbuddy.domain.admin.controller;
 
+import com.ceos.beatbuddy.domain.coupon.application.CouponService;
+import com.ceos.beatbuddy.domain.coupon.dto.CouponCreateRequestDTO;
 import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
 import com.ceos.beatbuddy.domain.admin.application.AdminService;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
@@ -20,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class AdminController implements AdminApiDocs {
     private final VenueInfoService venueInfoService;
     private final AdminService adminService;
+    private final CouponService couponService;
 
 
     @Override
@@ -74,6 +77,12 @@ public class AdminController implements AdminApiDocs {
     public ResponseEntity<AdminResponseDto> login(@RequestBody LoginRequest request) {
         Long adminId = adminService.findAdmin(request.getId());
         return adminService.createAdminToken(adminId, request.getId());
+    }
+
+
+    @PostMapping("/coupons")
+    public void createCoupon(@RequestBody CouponCreateRequestDTO request) {
+        couponService.createCoupon(request);
     }
 
 //
