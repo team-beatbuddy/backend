@@ -23,8 +23,18 @@ import java.util.List;
 
 public interface MagazineApiDocs {
     @Operation(summary = "홈에 보이는 매거진, 작성 기능\n",
-            description = "admin과 business 멤버에 한해서만 매거진을 작성할 수 있도록 해두었습니다. (추후 변경 가능), 데이터 전달은 multipart/form-data이며, \n" +
-                    "        'magazineRequestDTO'는 JSON 문자열 형태로 전송해야 합니다.")
+            description = """
+                    admin과 business 멤버에 한해서만 매거진을 작성할 수 있도록 해두었습니다. (추후 변경 가능)
+                    - 데이터 전달은 multipart/form-data이며, 'magazineRequestDTO'는 JSON 문자열 형태로 전송해야 합니다.
+                    - pinned: 홈에 고정된 매거진
+                    - visible: 매거진이 보이는지 여부
+                    - sponsored: 스폰서 매거진인지 여부
+                    - picked: 비트버디 픽된 매거진인지 여부
+                    - orderInHome: 홈에서의 순서 (1부터 시작)
+                        - pinned (고정된 매거진)인 경우, orderInHome(홈에서의 순서)가 1 이상이어야 합니다.
+                    - eventId: 이 매거진이 속한 이벤트의 ID (선택 사항)
+                    - thumbnailImage: 매거진의 썸네일 이미지 (현재까지는 선택 사항...)
+                    """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "매거진이 성공적으로 작성되었습니다.",
                     content = @Content(
@@ -53,12 +63,21 @@ public interface MagazineApiDocs {
                     )
             ),
             @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청",
+                    content = @Content(mediaType = "application/json",
+                            examples = {@ExampleObject(name = "홈에서의 순서가 잘못되었습니다.", value = SwaggerExamples.INVALID_ORDER_IN_HOME),
+                                    @ExampleObject(name = "홈에서의 순서가 중복되었습니다.", value = SwaggerExamples.DUPLICATE_ORDER_IN_HOME) }
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "404",
-                    description = "존재하지 않는 유저",
+                    description = "리소스 없음",
                     content = @Content(
                             mediaType = "application/json",
                             examples =
-                                    @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)
+                                    {@ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                     @ExampleObject(name = "존재하지 않는 이벤트", value = SwaggerExamples.NOT_FOUND_EVENT) }
                     )
             ),
             @ApiResponse(
@@ -76,6 +95,7 @@ public interface MagazineApiDocs {
     })
     ResponseEntity<ResponseDTO<MagazineDetailDTO>> addMagazine(
             @Valid @RequestPart("magazineRequestDTO") MagazineRequestDTO magazineRequestDTO,
+            @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage,
             @RequestPart(value = "images", required = false) List<MultipartFile> images);
 
     @Operation(summary = "홈에 보이는 매거진, 조회 기능\n",

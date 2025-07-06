@@ -194,6 +194,25 @@ public class SwaggerExamples {
         }
         """;
 
+    // 홈 고정 매거진
+    public static final String INVALID_ORDER_IN_HOME = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "INVALID_ORDER_IN_HOME",
+          "message": "홈에서의 순서가 잘못되었습니다. 고정된 매거진은 1 이상의 순서를 가져야 합니다."
+        }
+        """;
+
+    public static final String DUPLICATE_ORDER_IN_HOME = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "DUPLICATE_ORDER_IN_HOME",
+          "message": "홈에서의 순서가 중복되었습니다. 이미 존재하는 순서를 사용하고 있습니다."
+        }
+        """;
+
     /**
      * 403 권한 없음
      * */

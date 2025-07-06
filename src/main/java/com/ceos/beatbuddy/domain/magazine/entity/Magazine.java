@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.magazine.entity;
 
+import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineLike;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
@@ -36,6 +37,14 @@ public class Magazine extends BaseTimeEntity {
     private boolean isPinned = false; // 고정된 매거진인지 여부
     // 스폰서 여부
     private boolean isSponsored = false; // 스폰서 매거진인지 여부
+    private boolean isPicked = false; // 픽된 매거진인지 여부
+
+    @OneToOne
+    @JoinColumn(name = "eventId") // Magazine 테이블에 eventId 외래키 생성됨
+    private Event event;
+
+
+    private int orderInHome; // 홈에서의 순서
 
     @ElementCollection
     private List<String> imageUrls;
@@ -57,4 +66,7 @@ public class Magazine extends BaseTimeEntity {
         views++;
     }
 
+    public void setEvent(Event event) {
+
+    }
 }

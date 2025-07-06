@@ -30,9 +30,10 @@ public class MagazineController implements MagazineApiDocs{
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO<MagazineDetailDTO>> addMagazine(
             @Valid @RequestPart("magazineRequestDTO") MagazineRequestDTO magazineRequestDTO,
+            @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        MagazineDetailDTO result = magazineService.addMagazine(memberId, magazineRequestDTO, images);
+        MagazineDetailDTO result = magazineService.addMagazine(memberId, magazineRequestDTO, images, thumbnailImage);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_CREATED_MAGAZINE.getStatus().value())

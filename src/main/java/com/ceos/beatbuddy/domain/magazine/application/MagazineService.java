@@ -1,5 +1,7 @@
 package com.ceos.beatbuddy.domain.magazine.application;
 
+import com.ceos.beatbuddy.domain.event.application.EventService;
+import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineDetailDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazineHomeResponseDTO;
 import com.ceos.beatbuddy.domain.magazine.dto.MagazinePageResponseDTO;
@@ -36,20 +38,29 @@ public class MagazineService {
     private final MemberService memberService;
     private final MagazineLikeRepository magazineLikeRepository;
     private final MagazineQueryRepository magazineQueryRepository;
+    private final EventService eventService;
 
     private final UploadUtil uploadUtil;
     /**
      * 매거진을 생성합니다. (관리자 또는 비즈니스 회원만 가능)
      *
-     * @param memberId 매거진을 작성하는 회원의 ID
-     * @param dto 매거진 생성 요청 DTO
-     * @param images 첨부 이미지 리스트
+     * @param memberId       매거진을 작성하는 회원의 ID
+     * @param dto            매거진 생성 요청 DTO
+     * @param images         첨부 이미지 리스트
+     * @param thumbnailImage 썸네일 이미지
      * @return 생성된 매거진의 상세 DTO
      * @throws CustomException 권한이 없는 회원이 요청한 경우
      */
     @Transactional
-    public MagazineDetailDTO addMagazine(Long memberId, MagazineRequestDTO dto, List<MultipartFile> images) throws RuntimeException {
+    public MagazineDetailDTO addMagazine(Long memberId, MagazineRequestDTO dto, List<MultipartFile> images, MultipartFile thumbnailImage) throws RuntimeException {
         Member member = memberService.validateAndGetMember(memberId);
+        // 고정된 매거진이라면 숫자가 있어야 함. 유효성 검사 (또한, 따로 isPinned 된 매거진 중 같은 숫자일 수 없음)
+        validatePinnedMagazine(dto);
+
+        // 이미지 20장 넘지 않도록 체크
+        if (images != null && images.size() > 20) {
+            throw new CustomException(ErrorCode.TOO_MANY_IMAGES_20);
+        }
 
         if (member.getRole() != Role.ADMIN && member.getRole() != Role.BUSINESS) {
             throw new CustomException(MagazineErrorCode.CANNOT_ADD_MAGAZINE_UNAUTHORIZED_MEMBER);
@@ -58,12 +69,22 @@ public class MagazineService {
         // 엔티티로 변경
         Magazine entity = MagazineRequestDTO.toEntity(dto, member);
 
-        List<String> imageUrls = null;
+        // 이벤트 유효성 검사
+        if (dto.getEventId() != null) {
+            Event event = eventService.validateAndGet(dto.getEventId());
+            entity.setEvent(event);
+        }
+
+
+        // 썸네일 업로드
+        if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
+            String thumbImageUrl = uploadUtil.upload(thumbnailImage, UploadUtil.BucketType.MEDIA, "magazine");
+            entity.setThumbImage(thumbImageUrl);
+        }
+
         // 이미지 업로드 (이미지가 비어있는 경우는 제외)
         if (images != null && !images.isEmpty()) {
-            imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "magazine");
-            // 썸네일 저장
-            entity.setThumbImage(imageUrls.get(0));
+            List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "magazine");
             // 엔티티에 이미지 세팅
             entity.setImageUrls(imageUrls);
         }
@@ -172,7 +193,7 @@ public class MagazineService {
                 MagazineInteractionId.builder().memberId(memberId).magazineId(magazineId).build());
 
         if (alreadyLiked) {
-            throw new CustomException(MagazineErrorCode.ALREADY_LIKE_MAGAZINE);
+            throw new CustomException(ErrorCode.ALREADY_LIKED);
         }
 
         MagazineLike entity = MagazineLike.toEntity(member, magazine);
@@ -235,5 +256,21 @@ public class MagazineService {
     private Magazine validateAndGetMagazine(Long magazineId) {
         return magazineRepository.findById(magazineId).orElseThrow(() ->
                 new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST));
+    }
+
+    // 홈에 고정되는 매거진의 유효성 검사
+    private void validatePinnedMagazine(MagazineRequestDTO dto) {
+        if (dto.isPinned()) {
+            // 1. orderInHome 필드 유효성 검사
+            if (dto.getOrderInHome() <= 0) {
+                throw new CustomException(MagazineErrorCode.INVALID_ORDER_IN_HOME);
+            }
+
+            // 2. 동일한 orderInHome 값이 이미 존재하는지 체크
+            boolean exists = magazineRepository.existsByIsPinnedTrueAndOrderInHome(dto.getOrderInHome());
+            if (exists) {
+                throw new CustomException(MagazineErrorCode.DUPLICATE_ORDER_IN_HOME);
+            }
+        }
     }
 }
