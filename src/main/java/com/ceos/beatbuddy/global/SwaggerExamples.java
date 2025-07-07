@@ -215,8 +215,8 @@ public class SwaggerExamples {
 
     public static final String COUPON_NOT_FOUND = """
         {
-          "status": 400,
-          "error": "BAD_REQUEST",
+          "status": 404,
+          "error": "NOT_FOUND",
           "code": "COUPON_NOT_FOUND",
           "message": "존재하지 않는 쿠폰입니다."
         }
