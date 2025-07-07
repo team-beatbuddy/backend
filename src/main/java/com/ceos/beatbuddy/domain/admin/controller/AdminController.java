@@ -82,27 +82,6 @@ public class AdminController implements AdminApiDocs {
         return adminService.createAdminToken(adminId, request.getId());
     }
 
-    @Override
-    @PostMapping("/coupons")
-    public ResponseEntity<ResponseDTO<String>> createCoupon(@RequestBody CouponCreateRequestDTO request) {
-        couponService.createCoupon(request);
-        return ResponseEntity
-                .status(SuccessCode.SUCCESS_CREATE_COUPON.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATE_COUPON, "쿠폰 등록 성공"));
-    }
-
-    @PostMapping("/{receiveCouponId}/use")
-    public ResponseEntity<ResponseDTO<String>> useCoupon(
-            @PathVariable Long receiveCouponId
-    ) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        couponService.useCoupon(receiveCouponId, memberId);
-
-        return ResponseEntity
-                .status(SuccessCode.SUCCESS_USE_COUPON.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_USE_COUPON, "쿠폰 사용 성공"));
-    }
-
 //    @PatchMapping("/{couponId}")
 //    public ResponseEntity<ResponseDTO<String>> approveCoupon(
 //            @PathVariable Long couponId

@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Builder
@@ -17,21 +18,25 @@ public class CouponCreateRequestDTO {
     private String name;
     private String howToUse;
     private String notes;
-    private Long venueId;
+    private List<Long> venueIds;
     private LocalDate expireDate;
     private String policy;
     private int quota;
+    private Integer maxReceiveCountPerUser;
+    private Integer sameVenueUse;
 
-    public static Coupon toEntity(CouponCreateRequestDTO requestDTO, Venue venue) {
+    public static Coupon toEntity(CouponCreateRequestDTO requestDTO, List<Venue> venues) {
         return Coupon.builder()
                 .name(requestDTO.getName())
-                .howToUse(requestDTO.howToUse)
+                .howToUse(requestDTO.getHowToUse())
                 .notes(requestDTO.getNotes())
                 .expireDate(requestDTO.getExpireDate())
                 .policy(Coupon.to(requestDTO.getPolicy()))
                 .quota(requestDTO.getQuota())
                 .active(true)
-                .venue(venue)
+                .venues(venues)
+                .maxReceiveCountPerUser(requestDTO.getMaxReceiveCountPerUser())
+                .sameVenueUse(requestDTO.getSameVenueUse())
                 .build();
     }
 }

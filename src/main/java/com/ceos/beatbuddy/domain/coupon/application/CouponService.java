@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -33,48 +34,22 @@ public class CouponService {
     private final MemberCouponRepository memberCouponRepository;
 
     @Transactional
-    public CouponReceiveResponseDTO receiveCoupon(Long couponId, Long memberId) {
+    public CouponReceiveResponseDTO receiveCoupon(Long venueId, Long couponId, Long memberId) {
         String redisKey = CouponRedisKeyUtil.getQuotaKey(couponId, LocalDate.now());
 
         Member member = memberService.validateAndGetMember(memberId);
-
         Coupon coupon = validateAndGetCoupon(couponId);
+        Venue venue = venueInfoService.validateAndGetVenue(venueId);
 
-        if (coupon.getExpireDate().isBefore(LocalDate.now())) {
-            throw new CustomException(CouponErrorCode.COUPON_EXPIRED);
-        }
+        validateCouponAvailable(coupon);
+        validateCouponReceivePolicy(member, coupon);
 
-        if (coupon.getActive() != null && !coupon.getActive()) {
-            throw new CustomException(CouponErrorCode.COUPON_DISABLED);
-        }
-
-        // 중복 수령 방지 로직
-        boolean alreadyReceived;
-
-        if (coupon.getPolicy() == Coupon.CouponPolicy.DAILY) {
-            alreadyReceived = memberCouponRepository.existsByMemberAndCouponAndReceivedDate(member, coupon, LocalDate.now());
-            if (alreadyReceived) {
-                throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED);
-            }
-        } else if (coupon.getPolicy() == Coupon.CouponPolicy.ONCE) {
-            alreadyReceived = memberCouponRepository.existsByMemberAndCoupon(member, coupon);
-            if (alreadyReceived) {
-                throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED_TODAY);
-            }
-        }
         // DB 저장
-        MemberCoupon memberCoupon = MemberCoupon.toEntity(member, coupon);
+        MemberCoupon memberCoupon = MemberCoupon.toEntity(venue, member, coupon);
         memberCouponRepository.save(memberCoupon);
 
-        CouponLuaScriptService.LuaResult result = luaScriptService.decreaseQuota(redisKey);
-
-        if (result == CouponLuaScriptService.LuaResult.SOLD_OUT) {
-            throw new CustomException(CouponErrorCode.COUPON_QUOTA_SOLD_OUT);
-        }
-
-        if (result == CouponLuaScriptService.LuaResult.NOT_INITIALIZED) {
-            throw new CustomException(CouponErrorCode.COUPON_QUOTA_NOT_INITIALIZED);
-        }
+        // redis 에서 티켓 감소
+        luaScriptService.decreaseQuotaOrThrow(redisKey);
 
         return CouponReceiveResponseDTO.toDTO(memberCoupon.getId(), coupon, memberCoupon.getReceivedDate());
     }
@@ -82,29 +57,19 @@ public class CouponService {
     @Transactional
     public void createCoupon(CouponCreateRequestDTO request) {
         // 쿠폰 유효성 검사
-        if (request.getQuota() <= 0) {
-            throw new CustomException(CouponErrorCode.COUPON_QUOTA_NOT_INITIALIZED);
-        }
-
-        if (request.getExpireDate().isBefore(LocalDate.now())) {
-            throw new CustomException(CouponErrorCode.COUPON_EXPIRED);
-        }
+        validateCreateCouponAvailable(request.getQuota(), request.getExpireDate());
 
         // 1. 업장 유효성 검사
-        Venue venue = null;
-        if (request.getVenueId() != null) {
-            venue = venueInfoService.validateAndGetVenue(request.getVenueId());
-        }
+        List<Venue> venues = venueInfoService.validateAndGetVenues(request.getVenueIds());
 
         // 쿠폰 엔티티 생성
-        Coupon coupon = CouponCreateRequestDTO.toEntity(request, venue);
+        Coupon coupon = CouponCreateRequestDTO.toEntity(request, venues);
         couponRepository.save(coupon);
 
         // 4. Redis quota 설정
         String redisKey = CouponRedisKeyUtil.getQuotaKey(coupon.getId(), LocalDate.now());
 
         redisTemplate.opsForValue().set(redisKey, String.valueOf(request.getQuota()));
-
     }
 
     @Transactional
@@ -139,5 +104,47 @@ public class CouponService {
     public MemberCoupon validateAndGetMemberCoupon(Long memberCouponId) {
         return memberCouponRepository.findById(memberCouponId)
                 .orElseThrow(() -> new CustomException(CouponErrorCode.MEMBER_COUPON_NOT_FOUND));
+    }
+
+    private void validateCouponReceivePolicy(Member member, Coupon coupon) {
+        LocalDate today = LocalDate.now();
+
+        switch (coupon.getPolicy()) {
+            case DAILY -> {
+                if (memberCouponRepository.existsByMemberAndCouponAndReceivedDate(member, coupon, today)) {
+                    throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED);
+                }
+            }
+            case ONCE -> {
+                if (memberCouponRepository.existsByMemberAndCoupon(member, coupon)) {
+                    throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED_TODAY);
+                }
+            }
+            case WEEKLY -> {
+                if (coupon.getMaxReceiveCountPerUser() != null) {
+                    int countThisWeek = memberCouponRepository.countByMemberAndCouponAndWeek(member, coupon, today);
+                    if (countThisWeek >= coupon.getMaxReceiveCountPerUser()) {
+                        throw new CustomException(CouponErrorCode.COUPON_RECEIVE_LIMIT_EXCEEDED);
+                    }
+                }
+            }
+        }
+    }
+    private void validateCreateCouponAvailable(int quota, LocalDate expireDate) {
+        if (quota <= 0) {
+            throw new CustomException(CouponErrorCode.COUPON_QUOTA_NOT_INITIALIZED);
+        }
+
+        if (expireDate.isBefore(LocalDate.now())) {
+            throw new CustomException(CouponErrorCode.COUPON_EXPIRED);
+        }
+    }
+    private void validateCouponAvailable(Coupon coupon) {
+        if (coupon.getExpireDate().isBefore(LocalDate.now())) {
+            throw new CustomException(CouponErrorCode.COUPON_EXPIRED);
+        }
+        if (Boolean.FALSE.equals(coupon.getActive())) {
+            throw new CustomException(CouponErrorCode.COUPON_DISABLED);
+        }
     }
 }

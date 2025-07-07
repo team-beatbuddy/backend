@@ -15,11 +15,12 @@ import org.springframework.web.bind.annotation.*;
 public class CouponController {
     private final CouponService couponService;
 
-    @PostMapping("/{couponId}/receive")
+    @PostMapping("/{venueId}/{couponId}/receive")
     public ResponseEntity<ResponseDTO<CouponReceiveResponseDTO>> receiveCoupon(
+            @PathVariable Long venueId,
             @PathVariable Long couponId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        CouponReceiveResponseDTO result = couponService.receiveCoupon(couponId, memberId);
+        CouponReceiveResponseDTO result = couponService.receiveCoupon(venueId, couponId, memberId);
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_RECEIVE_COUPON.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_RECEIVE_COUPON, result));

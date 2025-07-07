@@ -31,6 +31,12 @@ public class MemberCoupon {
     @JoinColumn(name = "couponId")
     private Coupon coupon;
 
+    // 쿠폰 베뉴
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "venueId")
+    private Venue venue;
+
+
     private LocalDate receivedDate;
 
     @Enumerated(EnumType.STRING)
@@ -46,10 +52,11 @@ public class MemberCoupon {
     }
 
     // 쿠폰 발급 엔티티 생성
-    public static MemberCoupon toEntity(Member member, Coupon coupon) {
+    public static MemberCoupon toEntity(Venue venue, Member member, Coupon coupon) {
         return MemberCoupon.builder()
                 .member(member)
                 .coupon(coupon)
+                .venue(venue)
                 .receivedDate(LocalDate.now())
                 .status(CouponStatus.RECEIVED)
                 .build();

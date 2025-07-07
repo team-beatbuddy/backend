@@ -50,10 +50,11 @@ public interface CouponApiDocs {
             content = @Content(
                     mediaType = "application/json",
                     examples = {
-                            @ExampleObject(name = "쿠폰 수령 실패 예시", value = SwaggerExamples.COUPON_QUOTA_SOLD_OUT, description = "쿠폰 수령 실패 시 응답 예시"),
-                            @ExampleObject(name = "쿠폰 수령 실패 예시", value = SwaggerExamples.COUPON_QUOTA_NOT_INITIALIZED, description = "쿠폰 수량이 초기화되지 않았을 때의 응답 예시"),
-                            @ExampleObject(name = "쿠폰 수령 실패 예시", value = SwaggerExamples.COUPON_EXPIRED, description = "쿠폰이 만료되었을 때의 응답 예시"),
-                            @ExampleObject(name = "쿠폰 수령 실패 예시", value = SwaggerExamples.COUPON_DISABLED, description = "활성화되지 않은 쿠폰을 수령하려 할 때의 응답 예시"),
+                            @ExampleObject(name = "쿠폰 남은 수량이 없을 때", value = SwaggerExamples.COUPON_QUOTA_SOLD_OUT, description = "쿠폰 수령 실패 시 응답 예시"),
+                            @ExampleObject(name = "쿠폰 수량 초기화 실패인데 수령하고자 했을 때", value = SwaggerExamples.COUPON_QUOTA_NOT_INITIALIZED, description = "쿠폰 수량이 초기화되지 않았을 때의 응답 예시"),
+                            @ExampleObject(name = "만료된 쿠폰 수령 시", value = SwaggerExamples.COUPON_EXPIRED, description = "쿠폰이 만료되었을 때의 응답 예시"),
+                            @ExampleObject(name = "쿠폰 수령 실패", value = SwaggerExamples.COUPON_DISABLED, description = "활성화되지 않은 쿠폰을 수령하려 할 때의 응답 예시"),
+                            @ExampleObject(name = "쿠폰 수령 한도 초과", value = SwaggerExamples.COUPON_RECEIVE_LIMIT_EXCEEDED, description = "쿠폰 수령 한도를 초과했을 때의 응답 예시"),
                     }
             )
     )
