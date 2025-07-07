@@ -276,6 +276,15 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String COUPON_RECEIVE_LIMIT_EXCEEDED = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "COUPON_RECEIVE_LIMIT_EXCEEDED",
+          "message": "쿠폰 수령 한도를 초과했습니다."
+        }
+        """;
+
     /**
      * 403 권한 없음
      * */
@@ -314,6 +323,7 @@ public class SwaggerExamples {
           "message": "매거진을 작성할 수 없는 유저입니다."
         }
         """;
+
 
 
     

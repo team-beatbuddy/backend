@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -38,16 +40,24 @@ public class Coupon {
 
     private int quota;                // 쿠폰 발급 수량
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "venueId")
-    private Venue venue;
+    @ManyToMany
+    @JoinTable(
+            name = "couponVenue",
+            joinColumns = @JoinColumn(name = "couponId"),
+            inverseJoinColumns = @JoinColumn(name = "venueId")
+    )
+    private List<Venue> venues = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private CouponPolicy policy;
 
+    private Integer maxReceiveCountPerUser; // 사용자당 최대 수령 가능 횟수
+    private Integer sameVenueUse; // 같은 장소에서 사용 가능한 최대 횟수
+
     public enum CouponPolicy {
         ONCE,       // 한 번만 수령 가능
-        DAILY       // 매일 수령 가능
+        DAILY,       // 매일 수령 가능
+        WEEKLY,      // 매주 수령 가능
     }
 
     public static CouponPolicy to(String value) {
