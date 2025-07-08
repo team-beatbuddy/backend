@@ -6,6 +6,7 @@ import com.ceos.beatbuddy.domain.coupon.dto.CouponCreateRequestDTO;
 import com.ceos.beatbuddy.domain.coupon.dto.CouponReceiveResponseDTO;
 import com.ceos.beatbuddy.domain.coupon.exception.CouponErrorCode;
 import com.ceos.beatbuddy.domain.coupon.redis.CouponLuaScriptService;
+import com.ceos.beatbuddy.domain.coupon.redis.CouponQuotaRedisService;
 import com.ceos.beatbuddy.domain.coupon.redis.CouponRedisKeyUtil;
 import com.ceos.beatbuddy.domain.coupon.repository.CouponRepository;
 import com.ceos.beatbuddy.domain.coupon.repository.MemberCouponRepository;
@@ -32,7 +33,7 @@ public class CouponService {
     private final MemberService memberService;
     private final VenueInfoService venueInfoService;
     private final CouponRepository couponRepository;
-    private final StringRedisTemplate redisTemplate;
+    private final CouponQuotaRedisService couponQuotaRedisService;
     private final MemberCouponRepository memberCouponRepository;
 
     @Transactional
@@ -68,21 +69,8 @@ public class CouponService {
         Coupon coupon = CouponCreateRequestDTO.toEntity(request, venues);
         couponRepository.save(coupon);
 
-        // 4. Redis quota 설정
-        String redisKey = CouponRedisKeyUtil.getQuotaKey(coupon.getId(), LocalDate.now());
-
-        // 쿠폰 만료일 기준 TTL 설정 (최대 90일 제한)
-        long ttlDays = Math.min(
-                ChronoUnit.DAYS.between(LocalDate.now(), coupon.getExpireDate()),
-                90L
-        );
-
-        redisTemplate.opsForValue().set(
-                redisKey,
-                String.valueOf(request.getQuota()),
-                ttlDays,
-                TimeUnit.DAYS
-        );
+        // Redis 설정은 전담 서비스로 분리
+        couponQuotaRedisService.setQuota(coupon.getId(), request.getQuota(), coupon.getExpireDate());
     }
 
     @Transactional
