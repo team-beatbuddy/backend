@@ -92,6 +92,7 @@ public class CouponService {
     }
 
     @Transactional
+    @Transactional
     public void useCoupon(Long receiveCouponId, Long memberId) {
         // Member, Coupon 조회
         memberService.validateAndGetMember(memberId);
@@ -101,9 +102,8 @@ public class CouponService {
 
         Coupon coupon = validateAndGetCoupon(memberCoupon.getCoupon().getId());
 
-        if (coupon.getExpireDate().isBefore(LocalDate.now())) {
-            throw new CustomException(CouponErrorCode.COUPON_EXPIRED);
-        }
+        // 중복된 만료 검사 대신 재사용 가능한 공통 메서드 호출
+        validateCouponAvailable(coupon);
 
         // 이미 사용했는지 확인
         if (memberCoupon.getStatus() == MemberCoupon.CouponStatus.USED) {
