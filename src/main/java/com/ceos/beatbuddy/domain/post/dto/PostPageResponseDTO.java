@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
@@ -30,7 +31,7 @@ public class PostPageResponseDTO {
     private boolean scrapped;
     private boolean hasCommented;
     private String nickname;
-    private LocalDate createAt;
+    private LocalDateTime createAt;
     private List<String> hashtags;
 
     @JsonProperty("isAuthor")
@@ -47,7 +48,7 @@ public class PostPageResponseDTO {
                 .content(post.getContent())
                 .thumbImage(post.getImageUrls().isEmpty() || post.getImageUrls().get(0) == null ? "" : post.getImageUrls().get(0))
                 .nickname(post.getMember().getNickname())
-                .createAt(post.getCreatedAt().toLocalDate())
+                .createAt(post.getCreatedAt())
                 .likes(post.getLikes())
                 .scraps(post.getScraps())
                 .comments(post.getComments())
