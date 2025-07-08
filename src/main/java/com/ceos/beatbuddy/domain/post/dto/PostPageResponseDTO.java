@@ -70,7 +70,13 @@ public class PostPageResponseDTO {
                 .isAuthor(isAuthor)
                 .writerId(post.getMember().getId())
                 .isAnonymous(post.isAnonymous())
-                .profileImageUrl(post.getMember().getProfileImage() != null ? post.getMember().getProfileImage() : "")
+                .profileImageUrl(
+                        post.isAnonymous()
+                                ? ""
+                                : (post.getMember().getProfileImage() != null
+                                ? post.getMember().getProfileImage()
+                                : "")
+                )
                 .build();
     }
 }
