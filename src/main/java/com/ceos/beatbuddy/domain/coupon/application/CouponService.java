@@ -39,7 +39,7 @@ public class CouponService {
 
     @Transactional
     public CouponReceiveResponseDTO receiveCoupon(Long venueId, Long couponId, Long memberId) {
-        String redisKey = CouponRedisKeyUtil.getQuotaKey(couponId, LocalDate.now());
+        String redisKey = CouponRedisKeyUtil.getQuotaKey(venueId, couponId, LocalDate.now());
 
         Member member = memberService.validateAndGetMember(memberId);
         Coupon coupon = validateAndGetCoupon(couponId);
@@ -60,18 +60,15 @@ public class CouponService {
 
     @Transactional
     public void createCoupon(CouponCreateRequestDTO request) {
-        // 쿠폰 유효성 검사
         validateCreateCouponAvailable(request.getQuota(), request.getExpireDate());
 
-        // 1. 업장 유효성 검사
         List<Venue> venues = venueInfoService.validateAndGetVenues(request.getVenueIds());
 
-        // 쿠폰 엔티티 생성
         Coupon coupon = CouponCreateRequestDTO.toEntity(request, venues);
         couponRepository.save(coupon);
 
-        // Redis 설정은 전담 서비스로 분리
-        couponQuotaRedisService.setQuota(coupon.getId(), request.getQuota(), coupon.getExpireDate());
+        List<Long> venueIds = venues.stream().map(Venue::getId).toList();
+        couponQuotaRedisService.setQuota(coupon.getId(), venueIds, request.getQuota(), coupon.getExpireDate());
     }
 
     @Transactional
@@ -87,7 +84,10 @@ public class CouponService {
 
         // 만료일 변경되었는지 체크 후 TTL 재설정
         if (!previousExpireDate.isEqual(coupon.getExpireDate())) {
-            couponQuotaRedisService.updateQuotaTTL(coupon.getId(), coupon.getExpireDate());
+            List<Long> venueIds = venues.stream()
+                    .map(Venue::getId)
+                    .toList();
+            couponQuotaRedisService.updateQuotaTTL(coupon.getId(), venueIds, coupon.getExpireDate());
         }
     }
 
