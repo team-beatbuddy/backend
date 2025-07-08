@@ -44,12 +44,12 @@ public class CouponService {
         validateCouponAvailable(coupon);
         validateCouponReceivePolicy(member, coupon);
 
+        // redis 에서 티켓 감소
+        luaScriptService.decreaseQuotaOrThrow(redisKey);
+
         // DB 저장
         MemberCoupon memberCoupon = MemberCoupon.toEntity(venue, member, coupon);
         memberCouponRepository.save(memberCoupon);
-
-        // redis 에서 티켓 감소
-        luaScriptService.decreaseQuotaOrThrow(redisKey);
 
         return CouponReceiveResponseDTO.toDTO(memberCoupon.getId(), coupon, memberCoupon.getReceivedDate());
     }
