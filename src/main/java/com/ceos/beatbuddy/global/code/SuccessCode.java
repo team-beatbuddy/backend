@@ -31,7 +31,7 @@ public enum SuccessCode implements ApiCode {
      * */
     SUCCESS_BUSINESS_APPROVED(HttpStatus.OK, "성공적으로 비즈니스 멤버를 승인하였습니다."),
     SUCCESS_BUSINESS_APPROVAL_LIST_RETRIEVED(HttpStatus.OK, "성공적으로 승인받을 비즈니스 멤버 리스트를 불러왔습니다."),
-
+    SUCCESS_UPDATE(HttpStatus.OK, "성공적으로 수정했습니다."),
     /**
      * home
      * */

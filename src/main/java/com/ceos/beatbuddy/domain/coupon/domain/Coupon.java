@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.coupon.domain;
 
 
+import com.ceos.beatbuddy.domain.coupon.dto.CouponUpdateRequestDTO;
 import com.ceos.beatbuddy.domain.coupon.exception.CouponErrorCode;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.CustomException;
@@ -68,5 +69,36 @@ public class Coupon {
         }
         throw new CustomException(CouponErrorCode.COUPON_INVALID_POLICY);
     }
+
+    public void updateFromRequest(CouponUpdateRequestDTO dto, List<Venue> venues) {
+        if (dto.getName() != null) {
+            this.name = dto.getName();
+        }
+        if (dto.getHowToUse() != null) {
+            this.howToUse = dto.getHowToUse();
+        }
+        if (dto.getNotes() != null) {
+            this.notes = dto.getNotes();
+        }
+        if (dto.getExpireDate() != null) {
+            this.expireDate = dto.getExpireDate();
+        }
+        if (dto.getPolicy() != null) {
+            this.policy = Coupon.to(dto.getPolicy());
+        }
+        if (dto.getQuota() != null) {
+            this.quota = dto.getQuota();
+        }
+        if (dto.getMaxReceiveCountPerUser() != null) {
+            this.maxReceiveCountPerUser = dto.getMaxReceiveCountPerUser();
+        }
+        if (dto.getSameVenueUse() != null) {
+            this.sameVenueUse = dto.getSameVenueUse();
+        }
+        if (venues != null && !venues.isEmpty()) {
+            this.venues = venues;
+        }
+    }
+
 }
 

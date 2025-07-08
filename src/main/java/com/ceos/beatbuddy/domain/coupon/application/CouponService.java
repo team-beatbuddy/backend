@@ -4,6 +4,7 @@ import com.ceos.beatbuddy.domain.coupon.domain.Coupon;
 import com.ceos.beatbuddy.domain.coupon.domain.MemberCoupon;
 import com.ceos.beatbuddy.domain.coupon.dto.CouponCreateRequestDTO;
 import com.ceos.beatbuddy.domain.coupon.dto.CouponReceiveResponseDTO;
+import com.ceos.beatbuddy.domain.coupon.dto.CouponUpdateRequestDTO;
 import com.ceos.beatbuddy.domain.coupon.exception.CouponErrorCode;
 import com.ceos.beatbuddy.domain.coupon.redis.CouponLuaScriptService;
 import com.ceos.beatbuddy.domain.coupon.redis.CouponQuotaRedisService;
@@ -74,6 +75,23 @@ public class CouponService {
     }
 
     @Transactional
+    public void updateCoupon(Long couponId, CouponUpdateRequestDTO dto) {
+        Coupon coupon = validateAndGetCoupon(couponId);
+        List<Venue> venues = venueInfoService.validateAndGetVenues(dto.getVenueIds());
+
+        // 이전 만료일 저장
+        LocalDate previousExpireDate = coupon.getExpireDate();
+
+        // 쿠폰 업데이트
+        coupon.updateFromRequest(dto, venues);
+
+        // 만료일 변경되었는지 체크 후 TTL 재설정
+        if (!previousExpireDate.isEqual(coupon.getExpireDate())) {
+            couponQuotaRedisService.updateQuotaTTL(coupon.getId(), coupon.getExpireDate());
+        }
+    }
+
+    @Transactional
     public void useCoupon(Long receiveCouponId, Long memberId) {
         // Member, Coupon 조회
         memberService.validateAndGetMember(memberId);
@@ -131,6 +149,7 @@ public class CouponService {
             }
         }
     }
+
     private void validateCreateCouponAvailable(int quota, LocalDate expireDate) {
         if (quota <= 0) {
             throw new CustomException(CouponErrorCode.COUPON_QUOTA_NOT_INITIALIZED);
