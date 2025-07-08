@@ -20,7 +20,8 @@ public class CouponQuotaRedisService {
      * 쿠폰 쿼터를 Redis에 저장하고 TTL 설정
      */
     public void setQuota(Long couponId, List<Long> venueIds, int quota, LocalDate expireDate) {
-        long ttlDays = Math.min(ChronoUnit.DAYS.between(LocalDate.now(), expireDate), MAX_TTL_DAYS);
+        long ttlDays = Math.max(0, Math.min(ChronoUnit.DAYS.between(LocalDate.now(), expireDate), MAX_TTL_DAYS));
+        if (ttlDays == 0) return; // 과거일 경우 Redis에 저장 안 함
 
         for (Long venueId : venueIds) {
             String key = CouponRedisKeyUtil.getQuotaKey(couponId, venueId, LocalDate.now());
@@ -30,8 +31,12 @@ public class CouponQuotaRedisService {
 
     public int getQuota(Long couponId, Long venueId, LocalDate date) {
         String key = CouponRedisKeyUtil.getQuotaKey(couponId, venueId, date);
-        String value = redisTemplate.opsForValue().get(key);
-        return value != null ? Integer.parseInt(value) : 0;
+        try {
+            String value = redisTemplate.opsForValue().get(key);
+            return value != null ? Integer.parseInt(value) : 0;
+        } catch (Exception e) {
+            return 0; // Redis 장애 시 기본값으로 처리
+        }
     }
 
     /**
@@ -41,8 +46,12 @@ public class CouponQuotaRedisService {
         for (Long venueId : venueIds) {
             String key = CouponRedisKeyUtil.getQuotaKey(couponId, venueId, LocalDate.now());
             if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
-                long ttlDays = Math.min(ChronoUnit.DAYS.between(LocalDate.now(), newExpireDate), MAX_TTL_DAYS);
-                redisTemplate.expire(key, ttlDays, TimeUnit.DAYS);
+                long ttlDays = Math.max(0, Math.min(ChronoUnit.DAYS.between(LocalDate.now(), newExpireDate), MAX_TTL_DAYS));
+                if (ttlDays == 0) {
+                    redisTemplate.delete(key); // 만료된 쿠폰은 삭제
+                } else {
+                    redisTemplate.expire(key, ttlDays, TimeUnit.DAYS);
+                }
             }
         }
     }
