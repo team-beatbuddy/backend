@@ -1,9 +1,6 @@
 package com.ceos.beatbuddy.domain.magazine.controller;
 
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineDetailDTO;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineHomeResponseDTO;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazinePageResponseDTO;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
+import com.ceos.beatbuddy.domain.magazine.dto.*;
 import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -125,6 +122,7 @@ public interface MagazineApiDocs {
                                                   "content": "매거진 1 1111111",
                                                   "liked": false,
                                                   "sponsored": false,
+                                                  "orderInHome": 1,
                                                   "picked": false,
                                                   "isAuthor": false
                                                 },
@@ -134,6 +132,7 @@ public interface MagazineApiDocs {
                                                   "title": "제목",
                                                   "content": "내용",
                                                   "liked": false,
+                                                  "orderInHome": 2,
                                                   "sponsored": false,
                                                   "picked": false,
                                                   "isAuthor": false
@@ -189,6 +188,9 @@ public interface MagazineApiDocs {
                                                             "thumbImage": "",
                                                             "views": 0,
                                                             "likes": 0,
+                                                            "visible": true,
+                                                            "pinned": true,
+                                                            "orderInHome": 2,
                                                             "createdAt": "2025-07-06T20:32:38.659096",
                                                             "liked": false,
                                                             "sponsored": true,
@@ -225,6 +227,9 @@ public interface MagazineApiDocs {
                                                             "thumbImage": "",
                                                             "views": 0,
                                                             "likes": 0,
+                                                            "visible": true,
+                                                            "pinned": true,
+                                                            "orderInHome": 2,
                                                             "createdAt": "2025-07-06T20:19:15.398591",
                                                             "liked": false,
                                                             "sponsored": false,
@@ -245,6 +250,9 @@ public interface MagazineApiDocs {
                                                             "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/magazine/20250704_223543_68e20252-bce3-4b1d-892b-69f420c0cfa5.jpg",
                                                             "views": 0,
                                                             "likes": 0,
+                                                            "visible": true,
+                                                            "pinned": true,
+                                                            "orderInHome": 2,
                                                             "createdAt": "2025-07-04T22:35:43.57882",
                                                             "liked": false,
                                                             "sponsored": false,
@@ -308,6 +316,9 @@ public interface MagazineApiDocs {
                                 "thumbImage": "",
                                 "views": 1,
                                 "likes": 0,
+                                "visible": true,
+                                "pinned": true,
+                                "orderInHome": 2,
                                 "createdAt": "2025-07-06T20:32:38.659096",
                                 "liked": false,
                                 "sponsored": true,
@@ -352,4 +363,74 @@ public interface MagazineApiDocs {
             )
     })
     ResponseEntity<ResponseDTO<MagazineDetailDTO>> readDetailMagazine(@PathVariable Long magazineId);
+
+
+
+    @Operation(summary = "매거진 수정\n",
+            description = """
+                    매거진 수정 기능입니다. admin과 business 멤버에 한해서만 매거진을 수정할 수 있습니다.
+                    - 데이터 전달은 multipart/form-data이며, 'magazineRequestDTO'는 JSON 문자열 형태로 전송해야 합니다.
+                    - thumbnailImage: 매거진의 썸네일 이미지 (선택 사항)
+                    - images: 매거진의 이미지 리스트 (선택 사항)
+                    - ⚠️ 관련 venues는 해당 리스트로 전체 교체됩니다.
+                    - magazine의 총 이미지는 20장입니다.
+                    """)
+    @ApiResponse(
+            responseCode = "200",
+            description = "매거진이 성공적으로 수정되었습니다.",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ResponseDTO.class),
+                    examples = @ExampleObject(value = """
+                    {
+                      "status": 200,
+                      "code": "SUCCESS_UPDATE_MAGAZINE",
+                      "message": "매거진을 성공적으로 수정했습니다.",
+                      "data": {
+                        "magazineId": 3,
+                        "title": "string",
+                        "content": "string",
+                        "writerId": 156,
+                        "imageUrls": [
+                          "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/magazine/20250708_164100_799d623c-c00e-46af-8f95-17ec994ec9f9.jpg",
+                          "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/magazine/20250708_164100_3780705b-9378-4efb-a079-c9e58700a820.jpg",
+                          "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/magazine/20250708_164442_dec25cc8-c31d-495d-9f64-ac34299d6c93.jpg",
+                          "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/magazine/20250708_164443_9d9ec8e4-d0cb-40e8-9fdc-ae1893d4e5a6.jpg"
+                        ],
+                        "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/magazine/20250708_163759_0cf4e15b-dbd0-473e-a30f-0bb206d9f623.png",
+                        "views": 0,
+                        "likes": 0,
+                        "createdAt": "2025-07-02T03:35:20.952583",
+                        "liked": false,
+                        "sponsored": false,
+                        "picked": false,
+                        "eventSimpleDTO": null,
+                        "venueSimpleDTOS": [
+                          {
+                            "venueId": 1,
+                            "koreanName": "클럽 트립",
+                            "englishName": "CLUB TRIP"
+                          },
+                          {
+                            "venueId": 2,
+                            "koreanName": "클럽 어스",
+                            "englishName": "CLUB US"
+                          },
+                          {
+                            "venueId": 3,
+                            "koreanName": "플러스82",
+                            "englishName": "PLUS82SEOUL"
+                          }
+                        ],
+                        "isAuthor": true
+                      }
+                    }
+                                    """)
+            )
+    )
+    ResponseEntity<ResponseDTO<MagazineDetailDTO>> updateMagazine(
+            @PathVariable Long magazineId,
+            @RequestPart("magazineRequestDTO") MagazineUpdateRequestDTO magazineRequestDTO,
+            @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images);
 }

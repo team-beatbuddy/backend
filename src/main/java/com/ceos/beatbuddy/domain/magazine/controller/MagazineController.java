@@ -1,10 +1,7 @@
 package com.ceos.beatbuddy.domain.magazine.controller;
 
 import com.ceos.beatbuddy.domain.magazine.application.MagazineService;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineDetailDTO;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineHomeResponseDTO;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazinePageResponseDTO;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
+import com.ceos.beatbuddy.domain.magazine.dto.*;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
@@ -90,5 +87,21 @@ public class MagazineController implements MagazineApiDocs{
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_MAGAZINE_LIST.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
+    }
+
+    // 매거진 수정
+    @Override
+    @PatchMapping(value = "/{magazineId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseDTO<MagazineDetailDTO>> updateMagazine(
+            @PathVariable Long magazineId,
+            @RequestPart("magazineRequestDTO") MagazineUpdateRequestDTO magazineRequestDTO,
+            @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        MagazineDetailDTO result = magazineService.updateMagazine(memberId, magazineId, magazineRequestDTO, images, thumbnailImage);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_UPDATE_MAGAZINE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_MAGAZINE, result));
     }
 }
