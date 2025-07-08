@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/coupons")
-public class CouponController {
+public class CouponController implements CouponApiDocs {
     private final CouponService couponService;
 
+    @Override
     @PostMapping("/{venueId}/{couponId}/receive")
     public ResponseEntity<ResponseDTO<CouponReceiveResponseDTO>> receiveCoupon(
             @PathVariable Long venueId,
