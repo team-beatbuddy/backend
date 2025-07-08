@@ -141,7 +141,9 @@ public interface PostApiDocs {
                                       "강남.신사"
                                     ],
                                     "isAuthor": true,
-                                    "writerId": 1
+                                    "writerId": 1,
+                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                                    "isAnonymous": true
                                   },
                                   {
                                     "id": 539,
@@ -162,7 +164,9 @@ public interface PostApiDocs {
                                       "뮤직"
                                     ],
                                     "isAuthor": true,
-                                    "writerId": 1
+                                    "writerId": 1,
+                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                                    "isAnonymous": true
                                   }
                                 ]
                               }
@@ -226,7 +230,9 @@ public interface PostApiDocs {
                                       "강남.신사"
                                     ],
                                     "isAuthor": true,
-                                    "writerId": 1
+                                    "writerId": 1,
+                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                                    "isAnonymous": true
                                   },
                                   {
                                     "id": 41,
@@ -246,7 +252,9 @@ public interface PostApiDocs {
                                       "홍대"
                                     ],
                                     "isAuthor": false,
-                                    "writerId": 1
+                                    "writerId": 1,
+                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                                    "isAnonymous": true
                                   }
                                 ]
                               }
@@ -307,7 +315,9 @@ public interface PostApiDocs {
                                     "뮤직"
                                   ],
                                   "isAuthor": false,
-                                  "writerId": 1
+                                  "writerId": 1,
+                                  "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                                  "isAnonymous": true
                                 },
                                 {
                                   "id": 538,
@@ -326,7 +336,9 @@ public interface PostApiDocs {
                                     "홍대"
                                   ],
                                   "isAuthor": false,
-                                  "writerId": 1
+                                  "writerId": 1,
+                                  "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                                  "isAnonymous": true
                                 }
                               ]
                             }
@@ -367,7 +379,9 @@ public interface PostApiDocs {
                         "isAuthor": true,
                         "imageUrls": ["https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png"],
                         "views": 1,
-                        "writerId": 1
+                        "writerId": 1,
+                        "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                        "isAnonymous": true
                       }
                     }
             """))
@@ -427,7 +441,9 @@ public interface PostApiDocs {
                                         ],
                                         "views": 1,
                                         "isAuthor": true,
-                                        "writerId": 1
+                                        "writerId": 1,
+                                        "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                                        "isAnonymous": true
                                       }
                                     }
                         """
@@ -519,7 +535,9 @@ public interface PostApiDocs {
                               "뮤직"
                             ],
                             "isAuthor": true,
-                            "writerId": 1
+                            "writerId": 1,
+                            "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                            "isAnonymous": true
                           },
                           {
                             "id": 538,
@@ -539,7 +557,9 @@ public interface PostApiDocs {
                               "홍대"
                             ],
                             "isAuthor": true,
-                            "writerId": 1
+                            "writerId": 1,
+                            "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                            "isAnonymous": true
                           },
                           {
                             "id": 537,
@@ -561,7 +581,9 @@ public interface PostApiDocs {
                               "강남.신사"
                             ],
                             "isAuthor": true,
-                            "writerId": 1
+                            "writerId": 1,
+                            "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                            "isAnonymous": true
                           },
                           {
                             "id": 536,
@@ -579,7 +601,9 @@ public interface PostApiDocs {
                             "createAt": "2025-07-06T22:19:08.514011",
                             "hashtags": [],
                             "isAuthor": true,
-                            "writerId": 1
+                            "writerId": 1,
+                            "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                            "isAnonymous": true
                           },
                           {
                             "id": 535,
@@ -599,7 +623,9 @@ public interface PostApiDocs {
                               "홍대"
                             ],
                             "isAuthor": true,
-                            "writerId": 1
+                            "writerId": 1,
+                            "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                            "isAnonymous": true
                           },
                           {
                             "id": 534,
@@ -619,7 +645,9 @@ public interface PostApiDocs {
                               "홍대"
                             ],
                             "isAuthor": true,
-                            "writerId": 1
+                            "writerId": 1,
+                            "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                            "isAnonymous": true
                           },
                           {
                             "id": 533,
@@ -639,7 +667,9 @@ public interface PostApiDocs {
                               "홍대"
                             ],
                             "isAuthor": false,
-                            "writerId": 1
+                            "writerId": 1,
+                            "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                            "isAnonymous": true
                           },
                           {
                             "id": 42,
@@ -659,7 +689,9 @@ public interface PostApiDocs {
                               "홍대"
                             ],
                             "isAuthor": false,
-                            "writerId": 1
+                            "writerId": 1,
+                            "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                            "isAnonymous": true
                           },
                           {
                             "id": 41,
@@ -679,7 +711,9 @@ public interface PostApiDocs {
                               "홍대"
                             ],
                             "isAuthor": false,
-                            "writerId": 1
+                            "writerId": 1,
+                            "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                            "isAnonymous": true
                           },
                           {
                             "id": 40,
@@ -699,7 +733,9 @@ public interface PostApiDocs {
                               "홍대"
                             ],
                             "isAuthor": false,
-                            "writerId": 1
+                            "writerId": 1,
+                            "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                            "isAnonymous": true
                           }
                         ]
                       }
@@ -755,7 +791,9 @@ public interface PostApiDocs {
                                       "뮤직"
                                     ],
                                     "isAuthor": true,
-                                    "writerId": 1
+                                    "writerId": 1,
+                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                                    "isAnonymous": true
                                   },
                                   {
                                     "id": 537,
@@ -777,7 +815,9 @@ public interface PostApiDocs {
                                       "강남.신사"
                                     ],
                                     "isAuthor": true,
-                                    "writerId": 1
+                                    "writerId": 1,
+                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                                    "isAnonymous": true
                                   }
                                 ]
                               }
@@ -840,7 +880,9 @@ public interface PostApiDocs {
                                     "createAt": "2025-06-19T22:19:08.514011",
                                     "hashtags": [],
                                     "isAuthor": false,
-                                    "writerId": 1
+                                    "writerId": 1,
+                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                                    "isAnonymous": true
                                   },
                                   {
                                     "id": 535,
@@ -860,7 +902,9 @@ public interface PostApiDocs {
                                       "홍대"
                                     ],
                                     "isAuthor": false,
-                                    "writerId": 1
+                                    "writerId": 1,
+                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                                    "isAnonymous": true
                                   },
                                   {
                                     "id": 534,
@@ -880,7 +924,9 @@ public interface PostApiDocs {
                                       "홍대"
                                     ],
                                     "isAuthor": false,
-                                    "writerId": 1
+                                    "writerId": 1,
+                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
+                                    "isAnonymous": true
                                   }
                                 ]
                               }
