@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.coupon.controller;
 
 import com.ceos.beatbuddy.domain.coupon.application.CouponService;
 import com.ceos.beatbuddy.domain.coupon.dto.CouponCreateRequestDTO;
+import com.ceos.beatbuddy.domain.coupon.dto.CouponUpdateRequestDTO;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
@@ -36,5 +37,15 @@ public class CouponAdminController implements CouponAdminApiDocs {
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_USE_COUPON.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_USE_COUPON, "쿠폰 사용 성공"));
+    }
+
+    @PatchMapping("/{couponId}")
+    public ResponseEntity<ResponseDTO<String>> updateCoupon(
+            @PathVariable Long couponId,
+            @RequestBody CouponUpdateRequestDTO request) {
+        couponService.updateCoupon(couponId, request);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_UPDATE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE, "쿠폰 수정 성공"));
     }
 }
