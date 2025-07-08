@@ -213,6 +213,78 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String COUPON_NOT_FOUND = """
+        {
+          "status": 404,
+          "error": "NOT_FOUND",
+          "code": "COUPON_NOT_FOUND",
+          "message": "존재하지 않는 쿠폰입니다."
+        }
+        """;
+
+    public static final String COUPON_QUOTA_SOLD_OUT = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "COUPON_QUOTA_SOLD_OUT",
+          "message": "쿠폰의 수량이 모두 소진되었습니다."
+        }
+        """;
+
+    public static final String COUPON_QUOTA_NOT_INITIALIZED = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "COUPON_QUOTA_NOT_INITIALIZED",
+          "message": "쿠폰의 수량이 초기화되지 않았습니다."
+        }
+        """;
+
+    public static final String COUPON_EXPIRED = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "COUPON_EXPIRED",
+          "message": "쿠폰이 만료되었습니다."
+        }
+        """;
+
+    public static final String COUPON_DISABLED = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "COUPON_DISABLED",
+          "message": "활성화되지 않은 쿠폰입니다."
+        }
+        """;
+
+    public static final String COUPON_INVALID_POLICY = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "COUPON_INVALID_POLICY",
+          "message": "유효하지 않은 쿠폰 정책입니다."
+        }
+        """;
+
+    public static final String COUPON_ALREADY_USED = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "COUPON_ALREADY_USED",
+          "message": "이미 사용된 쿠폰입니다."
+        }
+        """;
+
+    public static final String COUPON_RECEIVE_LIMIT_EXCEEDED = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "COUPON_RECEIVE_LIMIT_EXCEEDED",
+          "message": "쿠폰 수령 한도를 초과했습니다."
+        }
+        """;
+
     /**
      * 403 권한 없음
      * */
@@ -251,6 +323,7 @@ public class SwaggerExamples {
           "message": "매거진을 작성할 수 없는 유저입니다."
         }
         """;
+
 
 
     
@@ -366,6 +439,24 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String NOT_FOUND_COUPON = """
+        {
+          "status": 404,
+          "error": "NOT_FOUND",
+          "code": "NOT_FOUND_COUPON",
+          "message": "존재하지 않는 쿠폰입니다."
+        }
+        """;
+
+    public static final String NOT_FOUND_COUPON_RECEIVE = """
+        {
+          "status": 404,
+          "error": "NOT_FOUND",
+          "code": "NOT_FOUND_COUPON_RECEIVE",
+          "message": "존재하지 않는 쿠폰 수령 정보입니다."
+        }
+        """;
+
 
     /**
      * 409 already do something
@@ -394,6 +485,24 @@ public class SwaggerExamples {
           "error": "CONFLICT",
           "code": "ALREADY_ATTENDANCE_EVENT",
           "message": "이미 참여 신청한 이벤트입니다."
+        }
+        """;
+
+    public static final String COUPON_ALREADY_RECEIVED = """
+        {
+          "status": 409,
+          "error": "CONFLICT",
+          "code": "COUPON_ALREADY_RECEIVED",
+          "message": "이미 받은 쿠폰입니다."
+        }
+        """;
+
+    public static final String COUPON_ALREADY_RECEIVED_TODAY = """
+        {
+          "status": 409,
+          "error": "CONFLICT",
+          "code": "COUPON_ALREADY_RECEIVED_TODAY",
+          "message": "이미 오늘 해당 쿠폰을 수령하셨습니다."
         }
         """;
 
