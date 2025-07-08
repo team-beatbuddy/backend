@@ -20,7 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Service
@@ -69,7 +71,18 @@ public class CouponService {
         // 4. Redis quota 설정
         String redisKey = CouponRedisKeyUtil.getQuotaKey(coupon.getId(), LocalDate.now());
 
-        redisTemplate.opsForValue().set(redisKey, String.valueOf(request.getQuota()));
+        // 쿠폰 만료일 기준 TTL 설정 (최대 90일 제한)
+        long ttlDays = Math.min(
+                ChronoUnit.DAYS.between(LocalDate.now(), coupon.getExpireDate()),
+                90L
+        );
+
+        redisTemplate.opsForValue().set(
+                redisKey,
+                String.valueOf(request.getQuota()),
+                ttlDays,
+                TimeUnit.DAYS
+        );
     }
 
     @Transactional
