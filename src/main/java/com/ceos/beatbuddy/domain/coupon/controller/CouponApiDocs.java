@@ -11,13 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
 public interface CouponApiDocs {
-
-    /**
-     * 쿠폰을 수령하는 API 문서화
-     *
-     * @param couponId 쿠폰 ID
-     * @return ResponseEntity<ResponseDTO<CouponReceiveResponseDTO>> 쿠폰 수령 응답
-     */
     @Operation(summary = "쿠폰 수령", description = "쿠폰을 수령합니다.")
     @ApiResponse(
             responseCode = "201",

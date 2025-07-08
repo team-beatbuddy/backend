@@ -41,7 +41,7 @@ public interface CouponAdminApiDocs {
           CouponPolicy.WEEKLY, maxReceiveCountPerUser = 10, sameVenueUse = 1, VenueIds = [1,2,3,4,5,6,7,8,9,10]으로 적어주시면 됩니다.
             → 유저는 일주일 동안 10개의 쿠폰을 받을 수 있고, 같은 업장에서는 1개만 사용할 수 있습니다.
         """)
-    @ApiResponse(responseCode = "200", description = "쿠폰 등록 성공",
+    @ApiResponse(responseCode = "201", description = "쿠폰 등록 성공",
             content = @Content(mediaType = "application/json",
                     examples = @ExampleObject(name = "쿠폰 등록 성공 예시",
                             value = """

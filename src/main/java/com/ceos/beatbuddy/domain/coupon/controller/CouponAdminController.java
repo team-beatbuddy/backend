@@ -5,6 +5,7 @@ import com.ceos.beatbuddy.domain.coupon.dto.CouponCreateRequestDTO;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class CouponAdminController implements CouponAdminApiDocs {
 
     @Override
     @PostMapping("")
-    public ResponseEntity<ResponseDTO<String>> createCoupon(@RequestBody CouponCreateRequestDTO request) {
+    public ResponseEntity<ResponseDTO<String>> createCoupon(@Valid @RequestBody CouponCreateRequestDTO request) {
         couponService.createCoupon(request);
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_CREATE_COUPON.getStatus().value())

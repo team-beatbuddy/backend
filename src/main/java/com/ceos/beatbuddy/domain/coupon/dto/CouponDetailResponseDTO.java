@@ -1,5 +1,14 @@
 package com.ceos.beatbuddy.domain.coupon.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
 public class CouponDetailResponseDTO {
     private Long couponId;
     private String name;
@@ -9,17 +18,4 @@ public class CouponDetailResponseDTO {
     private int usedQuota;
     private String startDate;
     private String endDate;
-
-    public CouponDetailResponseDTO(Long couponId, String name, String description, String imageUrl, int quota, int usedQuota, String startDate, String endDate) {
-        this.couponId = couponId;
-        this.name = name;
-        this.description = description;
-        this.imageUrl = imageUrl;
-        this.quota = quota;
-        this.usedQuota = usedQuota;
-        this.startDate = startDate;
-        this.endDate = endDate;
-    }
-
-    // Getters and Setters
 }
