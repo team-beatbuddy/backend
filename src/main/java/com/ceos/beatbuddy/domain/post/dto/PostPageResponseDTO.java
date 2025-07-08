@@ -37,9 +37,16 @@ public class PostPageResponseDTO {
     @JsonProperty("isAuthor")
     private Boolean isAuthor;
     private Long writerId;
+    private String profileImageUrl;
+
+    @JsonProperty("isAnonymous")
+    private Boolean isAnonymous;
 
     public Boolean getIsAuthor() {
         return isAuthor;
+    }
+    public Boolean getIsAnonymous() {
+        return isAnonymous;
     }
 
     public static PostPageResponseDTO toDTO(Post post, Boolean liked, Boolean scrapped, Boolean hasCommented, List<FixedHashtag> hashtags, boolean isAuthor) {
@@ -62,6 +69,8 @@ public class PostPageResponseDTO {
                         .toList() : List.of())
                 .isAuthor(isAuthor)
                 .writerId(post.getMember().getId())
+                .isAnonymous(post.isAnonymous())
+                .profileImageUrl(post.getMember().getProfileImage() != null ? post.getMember().getProfileImage() : "")
                 .build();
     }
 }
