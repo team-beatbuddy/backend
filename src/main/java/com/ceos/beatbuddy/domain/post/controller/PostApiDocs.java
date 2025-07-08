@@ -140,7 +140,8 @@ public interface PostApiDocs {
                                       "홍대",
                                       "강남.신사"
                                     ],
-                                    "isAuthor": true
+                                    "isAuthor": true,
+                                    "writerId": 1
                                   },
                                   {
                                     "id": 539,
@@ -160,7 +161,8 @@ public interface PostApiDocs {
                                       "이태원",
                                       "뮤직"
                                     ],
-                                    "isAuthor": true
+                                    "isAuthor": true,
+                                    "writerId": 1
                                   }
                                 ]
                               }
@@ -223,7 +225,8 @@ public interface PostApiDocs {
                                       "홍대",
                                       "강남.신사"
                                     ],
-                                    "isAuthor": true
+                                    "isAuthor": true,
+                                    "writerId": 1
                                   },
                                   {
                                     "id": 41,
@@ -242,7 +245,8 @@ public interface PostApiDocs {
                                     "hashtags": [
                                       "홍대"
                                     ],
-                                    "isAuthor": false
+                                    "isAuthor": false,
+                                    "writerId": 1
                                   }
                                 ]
                               }
@@ -302,7 +306,8 @@ public interface PostApiDocs {
                                     "이태원",
                                     "뮤직"
                                   ],
-                                  "isAuthor": false
+                                  "isAuthor": false,
+                                  "writerId": 1
                                 },
                                 {
                                   "id": 538,
@@ -320,7 +325,8 @@ public interface PostApiDocs {
                                   "hashtags": [
                                     "홍대"
                                   ],
-                                  "isAuthor": false
+                                  "isAuthor": false,
+                                  "writerId": 1
                                 }
                               ]
                             }
@@ -360,7 +366,8 @@ public interface PostApiDocs {
                         ],
                         "isAuthor": true,
                         "imageUrls": ["https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png"],
-                        "views": 1
+                        "views": 1,
+                        "writerId": 1
                       }
                     }
             """))
@@ -419,7 +426,8 @@ public interface PostApiDocs {
                                           "뮤직"
                                         ],
                                         "views": 1,
-                                        "isAuthor": true
+                                        "isAuthor": true,
+                                        "writerId": 1
                                       }
                                     }
                         """
@@ -510,7 +518,8 @@ public interface PostApiDocs {
                               "이태원",
                               "뮤직"
                             ],
-                            "isAuthor": true
+                            "isAuthor": true,
+                            "writerId": 1
                           },
                           {
                             "id": 538,
@@ -529,7 +538,8 @@ public interface PostApiDocs {
                             "hashtags": [
                               "홍대"
                             ],
-                            "isAuthor": true
+                            "isAuthor": true,
+                            "writerId": 1
                           },
                           {
                             "id": 537,
@@ -550,7 +560,8 @@ public interface PostApiDocs {
                               "홍대",
                               "강남.신사"
                             ],
-                            "isAuthor": true
+                            "isAuthor": true,
+                            "writerId": 1
                           },
                           {
                             "id": 536,
@@ -567,7 +578,8 @@ public interface PostApiDocs {
                             "nickname": "BeatBuddy",
                             "createAt": "2025-07-06T22:19:08.514011",
                             "hashtags": [],
-                            "isAuthor": true
+                            "isAuthor": true,
+                            "writerId": 1
                           },
                           {
                             "id": 535,
@@ -586,7 +598,8 @@ public interface PostApiDocs {
                             "hashtags": [
                               "홍대"
                             ],
-                            "isAuthor": true
+                            "isAuthor": true,
+                            "writerId": 1
                           },
                           {
                             "id": 534,
@@ -605,7 +618,8 @@ public interface PostApiDocs {
                             "hashtags": [
                               "홍대"
                             ],
-                            "isAuthor": true
+                            "isAuthor": true,
+                            "writerId": 1
                           },
                           {
                             "id": 533,
@@ -624,7 +638,8 @@ public interface PostApiDocs {
                             "hashtags": [
                               "홍대"
                             ],
-                            "isAuthor": false
+                            "isAuthor": false,
+                            "writerId": 1
                           },
                           {
                             "id": 42,
@@ -643,7 +658,8 @@ public interface PostApiDocs {
                             "hashtags": [
                               "홍대"
                             ],
-                            "isAuthor": false
+                            "isAuthor": false,
+                            "writerId": 1
                           },
                           {
                             "id": 41,
@@ -662,7 +678,8 @@ public interface PostApiDocs {
                             "hashtags": [
                               "홍대"
                             ],
-                            "isAuthor": false
+                            "isAuthor": false,
+                            "writerId": 1
                           },
                           {
                             "id": 40,
@@ -681,7 +698,8 @@ public interface PostApiDocs {
                             "hashtags": [
                               "홍대"
                             ],
-                            "isAuthor": false
+                            "isAuthor": false,
+                            "writerId": 1
                           }
                         ]
                       }
@@ -736,7 +754,8 @@ public interface PostApiDocs {
                                       "이태원",
                                       "뮤직"
                                     ],
-                                    "isAuthor": true
+                                    "isAuthor": true,
+                                    "writerId": 1
                                   },
                                   {
                                     "id": 537,
@@ -757,7 +776,8 @@ public interface PostApiDocs {
                                       "홍대",
                                       "강남.신사"
                                     ],
-                                    "isAuthor": true
+                                    "isAuthor": true,
+                                    "writerId": 1
                                   }
                                 ]
                               }
@@ -819,7 +839,8 @@ public interface PostApiDocs {
                                     "nickname": "BeatBuddy",
                                     "createAt": "2025-06-19T22:19:08.514011",
                                     "hashtags": [],
-                                    "isAuthor": false
+                                    "isAuthor": false,
+                                    "writerId": 1
                                   },
                                   {
                                     "id": 535,
@@ -838,7 +859,8 @@ public interface PostApiDocs {
                                     "hashtags": [
                                       "홍대"
                                     ],
-                                    "isAuthor": false
+                                    "isAuthor": false,
+                                    "writerId": 1
                                   },
                                   {
                                     "id": 534,
@@ -857,7 +879,8 @@ public interface PostApiDocs {
                                     "hashtags": [
                                       "홍대"
                                     ],
-                                    "isAuthor": false
+                                    "isAuthor": false,
+                                    "writerId": 1
                                   }
                                 ]
                               }
