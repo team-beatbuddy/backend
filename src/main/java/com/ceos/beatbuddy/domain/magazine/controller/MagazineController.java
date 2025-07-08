@@ -91,29 +91,4 @@ public class MagazineController implements MagazineApiDocs{
                 .status(SuccessCode.SUCCESS_GET_MAGAZINE_LIST.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MAGAZINE_LIST, result));
     }
-
-    // 매거진에 좋아요 표시하기
-    @Override
-    @PostMapping("/{magazineId}/like")
-    public ResponseEntity<ResponseDTO<String>> likeMagazine(@PathVariable Long magazineId) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        magazineService.likeMagazine(magazineId, memberId);
-
-        return ResponseEntity
-                .status(SuccessCode.SUCCESS_LIKE_MAGAZINE.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_MAGAZINE, "좋아요를 표시했습니다."));
-    }
-
-    // 매거진 좋아요 삭제
-    @Override
-    @DeleteMapping("/{magazineId}/like")
-    public ResponseEntity<ResponseDTO<String>> deleteLikeMagazine(@PathVariable Long magazineId) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        magazineService.deleteLikeMagazine(magazineId, memberId);
-
-        return ResponseEntity
-                .status(SuccessCode.SUCCESS_LIKE_MAGAZINE.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_MAGAZINE, "좋아요를 취소했습니다."));
-    }
-
 }

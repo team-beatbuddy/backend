@@ -14,7 +14,6 @@ import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.constant.Role;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineInteractionId;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineLike;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.MagazineLikeRepository;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
@@ -42,6 +41,7 @@ public class MagazineService {
     private final MagazineQueryRepository magazineQueryRepository;
     private final EventService eventService;
     private final VenueInfoService venueInfoService;
+    private final MagazineValidator magazineValidator;
 
     private final UploadUtil uploadUtil;
     /**
@@ -145,7 +145,7 @@ public class MagazineService {
     public MagazineDetailDTO readDetailMagazine(Long memberId, Long magazineId) {
         memberService.validateAndGetMember(memberId);
 
-        Magazine magazine = validateAndGetMagazineVisibleTrue(magazineId);
+        Magazine magazine = magazineValidator.validateAndGetMagazineVisibleTrue(magazineId);
 
         // 조회수 증가
         magazine.increaseView();
@@ -183,84 +183,6 @@ public class MagazineService {
                 .totalCount(magazineQueryRepository.countAllVisibleMagazines())
                 .magazines(magazineDetailDTOS)
                 .build();
-    }
-
-
-    /**
-     * 지정된 회원이 해당 매거진에 좋아요를 등록합니다.
-     *
-     * @param magazineId 좋아요를 등록할 매거진의 ID
-     * @param memberId 좋아요를 수행하는 회원의 ID
-     * @return 좋아요 등록 후의 매거진 상세 DTO
-     * @throws CustomException 매거진이 존재하지 않거나, 표시되지 않거나, 이미 좋아요를 등록한 경우
-     */
-    @Transactional
-    public void likeMagazine(Long magazineId, Long memberId) {
-        Member member = memberService.validateAndGetMember(memberId);
-
-        // 엔티티 검색
-        Magazine magazine = validateAndGetMagazineVisibleTrue(magazineId);
-
-        // 좋아요 증가 (이미 좋아요가 있으면 예외처리
-        boolean alreadyLiked = magazineLikeRepository.existsById(
-                MagazineInteractionId.builder().memberId(memberId).magazineId(magazineId).build());
-
-        if (alreadyLiked) {
-            throw new CustomException(ErrorCode.ALREADY_LIKED);
-        }
-
-        MagazineLike entity = MagazineLike.toEntity(member, magazine);
-        magazineLikeRepository.save(entity);
-        magazineRepository.increaseLike(magazineId);
-    }
-
-    /**
-     * 지정된 매거진에 대해 해당 회원의 좋아요를 제거합니다.
-     *
-     * @param magazineId 좋아요를 제거할 매거진의 ID
-     * @param memberId 좋아요를 제거하는 회원의 ID
-     * @return 좋아요 제거 후의 매거진 상세 DTO
-     * @throws CustomException 좋아요가 존재하지 않거나, 매거진/회원이 존재하지 않는 경우
-     */
-    @Transactional
-    public void deleteLikeMagazine(Long magazineId, Long memberId) {
-        memberService.validateAndGetMember(memberId);
-
-        // 엔티티 검색
-        validateAndGetMagazine(magazineId);
-
-        // 좋아요 삭제
-        MagazineLike magazineLike = magazineLikeRepository.findById(
-                MagazineInteractionId.builder().memberId(memberId).magazineId(magazineId).build()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_FOUND_LIKE)
-        );
-
-        magazineLikeRepository.delete(magazineLike);
-        magazineRepository.decreaseLike(magazineId);
-    }
-
-    /**
-     * ID를 기반으로 표시 가능한(visible) 매거진을 조회하며, 존재하지 않거나 표시 불가능한 경우 예외를 발생시킵니다.
-     *
-     * @param magazineId 조회할 매거진의 ID
-     * @return 존재하고 표시 가능한 매거진 엔티티
-     * @throws CustomException 매거진이 존재하지 않거나 표시 불가능한 경우
-     */
-    private Magazine validateAndGetMagazineVisibleTrue(Long magazineId) {
-        return magazineRepository.findByIdAndIsVisibleTrue(magazineId).orElseThrow(() ->
-                new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST));
-    }
-
-    /**
-     * 표시 여부와 관계없이 ID를 기반으로 매거진을 조회합니다.
-     *
-     * @param magazineId 조회할 매거진의 ID
-     * @return 해당 ID를 가진 매거진 엔티티
-     * @throws CustomException 매거진이 존재하지 않는 경우
-     */
-    private Magazine validateAndGetMagazine(Long magazineId) {
-        return magazineRepository.findById(magazineId).orElseThrow(() ->
-                new CustomException(MagazineErrorCode.MAGAZINE_NOT_EXIST));
     }
 
     // 홈에 고정되는 매거진의 유효성 검사
