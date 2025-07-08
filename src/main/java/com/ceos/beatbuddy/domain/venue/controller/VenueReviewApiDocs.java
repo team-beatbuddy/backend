@@ -52,7 +52,9 @@ public interface VenueReviewApiDocs {
                                 "imageUrls": [
                                   "https://beatbuddy-venue.s3.ap-northeast-2.amazonaws.com/review/20250701_195355_32a97151-fdb7-4334-9d20-e508f3a48fb6.png",
                                   "https://beatbuddy-venue.s3.ap-northeast-2.amazonaws.com/review/20250701_195355_3d34539f-7521-4bdb-ae4c-d04efbecfe9f.png"
-                                ]
+                                ],
+                                "isAuthor": true,
+                                "writerId": 1
                               }
                             }
                     """))
@@ -146,7 +148,9 @@ public interface VenueReviewApiDocs {
                                                   "imageUrls": [
                                                     "https://beatbuddy-venue.s3.ap-northeast-2.amazonaws.com/review/20250701_195355_32a97151-fdb7-4334-9d20-e508f3a48fb6.png",
                                                     "https://beatbuddy-venue.s3.ap-northeast-2.amazonaws.com/review/20250701_195355_3d34539f-7521-4bdb-ae4c-d04efbecfe9f.png"
-                                                  ]
+                                                  ],
+                                                  "isAuthor": true,
+                                                  "writerId": 1
                                                 }
                                               ]
                                             }
@@ -199,7 +203,9 @@ public interface VenueReviewApiDocs {
                                         "imageUrls": [
                                           "https://beatbuddy-venue.s3.ap-northeast-2.amazonaws.com/review/20250701_195355_32a97151-fdb7-4334-9d20-e508f3a48fb6.png",
                                           "https://beatbuddy-venue.s3.ap-northeast-2.amazonaws.com/review/20250701_195355_3d34539f-7521-4bdb-ae4c-d04efbecfe9f.png"
-                                        ]
+                                        ],
+                                        "isAuthor": true,
+                                        "writerId": 1
                                       }
                                     }
                                     """)}
