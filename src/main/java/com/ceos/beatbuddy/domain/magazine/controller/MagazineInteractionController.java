@@ -36,7 +36,7 @@ public class MagazineInteractionController implements MagazineInteractionApiDocs
         magazineInteractionService.deleteLikeMagazine(magazineId, memberId);
 
         return ResponseEntity
-                .status(SuccessCode.SUCCESS_LIKE_MAGAZINE.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LIKE_MAGAZINE, "좋아요를 취소했습니다."));
+                .status(SuccessCode.SUCCESS_DELETE_LIKE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_LIKE, "좋아요를 취소했습니다."));
     }
 }
