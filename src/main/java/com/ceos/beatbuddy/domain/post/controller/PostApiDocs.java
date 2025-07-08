@@ -106,6 +106,9 @@ public interface PostApiDocs {
                 - type: 게시글 타입. "free" 또는 "piece"
                 - page: 페이지 번호 (1부터 시작)
                 - size: 한 페이지에 포함할 게시글 수
+                
+                - 익명인 경우, 프로필 사진이 "" 입니다.
+                - 프로필 사진이 설정되지 않은 경우에도 프로필 사진이 "" 입니다.
                 """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "스크랩한 게시글 목록 조회 성공",
@@ -143,7 +146,7 @@ public interface PostApiDocs {
                                     "isAuthor": true,
                                     "writerId": 1,
                                     "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                    "isAnonymous": true
+                                    "isAnonymous": false
                                   },
                                   {
                                     "id": 539,
@@ -166,7 +169,7 @@ public interface PostApiDocs {
                                     "isAuthor": true,
                                     "writerId": 1,
                                     "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                    "isAnonymous": true
+                                    "isAnonymous": false
                                   }
                                 ]
                               }
@@ -195,7 +198,13 @@ public interface PostApiDocs {
 
 
 
-    @Operation(summary = "내가 작성한 글 조회", description = "게시글 유형(type: free, piece)과 페이지 정보를 기준으로 사용자가 작성한 글 목록을 조회합니다.")
+    @Operation(summary = "내가 작성한 글 조회", description = """
+    게시글 유형(type: free, piece)과 페이지 정보를 기준으로 사용자가 작성한 글 목록을 조회합니다.
+    
+    - 익명인 경우, 프로필 사진이 "" 입니다.
+    - 프로필 사진이 설정되지 않은 경우에도 프로필 사진이 "" 입니다.
+    
+    """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "내가 작성한 글 목록 조회 성공",
                     content = @Content(
@@ -231,8 +240,8 @@ public interface PostApiDocs {
                                     ],
                                     "isAuthor": true,
                                     "writerId": 1,
-                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                    "isAnonymous": true
+                                    "profileImageUrl": "",
+                                    "isAnonymous": false
                                   },
                                   {
                                     "id": 41,
@@ -284,7 +293,13 @@ public interface PostApiDocs {
 
 
 
-    @Operation(summary = "인기 게시글 상위 2개 조회", description = "최근 12시간 이내 작성된 게시글 중 좋아요+스크랩 기준으로 상위 2개를 조회합니다.")
+    @Operation(summary = "인기 게시글 상위 2개 조회", description = """
+    
+    최근 12시간 이내 작성된 게시글 중 좋아요+스크랩 기준으로 상위 2개를 조회합니다.
+    - 익명인 경우, 프로필 사진이 "" 입니다.
+    - 프로필 사진이 설정되지 않은 경우에도 프로필 사진이 "" 입니다.
+    
+    """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "인기 게시글 상위 2개 조회 성공",
                     content = @Content(
@@ -347,7 +362,12 @@ public interface PostApiDocs {
     })
     ResponseEntity<ResponseDTO<List<PostPageResponseDTO>>> getHotPosts();
 
-    @Operation(summary = "게시물 조회", description = "게시물을 조회합니다 (type: free/piece)")
+    @Operation(summary = "게시물 조회", description = """
+
+    게시물을 조회합니다 (type: free/piece)
+    - 익명인 경우, 프로필 사진이 "" 입니다.
+    - 프로필 사진이 설정되지 않은 경우에도 프로필 사진이 "" 입니다.
+    """)
     @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "선택한 포스트 성공",
             content = @Content(
@@ -404,6 +424,9 @@ public interface PostApiDocs {
                 기존 게시글을 수정합니다. 수정되는 필드만 넣으면 됩니다.
                 - 만약 title 을 수정하지 않았다면, 넣지 않고 전달하면 됩니다.
                 - 해시태그는 기존 해시태그를 지우고, 새로 작성한 해시태그로 덮어씌워집니다.
+                
+                - 익명인 경우, 프로필 사진이 "" 입니다.
+                - 프로필 사진이 설정되지 않은 경우에도 프로필 사진이 "" 입니다.
                 """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "포스트 수정 성공",
@@ -497,7 +520,8 @@ public interface PostApiDocs {
 
     @Operation(summary = "전체 게시물 조회, 최신순 정렬이 기본입니다.)", description = """
     전체 게시물을 조회합니다 (type: free/piece), (sort: latest)
-    
+    - 익명인 경우, 프로필 사진이 "" 입니다.
+    - 프로필 사진이 설정되지 않은 경우에도 프로필 사진이 "" 입니다.
     """)
     @ApiResponse(
             responseCode = "200",
@@ -755,6 +779,10 @@ public interface PostApiDocs {
     @Operation(summary = "해시태그로 게시글 목록 조회", description = """
             해시태그로 게시글 목록을 조회합니다.
             - hashtags: (압구정로데오/홍대/이태원/강남.신사/뮤직/자유/번개 모임/International/19+/LGBTQ/짤.밈) 중 하나입니다.
+            - hashtags는 중복되지 않도록 입력해주세요.
+            
+            - 익명인 경우, 프로필 사진이 "" 입니다.
+            - 프로필 사진이 설정되지 않은 경우에도 프로필 사진이 "" 입니다.
             """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "해시태그에 해당하는 포스트 목록을 성공적으로 조회했습니다.",
@@ -848,7 +876,11 @@ public interface PostApiDocs {
             @RequestParam(defaultValue = "10") int size);
 
 
-    @Operation(summary = "사용자 게시글 조회", description = "특정 사용자의 게시글을 조회합니다. 익명으로 작성한 글은 뜨지 않습니다.")
+    @Operation(summary = "사용자 게시글 조회", description = """
+    특정 사용자의 게시글을 조회합니다. 익명으로 작성한 글은 뜨지 않습니다.
+    - 익명인 경우, 프로필 사진이 "" 입니다.
+    - 프로필 사진이 설정되지 않은 경우에도 프로필 사진이 "" 입니다.
+    """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "사용자 게시글 조회 성공",
                     content = @Content(
