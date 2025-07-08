@@ -115,11 +115,11 @@ public class CouponService {
                     throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED);
                 }
             }
-            case ONCE -> {
-                if (memberCouponRepository.existsByMemberAndCoupon(member, coupon)) {
-                    throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED_TODAY);
-                }
-            }
+             case ONCE -> {
+                 if (memberCouponRepository.existsByMemberAndCoupon(member, coupon)) {
+                     throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED);
+                 }
+             }
             case WEEKLY -> {
                 if (coupon.getMaxReceiveCountPerUser() != null) {
                     int countThisWeek = memberCouponRepository.countByMemberAndCouponAndWeek(member, coupon, today);
