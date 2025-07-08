@@ -43,7 +43,8 @@ public class Member extends BaseTimeEntity {
     private int nicknameChangeCount = 0;
 
     @Version
-    private Long version;
+    @Column(nullable = false)
+    private Long version = 0L;
 
 
     @Builder.Default

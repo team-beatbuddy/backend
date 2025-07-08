@@ -8,6 +8,8 @@ import com.ceos.beatbuddy.domain.member.repository.MemberGenreRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberMoodRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.global.CustomException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,9 @@ public class OnboardingService {
     private final MemberGenreRepository memberGenreRepository;
     private final MemberMoodRepository memberMoodRepository;
     private final MemberRepository memberRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9가-힣._]*$");
 
@@ -116,6 +121,13 @@ public class OnboardingService {
 
         String nickname = nicknameDTO.getNickname();
         member.saveNickname(nickname);
+
+        try {
+            entityManager.flush(); // 실제 예외를 발생시켜 원인 확인
+        } catch (Exception e) {
+            e.printStackTrace(); // 콘솔에 root cause가 찍힘
+            throw e;
+        }
 
         return MemberResponseDTO.builder()
                 .memberId(member.getId())
