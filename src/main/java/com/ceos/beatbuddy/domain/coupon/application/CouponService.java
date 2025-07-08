@@ -92,7 +92,6 @@ public class CouponService {
     }
 
     @Transactional
-    @Transactional
     public void useCoupon(Long receiveCouponId, Long memberId) {
         // Member, Coupon 조회
         memberService.validateAndGetMember(memberId);
@@ -131,7 +130,7 @@ public class CouponService {
         switch (coupon.getPolicy()) {
             case DAILY -> {
                 if (memberCouponRepository.existsByMemberAndCouponAndReceivedDate(member, coupon, today)) {
-                    throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED);
+                    throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED_TODAY);
                 }
             }
              case ONCE -> {
