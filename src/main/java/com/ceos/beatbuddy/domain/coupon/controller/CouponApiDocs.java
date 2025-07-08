@@ -79,6 +79,14 @@ public interface CouponApiDocs {
                     }
             )
     )
+    /**
+     * 쿠폰을 수령하는 API 문서화
+     *
+     * @param venueId 장소 ID
+     * @param couponId 쿠폰 ID
+     * @return ResponseEntity<ResponseDTO<CouponReceiveResponseDTO>> 쿠폰 수령 응답
+     */
     ResponseEntity<ResponseDTO<CouponReceiveResponseDTO>> receiveCoupon(
+            @PathVariable Long venueId,
             @PathVariable Long couponId);
 }
