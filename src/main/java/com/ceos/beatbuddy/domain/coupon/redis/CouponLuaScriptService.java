@@ -48,11 +48,4 @@ public class CouponLuaScriptService {
             default -> throw new CustomException(CouponErrorCode.COUPON_SERVER_ERROR);
         }
     }
-
-    public enum LuaResult {
-        NOT_INITIALIZED,
-        SOLD_OUT,
-        SUCCESS,
-        UNKNOWN
-    }
 }
