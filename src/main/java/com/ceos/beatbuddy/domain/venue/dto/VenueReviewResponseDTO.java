@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.venue.dto;
 
 import com.ceos.beatbuddy.domain.venue.entity.VenueReview;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import java.util.List;
 public class VenueReviewResponseDTO {
     private Long venueReviewId;
     private String content; // 리뷰 내용
-    private String nickname; // 익명이면 "익명"으로 전달
+    private String nickname;
     private int likes; // 좋아요 수
     private boolean liked; // 좋아요 눌렀는지 여부
     private String profileImageUrl; // 프로필 이미지 URL
@@ -24,7 +25,15 @@ public class VenueReviewResponseDTO {
     private LocalDateTime createdAt; // 리뷰 작성 시간
     private List<String> imageUrls;
 
-    public static VenueReviewResponseDTO toDTO(VenueReview entity, boolean liked) {
+    @JsonProperty("isAuthor")
+    private Boolean isAuthor; // 작성자가 본인인지 여부
+    private Long writerId; // 작성자 ID
+
+    public Boolean getIsAuthor() {
+        return isAuthor;
+    }
+
+    public static VenueReviewResponseDTO toDTO(VenueReview entity, boolean liked, boolean isAuthor) {
         return VenueReviewResponseDTO.builder()
                 .venueReviewId(entity.getId())
                 .content(entity.getContent())
@@ -35,6 +44,8 @@ public class VenueReviewResponseDTO {
                 .role(entity.getMember().getRole().name())
                 .createdAt(entity.getCreatedAt())
                 .imageUrls(entity.getImageUrls() != null ? entity.getImageUrls() : List.of())
+                .isAuthor(isAuthor) // 작성자가 본인인지 여부
+                .writerId(entity.getMember().getId())
                 .build();
     }
 }
