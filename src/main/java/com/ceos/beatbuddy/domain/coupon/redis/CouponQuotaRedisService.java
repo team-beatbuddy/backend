@@ -52,7 +52,7 @@ public class CouponQuotaRedisService {
      * quota가 0일 경우 key 삭제
      */
     public void deleteQuotaIfEmpty(Long venueId, Long couponId) {
-        String key = CouponRedisKeyUtil.getQuotaKey(venueId, couponId, LocalDate.now());
+        String key = CouponRedisKeyUtil.getQuotaKey(couponId, venueId, LocalDate.now());
 
         String value = redisTemplate.opsForValue().get(key);
         if ("0".equals(value)) {
