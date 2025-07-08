@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
@@ -30,14 +31,22 @@ public class PostPageResponseDTO {
     private boolean scrapped;
     private boolean hasCommented;
     private String nickname;
-    private LocalDate createAt;
+    private LocalDateTime createAt;
     private List<String> hashtags;
 
     @JsonProperty("isAuthor")
     private Boolean isAuthor;
+    private Long writerId;
+    private String profileImageUrl;
+
+    @JsonProperty("isAnonymous")
+    private Boolean isAnonymous;
 
     public Boolean getIsAuthor() {
         return isAuthor;
+    }
+    public Boolean getIsAnonymous() {
+        return isAnonymous;
     }
 
     public static PostPageResponseDTO toDTO(Post post, Boolean liked, Boolean scrapped, Boolean hasCommented, List<FixedHashtag> hashtags, boolean isAuthor) {
@@ -47,7 +56,7 @@ public class PostPageResponseDTO {
                 .content(post.getContent())
                 .thumbImage(post.getImageUrls().isEmpty() || post.getImageUrls().get(0) == null ? "" : post.getImageUrls().get(0))
                 .nickname(post.getMember().getNickname())
-                .createAt(post.getCreatedAt().toLocalDate())
+                .createAt(post.getCreatedAt())
                 .likes(post.getLikes())
                 .scraps(post.getScraps())
                 .comments(post.getComments())
@@ -59,6 +68,15 @@ public class PostPageResponseDTO {
                         .map(FixedHashtag::getDisplayName)
                         .toList() : List.of())
                 .isAuthor(isAuthor)
+                .writerId(post.getMember().getId())
+                .isAnonymous(post.isAnonymous())
+                .profileImageUrl(
+                        post.isAnonymous()
+                                ? ""
+                                : (post.getMember().getProfileImage() != null
+                                ? post.getMember().getProfileImage()
+                                : "")
+                )
                 .build();
     }
 }
