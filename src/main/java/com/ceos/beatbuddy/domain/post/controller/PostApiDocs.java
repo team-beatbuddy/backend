@@ -44,7 +44,7 @@ public interface PostApiDocs {
                                 "role": "BUSINESS",
                                 "likes": 0,
                                 "comments": 0,
-                                "createAt": "2025-06-19",
+                                "createAt": "2025-07-06T22:19:08.514011",
                                 "nickname": "길동hong"
                               }
                             }
@@ -134,7 +134,7 @@ public interface PostApiDocs {
                                     "scrapped": true,
                                     "hasCommented": false,
                                     "nickname": "BeatBuddy",
-                                    "createAt": "2025-07-04",
+                                    "createAt": "2025-07-06T22:19:08.514011",
                                     "hashtags": [
                                       "이태원",
                                       "홍대",
@@ -154,7 +154,7 @@ public interface PostApiDocs {
                                     "scrapped": true,
                                     "hasCommented": true,
                                     "nickname": "BeatBuddy",
-                                    "createAt": "2025-07-06",
+                                    "createAt": "2025-07-06T22:19:08.514011",
                                     "hashtags": [
                                       "홍대",
                                       "이태원",
@@ -217,7 +217,7 @@ public interface PostApiDocs {
                                     "scrapped": true,
                                     "hasCommented": false,
                                     "nickname": "BeatBuddy",
-                                    "createAt": "2025-07-04",
+                                    "createAt": "2025-07-06T22:19:08.514011",
                                     "hashtags": [
                                       "이태원",
                                       "홍대",
@@ -238,7 +238,7 @@ public interface PostApiDocs {
                                     "scrapped": false,
                                     "hasCommented": false,
                                     "nickname": "닉네임 수정1",
-                                    "createAt": "2025-06-19",
+                                    "createAt": "2025-07-06T22:19:08.514011",
                                     "hashtags": [
                                       "홍대"
                                     ],
@@ -296,7 +296,7 @@ public interface PostApiDocs {
                                   "scrapped": false,
                                   "hasCommented": true,
                                   "nickname": "BeatBuddy",
-                                  "createAt": "2025-07-06",
+                                  "createAt": "2025-07-06T22:19:08.514011",
                                   "hashtags": [
                                     "홍대",
                                     "이태원",
@@ -316,7 +316,7 @@ public interface PostApiDocs {
                                   "scrapped": false,
                                   "hasCommented": false,
                                   "nickname": "BeatBuddy",
-                                  "createAt": "2025-07-06",
+                                  "createAt": "2025-07-06T22:19:08.514011",
                                   "hashtags": [
                                     "홍대"
                                   ],
@@ -352,7 +352,7 @@ public interface PostApiDocs {
                         "scrapped": true,
                         "hasCommented": false,
                         "nickname": "BeatBuddy",
-                        "createAt": "2025-07-04",
+                        "createAt": "2025-07-06T22:19:08.514011",
                         "hashtags": [
                           "이태원",
                           "홍대",
@@ -409,7 +409,7 @@ public interface PostApiDocs {
                                         "scrapped": false,
                                         "hasCommented": false,
                                         "nickname": "길동hong",
-                                        "createAt": "2025-06-19",
+                                        "createAt": "2025-07-06T22:19:08.514011",
                                         "imageUrls": [
                                           "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png"
                                         ],
@@ -504,7 +504,7 @@ public interface PostApiDocs {
                             "scrapped": true,
                             "hasCommented": true,
                             "nickname": "BeatBuddy",
-                            "createAt": "2025-07-06",
+                            "createAt": "2025-07-06T22:19:08.514011",
                             "hashtags": [
                               "홍대",
                               "이태원",
@@ -525,7 +525,7 @@ public interface PostApiDocs {
                             "scrapped": false,
                             "hasCommented": false,
                             "nickname": "BeatBuddy",
-                            "createAt": "2025-07-06",
+                            "createAt": "2025-07-06T22:19:08.514011",
                             "hashtags": [
                               "홍대"
                             ],
@@ -544,7 +544,7 @@ public interface PostApiDocs {
                             "scrapped": true,
                             "hasCommented": false,
                             "nickname": "BeatBuddy",
-                            "createAt": "2025-07-04",
+                            "createAt": "2025-07-06T22:19:08.514011",
                             "hashtags": [
                               "이태원",
                               "홍대",
@@ -565,7 +565,7 @@ public interface PostApiDocs {
                             "scrapped": false,
                             "hasCommented": false,
                             "nickname": "BeatBuddy",
-                            "createAt": "2025-07-04",
+                            "createAt": "2025-07-06T22:19:08.514011",
                             "hashtags": [],
                             "isAuthor": true
                           },
@@ -582,7 +582,7 @@ public interface PostApiDocs {
                             "scrapped": false,
                             "hasCommented": false,
                             "nickname": "BeatBuddy",
-                            "createAt": "2025-07-04",
+                            "createAt": "2025-07-06T22:19:08.514011",
                             "hashtags": [
                               "홍대"
                             ],
@@ -601,7 +601,7 @@ public interface PostApiDocs {
                             "scrapped": false,
                             "hasCommented": false,
                             "nickname": "BeatBuddy",
-                            "createAt": "2025-07-04",
+                            "createAt": "2025-06-30T22:19:08.514011",
                             "hashtags": [
                               "홍대"
                             ],
@@ -620,7 +620,7 @@ public interface PostApiDocs {
                             "scrapped": false,
                             "hasCommented": false,
                             "nickname": "닉네임 수정1",
-                            "createAt": "2025-06-22",
+                            "createAt": "2025-06-22T22:19:08.514011",
                             "hashtags": [
                               "홍대"
                             ],
@@ -639,7 +639,7 @@ public interface PostApiDocs {
                             "scrapped": false,
                             "hasCommented": false,
                             "nickname": "닉네임 수정1",
-                            "createAt": "2025-06-19",
+                            "createAt": "2025-06-19T22:19:08.514011",
                             "hashtags": [
                               "홍대"
                             ],
@@ -658,7 +658,7 @@ public interface PostApiDocs {
                             "scrapped": false,
                             "hasCommented": false,
                             "nickname": "닉네임 수정1",
-                            "createAt": "2025-06-19",
+                            "createAt": "2025-06-19T22:19:08.514011",
                             "hashtags": [
                               "홍대"
                             ],
@@ -677,7 +677,7 @@ public interface PostApiDocs {
                             "scrapped": false,
                             "hasCommented": false,
                             "nickname": "닉네임 수정1",
-                            "createAt": "2025-06-19",
+                            "createAt": "2025-06-19T22:19:08.514011",
                             "hashtags": [
                               "홍대"
                             ],
@@ -730,7 +730,7 @@ public interface PostApiDocs {
                                     "scrapped": true,
                                     "hasCommented": true,
                                     "nickname": "BeatBuddy",
-                                    "createAt": "2025-07-06",
+                                    "createAt": "2025-06-19T22:19:08.514011",
                                     "hashtags": [
                                       "홍대",
                                       "이태원",
@@ -751,7 +751,7 @@ public interface PostApiDocs {
                                     "scrapped": true,
                                     "hasCommented": false,
                                     "nickname": "BeatBuddy",
-                                    "createAt": "2025-07-04",
+                                    "createAt": "2025-06-19T22:19:08.514011",
                                     "hashtags": [
                                       "이태원",
                                       "홍대",
@@ -817,7 +817,7 @@ public interface PostApiDocs {
                                     "scrapped": false,
                                     "hasCommented": false,
                                     "nickname": "BeatBuddy",
-                                    "createAt": "2025-07-04",
+                                    "createAt": "2025-06-19T22:19:08.514011",
                                     "hashtags": [],
                                     "isAuthor": false
                                   },
@@ -834,7 +834,7 @@ public interface PostApiDocs {
                                     "scrapped": false,
                                     "hasCommented": false,
                                     "nickname": "BeatBuddy",
-                                    "createAt": "2025-07-04",
+                                    "createAt": "2025-06-19T22:19:08.514011",
                                     "hashtags": [
                                       "홍대"
                                     ],
@@ -853,7 +853,7 @@ public interface PostApiDocs {
                                     "scrapped": false,
                                     "hasCommented": false,
                                     "nickname": "BeatBuddy",
-                                    "createAt": "2025-07-04",
+                                    "createAt": "2025-06-19T22:19:08.514011",
                                     "hashtags": [
                                       "홍대"
                                     ],
