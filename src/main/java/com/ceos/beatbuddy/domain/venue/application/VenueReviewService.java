@@ -62,7 +62,7 @@ public class VenueReviewService {
 
         // 리뷰 저장
         venueReview = venueReviewRepository.save(venueReview);
-        return VenueReviewResponseDTO.toDTO(venueReview, false); // false는 해당 댓글에 대한 좋아요 여부를 나타냄, 새로 생성된 리뷰의 초기 좋아요 상태 (false)
+        return VenueReviewResponseDTO.toDTO(venueReview, false, true); // false는 해당 댓글에 대한 좋아요 여부를 나타냄, 새로 생성된 리뷰의 초기 좋아요 상태 (false)
     }
 
     @Transactional(readOnly = true)
@@ -86,7 +86,9 @@ public class VenueReviewService {
         return reviews.stream()
                 .map(review -> {
                     boolean isLiked = venueReviewLikeRepository.existsByVenueReview_IdAndMember_Id(review.getId(), memberId);
-                    return VenueReviewResponseDTO.toDTO(review, isLiked);
+                    // 리뷰 작성자가 본인인지 여부
+                    boolean isAuthor = review.getMember().getId().equals(memberId);
+                    return VenueReviewResponseDTO.toDTO(review, isLiked, isAuthor);
                 })
                 .toList();
     }
@@ -204,7 +206,7 @@ public class VenueReviewService {
         // 좋아요 여부 체크
         boolean isLiked = venueReviewLikeRepository.existsByVenueReview_IdAndMember_Id(venueReviewId, memberId);
 
-        return VenueReviewResponseDTO.toDTO(venueReview, isLiked);
+        return VenueReviewResponseDTO.toDTO(venueReview, isLiked, true); // true는 작성자가 본인임을 나타냄
 
     }
 }
