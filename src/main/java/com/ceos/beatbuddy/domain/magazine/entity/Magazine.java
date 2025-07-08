@@ -75,7 +75,13 @@ public class Magazine extends BaseTimeEntity {
 
     public void setEvent(Event event) {this.event = event;
     }
-
+    public void setTitle(String title) { this.title = title; }
+    public void setContent(String content) { this.content = content; }
+    public void setVisible(boolean visible) { this.isVisible = visible; }
+    public void setPinned(boolean pinned) { this.isPinned = pinned; }
+    public void setSponsored(boolean sponsored) { this.isSponsored = sponsored; }
+    public void setPicked(boolean picked) { this.isPicked = picked; }
+    public void setOrderInHome(int order) { this.orderInHome = order; }
     public void setVenues(List<Venue> venues) {
         this.venues = venues;
     }
