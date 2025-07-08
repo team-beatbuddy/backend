@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -141,5 +142,15 @@ public class VenueInfoService {
     public Venue validateAndGetVenue(Long venueId) {
         return venueRepository.findById(venueId)
                 .orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
+    }
+
+    public List<Venue> validateAndGetVenues(List<Long> venueIds) {
+        if (venueIds == null || venueIds.isEmpty()) {
+            throw new CustomException(VenueErrorCode.VENUE_NOT_EXIST);
+        }
+
+        return venueIds.stream()
+                .map(this::validateAndGetVenue)
+                .collect(Collectors.toList());
     }
 }

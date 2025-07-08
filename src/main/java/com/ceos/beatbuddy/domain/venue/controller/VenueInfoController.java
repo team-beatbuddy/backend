@@ -1,10 +1,14 @@
 package com.ceos.beatbuddy.domain.venue.controller;
 
+import com.ceos.beatbuddy.domain.venue.application.VenueCouponService;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
+import com.ceos.beatbuddy.domain.venue.dto.VenueCouponResponseDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueInfoResponseDTO;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.ResponseTemplate;
+import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
+import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,8 +28,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "VenueInfo Controller", description = "베뉴에 대한 정보를 제공하는 컨트롤러")
 @RequestMapping("/venue-info")
-public class VenueInfoController {
+public class VenueInfoController implements VenueInfoApiDocs {
     private final VenueInfoService venueInfoService;
+    private final VenueCouponService venueCouponService;
 
     @GetMapping
 //    @Operation(summary = "존재하는 모든 베뉴의 리스트 조회", description = "모든 베뉴의 목록을 조회합니다")
@@ -54,5 +59,15 @@ public class VenueInfoController {
     public ResponseEntity<VenueInfoResponseDTO> getVenueInfo(@PathVariable Long venueId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         return ResponseEntity.ok(venueInfoService.getVenueInfo(venueId, memberId));
+    }
+
+    @Override
+    @GetMapping("/{venueId}/coupons")
+    @Operation(summary = "베뉴 쿠폰 조회", description = "특정 베뉴의 쿠폰 목록을 조회합니다.")
+    public ResponseEntity<ResponseDTO<List<VenueCouponResponseDTO>>> getCouponsByVenue(@PathVariable Long venueId) {
+        List<VenueCouponResponseDTO> coupons = venueCouponService.getCouponsByVenue(venueId);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_VENUE_COUPONS.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_VENUE_COUPONS, coupons));
     }
 }

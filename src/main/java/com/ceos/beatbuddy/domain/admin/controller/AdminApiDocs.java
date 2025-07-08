@@ -1,16 +1,21 @@
 package com.ceos.beatbuddy.domain.admin.controller;
 
+import com.ceos.beatbuddy.domain.coupon.dto.CouponCreateRequestDTO;
 import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
 import com.ceos.beatbuddy.domain.venue.dto.LoginRequest;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
+import com.ceos.beatbuddy.global.SwaggerExamples;
+import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;

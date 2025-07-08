@@ -1,10 +1,15 @@
 package com.ceos.beatbuddy.domain.admin.controller;
 
+import com.ceos.beatbuddy.domain.coupon.application.CouponService;
+import com.ceos.beatbuddy.domain.coupon.dto.CouponCreateRequestDTO;
 import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
 import com.ceos.beatbuddy.domain.admin.application.AdminService;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.dto.LoginRequest;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
+import com.ceos.beatbuddy.global.code.SuccessCode;
+import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
+import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import java.io.IOException;
@@ -20,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class AdminController implements AdminApiDocs {
     private final VenueInfoService venueInfoService;
     private final AdminService adminService;
+    private final CouponService couponService;
 
 
     @Override
@@ -75,6 +81,18 @@ public class AdminController implements AdminApiDocs {
         Long adminId = adminService.findAdmin(request.getId());
         return adminService.createAdminToken(adminId, request.getId());
     }
+
+//    @PatchMapping("/{couponId}")
+//    public ResponseEntity<ResponseDTO<String>> approveCoupon(
+//            @PathVariable Long couponId
+//    ) {
+//        Long memberId = SecurityUtils.getCurrentMemberId();
+//        couponService.approveCoupon(couponId, memberId);
+//
+//        return ResponseEntity
+//                .status(SuccessCode.SUCCESS_APPROVE_COUPON.getStatus().value())
+//                .body(new ResponseDTO<>(SuccessCode.SUCCESS_APPROVE_COUPON, "쿠폰 승인 성공"));
+//    }
 
 //
 //    @GetMapping("/business/approved")

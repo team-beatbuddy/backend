@@ -31,7 +31,7 @@ public enum SuccessCode implements ApiCode {
      * */
     SUCCESS_BUSINESS_APPROVED(HttpStatus.OK, "성공적으로 비즈니스 멤버를 승인하였습니다."),
     SUCCESS_BUSINESS_APPROVAL_LIST_RETRIEVED(HttpStatus.OK, "성공적으로 승인받을 비즈니스 멤버 리스트를 불러왔습니다."),
-
+    SUCCESS_UPDATE(HttpStatus.OK, "성공적으로 수정했습니다."),
     /**
      * home
      * */
@@ -113,6 +113,17 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_DELETE_VENUE_REVIEW_LIKE(HttpStatus.OK, "베뉴 리뷰 좋아요를 취소했습니다."),
     SUCCESS_UPDATE_VENUE_REVIEW(HttpStatus.OK, "베뉴 리뷰를 수정했습니다."),
     SUCCESS_VENUE_SEARCH(HttpStatus.OK, "베뉴 검색을 성공적으로 했습니다."),
+    SUCCESS_GET_VENUE_COUPONS(HttpStatus.OK, "베뉴 쿠폰 목록을 성공적으로 조회했습니다."),
+    /**
+     * Coupon
+     * */
+    SUCCESS_GET_COUPON_LIST(HttpStatus.OK, "쿠폰 목록을 성공적으로 조회했습니다."),
+    SUCCESS_GET_COUPON_DETAIL(HttpStatus.OK, "쿠폰 상세 정보를 성공적으로 조회했습니다."),
+    SUCCESS_GET_MEMBER_COUPON_LIST(HttpStatus.OK, "내 쿠폰 목록을 성공적으로 조회했습니다."),
+    SUCCESS_RECEIVE_COUPON(HttpStatus.CREATED, "쿠폰을 성공적으로 발급했습니다."),
+    SUCCESS_USE_COUPON(HttpStatus.OK, "쿠폰 사용을 성공했습니다."),
+    SUCCESS_CREATE_COUPON(HttpStatus.CREATED, "쿠폰을 성공적으로 등록했습니다."),
+
     /**
      * empty
      * */
