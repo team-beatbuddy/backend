@@ -36,6 +36,7 @@ public class PostPageResponseDTO {
 
     @JsonProperty("isAuthor")
     private Boolean isAuthor;
+    private Long writerId;
 
     public Boolean getIsAuthor() {
         return isAuthor;
@@ -60,6 +61,7 @@ public class PostPageResponseDTO {
                         .map(FixedHashtag::getDisplayName)
                         .toList() : List.of())
                 .isAuthor(isAuthor)
+                .writerId(post.getMember().getId())
                 .build();
     }
 }
