@@ -2,10 +2,7 @@ package com.ceos.beatbuddy.domain.magazine.application;
 
 import com.ceos.beatbuddy.domain.event.application.EventService;
 import com.ceos.beatbuddy.domain.event.entity.Event;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineDetailDTO;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineHomeResponseDTO;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazinePageResponseDTO;
-import com.ceos.beatbuddy.domain.magazine.dto.MagazineRequestDTO;
+import com.ceos.beatbuddy.domain.magazine.dto.*;
 import com.ceos.beatbuddy.domain.magazine.entity.Magazine;
 import com.ceos.beatbuddy.domain.magazine.exception.MagazineErrorCode;
 import com.ceos.beatbuddy.domain.magazine.repository.MagazineQueryRepository;
@@ -21,18 +18,21 @@ import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class MagazineService {
     private final MagazineRepository magazineRepository;
@@ -58,7 +58,7 @@ public class MagazineService {
     public MagazineDetailDTO addMagazine(Long memberId, MagazineRequestDTO dto, List<MultipartFile> images, MultipartFile thumbnailImage) throws RuntimeException {
         Member member = memberService.validateAndGetMember(memberId);
         // 고정된 매거진이라면 숫자가 있어야 함. 유효성 검사 (또한, 따로 isPinned 된 매거진 중 같은 숫자일 수 없음)
-        validatePinnedMagazine(dto);
+        validatePinnedMagazine(dto.isPinned(), dto.getOrderInHome(), null);
 
         // 이미지 20장 넘지 않도록 체크
         if (images != null && images.size() > 20) {
@@ -185,21 +185,145 @@ public class MagazineService {
                 .build();
     }
 
-    // 홈에 고정되는 매거진의 유효성 검사
-    private void validatePinnedMagazine(MagazineRequestDTO dto) {
-        if (dto.isPinned()) {
-            Integer order = dto.getOrderInHome();
+    @Transactional
+    public MagazineDetailDTO updateMagazine(Long memberId, Long magazineId, MagazineUpdateRequestDTO dto, List<MultipartFile> images, MultipartFile thumbnailImage) {
+        Member member = memberService.validateAndGetMember(memberId);
+        Magazine magazine = magazineValidator.validateAndGetMagazine(magazineId);
 
+        // 작성자가 아니거나 관리자 권한이 없는 경우
+        if (!magazine.getMember().getId().equals(memberId) && member.getRole() != Role.ADMIN) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
+        }
+
+        Boolean newPinned = dto.getPinned();
+        Integer newOrder = dto.getOrderInHome();
+        boolean currentPinned = magazine.isPinned();
+
+        if (newPinned == null) {
+            // pinned 필드는 수정하지 않음
+            if (currentPinned && newOrder != null) {
+                // 기존에 pinned 상태에서 순서만 바꾸려는 경우
+                validatePinnedMagazine(true, newOrder, magazineId);
+            }
+        } else if (newPinned) {
+            // pinned=true로 변경 → 순서 필수
+            if (newOrder == null) {
+                throw new CustomException(MagazineErrorCode.INVALID_ORDER_IN_HOME); // 순서 누락
+            }
+            validatePinnedMagazine(true, newOrder, magazineId);
+        } else {
+            // pinned=false로 변경 → 순서 강제 0 처리 (검증 불필요)
+            magazine.setOrderInHome(0);
+        }
+
+        // 수정된 필드 업데이트
+        updateCommonFields(magazine, dto);
+
+        // 이벤트 유효성 검사 및 설정
+        if (dto.getEventId() != null) {
+            Event event = eventService.validateAndGet(dto.getEventId());
+            magazine.setEvent(event);
+        }
+
+        // 장소 유효성 검사 및 설정
+        if (dto.getVenueIds() != null && !dto.getVenueIds().isEmpty()) {
+            List<Venue> venues = dto.getVenueIds().stream()
+                    .map(venueInfoService::validateAndGetVenue)
+                    .collect(Collectors.toList());
+            magazine.setVenues(venues);
+        }
+
+        // 썸네일 이미지가 비어있지 않을 때만 업로드 진행
+        if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
+            log.info("New thumbnail image detected, proceeding with update.");
+
+            // 기존 썸네일 있으면 삭제
+            if (magazine.getThumbImage() != null) {
+                uploadUtil.deleteImage(magazine.getThumbImage(), UploadUtil.BucketType.MEDIA);
+                log.info("Existing thumbnail image deleted.");
+            }
+
+            // 새 이미지 업로드
+            String thumbImageUrl = uploadUtil.upload(thumbnailImage, UploadUtil.BucketType.MEDIA, "magazine");
+            log.info("New thumbnail image uploaded: {}", thumbImageUrl);
+            magazine.setThumbImage(thumbImageUrl);
+            log.info("Thumbnail image updated successfully.");
+        }
+
+        // 기존에 있던 이미지(지우려는 이미지 제외) 와, 추가로 넣는 이미지의 개수 검사
+        List<String> currentImages = magazine.getImageUrls() != null ? magazine.getImageUrls() : new ArrayList<>();
+        List<String> deleteUrls = dto.getDeleteImageUrls() != null ? dto.getDeleteImageUrls() : new ArrayList<>();
+
+        // 유효한 삭제 대상만 필터링
+        List<String> validDeleteUrls = deleteUrls.stream()
+                .filter(currentImages::contains)
+                .collect(Collectors.toList());
+
+        int existingCount = currentImages.size();
+        int deleteCount = validDeleteUrls.size(); // 실제 삭제 가능한 것만 계산
+        int newUploadCount = images != null ? (int) images.stream().filter(file -> file != null && !file.isEmpty()).count() : 0;
+
+        if (existingCount - deleteCount + newUploadCount > 20) {
+            throw new CustomException(ErrorCode.TOO_MANY_IMAGES_20);
+        }
+
+        // 삭제 수행
+        if (!validDeleteUrls.isEmpty()) {
+            uploadUtil.deleteImages(validDeleteUrls, UploadUtil.BucketType.MEDIA);
+            magazine.getImageUrls().removeAll(validDeleteUrls);
+        }
+
+        // 삭제 요청 중 유효하지 않은 항목 로그 (선택)
+        List<String> invalidDeleteUrls = new ArrayList<>(deleteUrls);
+        invalidDeleteUrls.removeAll(validDeleteUrls);
+
+        if (!invalidDeleteUrls.isEmpty()) {
+            log.warn("Invalid delete image URLs for magazine {}: {}", magazine.getId(), invalidDeleteUrls);
+            // 또는 예외 처리도 가능:
+            throw new CustomException(MagazineErrorCode.INVALID_IMAGE_DELETE_REQUEST);
+        }
+
+
+        // 이미지 업로드
+        if (images != null && !images.isEmpty()) {
+            List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "magazine");
+            magazine.getImageUrls().addAll(imageUrls);
+        }
+
+        return MagazineDetailDTO.toDTO(magazine, false, true); // 작성자는 항상 좋아요가 false로 설정됨
+    }
+
+
+
+
+    // 홈에 고정되는 매거진의 유효성 검사
+    private void validatePinnedMagazine(boolean isPinned, Integer orderInHome, Long excludeMagazineId) {
+        if (isPinned) {
             // 1. null 또는 1~5 범위 밖이면 에러
-            if (order == null || order < 1 || order > 5) {
+            if (orderInHome == null || orderInHome < 1 || orderInHome > 5) {
                 throw new CustomException(MagazineErrorCode.INVALID_ORDER_IN_HOME);
             }
 
             // 2. 동일한 orderInHome이 이미 존재하면 에러
-            boolean exists = magazineRepository.existsByIsPinnedTrueAndOrderInHome(order);
+            boolean exists = magazineRepository.existsByIsPinnedTrueAndOrderInHomeAndIdNot(orderInHome, excludeMagazineId);
             if (exists) {
                 throw new CustomException(MagazineErrorCode.DUPLICATE_ORDER_IN_HOME);
             }
+        }
+    }
+
+    private void updateCommonFields(Magazine magazine, MagazineUpdateRequestDTO dto) {
+        if (dto.getTitle() != null) magazine.setTitle(dto.getTitle());
+        if (dto.getContent() != null) magazine.setContent(dto.getContent());
+        if (dto.getVisible() != null) magazine.setVisible(dto.getVisible());
+        if (dto.getPinned() != null) magazine.setPinned(dto.getPinned());
+        if (dto.getSponsored() != null) magazine.setSponsored(dto.getSponsored());
+        if (dto.getPicked() != null) magazine.setPicked(dto.getPicked());
+
+        // 순서는 조건 검증 후 상위 로직에서 명확히 설정되므로,
+        // 여기선 수정 요청이 온 경우에만 반영
+        if (dto.getOrderInHome() != null) {
+            magazine.setOrderInHome(dto.getOrderInHome());
         }
     }
 }

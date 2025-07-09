@@ -23,6 +23,9 @@ public class MagazineDetailDTO {
     private String thumbImage; // 썸네일 이미지 URL
     private int views;
     private int likes;
+    private boolean visible; // 매거진이 보이는지 여부
+    private boolean pinned; // 매거진이 고정되어 있는지 여부
+    private int orderInHome; // 홈에서의 순서
     private LocalDateTime createdAt;
     private boolean liked; // 좋아요 여부
     private boolean sponsored; // 스폰서 매거진인지 여부
@@ -47,6 +50,9 @@ public class MagazineDetailDTO {
                 .writerId(magazine.getMember().getId())
                 .likes(magazine.getLikes())
                 .views(magazine.getViews())
+                .pinned(magazine.isPinned())
+                .orderInHome(magazine.getOrderInHome())
+                .visible(magazine.isVisible())
                 .createdAt(magazine.getCreatedAt())
                 .liked(isLiked)
                 .picked(magazine.isPicked())
