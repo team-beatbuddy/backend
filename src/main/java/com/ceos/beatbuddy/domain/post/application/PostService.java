@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.post.application;
 
 import com.ceos.beatbuddy.domain.comment.repository.CommentRepository;
+import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.post.dto.*;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
@@ -45,6 +47,7 @@ public class PostService {
     private final UploadUtil uploadUtil;
     private final PostRepository postRepository;
     private final PostInteractionService postInteractionService;
+    private final FollowRepository followRepository;
 
     private static final List<String> VALID_POST_TYPES = List.of("free", "piece");
 
@@ -75,20 +78,31 @@ public class PostService {
 
     @Transactional
     public PostReadDetailDTO newReadPost(String type, Long postId, Long memberId) {
-        // 1. 게시글 조회 및 조회수 증가
+        // 회원 유효성 검사
+        Member member = memberService.validateAndGetMember(memberId);
+
+        // 게시글 조회 및 조회수 증가
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
         Post post = handler.readPost(postId);
 
-        // 2. 사용자의 좋아요 / 스크랩 / 댓글 여부
+        // 사용자의 좋아요 / 스크랩 / 댓글 여부
         Triple<Boolean, Boolean, Boolean> status = getPostInteractions(memberId, postId);
 
-        // 3. 해시태그 분기 처리
+        // following 여부
+        boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, post.getMember().getId());
+
+        // 해시태그 분기 처리
         List<FixedHashtag> hashtags = (post instanceof FreePost freePost)
                 ? freePost.getHashtag()
                 : List.of();
 
-        // 4. 응답 생성
-        return PostReadDetailDTO.toDTO(post, status.getLeft(), status.getMiddle(), status.getRight(), hashtags, post.getMember().getId().equals(memberId));
+        // 응답 생성
+        return PostReadDetailDTO.toDTO(post, status.getLeft(),
+                                    status.getMiddle(),
+                                    status.getRight(),
+                                    hashtags,
+                                    post.getMember().getId().equals(memberId),
+                                    isFollowing);
     }
 
     public PostListResponseDTO readAllPostsSort(Long memberId, String type, int page, int size) {
@@ -127,7 +141,11 @@ public class PostService {
                 .map(Post::getId)
                 .toList();
 
+        // 좋아요, 스크랩, 댓글 여부를 IN 쿼리로 한 번에 조회
         PostInteractionStatus status = postInteractionService.getAllPostInteractions(memberId, postIds);
+
+        // 팔로잉 중인 대상 ID 목록 가져오기
+        Set<Long> followingIds = followRepository.findFollowingMemberIds(member.getId());
 
         return posts.stream()
                 .map(post -> PostPageResponseDTO.toDTO(
@@ -136,7 +154,8 @@ public class PostService {
                         status.scrappedPostIds().contains(post.getId()),
                         status.commentedPostIds().contains(post.getId()),
                         postRepository.findHashtagsByPostId(post.getId()),
-                        post.getMember().getId().equals(member.getId())
+                        post.getMember().getId().equals(member.getId()),
+                        followingIds.contains(post.getMember().getId())
                 ))
                 .toList();
     }
@@ -184,25 +203,28 @@ public class PostService {
         }
         Pageable pageable = PageRequest.of(page -1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        // 1. 스크랩한 게시글 페이징 조회
+        // 스크랩한 게시글 페이징 조회
         Page<Post> postPage = postScrapRepository.findPostsByMemberId(member.getId(), pageable);
         List<Post> posts = postPage.getContent();
 
-        // 2. 게시글 타입 필터링
+        // 게시글 타입 필터링
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
         List<Post> filteredPosts = posts.stream()
                 .filter(handler::supports)
                 .toList();
 
-        // 3. 최적화용 postIds 추출
+        // 최적화용 postIds 추출
         List<Long> postIds = filteredPosts.stream()
                 .map(Post::getId)
                 .toList();
 
-        // 4. 연관 정보 bulk 조회
+        // 좋아요, 스크랩, 댓글 여부를 IN 쿼리로 한 번에 조회
         PostInteractionStatus status = postInteractionService.getAllPostInteractions(memberId, postIds);
 
-        // 5. DTO 매핑
+        // 팔로잉 중인 대상 ID 목록 가져오기
+        Set<Long> followingIds = followRepository.findFollowingMemberIds(member.getId());
+
+        // DTO 매핑
         List<PostPageResponseDTO> dtos = filteredPosts.stream()
                 .map(post -> PostPageResponseDTO.toDTO(
                         post,
@@ -210,7 +232,8 @@ public class PostService {
                         true, // 어차피 스크랩된 게시글이니까
                         status.commentedPostIds().contains(post.getId()),
                         postRepository.findHashtagsByPostId(post.getId()),
-                        post.getMember().getId().equals(memberId)
+                        post.getMember().getId().equals(memberId),
+                        followingIds.contains(post.getMember().getId())
                 ))
                 .toList();
 
@@ -274,6 +297,9 @@ public class PostService {
         // 좋아요/스크랩/댓글 여부를 IN 쿼리로 한 번에 조회
         PostInteractionStatus status = postInteractionService.getAllPostInteractions(memberId, postIds);
 
+        // 팔로잉 중인 대상 ID 목록 가져오기
+        Set<Long> followingIds = followRepository.findFollowingMemberIds(memberId);
+
         List<PostPageResponseDTO> dtoList = posts.stream()
                 .map(post -> PostPageResponseDTO.toDTO(
                         post,
@@ -281,7 +307,8 @@ public class PostService {
                         status.scrappedPostIds().contains(post.getId()),
                         status.commentedPostIds().contains(post.getId()),
                         postRepository.findHashtagsByPostId(post.getId()),
-                        post.getMember().getId().equals(memberId)
+                        post.getMember().getId().equals(memberId),
+                        followingIds.contains(post.getMember().getId())
                 ))
                 .toList();
 
@@ -351,7 +378,7 @@ public class PostService {
                                             UpdatePostRequestDTO requestDTO, List<MultipartFile> files,
                                             List<String> deleteFiles) {
 
-        // 1. 게시글 조회 및 작성자 검증
+        // 게시글 조회 및 작성자 검증
         Post post = this.validateAndGetPost(postId);
 
         // 삭제할 이미지 개수와 새로운 이미지의 합이 20개를 초과하는지 검사
@@ -367,32 +394,35 @@ public class PostService {
         validatePostAuthor(post, memberId);
 
 
-        // 2. 공통 필드 수정
+        // 공통 필드 수정
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
         post = handler.updatePost(requestDTO, post, member);
 
 
-        // 3. 삭제할 이미지 제거
+        // 삭제할 이미지 제거
         if (deleteFiles != null && !deleteFiles.isEmpty()) {
             removeImages(post, deleteFiles);
         }
 
-        // 4. 새 이미지 업로드 및 저장
+        // 새 이미지 업로드 및 저장
         if (files != null && !files.isEmpty()) {
             List<String> imageUrls = uploadUtil.uploadImages(files, UploadUtil.BucketType.MEDIA, "post");
             post.getImageUrls().addAll(imageUrls);
         }
 
-        // 5. 유저 상호작용 상태
+        // 유저 상호작용 상태
         Triple<Boolean, Boolean, Boolean> status = getPostInteractions(memberId, postId);
 
-        // 6. 해시태그 분기 처리
+        // 팔로잉 여부
+        boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, post.getMember().getId());
+
+        // 해시태그 분기 처리
         List<FixedHashtag> hashtags = (post instanceof FreePost freePost)
                 ? freePost.getHashtag()
                 : List.of();
 
-        // 7. 응답 생성
-        return PostReadDetailDTO.toDTO(post, status.getLeft(), status.getMiddle(), status.getRight(), hashtags, post.getMember().getId().equals(memberId));
+        // 응답 생성
+        return PostReadDetailDTO.toDTO(post, status.getLeft(), status.getMiddle(), status.getRight(), hashtags, post.getMember().getId().equals(memberId), isFollowing);
     }
 
 

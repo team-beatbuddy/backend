@@ -20,9 +20,9 @@ public class PostReadDetailDTO {
     private List<String> imageUrls;
     private int views;
 
-    public static PostReadDetailDTO toDTO(Post post, boolean liked, boolean scrapped, boolean commented, List<FixedHashtag> hashtags, boolean isAuthor) {
+    public static PostReadDetailDTO toDTO(Post post, boolean liked, boolean scrapped, boolean commented, List<FixedHashtag> hashtags, boolean isAuthor, boolean isFollowing) {
         return PostReadDetailDTO.builder()
-                .postPageResponseDTO(PostPageResponseDTO.toDTO(post, liked, scrapped, commented, hashtags, isAuthor))
+                .postPageResponseDTO(PostPageResponseDTO.toDTO(post, liked, scrapped, commented, hashtags, isAuthor, isFollowing))
                 .imageUrls(post.getImageUrls() != null ? post.getImageUrls() : List.of())
                 .views(post.getViews())
                 .build();
