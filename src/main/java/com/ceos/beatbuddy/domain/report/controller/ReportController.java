@@ -5,6 +5,7 @@ import com.ceos.beatbuddy.domain.report.service.ReportService;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +28,7 @@ public class ReportController implements ReportApiDocs {
     @Override
     @PostMapping("/submit")
     public ResponseEntity<ResponseDTO<String>> submitReport(
-            @RequestBody ReportRequestDTO reportRequestDTO) {
+            @Valid @RequestBody ReportRequestDTO reportRequestDTO) {
         Long reporterId = SecurityUtils.getCurrentMemberId();
         reportService.submitReport(reportRequestDTO, reporterId);
         return ResponseEntity

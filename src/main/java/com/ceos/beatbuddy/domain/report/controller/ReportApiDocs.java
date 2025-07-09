@@ -6,6 +6,7 @@ import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -50,5 +51,5 @@ public interface ReportApiDocs {
             )
     )
     ResponseEntity<ResponseDTO<String>> submitReport(
-            @RequestBody ReportRequestDTO reportRequestDTO);
+            @Valid @RequestBody ReportRequestDTO reportRequestDTO);
 }
