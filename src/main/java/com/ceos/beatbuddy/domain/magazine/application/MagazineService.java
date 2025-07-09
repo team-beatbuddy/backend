@@ -320,14 +320,10 @@ public class MagazineService {
         if (dto.getSponsored() != null) magazine.setSponsored(dto.getSponsored());
         if (dto.getPicked() != null) magazine.setPicked(dto.getPicked());
 
-        // orderInHome은 null이 아닌 경우에만 수정
+        // 순서는 조건 검증 후 상위 로직에서 명확히 설정되므로,
+        // 여기선 수정 요청이 온 경우에만 반영
         if (dto.getOrderInHome() != null) {
             magazine.setOrderInHome(dto.getOrderInHome());
-        }
-
-        // pinned가 false로 명시된 경우 → 순서를 무조건 0으로
-        if (Boolean.FALSE.equals(dto.getPinned())) {
-            magazine.setOrderInHome(0);
         }
     }
 }
