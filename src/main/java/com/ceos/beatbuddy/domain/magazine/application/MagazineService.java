@@ -148,7 +148,7 @@ public class MagazineService {
         Magazine magazine = magazineValidator.validateAndGetMagazineVisibleTrue(magazineId);
 
         // 조회수 증가
-        magazine.increaseView();
+        magazineRepository.increaseViews(magazineId);
 
         // 매거진 좋아요 여부 확인
         boolean isLiked = magazineLikeRepository.existsById(
