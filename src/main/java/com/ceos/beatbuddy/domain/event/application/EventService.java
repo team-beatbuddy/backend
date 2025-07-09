@@ -1,6 +1,9 @@
 package com.ceos.beatbuddy.domain.event.application;
 
-import com.ceos.beatbuddy.domain.event.dto.*;
+import com.ceos.beatbuddy.domain.event.dto.EventCreateRequestDTO;
+import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
+import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
+import com.ceos.beatbuddy.domain.event.dto.EventUpdateRequestDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
@@ -20,8 +23,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -144,15 +149,18 @@ public class EventService {
     }
 
 
-    public EventListResponseDTO getUpcomingEvents(String sort, Integer page, Integer size, Long memberId) {
+    public EventListResponseDTO getUpcomingEvents(String sort, Integer page, Integer size, Long memberId, String region) {
         Member member = memberService.validateAndGetMember(memberId);
 
         int offset = (page - 1) * size;
 
-        List<Event> events = eventQueryRepository.findUpcomingEvents(sort, offset, size);
+        List<Event> events = eventQueryRepository.findUpcomingEvents(sort, offset, size, region);
+
+        Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
 
         List<EventResponseDTO> dto = events.stream()
-                .map(event -> EventResponseDTO.toUpcomingListDTO(event, member.getId().equals(event.getHost().getId())))
+                .map(event -> EventResponseDTO.toUpcomingListDTO(event, member.getId().equals(event.getHost().getId()),
+                        likedEventIds.contains(event.getId())))
                 .toList();
 
         int totalSize = eventQueryRepository.countUpcomingEvents(); // 총 개수 (페이지네이션용)
@@ -166,15 +174,19 @@ public class EventService {
                 .build();
     }
 
-    public EventListResponseDTO getNowEvents(String sort, Integer page, Integer size, Long memberId) {
+    public EventListResponseDTO getNowEvents(Integer page, Integer size, Long memberId, String region) {
         Member member = memberService.validateAndGetMember(memberId);
 
+        String sort = "latest"; // 기본적으로 최신순으로 설정
         int offset = (page - 1) * size;
 
-        List<Event> events = eventQueryRepository.findNowEvents(sort, offset, size);
+        List<Event> events = eventQueryRepository.findNowEvents(sort, offset, size, region);
+
+        Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
 
         List<EventResponseDTO> dto = events.stream()
-                .map(event -> EventResponseDTO.toNowListDTO(event, member.getId().equals(event.getHost().getId())))
+                .map(event -> EventResponseDTO.toNowListDTO(event, member.getId().equals(event.getHost().getId()),
+                        likedEventIds.contains(event.getId())))
                 .toList();
 
         int totalSize = eventQueryRepository.countNowEvents(); // 총 개수 (페이지네이션용)
@@ -188,53 +200,22 @@ public class EventService {
                 .build();
     }
 
-    public EventListResponseDTO getPastEvents(String sort, int page, int limit, Long memberId) {
+    public EventListResponseDTO getPastEvents(int page, int limit, Long memberId, String region) {
         Member member = memberService.validateAndGetMember(memberId);
 
         int offset = (page - 1) * limit;
 
-        if ("popular".equals(sort)) {
-            LocalDate now = LocalDate.now();
-            LocalDate from = now.minusYears(1).withDayOfMonth(1);
-            LocalDate to = now.minusDays(1);
+        String sort = "latest"; // 기본적으로 최신순으로 설정
 
-            List<Object[]> result = eventRepository.findPastEventsGroupedByMonthOptimized(from, to);
-
-            Map<String, List<Event>> groupedEvents = new LinkedHashMap<>();
-            for (Object[] row : result) {
-                String month = (String) row[0];  // yyyy-MM
-                Event event = (Event) row[1];
-                groupedEvents.computeIfAbsent(month, k -> new ArrayList<>()).add(event);
-            }
-
-            // 1. 전체 그룹핑 결과를 정렬된 리스트로 변환
-            List<EventGroupByMonthDTO> fullGroupedResponse = groupedEvents.entrySet().stream()
-                    .sorted(Map.Entry.<String, List<Event>>comparingByKey().reversed())
-                    .map(entry -> EventGroupByMonthDTO.groupByMonth(entry.getKey(), entry.getValue()))
-                    .toList();
-
-            // 2. 페이징 계산
-            int totalSize = fullGroupedResponse.size(); // 전체 월 수
-            int fromIndex = Math.min((page - 1) * limit, totalSize);
-            int toIndex = Math.min(fromIndex + limit, totalSize);
-            List<EventGroupByMonthDTO> pagedResponse = fullGroupedResponse.subList(fromIndex, toIndex);
-
-            // 3. 응답 생성
-            return EventListResponseDTO.builder()
-                    .sort(sort)
-                    .groupedByMonth(pagedResponse)
-                    .totalSize(totalSize)
-                    .page(page)
-                    .size(limit)
-                    .build();
-        }
+        Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
 
         // 최신순 (기존 방식)
-        List<Event> events = eventQueryRepository.findPastEvents(sort, offset, limit);
+        List<Event> events = eventQueryRepository.findPastEvents(sort, offset, limit, region);
         int total = eventQueryRepository.countPastEvents();
 
         List<EventResponseDTO> responseList = events.stream()
-                .map(event -> EventResponseDTO.toPastListDTO(event, member.getId().equals(event.getHost().getId())))
+                .map(event -> EventResponseDTO.toPastListDTO(event, member.getId().equals(event.getHost().getId()),
+                        likedEventIds.contains(event.getId())))
                 .toList();
 
         return EventListResponseDTO.builder()
@@ -296,33 +277,6 @@ public class EventService {
         boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, eventId));
 
         return EventResponseDTO.toDTO(event, liked, member.getId().equals(event.getHost().getId()));
-    }
-
-    // 내가 작성한 이벤트
-    public Map<String, List<EventResponseDTO>> getMyEvents(Long memberId) {
-        Member member = memberService.validateAndGetMember(memberId);
-
-        List<EventResponseDTO> upcoming = eventQueryRepository.findMyUpcomingEvents(member)
-                .stream()
-                .map(event -> EventResponseDTO.toUpcomingListDTO(event, member.getId().equals(event.getHost().getId())))
-                .toList();
-
-        List<EventResponseDTO> now = eventQueryRepository.findMyNowEvents(member)
-                .stream()
-                .map(event -> EventResponseDTO.toNowListDTO(event, member.getId().equals(event.getHost().getId())))
-                .toList();
-
-        List<EventResponseDTO> past = eventQueryRepository.findMyPastEvents(member)
-                .stream()
-                .map(event -> EventResponseDTO.toPastListDTO(event, member.getId().equals(event.getHost().getId())))
-                .toList();
-
-        Map<String, List<EventResponseDTO>> result = new HashMap<>();
-        result.put("upcoming", upcoming);
-        result.put("now", now);
-        result.put("past", past);
-
-        return result;
     }
 
     public Event validateAndGet(Long eventId) {

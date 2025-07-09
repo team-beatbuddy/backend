@@ -86,7 +86,7 @@ public class EventResponseDTO {
                 .build();
     }
 
-    public static EventResponseDTO toUpcomingListDTO(Event event, boolean isAuthor) {
+    public static EventResponseDTO toUpcomingListDTO(Event event, boolean isAuthor, boolean liked) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
@@ -99,11 +99,12 @@ public class EventResponseDTO {
                 .views(event.getViews())
                 .location(event.getLocation())
                 .isAuthor(isAuthor)
+                .liked(liked)
                 .region(Optional.of(event.getRegion().name()).orElse(""))
                 .build();
     }
 
-    public static EventResponseDTO toPastListDTO(Event event, boolean isAuthor) {
+    public static EventResponseDTO toPastListDTO(Event event, boolean isAuthor, boolean liked) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
@@ -115,11 +116,12 @@ public class EventResponseDTO {
                 .views(event.getViews())
                 .location(event.getLocation())
                 .isAuthor(isAuthor)
+                .liked(liked)
                 .region(Optional.of(event.getRegion().name()).orElse(""))
                 .build();
     }
 
-    public static EventResponseDTO toNowListDTO(Event event, boolean isAuthor) {
+    public static EventResponseDTO toNowListDTO(Event event, boolean isAuthor, boolean liked) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
@@ -131,6 +133,7 @@ public class EventResponseDTO {
                 .views(event.getViews())
                 .location(event.getLocation())
                 .isAuthor(isAuthor)
+                .liked(liked)
                 .region(Optional.of(event.getRegion().name()).orElse(""))
                 .build();
     }
