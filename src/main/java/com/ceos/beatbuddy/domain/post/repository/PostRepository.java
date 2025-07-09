@@ -33,4 +33,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Modifying
     @Query("UPDATE Post p SET p.scraps = p.scraps - 1 WHERE p.id = :postId")
     void decreaseScrap(@Param("postId") Long postId);
+
+    @Modifying
+    @Query("UPDATE Post p SET p.views = p.views + 1 WHERE p.id = :postId")
+    void increaseViews(@Param("postId") Long postId);
 }
