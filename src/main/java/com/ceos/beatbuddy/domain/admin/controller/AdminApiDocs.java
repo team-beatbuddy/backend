@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.admin.controller;
 
+import com.ceos.beatbuddy.domain.admin.dto.ReportSummaryDTO;
 import com.ceos.beatbuddy.domain.coupon.dto.CouponCreateRequestDTO;
 import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
 import com.ceos.beatbuddy.domain.venue.dto.LoginRequest;
@@ -71,4 +72,42 @@ public interface AdminApiDocs {
             @ApiResponse(responseCode = "404", description = "베뉴 정보가 존재하지 않음")
     })
     ResponseEntity<Long> DeleteVenueInfo(@PathVariable Long venueId);
+
+
+    @Operation(summary = "신고 목록 조회", description = "신고된 게시글의 목록을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "신고 목록 조회 성공",
+            content = @Content(mediaType = "application/json",
+            examples = @ExampleObject(value = """
+                    {
+                      "status": 200,
+                      "code": "SUCCESS_GET_REPORT_LIST",
+                      "message": "신고 목록을 성공적으로 조회했습니다.",
+                      "data": [
+                        {
+                          "reportId": 1,
+                          "targetType": "EVENT_COMMENT",
+                          "targetId": 1,
+                          "targetTitle": null,
+                          "targetContent": null,
+                          "reason": "에바임",
+                          "reporterId": 156,
+                          "reporterNickname": "요시",
+                          "reportedAt": "2025-07-10T00:37:47.3967"
+                        }
+                      ]
+                    }
+                    """))
+    )
+    @ApiResponse(responseCode = "400", description = "어드민이 아닌 사용자",
+            content = @Content(mediaType = "application/json",
+            examples = @ExampleObject(value = """
+            {
+              "status": 400,
+              "error": "BAD_REQUEST",
+              "code": "NOT_ADMIN",
+              "message": "해당 계정은 어드민이 아닙니다."
+            }
+            """))
+    )
+    ResponseEntity<ResponseDTO<List<ReportSummaryDTO>>> getAllReports();
 }
