@@ -78,7 +78,7 @@ public class CommentService {
 
     public Page<CommentResponseDto> getAllComments(Long postId, int page, int size, Long memberId) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Comment> comments = commentRepository.findAllByPostId(postId, pageable);
+        Page<Comment> comments = commentRepository.findAllByPost_Id(postId, pageable);
         return comments.map(comment ->
             CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId))
         );

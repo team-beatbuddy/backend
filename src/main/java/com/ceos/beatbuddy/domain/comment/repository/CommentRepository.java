@@ -10,7 +10,8 @@ import java.util.List;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    Page<Comment> findAllByPostId(Long postId, Pageable pageable);
+    Page<Comment> findAllByPost_Id(Long postId, Pageable pageable);
+
     // 단건 존재 여부
     boolean existsByPost_IdAndMember_Id(Long postId, Long memberId);
 
