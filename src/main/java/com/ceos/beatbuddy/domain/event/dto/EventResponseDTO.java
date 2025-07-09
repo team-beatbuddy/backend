@@ -44,6 +44,11 @@ public class EventResponseDTO {
 
     private String depositAccount;
     private Integer depositAmount;
+    
+    private String ticketCost;
+    private String notice;
+
+    private String region;
 
 
     @JsonProperty("isAuthor")
@@ -63,6 +68,7 @@ public class EventResponseDTO {
                 .views(event.getViews())
                 .likes(event.getLikes())
                 .liked(liked)
+                .location(event.getLocation())
                 .startDate(event.getStartDate())
                 .endDate(event.getEndDate())
                 .receiveInfo(event.isReceiveInfo())
@@ -74,10 +80,13 @@ public class EventResponseDTO {
                 .depositAccount(Optional.ofNullable(event.getDepositAccount()).orElse(""))
                 .depositAmount(Optional.ofNullable(event.getDepositAmount()).orElse(0))
                 .isAuthor(isAuthor)
+                .ticketCost(Optional.ofNullable(event.getTicketCost()).orElse(""))
+                .notice(Optional.ofNullable(event.getNotice()).orElse(""))
+                .region(Optional.of(event.getRegion().name()).orElse(""))
                 .build();
     }
 
-    public static EventResponseDTO toUpcomingListDTO(Event event, boolean isAuthor) {
+    public static EventResponseDTO toUpcomingListDTO(Event event, boolean isAuthor, boolean liked) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
@@ -90,10 +99,12 @@ public class EventResponseDTO {
                 .views(event.getViews())
                 .location(event.getLocation())
                 .isAuthor(isAuthor)
+                .liked(liked)
+                .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
                 .build();
     }
 
-    public static EventResponseDTO toPastListDTO(Event event, boolean isAuthor) {
+    public static EventResponseDTO toPastListDTO(Event event, boolean isAuthor, boolean liked) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
@@ -105,10 +116,12 @@ public class EventResponseDTO {
                 .views(event.getViews())
                 .location(event.getLocation())
                 .isAuthor(isAuthor)
+                .liked(liked)
+                .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
                 .build();
     }
 
-    public static EventResponseDTO toNowListDTO(Event event, boolean isAuthor) {
+    public static EventResponseDTO toNowListDTO(Event event, boolean isAuthor, boolean liked) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
@@ -120,6 +133,8 @@ public class EventResponseDTO {
                 .views(event.getViews())
                 .location(event.getLocation())
                 .isAuthor(isAuthor)
+                .liked(liked)
+                .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
                 .build();
     }
 }

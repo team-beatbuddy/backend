@@ -1,8 +1,11 @@
 package com.ceos.beatbuddy.domain.event.entity;
 
+import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
+import com.ceos.beatbuddy.global.CustomException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,68 +14,53 @@ import java.util.List;
 
 @Entity
 @Builder
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Event extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter
     private Long id;
 
-    @Getter
     private String title;
 
-    @Getter
     @Lob
     private String content;
 
-    @Getter
     private LocalDate startDate;
-    @Getter
     private LocalDate endDate;
-    @Getter
     private String location;
 
-    @Getter
+    private String ticketCost; // 입장료
+    private String notice;
+
     private String thumbImage;
 
     @ElementCollection
     @Setter
-    @Getter
     private List<String> imageUrls;
 
-    @Getter
     private int views;
-    @Getter
     private int likes;
 
     @Column(nullable = false)
-    @Getter
     private boolean receiveInfo = false; // 참석자 정보 수집 여부
-    @Getter
     @Column(nullable = false)
     private boolean receiveName = false; // 이름 받을 건지
-    @Getter
     @Column(nullable = false)
     private boolean receiveGender = false; // 성별 받을 건지
-    @Getter
     @Column(nullable = false)
     private boolean receivePhoneNumber= false; // 전화번호 받을 건지
-    @Getter
     @Column(nullable = false)
     private boolean receiveTotalCount= false; // 동행 인원 받을 건지
-    @Getter
     @Column(nullable = false)
     private boolean receiveSNSId= false; // sns id 받을 건지
-    @Getter
     @Column(nullable = false)
     private boolean receiveMoney= false; // 예약금 받을 건지
 
-    @Getter
     @Setter
     private String depositAccount; // 사전 예약금 계좌번호
-    @Getter
     @Setter
     private Integer depositAmount; // 사전 예약금 금액
 
@@ -82,13 +70,31 @@ public class Event extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberId")
-    @Getter
     private Member host;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venueId")
-    @Getter
     private Venue venue;  // 비트버디 등록된 장소
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Region region;
+
+    public enum Region {
+        홍대,
+        강남_신사,
+        압구정_로데오,
+        이태원,
+        기타
+    }
+
+    public static Region of(String value) {
+        try {
+            return Region.valueOf(value);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new CustomException(EventErrorCode.REGION_NOT_EXIST);
+        }
+    }
 
     public void setThumbImage(String imageUrl) {
         this.thumbImage = imageUrl;
@@ -99,13 +105,22 @@ public class Event extends BaseTimeEntity {
     }
 
     public void updateEventInfo(String title, String content, LocalDate startDate,
-                                LocalDate endDate, String location, Boolean isVisible) {
+                                LocalDate endDate, String location, Boolean isVisible, String ticketCost, String notice, String region) {
         if (title != null) this.title = title;
         if (content != null) this.content = content;
         if (startDate != null) this.startDate = startDate;
         if (endDate != null) this.endDate = endDate;
         if (location != null) this.location = location;
         if (isVisible != null) this.isVisible = isVisible;
+        if (ticketCost != null) this.ticketCost = ticketCost;
+        if (notice != null) this.notice = notice;
+        if (region != null) {
+            try {
+                this.region = Region.valueOf(region);
+            } catch (IllegalArgumentException e) {
+                throw new CustomException(MemberErrorCode.REGION_NOT_EXIST);
+            }
+        }
     }
 
     public void updateReceiveSettings(Boolean receiveInfo,

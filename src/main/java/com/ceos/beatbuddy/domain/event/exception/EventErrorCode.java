@@ -19,8 +19,8 @@ public enum EventErrorCode implements ApiCode {
     NEED_DEPOSIT_INFO(HttpStatus.BAD_REQUEST, "예약금에 관련된 정보가 필요합니다."),
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다."),
     INVALID_RECEIVE_INFO_CONFIGURATION(HttpStatus.BAD_REQUEST, "receiveInfo가 false일 때 다른 수집 항목은 true일 수 없습니다."),
-    ATTENDANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이벤트에 대한 참석 정보를 찾을 수 없습니다.")
-
+    ATTENDANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이벤트에 대한 참석 정보를 찾을 수 없습니다."),
+    REGION_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 지역입니다."),
     ;
     private final HttpStatus httpStatus;
     private final String message;

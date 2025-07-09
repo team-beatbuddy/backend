@@ -37,6 +37,9 @@ public class EventCreateRequestDTO {
     @NotNull(message = "장소는 필수입니다.")
     private String location;
 
+    private String ticketCost; // 입장료
+    private String notice; // 공지사항
+
     @Schema(description = "참석자 정보 수집 여부 (true면 수집)", example = "true")
     @NotNull(message = "참석자 정보 수집 여부는 필수입니다.")
     private boolean receiveInfo;
@@ -62,6 +65,9 @@ public class EventCreateRequestDTO {
     @Schema(description = "예약 금액", example = "20000")
     private Integer depositAmount; // 사전 예약금 금액
 
+    @NotNull(message = "지역은 필수입니다.")
+    private String region;
+
 
     public static Event toEntity(EventCreateRequestDTO eventCreateRequestDTO, Member member) {
         return Event.builder()
@@ -71,6 +77,8 @@ public class EventCreateRequestDTO {
                 .likes(0)
                 .isVisible(true)
                 .views(0)
+                .ticketCost(eventCreateRequestDTO.getTicketCost())
+                .notice(eventCreateRequestDTO.getNotice())
                 .receiveInfo(eventCreateRequestDTO.isReceiveInfo())
                 .depositAccount(eventCreateRequestDTO.getDepositAccount())
                 .depositAmount(eventCreateRequestDTO.getDepositAmount())
@@ -83,6 +91,7 @@ public class EventCreateRequestDTO {
                 .location(eventCreateRequestDTO.getLocation())
                 .startDate(eventCreateRequestDTO.getStartDate())
                 .endDate(eventCreateRequestDTO.getEndDate())
+                .region(Event.of(eventCreateRequestDTO.getRegion()))
                 .build();
     }
 }

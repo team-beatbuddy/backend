@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 public interface EventApiDocs {
     @Operation(
@@ -35,6 +34,9 @@ public interface EventApiDocs {
                     - receiveTotalCount: 참석자 본인 포함 동행인원 수집 여부\n
                     - receiveSNSId: 참석자 SNS ID 수집 여부\n
                     - receiveMoney: 예약금 설정 여부
+                    - region: 홍대, 강남_신사, 압구정_로데오, 이태원, 기타
+                    - ticketCost: 티켓 비용
+                    - notice: 주의사항
                     """
                 )
 
@@ -67,7 +69,10 @@ public interface EventApiDocs {
                                     "receiveMoney": false,
                                     "depositAccount": "",
                                     "depositAmount": 0,
-                                    "isAuthor": true
+                                    "isAuthor": true,
+                                    "ticketCost": "20000원",
+                                    "notice": "공지사항입니다.",
+                                    "region": "홍대"
                                   }
                                 }
                                     """)
@@ -99,7 +104,11 @@ public interface EventApiDocs {
                                     ),
                                     @ExampleObject(
                                             name = "예약금을 받으면서 정보가 없는 경우",
-                                            value = SwaggerExamples.NEED_DEPOSIT_INFO)}
+                                            value = SwaggerExamples.NEED_DEPOSIT_INFO),
+                                    @ExampleObject(
+                                            name = "이미지 5장 초과",
+                                            value = SwaggerExamples.TOO_MANY_IMAGES_5_EXAMPLE)
+                                    }
                     )
             ),
             @ApiResponse(
@@ -150,7 +159,9 @@ public interface EventApiDocs {
                     - receiveTotalCount: 참석자 본인 포함 동행인원 수집 여부
                     - receiveSNSId: 참석자 SNS ID 수집 여부
                     - receiveMoney: 예약금 설정 여부
-                    
+                    - region: 홍대, 강남_신사, 압구정_로데오, 이태원, 기타
+                    - ticketCost: 티켓 비용
+                    - notice: 주의사항
                     예시)
                     ``` json
                     {
@@ -197,7 +208,10 @@ public interface EventApiDocs {
                                 "receiveMoney": false,
                                 "depositAccount": "",
                                 "depositAmount": 0,
-                                "isAuthor": true
+                                "isAuthor": true,
+                                "ticketCost": "20000원",
+                                "notice": "공지사항입니다.",
+                                "region": "홍대"
                               }
                             }
                                     """)
@@ -208,7 +222,8 @@ public interface EventApiDocs {
                     description = "예약금에 관련된 정보 누락",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(name = "예약금에 관련된 정보 누락", value = SwaggerExamples.NEED_DEPOSIT_INFO)
+                            examples = {@ExampleObject(name = "예약금에 관련된 정보 누락", value = SwaggerExamples.NEED_DEPOSIT_INFO),
+                                    @ExampleObject(name = "이미지 5장 초과", value = SwaggerExamples.TOO_MANY_IMAGES_5_EXAMPLE)}
                     )
             ),
             @ApiResponse(
@@ -324,7 +339,11 @@ public interface EventApiDocs {
     ResponseEntity<ResponseDTO<EventAttendanceResponseDTO>> addEventAttendance (@PathVariable Long eventId, @RequestBody EventAttendanceRequestDTO dto);
 
     @Operation(summary = "곧 진행될 이벤트",
-            description = "오늘 포함 XXXX 앞으로의 이벤트를 보여줍니다. sort 에는 popular / latest / region을 넣을 수 있으나 현재는 region은 구현되어있지 않습니다.")
+            description = """
+                앞으로의 이벤트를 보여줍니다.
+                - sort 에는 popular / latest
+                - region에는 (홍대, 이태원, 강남_신사, 압구정_로데오, 기타)를 넣을 수 있습니다.
+                """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "곧 다가올 이벤트", content = @Content(
                     mediaType = "application/json",
@@ -350,7 +369,8 @@ public interface EventApiDocs {
                             "endDate": "2025-06-17",
                             "dday": "D-0",
                             "location": "경기도 파주",
-                            "isAuthor": false
+                            "isAuthor": false,
+                            "region": "홍대"
                           },
                           {
                             "eventId": 2,
@@ -363,7 +383,8 @@ public interface EventApiDocs {
                             "endDate": "2025-06-23",
                             "dday": "D-1",
                             "location": "서울시",
-                            "isAuthor": false
+                            "isAuthor": false,
+                            "region": "홍대"
                           }
                         ]
                       }
@@ -382,14 +403,17 @@ public interface EventApiDocs {
                     )
             )
     })
-    ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventUpcomingSorted (@PathVariable String sort,
-                                                                                @RequestParam(defaultValue = "0") Integer page,
-                                                                                @RequestParam(defaultValue = "10") Integer size);
-
-
+    ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventUpcomingSorted (        @PathVariable String sort,
+                                                                                      @RequestParam(defaultValue = "1") Integer page,
+                                                                                      @RequestParam(defaultValue = "10") Integer size,
+                                                                                      @RequestParam(required = false) String region);
 
     @Operation(summary = "진행되는 이벤트",
-            description = "(시작 날짜 기준 <= 오늘 ,종료 날짜 기준 >= 오늘) 진행 중인 이벤트를 보여줍니다. sort 에는 popular / latest / region을 넣을 수 있으나 현재는 region은 구현되어있지 않습니다.")
+            description = """
+                    시작 날짜 기준 <= 오늘 ,종료 날짜 기준 >= 오늘) 진행 중인 이벤트를 보여줍니다.
+                    - sort는 기본적으로 latest입니다.
+                    - region에는 (홍대, 이태원, 강남_신사, 압구정_로데오, 기타)를 넣을 수 있습니다.
+                    """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "진행 중인 이벤트", content = @Content(
                     mediaType = "application/json",
@@ -414,7 +438,8 @@ public interface EventApiDocs {
                             "views": 0,
                             "startDate": "2025-06-17",
                             "endDate": "2025-06-17",
-                            "isAuthor": false
+                            "isAuthor": false,
+                            "region": "홍대"
                           },
                           { ... }
                         ]
@@ -434,29 +459,14 @@ public interface EventApiDocs {
                     )
             )
     })
-    ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventNowSorted (        @PathVariable String sort,
-                                                                                 @RequestParam(defaultValue = "0") Integer page,
-                                                                                 @RequestParam(defaultValue = "10") Integer size);
-
-
+    ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventNowSorted (@RequestParam(defaultValue = "1") Integer page,
+                                                                         @RequestParam(defaultValue = "10") Integer size,
+                                                                         @RequestParam(required = false) String region);
     @Operation(summary = "종료된 이벤트",
             description = """
-                    
                     (종료 날짜 기준 < 오늘) 종료가 된 이벤트를 보여줍니다.
-                    sort 에는 popular / latest / region을 넣을 수 있으나 현재는 region은 구현되어있지 않습니다.
-                    - 종료된 이벤트의 최신순과 인기순의 응답이 다릅니다.
-                    - 종료된 이벤트 (인기순)의 경우에는 작년의 모든 이벤트를 불러옵니다.
-                    
-                    ✅ `sort=popular`
-                    - 지난 1년간의 이벤트를 **월 단위로 그룹핑**하여, 각 월 내에서 좋아요 순으로 정렬합니다.
-                    - `page`, `size`는 **월 그룹 단위 페이징**입니다. (예: `size=2`면 2개월치 그룹 반환)
-                    - 예: `GET /events/past?sort=popular&page=1&size=2`
-                    
-                    ⚠️ 응답 구조 주의:
-                    - `sort=latest` → `eventResponseDTOS` 필드 포함 (단일 이벤트 리스트)
-                    - `sort=popular` → `groupedByMonth` 필드 포함 (월별 이벤트 그룹 리스트)
-                    
-                    응답에는 `page`, `size`, `totalSize`가 항상 포함됩니다.
+                    - sort는 latest 입니다.
+                    - region에는 (홍대, 이태원, 강남_신사, 압구정_로데오, 기타)를 넣을 수 있습니다.
                     """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "종료된 이벤트", content = @Content(
@@ -490,7 +500,8 @@ public interface EventApiDocs {
                             "receiveTotalCount": false,
                             "receiveSNSId": false,
                             "receiveMoney": false,
-                            "isAuthor": false
+                            "isAuthor": false,
+                            "region": "홍대"
                           },
                           {
                             "eventId": 1,
@@ -510,98 +521,13 @@ public interface EventApiDocs {
                             "receiveTotalCount": false,
                             "receiveSNSId": false,
                             "receiveMoney": false,
-                            "isAuthor": false
+                            "isAuthor": false,
+                            "region": "홍대"
                           }
                         ]
                       }
                     }
-                    """),
-                            @ExampleObject(name = "종료된 이벤트 (인기순)", value = """
-                            {
-                              "status": 200,
-                              "code": "SUCCESS_GET_PAST_EVENT",
-                              "message": "성공적으로 과거 이벤트를 조회했습니다.",
-                              "data": {
-                                "sort": "popular",
-                                "page": 1,
-                                "size": 10,
-                                "totalSize": 2,
-                                "groupedByMonth": [
-                                  {
-                                    "yearMonth": "2025-06",
-                                    "events": [
-                                      {
-                                        "eventId": 1,
-                                        "title": "이벤트 시작",
-                                        "content": "이게 바로 이트",
-                                        "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
-                                        "liked": false,
-                                        "location": "경기도 파주",
-                                        "likes": 5,
-                                        "views": 0,
-                                        "startDate": "2025-06-17",
-                                        "endDate": "2025-06-17",
-                                        "receiveInfo": false,
-                                        "receiveName": false,
-                                        "receiveGender": false,
-                                        "receivePhoneNumber": false,
-                                        "receiveTotalCount": false,
-                                        "receiveSNSId": false,
-                                        "receiveMoney": false,
-                                        "isAuthor": false
-                                      },
-                                      {
-                                        "eventId": 7,
-                                        "title": "이벤트 제목",
-                                        "content": "내용입니다.",
-                                        "thumbImage": "",
-                                        "liked": false,
-                                        "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                                        "likes": 0,
-                                        "views": 0,
-                                        "startDate": "2025-06-20",
-                                        "endDate": "2025-06-22",
-                                        "receiveInfo": false,
-                                        "receiveName": false,
-                                        "receiveGender": false,
-                                        "receivePhoneNumber": false,
-                                        "receiveTotalCount": false,
-                                        "receiveSNSId": false,
-                                        "receiveMoney": false,
-                                        "isAuthor": false
-                                      }
-                                    ]
-                                  },
-                                  {
-                                    "yearMonth": "2025-04",
-                                    "events": [
-                                      {
-                                        "eventId": 5,
-                                        "title": "이벤트 제목",
-                                        "content": "내용입니다.",
-                                        "thumbImage": "",
-                                        "liked": false,
-                                        "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                                        "likes": 1,
-                                        "views": 0,
-                                        "startDate": "2025-04-20",
-                                        "endDate": "2025-04-21",
-                                        "receiveInfo": false,
-                                        "receiveName": false,
-                                        "receiveGender": false,
-                                        "receivePhoneNumber": false,
-                                        "receiveTotalCount": false,
-                                        "receiveSNSId": false,
-                                        "receiveMoney": false,
-                                        "isAuthor": false
-                                      }
-                                    ]
-                                  }
-                                ]
-                              }
-                            }
                     """
-
                    )}
             )),
             @ApiResponse(
@@ -617,9 +543,9 @@ public interface EventApiDocs {
             )
     })
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventPastSorted(
-            @PathVariable String sort,
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size);
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String region);
 
 
 
@@ -1020,7 +946,10 @@ public interface EventApiDocs {
                                 "receiveMoney": true,
                                 "depositAccount": "국민 XXXXXXXX",
                                 "depositAmount": 10000,
-                                "isAuthor": false
+                                "isAuthor": false,
+                                "region": "홍대",
+                                "ticketCost": "20000원입니다",
+                                "notice": "주의사항"
                               }
                             }
                                         """)
@@ -1136,284 +1065,6 @@ public interface EventApiDocs {
     })
     ResponseEntity<ResponseDTO<List<EventCommentTreeResponseDTO>>> getEventComments(@PathVariable Long eventId);
 
-
-
-
-    ResponseEntity<ResponseDTO<Map<String, List<EventResponseDTO>>>> getMyEvents();
-
-    @Operation(
-            summary = "마이페이지 이벤트 조회 (upcoming)\n",
-            description = """
-                마이페이지에서 내가 좋아요를 누르거나 참여한 이벤트 중 '예정된 이벤트'를 조회합니다.
-                정렬 기준은 아래와 같습니다:
-                - `latest` (기본): 다가오는 이벤트 순으로 정렬
-                - `oldest`: 먼 미래의 이벤트부터 정렬
-                
-                - 이미지를 등록하지 않으면 ("") 이렇게 나옵니다. 이 값은 null이 아닌 빈 문자열입니다.
-                - 예정된 이벤트에는, dday 필드가 존재합니다.
-                """
-    )
-    @ApiResponses( value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "마이페이지 이벤트 조회 성공",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class),
-                            examples = {
-                                    @ExampleObject(
-                                            name = "마이페이지 이벤트 조회 성공",
-                                            description = """
-                                                            이미지를 등록하지 않으면 ("") 이렇게 나옵니다.
-                                                            이 값은 null이 아닌 빈 문자열입니다.
-                                                            """,
-                                            value = """
-                                                {
-                                                  "status": 200,
-                                                  "code": "SUCCESS_GET_MY_PAGE_EVENTS",
-                                                  "message": "마이페이지의 이벤트를 성공적으로 조회했습니다",
-                                                  "data": [
-                                                    {
-                                                      "eventId": 4,
-                                                      "title": "이벤트 제목",
-                                                      "content": "내용입니다.",
-                                                      "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
-                                                      "liked": false,
-                                                      "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                                                      "likes": 1,
-                                                      "views": 0,
-                                                      "startDate": "2025-06-24",
-                                                      "endDate": "2025-07-21",
-                                                      "receiveInfo": false,
-                                                      "receiveName": false,
-                                                      "receiveGender": false,
-                                                      "receivePhoneNumber": false,
-                                                      "receiveTotalCount": false,
-                                                      "receiveSNSId": false,
-                                                      "receiveMoney": false,
-                                                      "dday": "D-1",
-                                                      "isAuthor": true
-                                                    },
-                                                    {
-                                                      "eventId": 12,
-                                                      "title": "이벤트 제목",
-                                                      "content": "내용입니다.",
-                                                      "thumbImage": "",
-                                                      "liked": false,
-                                                      "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                                                      "likes": 0,
-                                                      "views": 1,
-                                                      "startDate": "2025-08-22",
-                                                      "endDate": "2025-09-21",
-                                                      "receiveInfo": false,
-                                                      "receiveName": false,
-                                                      "receiveGender": false,
-                                                      "receivePhoneNumber": false,
-                                                      "receiveTotalCount": false,
-                                                      "receiveSNSId": false,
-                                                      "receiveMoney": false,
-                                                      "dday": "D-60",
-                                                      "isAuthor": false
-                                                    }
-                                                  ]
-                                                }
-                                    """),
-                                    @ExampleObject(
-                                            name = "빈 이벤트 마이페이지 글",
-                                            value = SwaggerExamples.SUCCESS_BUT_EMPTY_LIST)
-                            }
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "이벤트 또는 유저 정보 없음",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST)
-                            }
-                    )
-            )
-    })
-    ResponseEntity<ResponseDTO<List<EventResponseDTO>>> getMyPageEventsUpcoming(
-            @PathVariable String sort
-    );
-
-    @Operation(
-            summary = "마이페이지 이벤트 조회 (now)\n",
-            description = """
-                마이페이지에서 내가 좋아요를 누르거나 참여한 이벤트 중 '진행 중인 이벤트'를 조회합니다.
-                정렬 기준은 아래와 같습니다:
-
-                - `latest` (기본): 최근 시작한 이벤트 순으로 정렬
-                - `oldest`: 오래 전에 시작된 이벤트 순으로 정렬
-                
-                - 이미지를 등록하지 않으면 ("") 이렇게 나옵니다. 이 값은 null이 아닌 빈 문자열입니다.
-                """
-    )
-    @ApiResponses( value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "마이페이지 이벤트 조회 성공",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class),
-                            examples = {
-                                    @ExampleObject(
-                                            name = "마이페이지 이벤트 조회 성공",
-                                            description = """
-                                                            이미지를 등록하지 않으면 ("") 이렇게 나옵니다.
-                                                            이 값은 null이 아닌 빈 문자열입니다.
-                                                            """,
-                                            value = """
-                                                {
-                                                  "status": 200,
-                                                  "code": "SUCCESS_GET_MY_PAGE_EVENTS",
-                                                  "message": "마이페이지의 이벤트를 성공적으로 조회했습니다",
-                                                  "data": [
-                                                    {
-                                                      "eventId": 2,
-                                                      "title": "string",
-                                                      "content": "string",
-                                                      "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
-                                                      "liked": false,
-                                                      "location": "string",
-                                                      "likes": 2,
-                                                      "views": 0,
-                                                      "startDate": "2025-06-18",
-                                                      "endDate": "2025-06-23",
-                                                      "receiveInfo": false,
-                                                      "receiveName": false,
-                                                      "receiveGender": false,
-                                                      "receivePhoneNumber": false,
-                                                      "receiveTotalCount": false,
-                                                      "receiveSNSId": false,
-                                                      "receiveMoney": false,
-                                                      "isAuthor": false
-                                                    }
-                                                  ]
-                                                }
-                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "빈 이벤트 마이페이지 글",
-                                            value = SwaggerExamples.SUCCESS_BUT_EMPTY_LIST)
-                            }
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "이벤트 또는 유저 정보 없음",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST)
-                            }
-                    )
-            )
-    })
-
-    ResponseEntity<ResponseDTO<List<EventResponseDTO>>> getMyPageEventsNow(
-            @PathVariable String sort
-    );
-
-    @Operation(
-            summary = "마이페이지 이벤트 조회 (past)\n",
-            description = """
-                마이페이지에서 내가 좋아요를 누르거나 참여한 이벤트 중 '종료된 이벤트'를 조회합니다.
-                정렬 기준은 아래와 같습니다:
-
-                - `latest` (기본): 최근에 종료된 이벤트 순으로 정렬
-                - `oldest`: 오래 전에 종료된 이벤트 순으로 정렬
-                
-               
-                - 이미지를 등록하지 않으면 ("") 이렇게 나옵니다. 이 값은 null이 아닌 빈 문자열입니다.
-                """
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "마이페이지 이벤트 조회 성공",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class),
-                            examples = {
-                                    @ExampleObject(
-                                            name = "마이페이지 이벤트 조회 성공",
-                                            description = """
-                                                            이미지를 등록하지 않으면 ("") 이렇게 나옵니다.
-                                                            이 값은 null이 아닌 빈 문자열입니다.
-                                                            """,
-                                            value = """
-                                                {
-                                                  "status": 200,
-                                                  "code": "SUCCESS_GET_MY_PAGE_EVENTS",
-                                                  "message": "마이페이지의 이벤트를 성공적으로 조회했습니다",
-                                                  "data": [
-                                                    {
-                                                      "eventId": 1,
-                                                      "title": "이벤트 시작",
-                                                      "content": "이게 바로 이트",
-                                                      "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
-                                                      "liked": false,
-                                                      "location": "경기도 파주",
-                                                      "likes": 5,
-                                                      "views": 0,
-                                                      "startDate": "2025-06-17",
-                                                      "endDate": "2025-06-17",
-                                                      "receiveInfo": false,
-                                                      "receiveName": false,
-                                                      "receiveGender": false,
-                                                      "receivePhoneNumber": false,
-                                                      "receiveTotalCount": false,
-                                                      "receiveSNSId": false,
-                                                      "receiveMoney": false,
-                                                      "isAuthor": false
-                                                    },
-                                                    {
-                                                      "eventId": 5,
-                                                      "title": "이벤트 제목",
-                                                      "content": "내용입니다.",
-                                                      "thumbImage": "",
-                                                      "liked": false,
-                                                      "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                                                      "likes": 1,
-                                                      "views": 0,
-                                                      "startDate": "2025-04-20",
-                                                      "endDate": "2025-04-21",
-                                                      "receiveInfo": false,
-                                                      "receiveName": false,
-                                                      "receiveGender": false,
-                                                      "receivePhoneNumber": false,
-                                                      "receiveTotalCount": false,
-                                                      "receiveSNSId": false,
-                                                      "receiveMoney": false,
-                                                      "isAuthor": false
-                                                    }
-                                                  ]
-                                                }
-                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "빈 이벤트 마이페이지 글",
-                                            value = SwaggerExamples.SUCCESS_BUT_EMPTY_LIST)
-                            }
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "이벤트 또는 유저 정보 없음",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST)
-                            }
-                    )
-            )
-    })
-    ResponseEntity<ResponseDTO<List<EventResponseDTO>>> getMyPageEventsPast(
-            @PathVariable String sort
-    );
 
     @Operation(
             summary = "이벤트 참석 삭제\n",
@@ -1599,4 +1250,5 @@ public interface EventApiDocs {
     ResponseEntity<ResponseDTO<EventAttendanceResponseDTO>> updateEventAttendance(
             @PathVariable Long eventId,
             @RequestBody EventAttendanceUpdateDTO dto);
+
 }
