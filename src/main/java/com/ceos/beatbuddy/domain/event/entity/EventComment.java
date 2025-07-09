@@ -9,18 +9,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@IdClass(EventCommentId.class)
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class EventComment extends BaseTimeEntity {
 
     @Id
-    private Long id; // 댓글 그룹 ID (댓글 thread 기준)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // 단일 기본키
 
-    @Id
-    private Integer level; // 대댓글 깊이
+    private Long parentId; // null이면 댓글, 아니면 대댓글
+
+    private Integer level; // 0: 댓글, 1+: 대댓글
 
     private String content;
 
@@ -34,7 +35,6 @@ public class EventComment extends BaseTimeEntity {
 
     private boolean anonymous;
 
-    // 댓글 수정 구현
     public void updateContent(String content) {
         this.content = content;
     }

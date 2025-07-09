@@ -183,53 +183,6 @@ public class EventController implements EventApiDocs {
     }
 
     @Override
-    @PostMapping("/{eventId}/comments")
-    public ResponseEntity<ResponseDTO<EventCommentResponseDTO>> createComment(
-            @PathVariable Long eventId,
-            @Valid @RequestBody EventCommentCreateRequestDTO dto) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        EventCommentResponseDTO result = eventCommentService.createComment(eventId, memberId, dto, dto.getParentCommentId());
-
-        return ResponseEntity
-                .status(SuccessCode.SUCCESS_CREATED_COMMENT.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATED_COMMENT, result));
-    }
-
-    @Override
-    @DeleteMapping("/{eventId}/comments/{commentId}/levels/{commentLevel}")
-    public ResponseEntity<ResponseDTO<String>> deleteComment(
-            @PathVariable Long eventId,
-            @PathVariable Long commentId,
-            @PathVariable Integer commentLevel) {
-
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        eventCommentService.deleteComment(eventId, commentId, commentLevel, memberId);
-
-        return ResponseEntity
-                .status(SuccessCode.SUCCESS_DELETE_COMMENT.getHttpStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_COMMENT, "댓글 삭제 완료"));
-    }
-
-
-    @Override
-    @GetMapping("/{eventId}/comments")
-    public ResponseEntity<ResponseDTO<List<EventCommentTreeResponseDTO>>> getEventComments(@PathVariable Long eventId) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        List<EventCommentTreeResponseDTO> result = eventCommentService.getSortedEventComments(memberId, eventId);
-
-        if (result.isEmpty()) {
-            return ResponseEntity
-                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
-        }
-        else {
-            return ResponseEntity
-                    .status(SuccessCode.SUCCESS_GET_EVENT_COMMENTS.getHttpStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_EVENT_COMMENTS, result));
-        }
-    }
-
-    @Override
     @DeleteMapping("/{eventId}/attendance")
     public ResponseEntity<ResponseDTO<String>> deleteEventAttendance(@PathVariable Long eventId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
@@ -264,18 +217,4 @@ public class EventController implements EventApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_ATTENDANCE, result));
     }
 
-    @Override
-    @PatchMapping("/{eventId}/comments/{commentId}/levels/{commentLevel}")
-    public ResponseEntity<ResponseDTO<EventCommentResponseDTO>> updateComment(
-            @PathVariable Long eventId,
-            @PathVariable Long commentId,
-            @PathVariable Integer commentLevel,
-            @Valid @RequestBody EventCommentUpdateDTO dto) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        EventCommentResponseDTO result = eventCommentService.updateComment(eventId, commentId, commentLevel, memberId, dto);
-
-        return ResponseEntity
-                .status(SuccessCode.SUCCESS_UPDATE_COMMENT.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_COMMENT, result));
-    }
 }
