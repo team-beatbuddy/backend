@@ -249,7 +249,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostListResponseDTO getMyPostsByType(Long memberId, String type, int page, int size) {
-        Member member = memberService.validateAndGetMember(memberId);
+        memberService.validateAndGetMember(memberId);
 
         // 페이지 1부터 받도록 지시, 0부터 시작하는 Pageable 생성
         if (page < 1) {
@@ -263,7 +263,7 @@ public class PostService {
         Page<? extends Post> postPage;
 
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
-        postPage = handler.readAllPosts(pageable);
+        postPage = handler.readAllPostsByMember(memberId, pageable);
 
         return getPostListResponseDTO(postPage, memberId);
     }

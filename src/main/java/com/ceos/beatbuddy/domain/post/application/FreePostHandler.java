@@ -126,6 +126,11 @@ public class FreePostHandler implements PostTypeHandler{
         return postQueryRepository.readAllPostsByUserExcludingAnonymous(userId, pageable);
     }
 
+    @Override
+    public Page<? extends Post> readAllPostsByMember(Long memberId, Pageable pageable) {
+        return freePostRepository.findByMemberId(memberId, pageable);
+    }
+
     // 해시태그로 게시글 목록 불러오기
     @Override
     @Transactional(readOnly = true)

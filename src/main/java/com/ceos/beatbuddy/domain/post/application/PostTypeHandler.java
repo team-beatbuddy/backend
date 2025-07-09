@@ -64,4 +64,6 @@ public interface PostTypeHandler {
     Post updatePost(UpdatePostRequestDTO dto, Post post, Member member);
 
     Page<? extends Post> readAllPostsByUserExcludingAnonymous(Long userId, Pageable pageable);
+
+    Page<? extends Post> readAllPostsByMember(Long memberId, Pageable pageable);
 }
