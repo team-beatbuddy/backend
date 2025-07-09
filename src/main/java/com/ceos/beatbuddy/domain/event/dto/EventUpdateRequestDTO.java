@@ -19,6 +19,8 @@ public class EventUpdateRequestDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private String location;
+    private String ticketCost; // 입장료
+    private String notice;
 
     private Boolean isVisible;
 
@@ -34,4 +36,5 @@ public class EventUpdateRequestDTO {
     private Integer depositAmount;
 
     private List<String> deleteImageUrls;
+    private String region;
 }

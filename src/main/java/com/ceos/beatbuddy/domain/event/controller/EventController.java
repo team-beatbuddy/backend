@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -87,10 +86,11 @@ public class EventController implements EventApiDocs {
     @GetMapping("/upcoming/{sort}")
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventUpcomingSorted (        @PathVariable String sort,
                                                                                                @RequestParam(defaultValue = "1") Integer page,
-                                                                                               @RequestParam(defaultValue = "10") Integer size) {
+                                                                                               @RequestParam(defaultValue = "10") Integer size,
+                                                                                             @RequestParam(required = false) String region) {
         Long memberId = SecurityUtils.getCurrentMemberId();
 
-        EventListResponseDTO result = eventService.getUpcomingEvents(sort, page, size, memberId);
+        EventListResponseDTO result = eventService.getUpcomingEvents(sort, page, size, memberId, region);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_UPCOMING_EVENT.getStatus().value())
@@ -99,13 +99,13 @@ public class EventController implements EventApiDocs {
 
     // 이벤트 홈에 진행 중인 이벤트
     @Override
-    @GetMapping("/now/{sort}")
-    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventNowSorted (        @PathVariable String sort,
-                                                                                              @RequestParam(defaultValue = "1") Integer page,
-                                                                                              @RequestParam(defaultValue = "10") Integer size) {
+    @GetMapping("/now")
+    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventNowSorted (@RequestParam(defaultValue = "1") Integer page,
+                                                                                @RequestParam(defaultValue = "10") Integer size,
+                                                                                @RequestParam(required = false) String region) {
         Long memberId = SecurityUtils.getCurrentMemberId();
 
-        EventListResponseDTO result = eventService.getNowEvents(sort, page, size, memberId);
+        EventListResponseDTO result = eventService.getNowEvents(page, size, memberId, region);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_NOW_EVENT.getStatus().value())
@@ -115,15 +115,15 @@ public class EventController implements EventApiDocs {
 
     // 이벤트 홈에 종료된 이벤트
     @Override
-    @GetMapping("/past/{sort}")
+    @GetMapping("/past")
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventPastSorted(
-            @PathVariable String sort,
             @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String region) {
 
         Long memberId = SecurityUtils.getCurrentMemberId();
 
-        EventListResponseDTO result = eventService.getPastEvents(sort, page, size, memberId);
+        EventListResponseDTO result = eventService.getPastEvents(page, size, memberId, region);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_PAST_EVENT.getStatus().value())
@@ -226,73 +226,6 @@ public class EventController implements EventApiDocs {
             return ResponseEntity
                     .status(SuccessCode.SUCCESS_GET_EVENT_COMMENTS.getHttpStatus().value())
                     .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_EVENT_COMMENTS, result));
-        }
-    }
-
-
-    @Override
-    @GetMapping("/my-page/upcoming/{sort}")
-    public ResponseEntity<ResponseDTO<List<EventResponseDTO>>> getMyPageEventsUpcoming(
-            @PathVariable String sort
-    ) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        List<EventResponseDTO> result = eventMyPageService.getMyPageEventsUpcoming(memberId, sort);
-
-        return buildEventListResponse(result);
-    }
-
-    @Override
-    @GetMapping("/my-page/now/{sort}")
-    public ResponseEntity<ResponseDTO<List<EventResponseDTO>>> getMyPageEventsNow(
-            @PathVariable String sort
-    ) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        List<EventResponseDTO> result = eventMyPageService.getMyPageEventsNow(memberId, sort);
-
-        return buildEventListResponse(result);
-    }
-
-    @Override
-    @GetMapping("/my-page/past/{sort}")
-    public ResponseEntity<ResponseDTO<List<EventResponseDTO>>> getMyPageEventsPast(
-            @PathVariable String sort
-    ) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        List<EventResponseDTO> result = eventMyPageService.getMyPageEventsPast(memberId, sort);
-
-        return buildEventListResponse(result);
-    }
-
-    // 내가 작성한 이벤트 조회
-    @Override
-    @GetMapping("/my-event")
-    public ResponseEntity<ResponseDTO<Map<String, List<EventResponseDTO>>>> getMyEvents() {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        Map<String, List<EventResponseDTO>> result = eventService.getMyEvents(memberId);
-
-        if (result.isEmpty()) {
-            return ResponseEntity
-                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
-        }
-        else {
-            return ResponseEntity
-                    .status(SuccessCode.SUCCESS_GET_MY_EVENTS.getHttpStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_EVENTS, result));
-        }
-    }
-
-    private ResponseEntity<ResponseDTO<List<EventResponseDTO>>> buildEventListResponse(
-            List<EventResponseDTO> result)
-    {
-        if (result.isEmpty()) {
-            return ResponseEntity
-                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
-        } else {
-            return ResponseEntity
-                    .status(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS.getHttpStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS, result));
         }
     }
 

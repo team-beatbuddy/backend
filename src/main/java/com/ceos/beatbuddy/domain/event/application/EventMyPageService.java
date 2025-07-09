@@ -1,10 +1,12 @@
 package com.ceos.beatbuddy.domain.event.application;
 
+import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventAttendance;
 import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
+import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.EventLike;
@@ -23,54 +25,70 @@ public class EventMyPageService{
     private final MemberService memberService;
     private final EventLikeRepository eventLikeRepository;
     private final EventAttendanceRepository eventAttendanceRepository;
+    private final EventQueryRepository eventQueryRepository;
 
 
     // 내가 좋아요 + 참여하는 이벤트 (upcoming)
-    public List<EventResponseDTO> getMyPageEventsUpcoming(Long memberId, String sort) {
+    public EventListResponseDTO getMyPageEventsUpcoming(Long memberId, String regionStr, int page, int size) {
         Member member = memberService.validateAndGetMember(memberId);
         LocalDate today = LocalDate.now();
 
-        // 좋아요 + 참석한 이벤트
+        Event.Region region = regionStr != null ? Event.of(regionStr) : null;
         Set<Event> myEvents = getMyPageEventList(member);
+        Set<Long> likedEventIds = eventLikeRepository.findLikedEventIdsByMember(member);
 
-        // 예정(upcoming): 오늘 이후
-        return myEvents.stream()
-                .filter(e -> e.getStartDate().isAfter(today))
-                .sorted(getComparator(sort, "upcoming"))
-                .map(event -> EventResponseDTO.toUpcomingListDTO(event, event.getHost().getId().equals(memberId)))
+        List<EventResponseDTO> filtered = myEvents.stream()
+                .filter(e -> region == null || e.getRegion() == region)
+                .sorted(Comparator.comparing(Event::getStartDate)) // 최신순: 가까운 순
+                .map(event -> EventResponseDTO.toUpcomingListDTO(
+                        event,
+                        event.getHost().getId().equals(memberId),
+                        likedEventIds.contains(event.getId())))
                 .toList();
+
+        return buildResponse("latest", page, size, filtered);
     }
 
     // 내가 좋아요 + 참여하는 이벤트 (now)
-    public List<EventResponseDTO> getMyPageEventsNow(Long memberId, String sort) {
+    public EventListResponseDTO getMyPageEventsNow(Long memberId, String regionStr, int page, int size) {
         Member member = memberService.validateAndGetMember(memberId);
         LocalDate today = LocalDate.now();
+        Event.Region region = regionStr != null ? Event.of(regionStr) : null;
 
-        // 좋아요 + 참석한 이벤트
         Set<Event> myEvents = getMyPageEventList(member);
+        Set<Long> likedEventIds = eventLikeRepository.findLikedEventIdsByMember(member);
 
-        // 진행중(now): 오늘 포함
-        return myEvents.stream()
-                .filter(e -> !e.getStartDate().isAfter(today) && !e.getEndDate().isBefore(today))
-                .sorted(getComparator(sort, "now"))
-                .map((event -> EventResponseDTO.toNowListDTO(event, event.getHost().getId().equals(member.getId())))) // 필요 시 toNowListDTO로 변경 가능
+        List<EventResponseDTO> filtered = myEvents.stream()
+                .filter(e -> region == null || e.getRegion() == region)
+                .sorted(Comparator.comparing(Event::getStartDate).reversed()) // 최근 시작 순
+                .map(event -> EventResponseDTO.toNowListDTO(
+                        event,
+                        event.getHost().getId().equals(memberId),
+                        likedEventIds.contains(event.getId())))
                 .toList();
+
+        return buildResponse("latest", page, size, filtered);
     }
 
     // 내가 좋아요 + 참여하는 이벤트 (past)
-    public List<EventResponseDTO> getMyPageEventsPast(Long memberId, String sort) {
+    public EventListResponseDTO getMyPageEventsPast(Long memberId, String regionStr, int page, int size) {
         Member member = memberService.validateAndGetMember(memberId);
         LocalDate today = LocalDate.now();
+        Event.Region region = regionStr != null ? Event.of(regionStr) : null;
 
-        // 좋아요 + 참석한 이벤트
         Set<Event> myEvents = getMyPageEventList(member);
+        Set<Long> likedEventIds = eventLikeRepository.findLikedEventIdsByMember(member);
 
-        // 종료(past): 종료일이 오늘 이전
-        return myEvents.stream()
-                .filter(e -> e.getEndDate().isBefore(today))
-                .sorted(getComparator(sort, "past"))
-                .map(event -> EventResponseDTO.toPastListDTO(event, event.getHost().getId().equals(memberId)))
+        List<EventResponseDTO> filtered = myEvents.stream()
+                .filter(e -> region == null || e.getRegion() == region)
+                .sorted(Comparator.comparing(Event::getEndDate).reversed()) // 최근 종료 순
+                .map(event -> EventResponseDTO.toPastListDTO(
+                        event,
+                        event.getHost().getId().equals(memberId),
+                        likedEventIds.contains(event.getId())))
                 .toList();
+
+        return buildResponse("latest", page, size, filtered);
     }
 
     private Set<Event> getMyPageEventList(Member member) {
@@ -89,19 +107,81 @@ public class EventMyPageService{
         return myEvents;
     }
 
-    private Comparator<Event> getComparator(String sort, String type) {
-        return switch (type) {
-            case "upcoming" -> "latest".equalsIgnoreCase(sort)
-                    ? Comparator.comparing(Event::getStartDate)                // 최신: 가까운 순
-                    : Comparator.comparing(Event::getStartDate).reversed();   // 과거: 먼 순
-            case "now" -> "latest".equalsIgnoreCase(sort)
-                    ? Comparator.comparing(Event::getStartDate).reversed()    // 최신: 최근 시작
-                    : Comparator.comparing(Event::getStartDate);              // 과거: 오래 시작
-            case "past" -> "latest".equalsIgnoreCase(sort)
-                    ? Comparator.comparing(Event::getEndDate).reversed()      // 최신: 최근 종료
-                    : Comparator.comparing(Event::getEndDate);                // 과거: 오래전 종료
-            default -> throw new IllegalArgumentException("Invalid type: " + type);
-        };
+
+    // 내가 작성한 이벤트
+    public EventListResponseDTO getMyUpcomingEvents(Long memberId, String regionStr, int page, int size) {
+        Member member = memberService.validateAndGetMember(memberId);
+        Event.Region region = regionStr != null ? Event.of(regionStr) : null;
+        Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
+        LocalDate today = LocalDate.now();
+
+        List<EventResponseDTO> filtered = eventQueryRepository.findMyUpcomingEvents(member).stream()
+                .filter(e -> region == null || e.getRegion() == region)
+                .filter(e -> e.getStartDate().isAfter(today))
+                .sorted(Comparator.comparing(Event::getStartDate)) // 가까운 순
+                .map(event -> EventResponseDTO.toUpcomingListDTO(
+                        event,
+                        true, // 작성자 본인
+                        likedEventIds.contains(event.getId())))
+                .toList();
+
+        return buildResponse("latest", page, size, filtered);
     }
+
+    public EventListResponseDTO getMyNowEvents(Long memberId, String regionStr, int page, int size) {
+        Member member = memberService.validateAndGetMember(memberId);
+        Event.Region region = regionStr != null ? Event.of(regionStr) : null;
+        Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
+        LocalDate today = LocalDate.now();
+
+        List<EventResponseDTO> filtered = eventQueryRepository.findMyNowEvents(member).stream()
+                .filter(e -> region == null || e.getRegion() == region)
+                .filter(e -> !e.getStartDate().isAfter(today) && !e.getEndDate().isBefore(today))
+                .sorted(Comparator.comparing(Event::getStartDate).reversed()) // 최근 시작
+                .map(event -> EventResponseDTO.toNowListDTO(
+                        event,
+                        true,
+                        likedEventIds.contains(event.getId())))
+                .toList();
+
+        return buildResponse("latest", page, size, filtered);
+    }
+
+    public EventListResponseDTO getMyPastEvents(Long memberId, String regionStr, int page, int size) {
+        Member member = memberService.validateAndGetMember(memberId);
+        Event.Region region = regionStr != null ? Event.of(regionStr) : null;
+        Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
+        LocalDate today = LocalDate.now();
+
+        List<EventResponseDTO> filtered = eventQueryRepository.findMyPastEvents(member).stream()
+                .filter(e -> region == null || e.getRegion() == region)
+                .filter(e -> e.getEndDate().isBefore(today))
+                .sorted(Comparator.comparing(Event::getEndDate).reversed()) // 최근 종료
+                .map(event -> EventResponseDTO.toPastListDTO(
+                        event,
+                        true,
+                        likedEventIds.contains(event.getId())))
+                .toList();
+
+        return buildResponse("latest", page, size, filtered);
+    }
+
+
+    private EventListResponseDTO buildResponse(String sort, int page, int size, List<EventResponseDTO> dtoList) {
+        int totalSize = dtoList.size();
+        List<EventResponseDTO> paged = dtoList.stream()
+                .skip((long) (page - 1) * size)
+                .limit(size)
+                .toList();
+
+        return EventListResponseDTO.builder()
+                .sort(sort)
+                .page(page)
+                .size(size)
+                .totalSize(totalSize)
+                .eventResponseDTOS(paged)
+                .build();
+    }
+
 
 }
