@@ -287,7 +287,7 @@ public class EventService {
         Event event = validateAndGet(eventId);
 
         // 조회수 증가
-        event.increaseView();
+        eventRepository.increaseViews(eventId);
 
         // 좋아요 여부 확인
         boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, eventId));

@@ -60,10 +60,6 @@ public abstract class Post extends BaseTimeEntity {
         this.comments = 0;
     }
 
-    public void increaseView() {
-        views++;
-    }
-
     public void increaseComments() {
         comments++;
     }

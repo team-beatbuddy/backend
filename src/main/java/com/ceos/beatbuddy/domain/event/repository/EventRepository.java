@@ -31,4 +31,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Object[]> findPastEventsGroupedByMonthOptimized(@Param("from") LocalDate from,
                                                          @Param("to") LocalDate to);
 
+
+    @Modifying
+    @Query("UPDATE Event e SET e.views = e.views + 1 WHERE e.id = :eventId")
+    void increaseViews(@Param("eventId") Long eventId);
 }

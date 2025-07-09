@@ -26,4 +26,7 @@ public interface MagazineRepository extends JpaRepository<Magazine, Long> {
     boolean existsByIsPinnedTrueAndOrderInHome(int orderInHome);
     boolean existsByIsPinnedTrueAndOrderInHomeAndIdNot(int orderInHome, Long excludingId);
 
+    @Modifying
+    @Query("UPDATE Magazine m SET m.views = m.views + 1 WHERE m.id = :magazineId")
+    void increaseViews(@Param("magazineId") Long magazineId);
 }

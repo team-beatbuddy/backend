@@ -10,6 +10,7 @@ import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
 import com.ceos.beatbuddy.domain.post.repository.FreePostRepository;
 import com.ceos.beatbuddy.domain.post.repository.PostQueryRepository;
+import com.ceos.beatbuddy.domain.post.repository.PostRepository;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.CustomException;
@@ -31,6 +32,7 @@ public class FreePostHandler implements PostTypeHandler{
     private final PostInteractionService postInteractionService;
     private final PostQueryRepository postQueryRepository;
     private final FollowRepository followRepository;
+    private final PostRepository postRepository;
 
     @Override
     public boolean supports(Post post) {
@@ -64,7 +66,7 @@ public class FreePostHandler implements PostTypeHandler{
     public Post readPost(Long postId) {
         Post post = validateAndGetPost(postId);
 
-        post.increaseView();
+        postRepository.increaseViews(postId); // 조회수 증가
         return post;
     }
 
