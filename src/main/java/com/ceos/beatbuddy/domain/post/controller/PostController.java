@@ -127,6 +127,8 @@ public class PostController implements PostApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_HOT_POSTS, result));
     }
 
+    
+    // 삭제 예정
     @DeleteMapping("/{type}/{postId}")
     @Operation(summary = "게시물 삭제", description = "게시물을 삭제합니다 (type: free/piece)")
     @ApiResponses({
@@ -139,6 +141,16 @@ public class PostController implements PostApiDocs {
         Long memberId = SecurityUtils.getCurrentMemberId();
         postService.deletePost(type, postId, memberId);
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{type}/{postId}/new")
+    public ResponseEntity<ResponseDTO<String>> newDeletePost(@PathVariable String type,
+                                                             @PathVariable Long postId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        postService.deletePost(type, postId, memberId);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_DELETE_POST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_POST, "게시글이 삭제되었습니다."));
     }
 
 
