@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.admin.controller;
 
+import com.ceos.beatbuddy.domain.admin.dto.ReportSummaryDTO;
 import com.ceos.beatbuddy.domain.coupon.application.CouponService;
 import com.ceos.beatbuddy.domain.coupon.dto.CouponCreateRequestDTO;
 import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
@@ -82,20 +83,13 @@ public class AdminController implements AdminApiDocs {
         return adminService.createAdminToken(adminId, request.getId());
     }
 
-//    @PatchMapping("/{couponId}")
-//    public ResponseEntity<ResponseDTO<String>> approveCoupon(
-//            @PathVariable Long couponId
-//    ) {
-//        Long memberId = SecurityUtils.getCurrentMemberId();
-//        couponService.approveCoupon(couponId, memberId);
-//
-//        return ResponseEntity
-//                .status(SuccessCode.SUCCESS_APPROVE_COUPON.getStatus().value())
-//                .body(new ResponseDTO<>(SuccessCode.SUCCESS_APPROVE_COUPON, "쿠폰 승인 성공"));
-//    }
-
-//
-//    @GetMapping("/business/approved")
-//    public ResponseEntity<ResponseDTO<?>>
+    @GetMapping("/report")
+    public ResponseEntity<ResponseDTO<List<ReportSummaryDTO>>> getAllReports() {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        List<ReportSummaryDTO> reports = adminService.getAllReports(memberId);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_REPORT_LIST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_REPORT_LIST, reports));
+    }
 
 }

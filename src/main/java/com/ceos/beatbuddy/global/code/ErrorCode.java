@@ -16,7 +16,8 @@ public enum ErrorCode implements ApiCode {
     TOO_MANY_IMAGES_10(HttpStatus.BAD_REQUEST, "이미지는 최대 10개까지 업로드할 수 있습니다."),
     TOO_MANY_IMAGES_20(HttpStatus.BAD_REQUEST, "이미지는 최대 20개까지 업로드할 수 있습니다."),
     PAGE_OUT_OF_BOUNDS(HttpStatus.BAD_REQUEST, "페이지 번호가 범위를 벗어났습니다."),
-/**
+
+    /**
      * 401
      */
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다."),

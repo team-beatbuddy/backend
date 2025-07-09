@@ -1,10 +1,15 @@
 package com.ceos.beatbuddy.domain.admin.application;
 
+import com.ceos.beatbuddy.domain.admin.dto.ReportSummaryDTO;
+import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.constant.Role;
 import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
+import com.ceos.beatbuddy.domain.report.entity.Report;
+import com.ceos.beatbuddy.domain.report.repository.ReportQueryRepository;
+import com.ceos.beatbuddy.domain.report.repository.ReportRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.config.jwt.TokenProvider;
 import com.ceos.beatbuddy.global.config.jwt.redis.RefreshToken;
@@ -16,6 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -23,6 +31,8 @@ public class AdminService {
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final TokenProvider tokenProvider;
+    private final ReportQueryRepository reportQueryRepository;
+    private final ReportRepository reportRepository;
 
     @Transactional
     public Long createAdmin(String id) {
@@ -80,5 +90,30 @@ public class AdminService {
         }
 
         return member.getId();
+    }
+
+    // 관리자 권한이 있는지 확인
+    public void validateAdmin(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        if (member.getRole() != Role.ADMIN) {
+            throw new CustomException(MemberErrorCode.NOT_ADMIN);
+        }
+    }
+
+    // 신고 목록 확인
+    public List<ReportSummaryDTO> getAllReports(Long memberId) {
+        // 관리자 권한이 있는지 확인
+        validateAdmin(memberId);
+        // 신고 목록 조회
+        List<Report> reports = reportQueryRepository.getAllReports();
+        return reports.stream().map(ReportSummaryDTO::toDTO).collect(Collectors.toList());
+    }
+
+    // 신고에서 삭제
+    public void deleteReport(Long reportId, Long memberId) {
+        validateAdmin(memberId);
+        reportRepository.deleteById(reportId);
     }
 }
