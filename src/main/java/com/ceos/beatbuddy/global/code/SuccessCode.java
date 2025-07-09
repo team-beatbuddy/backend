@@ -130,6 +130,14 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_CREATE_COUPON(HttpStatus.CREATED, "쿠폰을 성공적으로 등록했습니다."),
 
     /**
+     * Report
+     * */
+    SUCCESS_CREATED_REPORT(HttpStatus.CREATED, "신고가 성공적으로 접수되었습니다."),
+    SUCCESS_GET_REPORT_LIST(HttpStatus.OK, "신고 목록을 성공적으로 조회했습니다."),
+    SUCCESS_DELETE_REPORT(HttpStatus.OK, "신고 목록에서 삭제되었습니다."),
+    SUCCESS_PROCESS_REPORT(HttpStatus.OK, "신고가 성공적으로 처리되었습니다."),
+
+    /**
      * empty
      * */
     SUCCESS_BUT_EMPTY_LIST(HttpStatus.OK,"성공적으로 조회했으나 리스트가 비었습니다."),
