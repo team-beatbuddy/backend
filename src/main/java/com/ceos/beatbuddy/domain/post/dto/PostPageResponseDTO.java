@@ -17,7 +17,6 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PostPageResponseDTO {
     private Long id;
     private String title;
@@ -42,6 +41,10 @@ public class PostPageResponseDTO {
     @JsonProperty("isAnonymous")
     private Boolean isAnonymous;
 
+    @JsonProperty("isFollowing")
+    private Boolean isFollowing;
+
+    public Boolean getIsFollowing() { return isFollowing; }
     public Boolean getIsAuthor() {
         return isAuthor;
     }
@@ -49,7 +52,7 @@ public class PostPageResponseDTO {
         return isAnonymous;
     }
 
-    public static PostPageResponseDTO toDTO(Post post, Boolean liked, Boolean scrapped, Boolean hasCommented, List<FixedHashtag> hashtags, boolean isAuthor) {
+    public static PostPageResponseDTO toDTO(Post post, Boolean liked, Boolean scrapped, Boolean hasCommented, List<FixedHashtag> hashtags, boolean isAuthor, boolean isFollowing) {
         return PostPageResponseDTO.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -77,6 +80,7 @@ public class PostPageResponseDTO {
                                 ? post.getMember().getProfileImage()
                                 : "")
                 )
+                .isFollowing(isFollowing)
                 .build();
     }
 }

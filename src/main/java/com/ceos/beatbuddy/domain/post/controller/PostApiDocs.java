@@ -332,7 +332,8 @@ public interface PostApiDocs {
                                   "isAuthor": false,
                                   "writerId": 1,
                                   "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                  "isAnonymous": true
+                                  "isAnonymous": true,
+                                  "isFollowing": false
                                 },
                                 {
                                   "id": 538,
@@ -353,7 +354,8 @@ public interface PostApiDocs {
                                   "isAuthor": false,
                                   "writerId": 1,
                                   "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                  "isAnonymous": true
+                                  "isAnonymous": true,
+                                  "isFollowing": false
                                 }
                               ]
                             }
@@ -401,7 +403,8 @@ public interface PostApiDocs {
                         "views": 1,
                         "writerId": 1,
                         "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                        "isAnonymous": true
+                        "isAnonymous": true,
+                        "isFollowing": false
                       }
                     }
             """))
@@ -466,7 +469,8 @@ public interface PostApiDocs {
                                         "isAuthor": true,
                                         "writerId": 1,
                                         "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                        "isAnonymous": true
+                                        "isAnonymous": true,
+                                        "isFollowing": false
                                       }
                                     }
                         """
@@ -561,7 +565,8 @@ public interface PostApiDocs {
                             "isAuthor": true,
                             "writerId": 1,
                             "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                            "isAnonymous": true
+                            "isAnonymous": true,
+                            "isFollowing": false
                           },
                           {
                             "id": 538,
@@ -583,7 +588,8 @@ public interface PostApiDocs {
                             "isAuthor": true,
                             "writerId": 1,
                             "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                            "isAnonymous": true
+                            "isAnonymous": true,
+                            "isFollowing": false
                           },
                           {
                             "id": 537,
@@ -607,7 +613,8 @@ public interface PostApiDocs {
                             "isAuthor": true,
                             "writerId": 1,
                             "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                            "isAnonymous": true
+                            "isAnonymous": true,
+                            "isFollowing": true
                           },
                           {
                             "id": 536,
@@ -627,7 +634,8 @@ public interface PostApiDocs {
                             "isAuthor": true,
                             "writerId": 1,
                             "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                            "isAnonymous": true
+                            "isAnonymous": true,
+                            "isFollowing": true
                           },
                           {
                             "id": 535,
@@ -649,7 +657,8 @@ public interface PostApiDocs {
                             "isAuthor": true,
                             "writerId": 1,
                             "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                            "isAnonymous": true
+                            "isAnonymous": true,
+                            "isFollowing": true
                           },
                           {
                             "id": 534,
@@ -671,7 +680,8 @@ public interface PostApiDocs {
                             "isAuthor": true,
                             "writerId": 1,
                             "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                            "isAnonymous": true
+                            "isAnonymous": true,
+                            "isFollowing": true
                           },
                           {
                             "id": 533,
@@ -693,7 +703,8 @@ public interface PostApiDocs {
                             "isAuthor": false,
                             "writerId": 1,
                             "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                            "isAnonymous": true
+                            "isAnonymous": true,
+                            "isFollowing": true
                           },
                           {
                             "id": 42,
@@ -715,7 +726,8 @@ public interface PostApiDocs {
                             "isAuthor": false,
                             "writerId": 1,
                             "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                            "isAnonymous": true
+                            "isAnonymous": true,
+                            "isFollowing": true
                           },
                           {
                             "id": 41,
@@ -737,7 +749,8 @@ public interface PostApiDocs {
                             "isAuthor": false,
                             "writerId": 1,
                             "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                            "isAnonymous": true
+                            "isAnonymous": true,
+                            "isFollowing": true
                           },
                           {
                             "id": 40,
@@ -759,7 +772,8 @@ public interface PostApiDocs {
                             "isAuthor": false,
                             "writerId": 1,
                             "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                            "isAnonymous": true
+                            "isAnonymous": true,
+                            "isFollowing": true
                           }
                         ]
                       }
@@ -821,7 +835,8 @@ public interface PostApiDocs {
                                     "isAuthor": true,
                                     "writerId": 1,
                                     "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                    "isAnonymous": true
+                                    "isAnonymous": true,
+                                    "isFollowing": true
                                   },
                                   {
                                     "id": 537,
@@ -845,7 +860,8 @@ public interface PostApiDocs {
                                     "isAuthor": true,
                                     "writerId": 1,
                                     "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                    "isAnonymous": true
+                                    "isAnonymous": true,
+                                    "isFollowing": true
                                   }
                                 ]
                               }
@@ -914,7 +930,8 @@ public interface PostApiDocs {
                                     "isAuthor": false,
                                     "writerId": 1,
                                     "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                    "isAnonymous": true
+                                    "isAnonymous": true,
+                                    "isFollowing": true
                                   },
                                   {
                                     "id": 535,
@@ -936,7 +953,8 @@ public interface PostApiDocs {
                                     "isAuthor": false,
                                     "writerId": 1,
                                     "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                    "isAnonymous": true
+                                    "isAnonymous": true,
+                                    "isFollowing": true
                                   },
                                   {
                                     "id": 534,
@@ -958,7 +976,8 @@ public interface PostApiDocs {
                                     "isAuthor": false,
                                     "writerId": 1,
                                     "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                    "isAnonymous": true
+                                    "isAnonymous": true,
+                                    "isFollowing": true
                                   }
                                 ]
                               }
