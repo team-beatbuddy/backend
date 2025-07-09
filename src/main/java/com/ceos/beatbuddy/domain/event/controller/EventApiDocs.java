@@ -793,7 +793,7 @@ public interface EventApiDocs {
     ResponseEntity<ResponseDTO<String>> deleteLikeEvent(@PathVariable Long eventId);
 
     @Operation(
-            summary = "이벤트 댓글 작성\n",
+            summary = "이벤트 문의 댓글 작성\n",
             description = """
             이벤트에 댓글을 작성합니다.
             최상위 댓글 작성 시 `parentCommentId`는 빈 문자열("")로 전달합니다.
@@ -828,7 +828,8 @@ public interface EventApiDocs {
                                 "createdAt": "2025-06-18T02:08:31.4185432",
                                 "isAuthor": true,
                                 "isFollowing": false,
-                                "writerId": 156
+                                "writerId": 156,
+                                "isStaff": true
                               }
                             }
                                         """)
@@ -872,7 +873,7 @@ public interface EventApiDocs {
             @Valid @RequestBody EventCommentCreateRequestDTO dto);
 
 
-    @Operation(summary = "이벤트 댓글 수정\n",
+    @Operation(summary = "이벤트 문의 댓글 수정\n",
             description = """
                 이벤트에 댓글을 수정합니다.
                 - level 이 0이면 원댓글, 1부터 대댓글입니다.
@@ -898,7 +899,8 @@ public interface EventApiDocs {
                                 "createdAt": "2025-06-18T02:56:10.818788",
                                 "isAuthor": true,
                                 "isFollowing": false,
-                                "writerId": 156
+                                "writerId": 156,
+                                "isStaff": true
                               }
                             }
                                         """)
@@ -936,7 +938,7 @@ public interface EventApiDocs {
             @PathVariable Integer commentLevel,
             @Valid @RequestBody EventCommentUpdateDTO dto);
 
-    @Operation(summary = "이벤트 댓글 삭제\n",
+    @Operation(summary = "이벤트 문의 댓글 삭제\n",
             description = """
             이벤트에 댓글을 삭제합니다.
             - level 이 0이면 원댓글부터 대댓글 전체 삭제됩니다.
@@ -1018,9 +1020,7 @@ public interface EventApiDocs {
                                 "receiveMoney": true,
                                 "depositAccount": "국민 XXXXXXXX",
                                 "depositAmount": 10000,
-                                "isAuthor": false,
-                                "isFollowing": false,
-                                "writerId": 156
+                                "isAuthor": false
                               }
                             }
                                         """)
@@ -1042,7 +1042,7 @@ public interface EventApiDocs {
     ResponseEntity<ResponseDTO<EventResponseDTO>> getEventDetail(@PathVariable Long eventId);
 
     @Operation(
-            summary = "이벤트 댓글 전체 조회\n",
+            summary = "이벤트 문의 댓글 전체 조회\n",
             description = "이벤트 댓글 전체 조회입니다. id 0 - level 0 은 본문, id 0 - level - 1 이면 id 0 에 대한 댓글의 대댓글"
     )
     @ApiResponses(value = {
@@ -1071,7 +1071,8 @@ public interface EventApiDocs {
                                           "isAuthor": true,
                                           "isFollowing": false,
                                           "writerId": 156,
-                                          "replies": []
+                                          "replies": [],
+                                          "isStaff": true
                                         },
                                         {
                                           "commentId": 1,
@@ -1083,6 +1084,7 @@ public interface EventApiDocs {
                                           "isAuthor": false,
                                           "isFollowing": false,
                                           "writerId": 156,
+                                          "isStaff": true,
                                           "replies": [
                                             {
                                               "commentId": 1,
@@ -1093,6 +1095,7 @@ public interface EventApiDocs {
                                               "isAuthor": false,
                                               "isFollowing": false,
                                               "writerId": 156,
+                                              "isStaff": true,
                                               "createdAt": "2025-06-18T02:56:10.818788"
                                             },
                                             {
@@ -1104,6 +1107,7 @@ public interface EventApiDocs {
                                               "isAuthor": false,
                                               "isFollowing": false,
                                               "writerId": 156,
+                                              "isStaff": true,
                                               "createdAt": "2025-06-18T03:03:16.206686"
                                             }
                                           ]

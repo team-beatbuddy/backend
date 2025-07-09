@@ -28,6 +28,7 @@ public class VenueReviewResponseDTO {
     @JsonProperty("isAuthor")
     private Boolean isAuthor; // 작성자가 본인인지 여부
     private Long writerId; // 작성자 ID
+    @JsonProperty("isFollowing")
     private Boolean isFollowing;
 
     public Boolean getIsAuthor() {
