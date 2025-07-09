@@ -153,7 +153,7 @@ public class AdminService {
 
         // 신고 조회
         Report report = reportRepository.findById(reportId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+                .orElseThrow(() -> new CustomException(ReportErrorCode.REPORT_NOT_FOUND));
 
         // 원글 삭제
         switch (report.getTargetType()) {

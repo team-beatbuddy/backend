@@ -141,7 +141,10 @@ public interface AdminApiDocs {
                                       "message": "해당 계정은 어드민이 아닙니다."
                                     }
                                     """))),
-            @ApiResponse(responseCode = "404", description = "신고가 존재하지 않음")
+            @ApiResponse(responseCode = "404", description = "리소스 없음",
+                    content = @Content(mediaType = "application/json",
+                            examples = {@ExampleObject(value = SwaggerExamples.REPORT_NOT_FOUND),
+                                    @ExampleObject(value = SwaggerExamples.TARGET_NOT_FOUND)}))
     })
     ResponseEntity<ResponseDTO<String>> processReport(@PathVariable Long reportId);
 }

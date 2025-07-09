@@ -7,6 +7,7 @@ public enum ReportErrorCode implements ApiCode {
     // 존재하지 않는 report type
     INVALID_REPORT_TARGET_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 신고 대상 타입입니다."),
     TARGET_NOT_FOUND(HttpStatus.NOT_FOUND, "신고 대상이 존재하지 않습니다."),
+    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "신고가 존재하지 않습니다."),
     ;
 
 
