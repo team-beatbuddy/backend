@@ -57,7 +57,7 @@ public class MagazineService {
     public MagazineDetailDTO addMagazine(Long memberId, MagazineRequestDTO dto, List<MultipartFile> images, MultipartFile thumbnailImage) throws RuntimeException {
         Member member = memberService.validateAndGetMember(memberId);
         // 고정된 매거진이라면 숫자가 있어야 함. 유효성 검사 (또한, 따로 isPinned 된 매거진 중 같은 숫자일 수 없음)
-        validatePinnedMagazine(dto.isPinned(), dto.getOrderInHome());
+        validatePinnedMagazine(dto.isPinned(), dto.getOrderInHome(), null);
 
         // 이미지 20장 넘지 않도록 체크
         if (images != null && images.size() > 20) {
@@ -202,14 +202,14 @@ public class MagazineService {
             // pinned 필드는 수정하지 않음
             if (currentPinned && newOrder != null) {
                 // 기존에 pinned 상태에서 순서만 바꾸려는 경우
-                validatePinnedMagazine(true, newOrder);
+                validatePinnedMagazine(true, newOrder, magazineId);
             }
         } else if (newPinned) {
             // pinned=true로 변경 → 순서 필수
             if (newOrder == null) {
                 throw new CustomException(MagazineErrorCode.INVALID_ORDER_IN_HOME); // 순서 누락
             }
-            validatePinnedMagazine(true, newOrder);
+            validatePinnedMagazine(true, newOrder, magazineId);
         } else {
             // pinned=false로 변경 → 순서 강제 0 처리 (검증 불필요)
             magazine.setOrderInHome(0);
@@ -278,7 +278,7 @@ public class MagazineService {
 
 
     // 홈에 고정되는 매거진의 유효성 검사
-    private void validatePinnedMagazine(boolean isPinned, Integer orderInHome) {
+    private void validatePinnedMagazine(boolean isPinned, Integer orderInHome, Long excludeMagazineId) {
         if (isPinned) {
             // 1. null 또는 1~5 범위 밖이면 에러
             if (orderInHome == null || orderInHome < 1 || orderInHome > 5) {
@@ -286,7 +286,7 @@ public class MagazineService {
             }
 
             // 2. 동일한 orderInHome이 이미 존재하면 에러
-            boolean exists = magazineRepository.existsByIsPinnedTrueAndOrderInHome(orderInHome);
+            boolean exists = magazineRepository.existsByIsPinnedTrueAndOrderInHomeAndIdNot(orderInHome, excludeMagazineId);
             if (exists) {
                 throw new CustomException(MagazineErrorCode.DUPLICATE_ORDER_IN_HOME);
             }
