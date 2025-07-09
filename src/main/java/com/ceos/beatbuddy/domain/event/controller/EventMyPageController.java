@@ -76,12 +76,12 @@ public class EventMyPageController implements EventMyPageApiDocs{
 
         if (result.getEventResponseDTOS().isEmpty()) {
             return ResponseEntity
-                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
+                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getStatus().value())
                     .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
         }
         else {
             return ResponseEntity
-                    .status(SuccessCode.SUCCESS_GET_MY_EVENTS.getHttpStatus().value())
+                    .status(SuccessCode.SUCCESS_GET_MY_EVENTS.getStatus().value())
                     .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_EVENTS, result));
         }
     }
@@ -97,12 +97,12 @@ public class EventMyPageController implements EventMyPageApiDocs{
 
         if (result.getEventResponseDTOS().isEmpty()) {
             return ResponseEntity
-                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
+                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getStatus().value())
                     .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
         }
         else {
             return ResponseEntity
-                    .status(SuccessCode.SUCCESS_GET_MY_EVENTS.getHttpStatus().value())
+                    .status(SuccessCode.SUCCESS_GET_MY_EVENTS.getStatus().value())
                     .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_EVENTS, result));
         }
     }
@@ -119,12 +119,12 @@ public class EventMyPageController implements EventMyPageApiDocs{
 
         if (result.getEventResponseDTOS().isEmpty()) {
             return ResponseEntity
-                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
+                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getStatus().value())
                     .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
         }
         else {
             return ResponseEntity
-                    .status(SuccessCode.SUCCESS_GET_MY_EVENTS.getHttpStatus().value())
+                    .status(SuccessCode.SUCCESS_GET_MY_EVENTS.getStatus().value())
                     .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_EVENTS, result));
         }
     }

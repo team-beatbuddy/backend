@@ -38,7 +38,6 @@ public class EventMyPageService{
         Set<Long> likedEventIds = eventLikeRepository.findLikedEventIdsByMember(member);
 
         List<EventResponseDTO> filtered = myEvents.stream()
-                .filter(e -> e.getStartDate().isAfter(today))
                 .filter(e -> region == null || e.getRegion() == region)
                 .sorted(Comparator.comparing(Event::getStartDate)) // 최신순: 가까운 순
                 .map(event -> EventResponseDTO.toUpcomingListDTO(
@@ -47,19 +46,7 @@ public class EventMyPageService{
                         likedEventIds.contains(event.getId())))
                 .toList();
 
-        int totalSize = filtered.size();
-        List<EventResponseDTO> paged = filtered.stream()
-                .skip((long) (page - 1) * size)
-                .limit(size)
-                .toList();
-
-        return EventListResponseDTO.builder()
-                .sort("latest")
-                .page(page)
-                .size(size)
-                .totalSize(totalSize)
-                .eventResponseDTOS(paged)
-                .build();
+        return buildResponse("latest", page, size, filtered);
     }
 
     // 내가 좋아요 + 참여하는 이벤트 (now)
@@ -72,7 +59,6 @@ public class EventMyPageService{
         Set<Long> likedEventIds = eventLikeRepository.findLikedEventIdsByMember(member);
 
         List<EventResponseDTO> filtered = myEvents.stream()
-                .filter(e -> !e.getStartDate().isAfter(today) && !e.getEndDate().isBefore(today)) // 진행중
                 .filter(e -> region == null || e.getRegion() == region)
                 .sorted(Comparator.comparing(Event::getStartDate).reversed()) // 최근 시작 순
                 .map(event -> EventResponseDTO.toNowListDTO(
@@ -81,19 +67,7 @@ public class EventMyPageService{
                         likedEventIds.contains(event.getId())))
                 .toList();
 
-        int totalSize = filtered.size();
-        List<EventResponseDTO> paged = filtered.stream()
-                .skip((long) (page - 1) * size)
-                .limit(size)
-                .toList();
-
-        return EventListResponseDTO.builder()
-                .sort("latest")
-                .page(page)
-                .size(size)
-                .totalSize(totalSize)
-                .eventResponseDTOS(paged)
-                .build();
+        return buildResponse("latest", page, size, filtered);
     }
 
     // 내가 좋아요 + 참여하는 이벤트 (past)
@@ -106,7 +80,6 @@ public class EventMyPageService{
         Set<Long> likedEventIds = eventLikeRepository.findLikedEventIdsByMember(member);
 
         List<EventResponseDTO> filtered = myEvents.stream()
-                .filter(e -> e.getEndDate().isBefore(today)) // 종료됨
                 .filter(e -> region == null || e.getRegion() == region)
                 .sorted(Comparator.comparing(Event::getEndDate).reversed()) // 최근 종료 순
                 .map(event -> EventResponseDTO.toPastListDTO(
@@ -115,19 +88,7 @@ public class EventMyPageService{
                         likedEventIds.contains(event.getId())))
                 .toList();
 
-        int totalSize = filtered.size();
-        List<EventResponseDTO> paged = filtered.stream()
-                .skip((long) (page - 1) * size)
-                .limit(size)
-                .toList();
-
-        return EventListResponseDTO.builder()
-                .sort("latest")
-                .page(page)
-                .size(size)
-                .totalSize(totalSize)
-                .eventResponseDTOS(paged)
-                .build();
+        return buildResponse("latest", page, size, filtered);
     }
 
     private Set<Event> getMyPageEventList(Member member) {
@@ -164,19 +125,7 @@ public class EventMyPageService{
                         likedEventIds.contains(event.getId())))
                 .toList();
 
-        int totalSize = filtered.size();
-        List<EventResponseDTO> paged = filtered.stream()
-                .skip((long) (page - 1) * size)
-                .limit(size)
-                .toList();
-
-        return EventListResponseDTO.builder()
-                .sort("latest")
-                .page(page)
-                .size(size)
-                .totalSize(totalSize)
-                .eventResponseDTOS(paged)
-                .build();
+        return buildResponse("latest", page, size, filtered);
     }
 
     public EventListResponseDTO getMyNowEvents(Long memberId, String regionStr, int page, int size) {
@@ -195,19 +144,7 @@ public class EventMyPageService{
                         likedEventIds.contains(event.getId())))
                 .toList();
 
-        int totalSize = filtered.size();
-        List<EventResponseDTO> paged = filtered.stream()
-                .skip((long) (page - 1) * size)
-                .limit(size)
-                .toList();
-
-        return EventListResponseDTO.builder()
-                .sort("latest")
-                .page(page)
-                .size(size)
-                .totalSize(totalSize)
-                .eventResponseDTOS(paged)
-                .build();
+        return buildResponse("latest", page, size, filtered);
     }
 
     public EventListResponseDTO getMyPastEvents(Long memberId, String regionStr, int page, int size) {
@@ -226,14 +163,19 @@ public class EventMyPageService{
                         likedEventIds.contains(event.getId())))
                 .toList();
 
-        int totalSize = filtered.size();
-        List<EventResponseDTO> paged = filtered.stream()
+        return buildResponse("latest", page, size, filtered);
+    }
+
+
+    private EventListResponseDTO buildResponse(String sort, int page, int size, List<EventResponseDTO> dtoList) {
+        int totalSize = dtoList.size();
+        List<EventResponseDTO> paged = dtoList.stream()
                 .skip((long) (page - 1) * size)
                 .limit(size)
                 .toList();
 
         return EventListResponseDTO.builder()
-                .sort("latest")
+                .sort(sort)
                 .page(page)
                 .size(size)
                 .totalSize(totalSize)

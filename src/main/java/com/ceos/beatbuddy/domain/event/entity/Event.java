@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.event.entity;
 
+import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
@@ -91,7 +92,7 @@ public class Event extends BaseTimeEntity {
         try {
             return Region.valueOf(value);
         } catch (IllegalArgumentException | NullPointerException e) {
-            throw new CustomException(MemberErrorCode.REGION_NOT_EXIST);
+            throw new CustomException(EventErrorCode.REGION_NOT_EXIST);
         }
     }
 
