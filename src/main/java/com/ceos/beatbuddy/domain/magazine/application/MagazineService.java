@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -250,18 +251,36 @@ public class MagazineService {
         }
 
         // 기존에 있던 이미지(지우려는 이미지 제외) 와, 추가로 넣는 이미지의 개수 검사
-        int existingCount = magazine.getImageUrls().size();
-        int deleteCount = dto.getDeleteImageUrls() != null ? dto.getDeleteImageUrls().size() : 0;
+        List<String> currentImages = magazine.getImageUrls() != null ? magazine.getImageUrls() : new ArrayList<>();
+        List<String> deleteUrls = dto.getDeleteImageUrls() != null ? dto.getDeleteImageUrls() : new ArrayList<>();
+
+        // 유효한 삭제 대상만 필터링
+        List<String> validDeleteUrls = deleteUrls.stream()
+                .filter(currentImages::contains)
+                .collect(Collectors.toList());
+
+        int existingCount = currentImages.size();
+        int deleteCount = validDeleteUrls.size(); // 실제 삭제 가능한 것만 계산
         int newUploadCount = images != null ? (int) images.stream().filter(file -> file != null && !file.isEmpty()).count() : 0;
 
         if (existingCount - deleteCount + newUploadCount > 20) {
             throw new CustomException(ErrorCode.TOO_MANY_IMAGES_20);
         }
 
-        // 이미지 삭제
-        if (dto.getDeleteImageUrls() != null && !dto.getDeleteImageUrls().isEmpty()) {
-            uploadUtil.deleteImages(dto.getDeleteImageUrls(), UploadUtil.BucketType.MEDIA);
-            magazine.getImageUrls().removeAll(dto.getDeleteImageUrls());
+        // 삭제 수행
+        if (!validDeleteUrls.isEmpty()) {
+            uploadUtil.deleteImages(validDeleteUrls, UploadUtil.BucketType.MEDIA);
+            magazine.getImageUrls().removeAll(validDeleteUrls);
+        }
+
+        // 삭제 요청 중 유효하지 않은 항목 로그 (선택)
+        List<String> invalidDeleteUrls = new ArrayList<>(deleteUrls);
+        invalidDeleteUrls.removeAll(validDeleteUrls);
+
+        if (!invalidDeleteUrls.isEmpty()) {
+            log.warn("Invalid delete image URLs for magazine {}: {}", magazine.getId(), invalidDeleteUrls);
+            // 또는 예외 처리도 가능:
+            throw new CustomException(MagazineErrorCode.INVALID_IMAGE_DELETE_REQUEST);
         }
 
 

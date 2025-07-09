@@ -213,6 +213,19 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String INVALID_IMAGE_DELETE_REQUEST = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "INVALID_IMAGE_DELETE_REQUEST",
+          "message": "삭제할 이미지 URL이 잘못되었습니다. 삭제할 이미지가 존재하지 않거나, 이미 삭제된 이미지입니다."
+        }
+        """;
+
+    /**
+     * 404
+     * */
+
     public static final String COUPON_NOT_FOUND = """
         {
           "status": 404,

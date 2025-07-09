@@ -425,7 +425,47 @@ public interface MagazineApiDocs {
                         "isAuthor": true
                       }
                     }
-                                    """)
+                """)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "잘못된 요청 (홈에서의 순서가 잘못되었거나 중복된 경우)",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "홈에서의 순서가 잘못되었습니다.", value = SwaggerExamples.INVALID_ORDER_IN_HOME),
+                            @ExampleObject(name = "홈에서의 순서가 중복되었습니다.", value = SwaggerExamples.DUPLICATE_ORDER_IN_HOME),
+                            @ExampleObject(name = "잘못된 이미지 삭제 요청", value = SwaggerExamples.INVALID_IMAGE_DELETE_REQUEST)
+                    }
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "리소스를 찾을 수 없음",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                            @ExampleObject(name = "존재하지 않는 매거진", value = SwaggerExamples.NOT_FOUND_MAGAZINE)
+                    }
+            )
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "잘못된 요청 (권한이 없는 일반 유저)",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(name = "권한 없는 유저", value = SwaggerExamples.UNAUTHORIZED_MEMBER)
+            )
+    )
+    @ApiResponse(
+            responseCode = "500",
+            description = "서버 오류",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = {@ExampleObject(name = "S3 이미지 업로드 실패", value = SwaggerExamples.IMAGE_UPLOAD_FAILED),
+                            @ExampleObject(name = "S3 이미지 삭제 실패", value = SwaggerExamples.IMAGE_DELETE_FAILED)}
             )
     )
     ResponseEntity<ResponseDTO<MagazineDetailDTO>> updateMagazine(
