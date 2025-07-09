@@ -63,7 +63,10 @@ public class EventCommentService {
                 .build();
 
         EventComment saved = eventCommentRepository.save(comment);
-        return EventCommentResponseDTO.toDTO(saved, true, false); // 내가 작성자이므로
+
+        boolean isStaff = event.getHost().getId().equals(memberId); // 이벤트 호스트는 스태프로 간주
+
+        return EventCommentResponseDTO.toDTO(saved, true, false, isStaff); // 내가 작성자이므로
     }
 
 
@@ -116,12 +119,12 @@ public class EventCommentService {
                             .filter(c -> c.getLevel() > 0)
                             .sorted(Comparator.comparing(EventComment::getCreatedAt))
                             .map((reply -> EventCommentResponseDTO.toDTO(reply, reply.getAuthor().getId().equals(member.getId()),
-                                    followingIds.contains(reply.getAuthor().getId()))))
+                                    followingIds.contains(reply.getAuthor().getId()), reply.getAuthor().equals(event.getHost()))))
                             .toList();
 
                     return EventCommentTreeResponseDTO.toDTO(parent, replies,
                             parent.getAuthor().getId().equals(member.getId()),
-                            followingIds.contains(parent.getAuthor().getId()));
+                            followingIds.contains(parent.getAuthor().getId()), parent.getAuthor().equals(event.getHost()));
                 })
                 .sorted(Comparator.comparing(EventCommentTreeResponseDTO::getCreatedAt).reversed())
                 .toList();
@@ -131,7 +134,7 @@ public class EventCommentService {
     @Transactional
     public EventCommentResponseDTO updateComment(Long eventId, Long commentId, Integer level, Long memberId, EventCommentUpdateDTO dto) {
         Member member = memberService.validateAndGetMember(memberId);
-        eventService.validateAndGet(eventId);
+        Event event = eventService.validateAndGet(eventId);
         EventComment comment = validateAndGetComment(commentId, level);
 
         // 권한이 있는지 확인
@@ -150,7 +153,9 @@ public class EventCommentService {
             comment.updateAnonymous(dto.getAnonymous());
         }
 
-        return EventCommentResponseDTO.toDTO(comment, comment.getAuthor().getId().equals(member.getId()), false); // 내가 작성자니까 나를 팔로우할 수 없음
+        boolean isStaff = comment.getAuthor().equals(event.getHost()); // 이벤트 호스트는 스태프로 간주
+
+        return EventCommentResponseDTO.toDTO(comment, comment.getAuthor().getId().equals(member.getId()), false, isStaff); // 내가 작성자니까 나를 팔로우할 수 없음
     }
 
     private EventComment validateAndGetComment(Long commentId, Integer level) {
