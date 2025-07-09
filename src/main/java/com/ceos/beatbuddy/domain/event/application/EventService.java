@@ -79,7 +79,10 @@ public class EventService {
                 dto.getStartDate(),
                 dto.getEndDate(),
                 eventValidator.isNotBlank(dto.getLocation()) ? dto.getLocation() : null,
-                dto.getIsVisible()
+                dto.getIsVisible(),
+                dto.getTicketCost(),
+                dto.getNotice(),
+                dto.getRegion()
         );
 
         // 2. 참석자 정보 설정

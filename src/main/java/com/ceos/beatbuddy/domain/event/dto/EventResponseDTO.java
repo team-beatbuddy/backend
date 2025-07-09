@@ -44,6 +44,11 @@ public class EventResponseDTO {
 
     private String depositAccount;
     private Integer depositAmount;
+    
+    private String ticketCost;
+    private String notice;
+
+    private String region;
 
 
     @JsonProperty("isAuthor")
@@ -63,6 +68,7 @@ public class EventResponseDTO {
                 .views(event.getViews())
                 .likes(event.getLikes())
                 .liked(liked)
+                .location(event.getLocation())
                 .startDate(event.getStartDate())
                 .endDate(event.getEndDate())
                 .receiveInfo(event.isReceiveInfo())
@@ -74,6 +80,9 @@ public class EventResponseDTO {
                 .depositAccount(Optional.ofNullable(event.getDepositAccount()).orElse(""))
                 .depositAmount(Optional.ofNullable(event.getDepositAmount()).orElse(0))
                 .isAuthor(isAuthor)
+                .ticketCost(Optional.ofNullable(event.getTicketCost()).orElse(""))
+                .notice(Optional.ofNullable(event.getNotice()).orElse(""))
+                .region(Optional.of(event.getRegion().name()).orElse(""))
                 .build();
     }
 
@@ -90,6 +99,7 @@ public class EventResponseDTO {
                 .views(event.getViews())
                 .location(event.getLocation())
                 .isAuthor(isAuthor)
+                .region(Optional.of(event.getRegion().name()).orElse(""))
                 .build();
     }
 
@@ -105,6 +115,7 @@ public class EventResponseDTO {
                 .views(event.getViews())
                 .location(event.getLocation())
                 .isAuthor(isAuthor)
+                .region(Optional.of(event.getRegion().name()).orElse(""))
                 .build();
     }
 
@@ -120,6 +131,7 @@ public class EventResponseDTO {
                 .views(event.getViews())
                 .location(event.getLocation())
                 .isAuthor(isAuthor)
+                .region(Optional.of(event.getRegion().name()).orElse(""))
                 .build();
     }
 }
