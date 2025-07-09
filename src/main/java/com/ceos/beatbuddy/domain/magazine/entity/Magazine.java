@@ -68,11 +68,6 @@ public class Magazine extends BaseTimeEntity {
         this.imageUrls = imageUrls;
     }
 
-
-    public void increaseView() {
-        views++;
-    }
-
     public void setEvent(Event event) {this.event = event;
     }
     public void setTitle(String title) { this.title = title; }
