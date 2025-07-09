@@ -48,10 +48,7 @@ public class PiecePostHandler implements PostTypeHandler {
 
     @Override
     public Post readPost(Long postId) {
-        Post post = validateAndGetPost(postId);
-
-        post.increaseView();
-        return post;
+        throw new UnsupportedOperationException("PiecePost 기능이 아직 구현되지 않았습니다.");
     }
 
     @Override
