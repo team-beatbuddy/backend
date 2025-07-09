@@ -133,14 +133,20 @@ public class CouponService {
                     throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED_TODAY);
                 }
             }
-             case ONCE -> {
-                 if (memberCouponRepository.existsByMemberAndCoupon(member, coupon)) {
-                     throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED);
-                 }
-             }
+            case ONCE -> {
+                if (memberCouponRepository.existsByMemberAndCoupon(member, coupon)) {
+                    throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED);
+                }
+            }
             case WEEKLY -> {
                 if (coupon.getMaxReceiveCountPerUser() != null) {
-                    int countThisWeek = memberCouponRepository.countByMemberAndCouponAndWeek(member, coupon, today);
+                    // 주 시작(월요일)과 종료(일요일) 계산
+                    LocalDate startOfWeek = today.with(java.time.DayOfWeek.MONDAY);
+                    LocalDate endOfWeek = today.with(java.time.DayOfWeek.SUNDAY);
+
+                    int countThisWeek = memberCouponRepository.countByMemberAndCouponAndReceivedDateBetween(
+                            member, coupon, startOfWeek, endOfWeek);
+
                     if (countThisWeek >= coupon.getMaxReceiveCountPerUser()) {
                         throw new CustomException(CouponErrorCode.COUPON_RECEIVE_LIMIT_EXCEEDED);
                     }
