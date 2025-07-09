@@ -15,6 +15,12 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(
+        name = "MemberCoupon",
+        indexes = {
+                @Index(name = "idx_member_coupon_date", columnList = "memberId, couponId, receivedDate")
+        }
+)
 public class MemberCoupon {
 
     @Id
@@ -44,6 +50,10 @@ public class MemberCoupon {
 
     public enum CouponStatus {
         RECEIVED, USED
+    }
+
+    public void setReceivedDate(LocalDate receivedDate) {
+        this.receivedDate = receivedDate;
     }
 
     // 쿠폰 사용 처리
