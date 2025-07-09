@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.report.controller;
 
 import com.ceos.beatbuddy.domain.report.dto.ReportRequestDTO;
+import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -36,6 +37,16 @@ public interface ReportApiDocs {
                                     }
                                     """
                     )
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "신고 대상이 존재하지 않습니다.",
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(
+                            name = "신고 대상 미존재 예시",
+                            value = SwaggerExamples.TARGET_NOT_FOUND)
             )
     )
     ResponseEntity<ResponseDTO<String>> submitReport(

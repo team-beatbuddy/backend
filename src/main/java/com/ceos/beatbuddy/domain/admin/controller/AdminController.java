@@ -91,5 +91,28 @@ public class AdminController implements AdminApiDocs {
                 .status(SuccessCode.SUCCESS_GET_REPORT_LIST.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_REPORT_LIST, reports));
     }
+    @Override
+    @DeleteMapping("/report/{reportId}")
+    public ResponseEntity<ResponseDTO<String>> deleteReport(
+            @PathVariable Long reportId
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        adminService.deleteReport(reportId, memberId);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_DELETE_REPORT.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_REPORT, "신고가 삭제되었습니다."));
+    }
 
+    // 신고 처리 후 삭제
+    @Override
+    @DeleteMapping("/report/{reportId}/process")
+    public ResponseEntity<ResponseDTO<String>> processReport(
+            @PathVariable Long reportId
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        adminService.processReport(reportId, memberId);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_DELETE_REPORT.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_REPORT, "신고가 처리되었습니다."));
+    }
 }
