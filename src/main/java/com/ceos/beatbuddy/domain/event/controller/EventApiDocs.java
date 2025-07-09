@@ -35,6 +35,9 @@ public interface EventApiDocs {
                     - receiveTotalCount: 참석자 본인 포함 동행인원 수집 여부\n
                     - receiveSNSId: 참석자 SNS ID 수집 여부\n
                     - receiveMoney: 예약금 설정 여부
+                    - region: 홍대, 강남_신사, 압구정_로데오, 이태원, 기타
+                    - ticketCost: 티켓 비용
+                    - notice: 주의사항
                     """
                 )
 
@@ -67,7 +70,10 @@ public interface EventApiDocs {
                                     "receiveMoney": false,
                                     "depositAccount": "",
                                     "depositAmount": 0,
-                                    "isAuthor": true
+                                    "isAuthor": true,
+                                    "ticketCost": "20000원",
+                                    "notice": "공지사항입니다.",
+                                    "region": "홍대"
                                   }
                                 }
                                     """)
@@ -150,7 +156,9 @@ public interface EventApiDocs {
                     - receiveTotalCount: 참석자 본인 포함 동행인원 수집 여부
                     - receiveSNSId: 참석자 SNS ID 수집 여부
                     - receiveMoney: 예약금 설정 여부
-                    
+                    - region: 홍대, 강남_신사, 압구정_로데오, 이태원, 기타
+                    - ticketCost: 티켓 비용
+                    - notice: 주의사항
                     예시)
                     ``` json
                     {
@@ -197,7 +205,10 @@ public interface EventApiDocs {
                                 "receiveMoney": false,
                                 "depositAccount": "",
                                 "depositAmount": 0,
-                                "isAuthor": true
+                                "isAuthor": true,
+                                "ticketCost": "20000원",
+                                "notice": "공지사항입니다.",
+                                "region": "홍대"
                               }
                             }
                                     """)
@@ -350,7 +361,8 @@ public interface EventApiDocs {
                             "endDate": "2025-06-17",
                             "dday": "D-0",
                             "location": "경기도 파주",
-                            "isAuthor": false
+                            "isAuthor": false,
+                            "region": "홍대"
                           },
                           {
                             "eventId": 2,
@@ -363,7 +375,8 @@ public interface EventApiDocs {
                             "endDate": "2025-06-23",
                             "dday": "D-1",
                             "location": "서울시",
-                            "isAuthor": false
+                            "isAuthor": false,
+                            "region": "홍대"
                           }
                         ]
                       }
@@ -414,7 +427,8 @@ public interface EventApiDocs {
                             "views": 0,
                             "startDate": "2025-06-17",
                             "endDate": "2025-06-17",
-                            "isAuthor": false
+                            "isAuthor": false,
+                            "region": "홍대"
                           },
                           { ... }
                         ]
@@ -490,7 +504,8 @@ public interface EventApiDocs {
                             "receiveTotalCount": false,
                             "receiveSNSId": false,
                             "receiveMoney": false,
-                            "isAuthor": false
+                            "isAuthor": false,
+                            "region": "홍대"
                           },
                           {
                             "eventId": 1,
@@ -510,7 +525,8 @@ public interface EventApiDocs {
                             "receiveTotalCount": false,
                             "receiveSNSId": false,
                             "receiveMoney": false,
-                            "isAuthor": false
+                            "isAuthor": false,
+                            "region": "홍대"
                           }
                         ]
                       }
@@ -548,7 +564,8 @@ public interface EventApiDocs {
                                         "receiveTotalCount": false,
                                         "receiveSNSId": false,
                                         "receiveMoney": false,
-                                        "isAuthor": false
+                                        "isAuthor": false,
+                                        "region": "홍대"
                                       },
                                       {
                                         "eventId": 7,
@@ -568,7 +585,8 @@ public interface EventApiDocs {
                                         "receiveTotalCount": false,
                                         "receiveSNSId": false,
                                         "receiveMoney": false,
-                                        "isAuthor": false
+                                        "isAuthor": false,
+                                        "region": "홍대"
                                       }
                                     ]
                                   },
@@ -593,7 +611,8 @@ public interface EventApiDocs {
                                         "receiveTotalCount": false,
                                         "receiveSNSId": false,
                                         "receiveMoney": false,
-                                        "isAuthor": false
+                                        "isAuthor": false,
+                                        "region": "홍대"
                                       }
                                     ]
                                   }
@@ -1020,7 +1039,10 @@ public interface EventApiDocs {
                                 "receiveMoney": true,
                                 "depositAccount": "국민 XXXXXXXX",
                                 "depositAmount": 10000,
-                                "isAuthor": false
+                                "isAuthor": false,
+                                "region": "홍대",
+                                "ticketCost": "20000원입니다",
+                                "notice": "주의사항"
                               }
                             }
                                         """)
@@ -1192,7 +1214,8 @@ public interface EventApiDocs {
                                                       "receiveSNSId": false,
                                                       "receiveMoney": false,
                                                       "dday": "D-1",
-                                                      "isAuthor": true
+                                                      "isAuthor": true,
+                                                      "region": "홍대"
                                                     },
                                                     {
                                                       "eventId": 12,
@@ -1213,7 +1236,8 @@ public interface EventApiDocs {
                                                       "receiveSNSId": false,
                                                       "receiveMoney": false,
                                                       "dday": "D-60",
-                                                      "isAuthor": false
+                                                      "isAuthor": false,
+                                                      "region": "홍대"
                                                     }
                                                   ]
                                                 }
@@ -1289,7 +1313,8 @@ public interface EventApiDocs {
                                                       "receiveTotalCount": false,
                                                       "receiveSNSId": false,
                                                       "receiveMoney": false,
-                                                      "isAuthor": false
+                                                      "isAuthor": false,
+                                                      "region": "홍대"
                                                     }
                                                   ]
                                                 }
@@ -1368,7 +1393,8 @@ public interface EventApiDocs {
                                                       "receiveTotalCount": false,
                                                       "receiveSNSId": false,
                                                       "receiveMoney": false,
-                                                      "isAuthor": false
+                                                      "isAuthor": false,
+                                                      "region": "홍대"
                                                     },
                                                     {
                                                       "eventId": 5,
@@ -1388,7 +1414,8 @@ public interface EventApiDocs {
                                                       "receiveTotalCount": false,
                                                       "receiveSNSId": false,
                                                       "receiveMoney": false,
-                                                      "isAuthor": false
+                                                      "isAuthor": false,
+                                                      "region": "홍대"
                                                     }
                                                   ]
                                                 }
