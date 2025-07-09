@@ -28,12 +28,14 @@ public class VenueReviewResponseDTO {
     @JsonProperty("isAuthor")
     private Boolean isAuthor; // 작성자가 본인인지 여부
     private Long writerId; // 작성자 ID
+    private Boolean isFollowing;
 
     public Boolean getIsAuthor() {
         return isAuthor;
     }
+    public Boolean getIsFollowing() {return isFollowing;}
 
-    public static VenueReviewResponseDTO toDTO(VenueReview entity, boolean liked, boolean isAuthor) {
+    public static VenueReviewResponseDTO toDTO(VenueReview entity, boolean liked, boolean isAuthor, boolean isFollowing) {
         return VenueReviewResponseDTO.builder()
                 .venueReviewId(entity.getId())
                 .content(entity.getContent())
@@ -46,6 +48,7 @@ public class VenueReviewResponseDTO {
                 .imageUrls(entity.getImageUrls() != null ? entity.getImageUrls() : List.of())
                 .isAuthor(isAuthor) // 작성자가 본인인지 여부
                 .writerId(entity.getMember().getId())
+                .isFollowing(isFollowing) // 팔로우 여부
                 .build();
     }
 }

@@ -120,7 +120,8 @@ public class EventCommentService {
                             .toList();
 
                     return EventCommentTreeResponseDTO.toDTO(parent, replies,
-                            parent.getAuthor().getId().equals(member.getId()));
+                            parent.getAuthor().getId().equals(member.getId()),
+                            followingIds.contains(parent.getAuthor().getId()));
                 })
                 .sorted(Comparator.comparing(EventCommentTreeResponseDTO::getCreatedAt).reversed())
                 .toList();
