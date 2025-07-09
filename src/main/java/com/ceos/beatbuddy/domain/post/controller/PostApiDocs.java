@@ -1005,4 +1005,47 @@ public interface PostApiDocs {
             @RequestParam(defaultValue = "10") int size);
 
 
+    @Operation(summary = "게시글 삭제 API", description = """
+    게시글을 삭제합니다. 작성자만 삭제할 수 있습니다.
+    - type(free/piece) 에 따라 삭제할 수 있는 게시글이 다릅니다.
+    - 현재는 free 만 삭제할 수 있습니다.
+    """)
+    @ApiResponse(
+            responseCode = "200",
+            description = "게시글 삭제 성공",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ResponseDTO.class),
+                    examples = @ExampleObject(value = """
+                            {
+                              "status": 200,
+                              "code": "SUCCESS_DELETE_POST",
+                              "message": "포스트를 삭제했습니다.",
+                              "data": "게시글이 삭제되었습니다."
+                            }
+                    """))
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "권한 없음",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(name = "UnauthorizedMember", value = SwaggerExamples.UNAUTHORIZED_MEMBER)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "존재하지 않는 유저 또는 게시글",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                            @ExampleObject(name = "존재하지 않는 게시글", value = SwaggerExamples.POST_NOT_EXIST)
+                    }
+            )
+    )
+    ResponseEntity<ResponseDTO<String>> newDeletePost(@PathVariable String type,
+                                                      @PathVariable Long postId);
+
+
 }
