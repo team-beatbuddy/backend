@@ -25,11 +25,19 @@ public class EventCommentResponseDTO {
     @JsonProperty("isAuthor")
     private Boolean isAuthor;
 
+    @JsonProperty("isFollowing")
+    private Boolean isFollowing;
+    private Long writerId;
+
+    public Boolean getIsFollowing() {
+        return isFollowing;
+    }
+
     public Boolean getIsAuthor() {
         return isAuthor;
     }
 
-    public static EventCommentResponseDTO toDTO(EventComment eventComment, boolean isAuthor) {
+    public static EventCommentResponseDTO toDTO(EventComment eventComment, boolean isAuthor, boolean isFollowing) {
         return EventCommentResponseDTO.builder()
                 .commentId(eventComment.getId())
                 .commentLevel(eventComment.getLevel())
@@ -38,6 +46,8 @@ public class EventCommentResponseDTO {
                 .anonymous(eventComment.isAnonymous())
                 .createdAt(eventComment.getCreatedAt())
                 .isAuthor(isAuthor)
+                .isFollowing(isFollowing)
+                .writerId(eventComment.getAuthor().getId())
                 .build();
     }
 }

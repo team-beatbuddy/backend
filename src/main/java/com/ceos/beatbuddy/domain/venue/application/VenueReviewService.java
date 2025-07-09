@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.venue.application;
 
+import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.VenueReviewLike;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +34,7 @@ public class VenueReviewService {
     private final UploadUtil uploadUtil;
     private final VenueReviewQueryRepository venueReviewQueryRepository;
     private final VenueReviewLikeRepository venueReviewLikeRepository;
+    private final FollowRepository followRepository;
 
 
     private static final String REVIEW_FOLDER = "review";
@@ -62,7 +65,8 @@ public class VenueReviewService {
 
         // 리뷰 저장
         venueReview = venueReviewRepository.save(venueReview);
-        return VenueReviewResponseDTO.toDTO(venueReview, false, true); // false는 해당 댓글에 대한 좋아요 여부를 나타냄, 새로 생성된 리뷰의 초기 좋아요 상태 (false)
+        return VenueReviewResponseDTO.toDTO(venueReview, false, true, false); // false는 해당 댓글에 대한 좋아요 여부를 나타냄, 새로 생성된 리뷰의 초기 좋아요 상태 (false)
+        // 본인이므로 본인을 팔로우하지 않음
     }
 
     @Transactional(readOnly = true)
@@ -82,13 +86,15 @@ public class VenueReviewService {
             reviews = venueReviewQueryRepository.findAllReviewsSorted(venueId, sortBy);
         }
 
+        Set<Long> followingMemberIds = followRepository.findFollowingMemberIds(memberId);
+
         // 리뷰에 대한 좋아요 여부 설정
         return reviews.stream()
                 .map(review -> {
                     boolean isLiked = venueReviewLikeRepository.existsByVenueReview_IdAndMember_Id(review.getId(), memberId);
                     // 리뷰 작성자가 본인인지 여부
                     boolean isAuthor = review.getMember().getId().equals(memberId);
-                    return VenueReviewResponseDTO.toDTO(review, isLiked, isAuthor);
+                    return VenueReviewResponseDTO.toDTO(review, isLiked, isAuthor, followingMemberIds.contains(review.getMember().getId()));
                 })
                 .toList();
     }
@@ -206,7 +212,7 @@ public class VenueReviewService {
         // 좋아요 여부 체크
         boolean isLiked = venueReviewLikeRepository.existsByVenueReview_IdAndMember_Id(venueReviewId, memberId);
 
-        return VenueReviewResponseDTO.toDTO(venueReview, isLiked, true); // true는 작성자가 본인임을 나타냄
-
+        return VenueReviewResponseDTO.toDTO(venueReview, isLiked, true, false); // true는 작성자가 본인임을 나타냄
+        // 본인은 본인을 팔로우 하지 않기 때문
     }
 }
