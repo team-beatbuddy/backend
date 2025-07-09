@@ -826,7 +826,9 @@ public interface EventApiDocs {
                                 "authorNickname": "익명",
                                 "anonymous": true,
                                 "createdAt": "2025-06-18T02:08:31.4185432",
-                                "isAuthor": true
+                                "isAuthor": true,
+                                "isFollowing": false,
+                                "writerId": 156
                               }
                             }
                                         """)
@@ -894,7 +896,9 @@ public interface EventApiDocs {
                                 "authorNickname": "익명",
                                 "anonymous": true,
                                 "createdAt": "2025-06-18T02:56:10.818788",
-                                "isAuthor": true
+                                "isAuthor": true,
+                                "isFollowing": false,
+                                "writerId": 156
                               }
                             }
                                         """)
@@ -1014,7 +1018,9 @@ public interface EventApiDocs {
                                 "receiveMoney": true,
                                 "depositAccount": "국민 XXXXXXXX",
                                 "depositAmount": 10000,
-                                "isAuthor": false
+                                "isAuthor": false,
+                                "isFollowing": false,
+                                "writerId": 156
                               }
                             }
                                         """)
@@ -1063,6 +1069,8 @@ public interface EventApiDocs {
                                           "anonymous": false,
                                           "createdAt": "2025-06-18T02:28:19.423835",
                                           "isAuthor": true,
+                                          "isFollowing": false,
+                                          "writerId": 156,
                                           "replies": []
                                         },
                                         {
@@ -1073,6 +1081,8 @@ public interface EventApiDocs {
                                           "anonymous": true,
                                           "createdAt": "2025-06-18T02:08:31.418543",
                                           "isAuthor": false,
+                                          "isFollowing": false,
+                                          "writerId": 156,
                                           "replies": [
                                             {
                                               "commentId": 1,
@@ -1081,6 +1091,8 @@ public interface EventApiDocs {
                                               "authorNickname": "익명",
                                               "anonymous": true,
                                               "isAuthor": false,
+                                              "isFollowing": false,
+                                              "writerId": 156,
                                               "createdAt": "2025-06-18T02:56:10.818788"
                                             },
                                             {
@@ -1090,6 +1102,8 @@ public interface EventApiDocs {
                                               "authorNickname": "익명",
                                               "anonymous": true,
                                               "isAuthor": false,
+                                              "isFollowing": false,
+                                              "writerId": 156,
                                               "createdAt": "2025-06-18T03:03:16.206686"
                                             }
                                           ]

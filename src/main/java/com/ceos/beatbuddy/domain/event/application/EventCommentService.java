@@ -8,6 +8,7 @@ import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventComment;
 import com.ceos.beatbuddy.domain.event.entity.EventCommentId;
 import com.ceos.beatbuddy.domain.event.repository.EventCommentRepository;
+import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.global.CustomException;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +31,7 @@ public class EventCommentService {
     private final EventService eventService;
     private final EventCommentRepository eventCommentRepository;
     private final EventValidator eventValidator;
+    private final FollowRepository followRepository;
 
     @Transactional
     public EventCommentResponseDTO createComment(Long eventId, Long memberId, EventCommentCreateRequestDTO dto, Long parentCommentId) {
@@ -60,7 +63,7 @@ public class EventCommentService {
                 .build();
 
         EventComment saved = eventCommentRepository.save(comment);
-        return EventCommentResponseDTO.toDTO(saved, true); // 내가 작성자이므로
+        return EventCommentResponseDTO.toDTO(saved, true, false); // 내가 작성자이므로
     }
 
 
@@ -99,6 +102,8 @@ public class EventCommentService {
         Map<Long, List<EventComment>> grouped = all.stream()
                 .collect(Collectors.groupingBy(EventComment::getId));
 
+        Set<Long> followingIds = followRepository.findFollowingMemberIds(memberId);
+
         // level == 0만 추출해서 최신순 정렬, 나머지는 오래된 순으로 정렬
         return grouped.values().stream()
                 .map(list -> {
@@ -110,7 +115,8 @@ public class EventCommentService {
                     List<EventCommentResponseDTO> replies = list.stream()
                             .filter(c -> c.getLevel() > 0)
                             .sorted(Comparator.comparing(EventComment::getCreatedAt))
-                            .map((reply -> EventCommentResponseDTO.toDTO(reply, reply.getAuthor().getId().equals(member.getId()))))
+                            .map((reply -> EventCommentResponseDTO.toDTO(reply, reply.getAuthor().getId().equals(member.getId()),
+                                    followingIds.contains(reply.getAuthor().getId()))))
                             .toList();
 
                     return EventCommentTreeResponseDTO.toDTO(parent, replies,
@@ -143,7 +149,7 @@ public class EventCommentService {
             comment.updateAnonymous(dto.getAnonymous());
         }
 
-        return EventCommentResponseDTO.toDTO(comment, comment.getAuthor().getId().equals(member.getId()));
+        return EventCommentResponseDTO.toDTO(comment, comment.getAuthor().getId().equals(member.getId()), false); // 내가 작성자니까 나를 팔로우할 수 없음
     }
 
     private EventComment validateAndGetComment(Long commentId, Integer level) {
