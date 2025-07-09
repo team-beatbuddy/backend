@@ -13,9 +13,7 @@ import java.util.Optional;
 @Repository
 public interface MagazineRepository extends JpaRepository<Magazine, Long> {
     List<Magazine> findMagazinesByIsVisibleTrue();
-
     Optional<Magazine> findByIdAndIsVisibleTrue(Long id);
-
     @Modifying
     @Query("UPDATE Magazine m SET m.likes = m.likes + 1 WHERE m.id = :magazineId")
     void increaseLike(@Param("magazineId") Long magazineId);
@@ -26,4 +24,6 @@ public interface MagazineRepository extends JpaRepository<Magazine, Long> {
     void decreaseLike(@Param("magazineId") Long magazineId);
 
     boolean existsByIsPinnedTrueAndOrderInHome(int orderInHome);
+    boolean existsByIsPinnedTrueAndOrderInHomeAndIdNot(int orderInHome, Long excludingId);
+
 }
