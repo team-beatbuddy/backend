@@ -479,6 +479,14 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String REPORT_NOT_FOUND = """
+        {
+          "status": 404,
+          "error": "NOT_FOUND",
+          "code": "REPORT_NOT_FOUND",
+          "message": "신고가 존재하지 않습니다."
+        }
+        """;
 
     /**
      * 409 already do something
