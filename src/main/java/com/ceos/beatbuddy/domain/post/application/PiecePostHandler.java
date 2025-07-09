@@ -83,4 +83,9 @@ public class PiecePostHandler implements PostTypeHandler {
     public Page<? extends Post> readAllPostsByUserExcludingAnonymous(Long userId, Pageable pageable) {
         throw new UnsupportedOperationException("PiecePost 생성 기능이 아직 구현되지 않았습니다.");
     }
+
+    @Override
+    public Page<? extends Post> readAllPostsByMember(Long memberId, Pageable pageable) {
+        throw new UnsupportedOperationException("PiecePost 기능이 아직 구현되지 않았습니다.");
+    }
 }
