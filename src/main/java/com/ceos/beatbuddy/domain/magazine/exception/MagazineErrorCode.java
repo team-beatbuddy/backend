@@ -10,7 +10,7 @@ public enum MagazineErrorCode implements ApiCode {
     MAGAZINE_NOT_EXIST(HttpStatus.NOT_FOUND, "해당 매거진을 찾을 수 없습니다."),
     INVALID_ORDER_IN_HOME(HttpStatus.BAD_REQUEST, "홈에서의 순서가 잘못되었습니다. 고정된 매거진은 1 이상의 순서를 가져야 합니다."),
     DUPLICATE_ORDER_IN_HOME(HttpStatus.BAD_REQUEST, "홈에서의 순서가 중복되었습니다. 이미 존재하는 순서를 사용하고 있습니다."),
-
+    INVALID_IMAGE_DELETE_REQUEST(HttpStatus.BAD_REQUEST, "삭제할 이미지 URL이 잘못되었습니다. 삭제할 이미지가 존재하지 않거나, 이미 삭제된 이미지입니다."),
 
     ;
 //    POST_NOT_EXIST(HttpStatus.NOT_FOUND, "존재하지 않는 포스트입니다."),
