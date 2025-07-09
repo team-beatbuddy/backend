@@ -3,6 +3,9 @@ package com.ceos.beatbuddy.domain.post.application;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
+import com.ceos.beatbuddy.domain.member.application.MemberService;
+import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.post.dto.PostInteractionStatus;
 import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
 import com.ceos.beatbuddy.domain.post.dto.PostPageResponseDTO;
@@ -19,6 +22,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -30,6 +34,8 @@ public class FreePostSearchService {
     private final ElasticsearchClient elasticsearchClient;
     private final FreePostRepository freePostRepository;
     private final PostInteractionService postInteractionService;
+    private final FollowRepository followRepository;
+    private final MemberService memberService;
 
     public void save(FreePost post) {
         try {
@@ -58,6 +64,8 @@ public class FreePostSearchService {
     }
 
     public PostListResponseDTO searchPosts(String keyword, int page, int size, Long memberId) {
+        Member member = memberService.validateAndGetMember(memberId);
+
         int adjustedPage = Math.max(0, page - 1);
 
         try {
@@ -105,6 +113,10 @@ public class FreePostSearchService {
             // 4. 좋아요/스크랩/댓글 여부 IN 쿼리
             PostInteractionStatus status = postInteractionService.getAllPostInteractions(memberId, postIds);
 
+            // 팔로잉 중인 대상 ID 목록 가져오기
+            Set<Long> followingIds = followRepository.findFollowingMemberIds(member.getId());
+
+
             // 5. DTO로 변환
             List<PostPageResponseDTO> dtoList = orderedPosts.stream()
                     .map(post -> PostPageResponseDTO.toDTO(
@@ -113,7 +125,8 @@ public class FreePostSearchService {
                             status.scrappedPostIds().contains(post.getId()),
                             status.commentedPostIds().contains(post.getId()),
                             post.getHashtag() != null ? post.getHashtag() : Collections.emptyList(),
-                            post.getMember().getId().equals(memberId)
+                            post.getMember().getId().equals(memberId),
+                            followingIds.contains(post.getMember().getId())
                     ))
                     .toList();
 
