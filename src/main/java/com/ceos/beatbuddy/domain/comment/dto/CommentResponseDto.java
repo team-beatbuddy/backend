@@ -11,10 +11,12 @@ public record CommentResponseDto(
         String memberName,
         Integer likes,
         LocalDateTime createdAt,
-        Boolean isAuthor
+        Boolean isAuthor,
+        Long writerId,
+        Boolean isFollowing
 
         ) {
-    public static CommentResponseDto from(Comment comment, Boolean isAuthor) {
+    public static CommentResponseDto from(Comment comment, Boolean isAuthor, Boolean isFollowing) {
         return new CommentResponseDto(
                 comment.getId(),
                 comment.getContent(),
@@ -23,7 +25,9 @@ public record CommentResponseDto(
                 comment.isAnonymous() ? "익명" : comment.getMember().getRealName(),
                 comment.getLikes(),
                 comment.getCreatedAt(),
-                isAuthor
+                isAuthor,
+                comment.getMember().getId(),
+                isFollowing
         );
     }
 }
