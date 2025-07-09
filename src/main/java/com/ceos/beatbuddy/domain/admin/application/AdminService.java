@@ -159,37 +159,37 @@ public class AdminService {
         switch (report.getTargetType()) {
             case FREE_POST -> {
                 FreePost post = freePostRepository.findById(report.getTargetId())
-                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
+                        .orElseThrow(() -> new CustomException(ReportErrorCode.TARGET_NOT_FOUND));
                 freePostRepository.delete(post);
             }
             case PIECE_POST -> {
                 PiecePost post = piecePostRepository.findById(report.getTargetId())
-                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
+                        .orElseThrow(() -> new CustomException(ReportErrorCode.TARGET_NOT_FOUND));
                 piecePostRepository.delete(post);
             }
             case EVENT -> {
                 Event event = eventRepository.findById(report.getTargetId())
-                        .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+                        .orElseThrow(() -> new CustomException(ReportErrorCode.TARGET_NOT_FOUND));
                 eventRepository.delete(event);
             }
             case VENUE -> {
                 Venue venue = venueRepository.findById(report.getTargetId())
-                        .orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
+                        .orElseThrow(() -> new CustomException(ReportErrorCode.TARGET_NOT_FOUND));
                 venueRepository.delete(venue);
             }
             case FREE_POST_COMMENT -> {
                 Comment comment = freePostCommentRepository.findById(report.getTargetId())
-                        .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
+                        .orElseThrow(() -> new CustomException(ReportErrorCode.TARGET_NOT_FOUND));
                 freePostCommentRepository.delete(comment);
             }
             case EVENT_COMMENT -> {
                 EventComment comment = eventCommentRepository.findById(report.getTargetId())
-                        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMENT));
+                        .orElseThrow(() -> new CustomException(ReportErrorCode.TARGET_NOT_FOUND));
                 eventCommentRepository.delete(comment);
             }
             case VENUE_COMMENT -> {
                 VenueReview comment = venueReviewRepository.findById(report.getTargetId())
-                        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMENT));
+                        .orElseThrow(() -> new CustomException(ReportErrorCode.TARGET_NOT_FOUND));
                 venueReviewRepository.delete(comment);
             }
             default -> throw new CustomException(ReportErrorCode.INVALID_REPORT_TARGET_TYPE);
