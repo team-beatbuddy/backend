@@ -24,14 +24,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("UPDATE Event e SET e.likes = e.likes -1 WHERE e.id = :eventId")
     void decreaseLike(@Param("eventId") Long eventId);
 
-    @Query("SELECT FUNCTION('DATE_FORMAT', e.endDate, '%Y-%m'), e " +
-            "FROM Event e " +
-            "WHERE e.endDate BETWEEN :from AND :to " +
-            "ORDER BY FUNCTION('DATE_FORMAT', e.endDate, '%Y-%m') DESC, e.likes DESC")
-    List<Object[]> findPastEventsGroupedByMonthOptimized(@Param("from") LocalDate from,
-                                                         @Param("to") LocalDate to);
-
-
     @Modifying
     @Query("UPDATE Event e SET e.views = e.views + 1 WHERE e.id = :eventId")
     void increaseViews(@Param("eventId") Long eventId);

@@ -100,7 +100,7 @@ public class EventResponseDTO {
                 .location(event.getLocation())
                 .isAuthor(isAuthor)
                 .liked(liked)
-                .region(Optional.of(event.getRegion().name()).orElse(""))
+                .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
                 .build();
     }
 
@@ -117,7 +117,7 @@ public class EventResponseDTO {
                 .location(event.getLocation())
                 .isAuthor(isAuthor)
                 .liked(liked)
-                .region(Optional.of(event.getRegion().name()).orElse(""))
+                .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
                 .build();
     }
 
@@ -134,7 +134,7 @@ public class EventResponseDTO {
                 .location(event.getLocation())
                 .isAuthor(isAuthor)
                 .liked(liked)
-                .region(Optional.of(event.getRegion().name()).orElse(""))
+                .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
                 .build();
     }
 }
