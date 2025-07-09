@@ -74,16 +74,7 @@ public class EventMyPageController implements EventMyPageApiDocs{
         Long memberId = SecurityUtils.getCurrentMemberId();
         EventListResponseDTO result = eventMyPageService.getMyUpcomingEvents(memberId, region, page, size);
 
-        if (result.getEventResponseDTOS().isEmpty()) {
-            return ResponseEntity
-                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
-        }
-        else {
-            return ResponseEntity
-                    .status(SuccessCode.SUCCESS_GET_MY_EVENTS.getStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_EVENTS, result));
-        }
+        return buildEventResponse(result);
     }
     @Override
     @GetMapping("/my-event/now")
@@ -95,16 +86,8 @@ public class EventMyPageController implements EventMyPageApiDocs{
         Long memberId = SecurityUtils.getCurrentMemberId();
         EventListResponseDTO result = eventMyPageService.getMyNowEvents(memberId, region, page, size);
 
-        if (result.getEventResponseDTOS().isEmpty()) {
-            return ResponseEntity
-                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
-        }
-        else {
-            return ResponseEntity
-                    .status(SuccessCode.SUCCESS_GET_MY_EVENTS.getStatus().value())
-                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_EVENTS, result));
-        }
+        return buildEventResponse(result);
+
     }
 
     @Override
@@ -117,16 +100,20 @@ public class EventMyPageController implements EventMyPageApiDocs{
         Long memberId = SecurityUtils.getCurrentMemberId();
         EventListResponseDTO result = eventMyPageService.getMyPastEvents(memberId, region, page, size);
 
+        return buildEventResponse(result);
+    }
+
+
+    private ResponseEntity<ResponseDTO<EventListResponseDTO>> buildEventResponse(
+            EventListResponseDTO result) {
         if (result.getEventResponseDTOS().isEmpty()) {
             return ResponseEntity
-                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getStatus().value())
+                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
                     .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
-        }
-        else {
+        } else {
             return ResponseEntity
-                    .status(SuccessCode.SUCCESS_GET_MY_EVENTS.getStatus().value())
+                    .status(SuccessCode.SUCCESS_GET_MY_EVENTS.getHttpStatus().value())
                     .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_EVENTS, result));
         }
     }
-
 }
