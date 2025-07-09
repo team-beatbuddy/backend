@@ -87,8 +87,8 @@ public interface AdminApiDocs {
                           "reportId": 1,
                           "targetType": "EVENT_COMMENT",
                           "targetId": 1,
-                          "targetTitle": null,
-                          "targetContent": null,
+                          "targetTitle": "제목",
+                          "targetContent": "내용",
                           "reason": "에바임",
                           "reporterId": 156,
                           "reporterNickname": "요시",
@@ -110,4 +110,38 @@ public interface AdminApiDocs {
             """))
     )
     ResponseEntity<ResponseDTO<List<ReportSummaryDTO>>> getAllReports();
+
+    @Operation(summary = "신고 삭제", description = "신고를 삭제합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "신고 삭제 성공"),
+            @ApiResponse(responseCode = "400", description = "어드민이 아닌 사용자",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "status": 400,
+                                      "error": "BAD_REQUEST",
+                                      "code": "NOT_ADMIN",
+                                      "message": "해당 계정은 어드민이 아닙니다."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "404", description = "신고가 존재하지 않음")
+    })
+    ResponseEntity<ResponseDTO<String>> deleteReport(@PathVariable Long reportId);
+
+    @Operation(summary = "신고 처리", description = "신고를 처리합니다. 신고 대상의 원글을 삭제합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "신고 처리 성공"),
+            @ApiResponse(responseCode = "400", description = "어드민이 아닌 사용자",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "status": 400,
+                                      "error": "BAD_REQUEST",
+                                      "code": "NOT_ADMIN",
+                                      "message": "해당 계정은 어드민이 아닙니다."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "404", description = "신고가 존재하지 않음")
+    })
+    ResponseEntity<ResponseDTO<String>> processReport(@PathVariable Long reportId);
 }

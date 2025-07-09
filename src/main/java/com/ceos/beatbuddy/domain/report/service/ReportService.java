@@ -68,37 +68,37 @@ public class ReportService {
         return switch (type) {
             case FREE_POST -> {
                 FreePost post = freePostRepository.findById(targetId)
-                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
+                        .orElseThrow(() -> new CustomException(ReportErrorCode.TARGET_NOT_FOUND));
                 yield new TitleContent(post.getTitle(), post.getContent());
             }
             case PIECE_POST -> {
                 PiecePost post = piecePostRepository.findById(targetId)
-                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
+                        .orElseThrow(() -> new CustomException(ReportErrorCode.TARGET_NOT_FOUND));
                 yield new TitleContent(post.getTitle(), post.getContent());
             }
             case EVENT -> {
                 Event event = eventRepository.findById(targetId)
-                        .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+                        .orElseThrow(() -> new CustomException(ReportErrorCode.TARGET_NOT_FOUND));
                 yield new TitleContent(event.getTitle(), event.getContent());
             }
             case VENUE -> {
                 Venue venue = venueRepository.findById(targetId)
-                        .orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
+                        .orElseThrow(() -> new CustomException(ReportErrorCode.TARGET_NOT_FOUND));
                 yield new TitleContent(venue.getKoreanName(), venue.getDescription());
             }
             case FREE_POST_COMMENT -> {
                 Comment comment = freePostCommentRepository.findById(targetId)
-                        .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
+                        .orElseThrow(() -> new CustomException(ReportErrorCode.TARGET_NOT_FOUND));
                 yield new TitleContent("자유게시판 댓글", comment.getContent());
             }
             case EVENT_COMMENT -> {
                 EventComment comment = eventCommentRepository.findById(targetId)
-                        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMENT));
+                        .orElseThrow(() -> new CustomException(ReportErrorCode.TARGET_NOT_FOUND));
                 yield new TitleContent("이벤트 댓글", comment.getContent());
             }
             case VENUE_COMMENT -> {
                 VenueReview comment = venueReviewRepository.findById(targetId)
-                        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMENT));
+                        .orElseThrow(() -> new CustomException(ReportErrorCode.TARGET_NOT_FOUND));
                 yield new TitleContent("베뉴 댓글", comment.getContent());
             }
             default -> throw new CustomException(ReportErrorCode.INVALID_REPORT_TARGET_TYPE);
