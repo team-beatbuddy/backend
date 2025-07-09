@@ -112,7 +112,7 @@ public class AdminController implements AdminApiDocs {
         Long memberId = SecurityUtils.getCurrentMemberId();
         adminService.processReport(reportId, memberId);
         return ResponseEntity
-                .status(SuccessCode.SUCCESS_DELETE_REPORT.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_REPORT, "신고가 처리되었습니다."));
+                .status(SuccessCode.SUCCESS_PROCESS_REPORT.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_PROCESS_REPORT, "신고가 처리되었습니다."));
     }
 }
