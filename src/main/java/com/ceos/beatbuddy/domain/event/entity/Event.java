@@ -90,12 +90,6 @@ public class Event extends BaseTimeEntity {
     @Getter
     private Venue venue;  // 비트버디 등록된 장소
 
-
-
-    public void increaseView() {
-        this.views++;
-    }
-
     public void setThumbImage(String imageUrl) {
         this.thumbImage = imageUrl;
     }

@@ -483,13 +483,13 @@ public class PostService {
             case "free" -> {
                 FreePost post = freePostRepository.findById(postId)
                         .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
-                post.increaseView();  // 예: 조회수 증가
+                postRepository.increaseViews(postId);  // 예: 조회수 증가
                 return post;
             }
             case "piece" -> {
                 PiecePost post = piecePostRepository.findById(postId)
                         .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
-                post.increaseView();  // 예: 조회수 증가
+                postRepository.increaseViews(postId);  // 예: 조회수 증가
                 return post;
             }
             default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
