@@ -1021,7 +1021,7 @@ public interface PostApiDocs {
                               "status": 200,
                               "code": "SUCCESS_DELETE_POST",
                               "message": "포스트를 삭제했습니다.",
-                              "data": 게시글이 삭제되었습니다.
+                              "data": "게시글이 삭제되었습니다."
                             }
                     """))
     )
