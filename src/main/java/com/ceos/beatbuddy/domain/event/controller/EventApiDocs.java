@@ -104,7 +104,11 @@ public interface EventApiDocs {
                                     ),
                                     @ExampleObject(
                                             name = "예약금을 받으면서 정보가 없는 경우",
-                                            value = SwaggerExamples.NEED_DEPOSIT_INFO)}
+                                            value = SwaggerExamples.NEED_DEPOSIT_INFO),
+                                    @ExampleObject(
+                                            name = "이미지 5장 초과",
+                                            value = SwaggerExamples.TOO_MANY_IMAGES_5_EXAMPLE)
+                                    }
                     )
             ),
             @ApiResponse(
@@ -218,7 +222,8 @@ public interface EventApiDocs {
                     description = "예약금에 관련된 정보 누락",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(name = "예약금에 관련된 정보 누락", value = SwaggerExamples.NEED_DEPOSIT_INFO)
+                            examples = {@ExampleObject(name = "예약금에 관련된 정보 누락", value = SwaggerExamples.NEED_DEPOSIT_INFO),
+                                    @ExampleObject(name = "이미지 5장 초과", value = SwaggerExamples.TOO_MANY_IMAGES_5_EXAMPLE)}
                     )
             ),
             @ApiResponse(

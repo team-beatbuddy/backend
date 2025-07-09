@@ -47,6 +47,11 @@ public class EventService {
             throw new CustomException(EventErrorCode.CANNOT_ADD_EVENT_UNAUTHORIZED_MEMBER);
         }
 
+        // 이미지 5장 이하인지 확인
+        if (images != null && images.size() > 5) {
+            throw new CustomException(ErrorCode.TOO_MANY_IMAGES_5);
+        }
+
         // 에약금 정보 확인
         eventValidator.validateReceiveMoney(eventCreateRequestDTO.isReceiveMoney(), eventCreateRequestDTO.getDepositAccount(), eventCreateRequestDTO.getDepositAmount());
 
@@ -76,6 +81,20 @@ public class EventService {
         Event event = validateAndGet(eventId);
 
         eventValidator.checkAccessForEvent(eventId, memberId);
+
+        int afterDeletionCount = event.getImageUrls().size();
+        int addCount = imageFiles != null ? imageFiles.size() : 0;
+
+        // 삭제된 이미지 개수 반영
+        if (dto.getDeleteImageUrls() != null) {
+            afterDeletionCount -= dto.getDeleteImageUrls().size();
+        }
+
+        int totalAfterUpdate = afterDeletionCount + addCount;
+
+        if (totalAfterUpdate > 5) {
+            throw new CustomException(ErrorCode.TOO_MANY_IMAGES_5);
+        }
 
         // 1. 기본 정보 업데이트
         event.updateEventInfo(
