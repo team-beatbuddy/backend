@@ -12,6 +12,7 @@ import lombok.Getter;
 public class MagazineHomeResponseDTO {
     private Long magazineId;
     private String thumbImageUrl;
+    private int orderInHome; // 홈에서의 순서
     private String title;
     private String content;
     private boolean liked;
@@ -32,6 +33,7 @@ public class MagazineHomeResponseDTO {
                 .thumbImageUrl(magazine.getThumbImage() != null ? magazine.getThumbImage() : "")
                 .title(magazine.getTitle())
                 .content(magazine.getContent())
+                .orderInHome(magazine.getOrderInHome())
                 .liked(liked)
                 .picked(magazine.isPicked())
                 .sponsored(magazine.isSponsored())
