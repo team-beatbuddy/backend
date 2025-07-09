@@ -90,6 +90,18 @@ public class Event extends BaseTimeEntity {
     @Getter
     private Venue venue;  // 비트버디 등록된 장소
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Region region;
+
+    public enum Region {
+        홍대,
+        강남_신사,
+        압구정_로데오,
+        이태원,
+        기타
+    }
+
     public void setThumbImage(String imageUrl) {
         this.thumbImage = imageUrl;
     }
