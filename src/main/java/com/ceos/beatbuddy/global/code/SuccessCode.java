@@ -133,6 +133,7 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_RECEIVE_COUPON(HttpStatus.CREATED, "쿠폰을 성공적으로 발급했습니다."),
     SUCCESS_USE_COUPON(HttpStatus.OK, "쿠폰 사용을 성공했습니다."),
     SUCCESS_CREATE_COUPON(HttpStatus.CREATED, "쿠폰을 성공적으로 등록했습니다."),
+    SUCCESS_GET_MY_COUPONS(HttpStatus.OK, "내 쿠폰 목록을 성공적으로 조회했습니다."),
 
     /**
      * Report

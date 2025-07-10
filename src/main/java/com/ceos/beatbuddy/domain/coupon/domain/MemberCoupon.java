@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.coupon.domain;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
+import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -21,7 +23,7 @@ import java.time.LocalDate;
                 @Index(name = "idx_member_coupon_date", columnList = "memberId, couponId, receivedDate")
         }
 )
-public class MemberCoupon {
+public class MemberCoupon extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,18 +44,17 @@ public class MemberCoupon {
     @JoinColumn(name = "venueId")
     private Venue venue;
 
-
-    private LocalDate receivedDate;
-
     @Enumerated(EnumType.STRING)
     private CouponStatus status;
 
-    public enum CouponStatus {
-        RECEIVED, USED
+    private LocalDateTime usedDate; // 쿠폰 사용 날짜
+
+    public void setUsedDate(LocalDateTime now) {
+        this.usedDate = now;
     }
 
-    public void setReceivedDate(LocalDate receivedDate) {
-        this.receivedDate = receivedDate;
+    public enum CouponStatus {
+        RECEIVED, USED
     }
 
     // 쿠폰 사용 처리
@@ -67,7 +68,7 @@ public class MemberCoupon {
                 .member(member)
                 .coupon(coupon)
                 .venue(venue)
-                .receivedDate(LocalDate.now())
+                .usedDate(null) // 사용하지 않은 상태로 초기화
                 .status(CouponStatus.RECEIVED)
                 .build();
     }
