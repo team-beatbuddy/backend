@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -14,13 +15,13 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class CouponReceiveResponseDTO {
     private Long receivedCouponId;
-    private LocalDate receivedDate;
+    private LocalDateTime receivedDate;
     private LocalDate expireDate;
 
-    public static CouponReceiveResponseDTO toDTO(Long receivedCouponId, Coupon coupon, LocalDate receivedDate) {
+    public static CouponReceiveResponseDTO toDTO(Long receivedCouponId, Coupon coupon) {
         return CouponReceiveResponseDTO.builder()
                 .receivedCouponId(receivedCouponId)
-                .receivedDate(receivedDate)
+                .receivedDate(LocalDateTime.now())
                 .expireDate(coupon.getExpireDate())
                 .build();
     }
