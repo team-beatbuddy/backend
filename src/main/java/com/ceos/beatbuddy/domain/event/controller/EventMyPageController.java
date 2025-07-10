@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.event.controller;
 
 import com.ceos.beatbuddy.domain.event.application.EventMyPageService;
 import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
+import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -102,6 +105,24 @@ public class EventMyPageController implements EventMyPageApiDocs{
 
         return buildEventResponse(result);
     }
+
+    @Override
+    @GetMapping("/my-event/top3")
+    public ResponseEntity<ResponseDTO<List<EventResponseDTO>>> getMyEventsUpcomingTop3() {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        List<EventResponseDTO> result = eventMyPageService.getMyUpcomingTop3(memberId);
+
+        if (result.isEmpty()) {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_BUT_EMPTY_LIST.getHttpStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUT_EMPTY_LIST, result));
+        } else {
+            return ResponseEntity
+                    .status(SuccessCode.SUCCESS_GET_MY_EVENTS.getHttpStatus().value())
+                    .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_EVENTS, result));
+        }
+    }
+
 
 
     private ResponseEntity<ResponseDTO<EventListResponseDTO>> buildEventResponse(

@@ -72,7 +72,8 @@ public interface EventApiDocs {
                                     "isAuthor": true,
                                     "ticketCost": "20000원",
                                     "notice": "공지사항입니다.",
-                                    "region": "홍대"
+                                    "region": "홍대",
+                                    "isAttending": false
                                   }
                                 }
                                     """)
@@ -211,7 +212,8 @@ public interface EventApiDocs {
                                 "isAuthor": true,
                                 "ticketCost": "20000원",
                                 "notice": "공지사항입니다.",
-                                "region": "홍대"
+                                "region": "홍대",
+                                "isAttending": false
                               }
                             }
                                     """)
@@ -370,7 +372,9 @@ public interface EventApiDocs {
                             "dday": "D-0",
                             "location": "경기도 파주",
                             "isAuthor": false,
-                            "region": "홍대"
+                            "region": "홍대",
+                            "isAttending": false,
+                            "liked": false
                           },
                           {
                             "eventId": 2,
@@ -384,7 +388,9 @@ public interface EventApiDocs {
                             "dday": "D-1",
                             "location": "서울시",
                             "isAuthor": false,
-                            "region": "홍대"
+                            "region": "홍대",
+                            "isAttending": true,
+                            "liked": false
                           }
                         ]
                       }
@@ -439,9 +445,10 @@ public interface EventApiDocs {
                             "startDate": "2025-06-17",
                             "endDate": "2025-06-17",
                             "isAuthor": false,
-                            "region": "홍대"
-                          },
-                          { ... }
+                            "region": "홍대",
+                            "isAttending": false,
+                            "liked": false
+                          }
                         ]
                       }
                     }
@@ -490,7 +497,7 @@ public interface EventApiDocs {
                             "liked": false,
                             "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
                             "likes": 0,
-                            "views": 0,
+                            "views": 2,
                             "startDate": "2025-06-20",
                             "endDate": "2025-06-22",
                             "receiveInfo": false,
@@ -500,20 +507,21 @@ public interface EventApiDocs {
                             "receiveTotalCount": false,
                             "receiveSNSId": false,
                             "receiveMoney": false,
-                            "isAuthor": false,
-                            "region": "홍대"
+                            "region": "이태원",
+                            "isAttending": false,
+                            "isAuthor": true
                           },
                           {
-                            "eventId": 1,
-                            "title": "이벤트 시작",
-                            "content": "이게 바로 이트",
-                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
+                            "eventId": 6,
+                            "title": "이벤트 제목",
+                            "content": "내용입니다.",
+                            "thumbImage": "",
                             "liked": false,
-                            "location": "경기도 파주",
-                            "likes": 5,
-                            "views": 0,
-                            "startDate": "2025-06-17",
-                            "endDate": "2025-06-17",
+                            "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                            "likes": 1,
+                            "views": 39,
+                            "startDate": "2025-06-20",
+                            "endDate": "2025-06-28",
                             "receiveInfo": false,
                             "receiveName": false,
                             "receiveGender": false,
@@ -521,8 +529,9 @@ public interface EventApiDocs {
                             "receiveTotalCount": false,
                             "receiveSNSId": false,
                             "receiveMoney": false,
-                            "isAuthor": false,
-                            "region": "홍대"
+                            "region": "압구정_로데오",
+                            "isAttending": false,
+                            "isAuthor": true
                           }
                         ]
                       }
@@ -732,28 +741,31 @@ public interface EventApiDocs {
                               "code": "SUCCESS_GET_EVENT",
                               "message": "성공적으로 이벤트를 조회했습니다.",
                               "data": {
-                                "eventId": 2,
-                                "title": "string",
-                                "content": "string",
-                                "images": ["https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png"],
-                                "liked": true,
-                                "likes": 2,
-                                "views": 1,
-                                "startDate": "2025-08-22",
-                                "endDate": "2025-09-21",
-                                "receiveInfo": true,
-                                "receiveName": true,
-                                "receiveGender": true,
-                                "receivePhoneNumber": true,
-                                "receiveSNSId": true,
-                                "receiveMoney": true,
-                                "depositAccount": "국민 XXXXXXXX",
-                                "depositAmount": 10000,
-                                "isAuthor": false,
-                                "region": "홍대",
-                                "ticketCost": "20000원입니다",
-                                "notice": "주의사항"
-                              }
+                                        "eventId": 1,
+                                        "title": "이벤트 시작",
+                                        "content": "이게 바로 이트",
+                                        "images": [],
+                                        "liked": false,
+                                        "location": "경기도 파주",
+                                        "likes": 5,
+                                        "views": 25,
+                                        "startDate": "2025-06-17",
+                                        "endDate": "2025-06-17",
+                                        "receiveInfo": true,
+                                        "receiveName": false,
+                                        "receiveGender": false,
+                                        "receivePhoneNumber": false,
+                                        "receiveTotalCount": false,
+                                        "receiveSNSId": false,
+                                        "receiveMoney": false,
+                                        "depositAccount": "국민 123-456-789",
+                                        "depositAmount": 20000,
+                                        "ticketCost": "",
+                                        "notice": "",
+                                        "region": "강남_신사",
+                                        "isAttending": true,
+                                        "isAuthor": true
+                                       }
                             }
                                         """)
                     )
@@ -867,7 +879,7 @@ public interface EventApiDocs {
     ResponseEntity<ResponseDTO<EventAttendanceResponseDTO>> getEventAttendance(@PathVariable Long eventId);
 
     @Operation(
-            summary = "이벤트 참석 정보 수정\n",
+            summary = "이벤트 참석 정보 수정 (사용하지 않음)\n",
             description = """
         내가 참석한 이벤트 정보를 수정합니다.
         수정 가능한 항목은 이벤트에서 설정한 수집 항목(receive 설정)에 따라 다르며,

@@ -5,7 +5,9 @@ import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventUpdateRequestDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
+import com.ceos.beatbuddy.domain.event.entity.EventAttendanceId;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
+import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
@@ -27,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +41,7 @@ public class EventService {
     private final EventQueryRepository eventQueryRepository;
     private final EventLikeRepository eventLikeRepository;
     private final EventValidator eventValidator;
+    private final EventAttendanceRepository eventAttendanceRepository;
 
     @Transactional
     public EventResponseDTO addEvent(Long memberId, EventCreateRequestDTO eventCreateRequestDTO, List<MultipartFile> images) {
@@ -73,7 +77,7 @@ public class EventService {
 
         eventRepository.save(event);
 
-        return EventResponseDTO.toDTO(event, false, true); // 좋아요 여부는 false, 내가 작성자 여부는 true로 설정
+        return EventResponseDTO.toDTO(event, false, true, false); // 좋아요 여부는 false, 내가 작성자 여부는 true로 설정, 참여는 false
     }
 
     @Transactional
@@ -141,9 +145,12 @@ public class EventService {
             event.getImageUrls().addAll(imageUrls);
         }
 
+        // 참여 여부 확인
+        boolean isAttending = eventAttendanceRepository.existsById(new EventAttendanceId(memberId, eventId));
+
         // 5. 응답 생성
         boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, eventId));
-        return EventResponseDTO.toDTO(event, liked, true); // 좋아요 여부는 조회 후 설정, 내가 작성자 여부는 true로 설정
+        return EventResponseDTO.toDTO(event, liked, true, isAttending); // 좋아요 여부는 조회 후 설정, 내가 작성자 여부는 true로 설정
     }
 
     @Transactional
@@ -176,10 +183,14 @@ public class EventService {
         List<Event> events = eventQueryRepository.findUpcomingEvents(sort, offset, size, region);
 
         Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
+        Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
+                .map(att -> att.getEvent().getId())
+                .collect(Collectors.toSet());
 
         List<EventResponseDTO> dto = events.stream()
                 .map(event -> EventResponseDTO.toUpcomingListDTO(event, member.getId().equals(event.getHost().getId()),
-                        likedEventIds.contains(event.getId())))
+                        likedEventIds.contains(event.getId()),
+                        attendingEventIds.contains(event.getId())))
                 .toList();
 
         int totalSize = eventQueryRepository.countUpcomingEvents(); // 총 개수 (페이지네이션용)
@@ -203,9 +214,14 @@ public class EventService {
 
         Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
 
+        Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
+                .map(att -> att.getEvent().getId())
+                .collect(Collectors.toSet());
+
         List<EventResponseDTO> dto = events.stream()
                 .map(event -> EventResponseDTO.toNowListDTO(event, member.getId().equals(event.getHost().getId()),
-                        likedEventIds.contains(event.getId())))
+                        likedEventIds.contains(event.getId()),
+                        attendingEventIds.contains(event.getId())))
                 .toList();
 
         int totalSize = eventQueryRepository.countNowEvents(); // 총 개수 (페이지네이션용)
@@ -232,9 +248,14 @@ public class EventService {
         List<Event> events = eventQueryRepository.findPastEvents(sort, offset, limit, region);
         int total = eventQueryRepository.countPastEvents();
 
+        Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
+                .map(att -> att.getEvent().getId())
+                .collect(Collectors.toSet());
+
         List<EventResponseDTO> responseList = events.stream()
                 .map(event -> EventResponseDTO.toPastListDTO(event, member.getId().equals(event.getHost().getId()),
-                        likedEventIds.contains(event.getId())))
+                        likedEventIds.contains(event.getId()),
+                        attendingEventIds.contains(event.getId())))
                 .toList();
 
         return EventListResponseDTO.builder()
@@ -260,7 +281,10 @@ public class EventService {
         // 좋아요 여부 확인
         boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, eventId));
 
-        return EventResponseDTO.toDTO(event, liked, member.getId().equals(event.getHost().getId()));
+        // 참여 여부 확인
+        boolean isAttending = eventAttendanceRepository.existsById(new EventAttendanceId(eventId, memberId));
+
+        return EventResponseDTO.toDTO(event, liked, member.getId().equals(event.getHost().getId()), isAttending);
     }
 
     public Event validateAndGet(Long eventId) {
