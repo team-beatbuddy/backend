@@ -65,7 +65,8 @@ public class VenueInfoController implements VenueInfoApiDocs {
     @GetMapping("/{venueId}/coupons")
     @Operation(summary = "베뉴 쿠폰 조회", description = "특정 베뉴의 쿠폰 목록을 조회합니다.")
     public ResponseEntity<ResponseDTO<List<VenueCouponResponseDTO>>> getCouponsByVenue(@PathVariable Long venueId) {
-        List<VenueCouponResponseDTO> coupons = venueCouponService.getCouponsByVenue(venueId);
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        List<VenueCouponResponseDTO> coupons = venueCouponService.getCouponsByVenue(venueId, memberId);
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_VENUE_COUPONS.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_VENUE_COUPONS, coupons));

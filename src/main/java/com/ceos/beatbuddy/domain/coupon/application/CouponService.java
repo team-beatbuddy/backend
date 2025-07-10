@@ -23,6 +23,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -49,7 +50,7 @@ public class CouponService {
         Venue venue = venueInfoService.validateAndGetVenue(venueId);
 
         validateCouponAvailable(coupon);
-        validateCouponReceivePolicy(member, coupon);
+        validateCouponReceivePolicy(member, coupon, venue);
 
         // redis 에서 티켓 감소
         luaScriptService.decreaseQuotaOrThrow(redisKey);
@@ -188,32 +189,42 @@ public class CouponService {
                 .orElseThrow(() -> new CustomException(CouponErrorCode.MEMBER_COUPON_NOT_FOUND));
     }
 
-    private void validateCouponReceivePolicy(Member member, Coupon coupon) {
-        LocalDateTime today = LocalDateTime.now();
+    private void validateCouponReceivePolicy(Member member, Coupon coupon, Venue venue) {
+        LocalDateTime now = LocalDateTime.now();
+
+        int maxCount = coupon.getMaxReceiveCountPerUser() != null
+                ? coupon.getMaxReceiveCountPerUser()
+                : 1; // 기본값은 1
 
         switch (coupon.getPolicy()) {
             case DAILY -> {
-                if (memberCouponRepository.existsByMemberAndCouponAndCreatedAt(member, coupon, today)) {
+                LocalDate today = now.toLocalDate();
+                int countToday = memberCouponRepository.countByMemberAndCouponAndVenueAndCreatedAtBetween(
+                        member, coupon, venue,
+                        today.atStartOfDay(), today.plusDays(1).atStartOfDay()
+                );
+                if (countToday >= maxCount) {
                     throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED_TODAY);
                 }
             }
-            case ONCE -> {
-                if (memberCouponRepository.existsByMemberAndCoupon(member, coupon)) {
-                    throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED);
+
+            case WEEKLY -> {
+                LocalDate weekStart = now.with(java.time.DayOfWeek.MONDAY).toLocalDate();
+                LocalDate weekEnd = now.with(java.time.DayOfWeek.SUNDAY).toLocalDate();
+
+                int countThisWeek = memberCouponRepository.countByMemberAndCouponAndVenueAndCreatedAtBetween(
+                        member, coupon, venue,
+                        weekStart.atStartOfDay(), weekEnd.plusDays(1).atStartOfDay()
+                );
+                if (countThisWeek >= maxCount) {
+                    throw new CustomException(CouponErrorCode.COUPON_RECEIVE_LIMIT_EXCEEDED);
                 }
             }
-            case WEEKLY -> {
-                if (coupon.getMaxReceiveCountPerUser() != null) {
-                    // 주 시작(월요일)과 종료(일요일) 계산
-                    LocalDateTime startOfWeek = today.with(java.time.DayOfWeek.MONDAY);
-                    LocalDateTime endOfWeek = today.with(java.time.DayOfWeek.SUNDAY);
 
-                    int countThisWeek = memberCouponRepository.countByMemberAndCouponAndCreatedAtBetween(
-                            member, coupon, startOfWeek, endOfWeek);
-
-                    if (countThisWeek >= coupon.getMaxReceiveCountPerUser()) {
-                        throw new CustomException(CouponErrorCode.COUPON_RECEIVE_LIMIT_EXCEEDED);
-                    }
+            case ONCE -> {
+                int count = memberCouponRepository.countByMemberAndCouponAndVenue(member, coupon, venue);
+                if (count >= maxCount) {
+                    throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED);
                 }
             }
         }
