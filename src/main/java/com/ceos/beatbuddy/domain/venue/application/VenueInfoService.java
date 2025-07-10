@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.venue.application;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.ceos.beatbuddy.domain.admin.application.AdminService;
+import com.ceos.beatbuddy.domain.coupon.repository.CouponRepository;
 import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
@@ -29,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +51,7 @@ public class VenueInfoService {
     private final VenueMoodRepository venueMoodRepository;
     private final VenueSearchService venueSearchService;
     private final AdminService adminService;
+    private final CouponRepository couponRepository;
 
     private final UploadUtil uploadUtil;
     public List<Venue> getVenueInfoList() {
@@ -75,9 +78,13 @@ public class VenueInfoService {
         tagList.addAll(trueMoodElements);
         tagList.add(region);
 
+        // 쿠폰 사용 가능한 여부
+        boolean hasCoupon = couponRepository.existsByVenues_IdAndExpireDateIsAfter(venue.getId(), LocalDate.now());
+
         return VenueInfoResponseDTO.builder()
                 .venue(venue)
                 .isHeartbeat(isHeartbeat)
+                .isCoupon(hasCoupon)
                 .tagList(tagList)
                 .build();
     }
