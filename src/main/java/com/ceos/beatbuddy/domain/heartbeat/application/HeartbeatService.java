@@ -53,8 +53,8 @@ public class HeartbeatService {
                 .build();
         heartbeatRepository.save(heartbeat);
 
-        venue.addHeartbeatNum();
-        venueRepository.save(venue);
+        venueRepository.incrementHeartbeatCount(venueId);
+
         return HeartbeatResponseDTO.builder()
                 .memberId(member.getId())
                 .venueId(venue.getId())
@@ -70,8 +70,7 @@ public class HeartbeatService {
 
         heartbeatRepository.delete(heartbeat);
 
-        venue.deleteHeartbeatNum();
-        venueRepository.save(venue);
+        venueRepository.decrementHeartbeatCount(venueId);
 
         return HeartbeatResponseDTO.builder()
                 .memberId(member.getId())
