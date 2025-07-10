@@ -305,11 +305,12 @@ public class MagazineService {
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
 
+        // 매거진 좋아요 삭제
+        magazineLikeRepository.deleteAllByMagazine_Id(magazineId);
+
         // 매거진 삭제
         magazineRepository.delete(magazine);
 
-        // 매거진 좋아요 삭제
-        magazineLikeRepository.deleteAllByMagazine_Id(magazineId);
     }
 
 
