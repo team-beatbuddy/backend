@@ -41,8 +41,9 @@ public class EventMyPageService{
                 .collect(Collectors.toSet());
 
         List<EventResponseDTO> filtered = myEvents.stream()
+                .filter(e -> e.getStartDate().isAfter(LocalDate.now()))
                 .filter(e -> region == null || e.getRegion() == region)
-                .sorted(Comparator.comparing(Event::getStartDate)) // 최신순: 가까운 순
+                .sorted(Comparator.comparing(Event::getStartDate))
                 .map(event -> EventResponseDTO.toUpcomingListDTO(
                         event,
                         event.getHost().getId().equals(memberId),
@@ -65,6 +66,7 @@ public class EventMyPageService{
                 .collect(Collectors.toSet());
 
         List<EventResponseDTO> filtered = myEvents.stream()
+                .filter(e -> !e.getStartDate().isAfter(LocalDate.now()) && !e.getEndDate().isBefore(LocalDate.now()))
                 .filter(e -> region == null || e.getRegion() == region)
                 .sorted(Comparator.comparing(Event::getStartDate).reversed()) // 최근 시작 순
                 .map(event -> EventResponseDTO.toNowListDTO(
@@ -89,6 +91,7 @@ public class EventMyPageService{
                 .collect(Collectors.toSet());
 
         List<EventResponseDTO> filtered = myEvents.stream()
+                .filter(e -> e.getEndDate().isBefore(LocalDate.now())) // 오늘 이전 종료
                 .filter(e -> region == null || e.getRegion() == region)
                 .sorted(Comparator.comparing(Event::getEndDate).reversed()) // 최근 종료 순
                 .map(event -> EventResponseDTO.toPastListDTO(
