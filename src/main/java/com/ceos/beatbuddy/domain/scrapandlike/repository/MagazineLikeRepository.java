@@ -18,4 +18,6 @@ public interface MagazineLikeRepository extends JpaRepository<MagazineLike, Maga
     List<Long> findMagazineIdsByMemberId(@Param("memberId") Long memberId);
 
     List<MagazineLike> findAllByMember_IdAndMagazine_IdIn(Long memberId, List<Long> magazineIds);
+
+    void deleteAllByMagazine_Id(Long magazineId);
 }

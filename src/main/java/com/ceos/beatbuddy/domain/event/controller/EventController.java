@@ -26,8 +26,7 @@ import java.util.List;
 public class EventController implements EventApiDocs {
     private final EventService eventService;
     private final EventAttendanceService eventAttendanceService;
-    private final EventCommentService eventCommentService;
-    private final EventMyPageService eventMyPageService;
+    private final EventInteractionService eventInteractionService;
 
     @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -164,7 +163,7 @@ public class EventController implements EventApiDocs {
     @PostMapping("/{eventId}/like")
     public ResponseEntity<ResponseDTO<String>> likeEvent(@PathVariable Long eventId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        eventService.likeEvent(eventId, memberId);
+        eventInteractionService.likeEvent(eventId, memberId);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_LIKE_EVENT.getStatus().value())
@@ -175,7 +174,7 @@ public class EventController implements EventApiDocs {
     @DeleteMapping("/{eventId}/like")
     public ResponseEntity<ResponseDTO<String>> deleteLikeEvent(@PathVariable Long eventId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        eventService.deleteLikeEvent(eventId, memberId);
+        eventInteractionService.deleteLikeEvent(eventId, memberId);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_DELETE_LIKE.getStatus().value())

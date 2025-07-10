@@ -473,4 +473,47 @@ public interface MagazineApiDocs {
             @RequestPart("magazineRequestDTO") MagazineUpdateRequestDTO magazineRequestDTO,
             @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage,
             @RequestPart(value = "images", required = false) List<MultipartFile> images);
+
+
+
+    @Operation(summary = "매거진 삭제 - admin, 작성자\n",
+            description = "매거진 삭제 기능입니다. admin과 작성자에 한해서만 매거진을 삭제할 수 있습니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "매거진이 성공적으로 삭제되었습니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "status": 200,
+                                      "code": "SUCCESS_DELETE_MAGAZINE",
+                                      "message": "매거진을 성공적으로 삭제했습니다.",
+                                      "data": "매거진이 성공적으로 삭제되었습니다."
+                                    }
+                                            """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "리소스를 찾을 수 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "존재하지 않는 매거진", value = SwaggerExamples.NOT_FOUND_MAGAZINE)
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "잘못된 요청 (권한이 없는 일반 유저)",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {@ExampleObject(name = "권한 없는 유저", value = SwaggerExamples.UNAUTHORIZED_MEMBER)}
+                    )
+            )
+    })
+    ResponseEntity<ResponseDTO<String>> deleteMagazine(@PathVariable Long magazineId);
 }
