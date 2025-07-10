@@ -30,7 +30,7 @@ public class VenueCouponResponseDTO {
     // 정책대로 판단
     private int receivedCount; // 내가 받은 쿠폰 개수
 
-    public static VenueCouponResponseDTO toDTO(Coupon coupon, int remaining, boolean isReceived, int recievedCount) {
+public static VenueCouponResponseDTO toDTO(Coupon coupon, int remaining, boolean isReceived, int receivedCount) {
         return VenueCouponResponseDTO.builder()
                 .couponId(coupon.getId())
                 .expireDate(coupon.getExpireDate())
@@ -44,7 +44,7 @@ public class VenueCouponResponseDTO {
                 .policy(coupon.getPolicy().name())
                 .isReceived(isReceived)
                 .maxQuota(coupon.getMaxReceiveCountPerUser())
-                .receivedCount(recievedCount)
+                .receivedCount(receivedCount)
                 .build();
     }
 }
