@@ -134,6 +134,7 @@ public class CouponService {
         return convertToMyPageCouponList(memberCouponsPage);
     }
 
+    @Transactional(readOnly = true)
     public MyPageCouponList getMyAllCouponUnavailable(Long memberId, int page, int size) {
         memberService.validateAndGetMember(memberId);
 

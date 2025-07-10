@@ -98,7 +98,7 @@ public interface CouponApiDocs {
                                     value = """
                                     {
                                       "status": 200,
-                                      "code": "SUCCESS_GET_MY_COUPONS",
+                                      "code": "SUCCESS_GET_MEMBER_COUPON_LIST",
                                       "message": "내 쿠폰 목록을 성공적으로 조회했습니다.",
                                       "data": {
                                         "totalCount": 3,
@@ -194,7 +194,7 @@ public interface CouponApiDocs {
                                     value = """
                                     {
                                       "status": 200,
-                                      "code": "SUCCESS_GET_MY_COUPONS",
+                                      "code": "SUCCESS_GET_MEMBER_COUPON_LIST",
                                       "message": "내 쿠폰 목록을 성공적으로 조회했습니다.",
                                       "data": {
                                         "totalCount": 1,
