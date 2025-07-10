@@ -2,6 +2,8 @@ package com.ceos.beatbuddy.domain.event.controller;
 
 import com.ceos.beatbuddy.domain.event.application.*;
 import com.ceos.beatbuddy.domain.event.dto.*;
+import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
+import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
@@ -224,6 +226,11 @@ public class EventController implements EventApiDocs {
             @RequestParam LocalDate endDate,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
+
+        if (startDate.isAfter(endDate)) {
+            throw new CustomException(EventErrorCode.INVALID_DATE_RANGE);
+        }
+
         Long memberId = SecurityUtils.getCurrentMemberId();
         EventListResponseDTO result = eventService.getEventsInPeriod(memberId, startDate, endDate, page, size);
         return ResponseEntity
