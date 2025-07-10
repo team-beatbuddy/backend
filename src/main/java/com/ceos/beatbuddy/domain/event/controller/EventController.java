@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -214,6 +215,20 @@ public class EventController implements EventApiDocs {
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_UPDATE_ATTENDANCE.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_ATTENDANCE, result));
+    }
+
+    @Override
+    @GetMapping("/search/period")
+    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getSearchEventWithPeriod(
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        EventListResponseDTO result = eventService.getEventsInPeriod(memberId, startDate, endDate, page, size);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_SEARCH_EVENT_LIST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_SEARCH_EVENT_LIST, result));
     }
 
 }

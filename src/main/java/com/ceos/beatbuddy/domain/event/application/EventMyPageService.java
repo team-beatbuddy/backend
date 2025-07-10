@@ -213,8 +213,6 @@ public class EventMyPageService{
                 .toList();
     }
 
-
-
     private EventListResponseDTO buildResponse(String sort, int page, int size, List<EventResponseDTO> dtoList) {
         int totalSize = dtoList.size();
         List<EventResponseDTO> paged = dtoList.stream()
