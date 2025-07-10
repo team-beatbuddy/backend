@@ -45,20 +45,34 @@ public class VenueCouponService {
 
     private int getReceivedCount(Long memberId, Coupon coupon, Long venueId) {
         return switch (coupon.getPolicy()) {
-            case DAILY -> memberCouponRepository.countByMemberIdAndCouponIdAndVenueIdAndCreatedAt(
-                    memberId, coupon.getId(), venueId, LocalDateTime.now()
-            );
+            case DAILY -> {
+                LocalDate today = LocalDate.now();
+                yield memberCouponRepository.countByMemberIdAndCouponIdAndVenueIdAndCreatedAtBetween(
+                        memberId, coupon.getId(), venueId,
+                        today.atStartOfDay(),
+                        today.plusDays(1).atStartOfDay()
+                );
+            }
             case WEEKLY -> {
                 LocalDate now = LocalDate.now();
                 LocalDate startOfWeek = now.with(DayOfWeek.MONDAY);
                 LocalDate endOfWeek = now.with(DayOfWeek.SUNDAY);
                 yield memberCouponRepository.countByMemberIdAndCouponIdAndVenueIdAndCreatedAtBetween(
-                        memberId, coupon.getId(), venueId, startOfWeek.atStartOfDay(), endOfWeek.atTime(23,59,59)
+                        memberId, coupon.getId(), venueId,
+                        startOfWeek.atStartOfDay(),
+                        endOfWeek.atTime(23, 59, 59)
                 );
             }
-            case ONCE -> memberCouponRepository.countByMemberIdAndCouponIdAndVenueId(
-                    memberId, coupon.getId(), venueId
-            );
+            case ONCE -> {
+                LocalDate startDate = coupon.getCreatedAt().toLocalDate();
+                LocalDate endDate = coupon.getExpireDate();
+                yield memberCouponRepository.countByMemberIdAndCouponIdAndVenueIdAndCreatedAtBetween(
+                        memberId, coupon.getId(), venueId,
+                        startDate.atStartOfDay(),
+                        endDate.plusDays(1).atStartOfDay()
+                );
+            }
         };
     }
+
 }
