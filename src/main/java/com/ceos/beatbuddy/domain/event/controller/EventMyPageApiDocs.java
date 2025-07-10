@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.event.controller;
 
 import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
+import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
 import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +12,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 public interface EventMyPageApiDocs {
 
@@ -585,4 +588,89 @@ public interface EventMyPageApiDocs {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     );
+
+    @Operation(
+            summary = "좋아요 + 참여할 중 '예정된 이벤트 (top3)\n",
+            description = """
+                내가 좋아요 + 참여할 중 '예정된 이벤트'를 조회합니다.
+                정렬 기준은 아래와 같습니다:
+                
+                - region(홍대, 이태원, 강남_신사, 압구정_로데오, 기타)로 필터링할 수 있습니다.
+                - `latest` (기본): 다가오는 이벤트 순으로 정렬
+                
+                - 이미지를 등록하지 않으면 ("") 이렇게 나옵니다. 이 값은 null이 아닌 빈 문자열입니다.
+                - 예정된 이벤트에는, dday 필드가 존재합니다.
+                """
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "내가 좋아요 + 참여할 중 '예정된 이벤트' 조회 성공",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ResponseDTO.class),
+                    examples = {
+                            @ExampleObject(
+                                    name = "내가 좋아요 + 참여할 중 '예정된 이벤트' 조회 성공",
+                                    description = """
+                                            이미지를 등록하지 않으면 ("") 이렇게 나옵니다.
+                                            이 값은 null이 아닌 빈 문자열입니다.
+                                            """,
+                                    value = """
+                                        {
+                                          "status": 200,
+                                          "code": "SUCCESS_GET_MY_EVENTS",
+                                          "message": "성공적으로 내가 작성한 이벤트를 가져왔습니다.",
+                                          "data": [
+                                            {
+                                              "eventId": 12,
+                                              "title": "이벤트 제목",
+                                              "content": "내용입니다.",
+                                              "thumbImage": "",
+                                              "liked": false,
+                                              "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                                              "likes": 1,
+                                              "views": 5,
+                                              "startDate": "2025-08-22",
+                                              "endDate": "2025-09-21",
+                                              "receiveInfo": false,
+                                              "receiveName": false,
+                                              "receiveGender": false,
+                                              "receivePhoneNumber": false,
+                                              "receiveTotalCount": false,
+                                              "receiveSNSId": false,
+                                              "receiveMoney": false,
+                                              "region": "홍대",
+                                              "dday": "D-43",
+                                              "isAttending": true,
+                                              "isAuthor": true
+                                            },
+                                            {
+                                              "eventId": 13,
+                                              "title": "이벤트 제목",
+                                              "content": "내용입니다.",
+                                              "thumbImage": "",
+                                              "liked": false,
+                                              "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                                              "likes": 0,
+                                              "views": 1,
+                                              "startDate": "2025-08-22",
+                                              "endDate": "2025-09-21",
+                                              "receiveInfo": false,
+                                              "receiveName": false,
+                                              "receiveGender": false,
+                                              "receivePhoneNumber": false,
+                                              "receiveTotalCount": false,
+                                              "receiveSNSId": false,
+                                              "receiveMoney": false,
+                                              "region": "압구정_로데오",
+                                              "dday": "D-43",
+                                              "isAttending": true,
+                                              "isAuthor": true
+                                            }
+                                          ]
+                                        }
+                                            """)
+                    })
+    )
+    ResponseEntity<ResponseDTO<List<EventResponseDTO>>> getMyEventsUpcomingTop3();
 }
