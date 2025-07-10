@@ -37,8 +37,8 @@ public class CouponController implements CouponApiDocs {
         Long memberId = SecurityUtils.getCurrentMemberId();
         MyPageCouponList myPageCouponList = couponService.getMyAllCouponAvailable(memberId, page, size);
         return ResponseEntity
-                .status(SuccessCode.SUCCESS_GET_MY_COUPONS.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_COUPONS, myPageCouponList));
+                .status(SuccessCode.SUCCESS_GET_MEMBER_COUPON_LIST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MEMBER_COUPON_LIST, myPageCouponList));
     }
 
     @Override
@@ -49,8 +49,8 @@ public class CouponController implements CouponApiDocs {
         Long memberId = SecurityUtils.getCurrentMemberId();
         MyPageCouponList myPageCouponList = couponService.getMyAllCouponUnavailable(memberId, page, size);
         return ResponseEntity
-                .status(SuccessCode.SUCCESS_GET_MY_COUPONS.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_COUPONS, myPageCouponList));
+                .status(SuccessCode.SUCCESS_GET_MEMBER_COUPON_LIST.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MEMBER_COUPON_LIST, myPageCouponList));
     }
 
 }
