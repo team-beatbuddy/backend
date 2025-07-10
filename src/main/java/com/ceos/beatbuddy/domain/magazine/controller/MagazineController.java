@@ -104,4 +104,16 @@ public class MagazineController implements MagazineApiDocs{
                 .status(SuccessCode.SUCCESS_UPDATE_MAGAZINE.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_MAGAZINE, result));
     }
+
+    // 매거진 삭제
+    @Override
+    @DeleteMapping("/{magazineId}")
+    public ResponseEntity<ResponseDTO<String>> deleteMagazine(@PathVariable Long magazineId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        magazineService.deleteMagazine(memberId, magazineId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_DELETE_MAGAZINE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_MAGAZINE, "매거진이 성공적으로 삭제되었습니다."));
+    }
 }
