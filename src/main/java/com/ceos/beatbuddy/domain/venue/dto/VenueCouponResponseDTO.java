@@ -44,7 +44,7 @@ public static VenueCouponResponseDTO toDTO(Coupon coupon, int remaining, boolean
                 .policy(coupon.getPolicy().name())
                 .isReceived(isReceived)
                 .maxQuota(coupon.getMaxReceiveCountPerUser())
-                .receivedCount(recievedCount)
+                .receivedCount(receivedCount)
                 .build();
     }
 }
