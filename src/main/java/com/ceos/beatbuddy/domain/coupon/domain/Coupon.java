@@ -4,6 +4,7 @@ package com.ceos.beatbuddy.domain.coupon.domain;
 import com.ceos.beatbuddy.domain.coupon.dto.CouponUpdateRequestDTO;
 import com.ceos.beatbuddy.domain.coupon.exception.CouponErrorCode;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
+import com.ceos.beatbuddy.global.BaseTimeEntity;
 import com.ceos.beatbuddy.global.CustomException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Coupon {
+public class Coupon extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

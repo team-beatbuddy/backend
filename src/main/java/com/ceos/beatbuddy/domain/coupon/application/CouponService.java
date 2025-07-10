@@ -198,11 +198,14 @@ public class CouponService {
 
         switch (coupon.getPolicy()) {
             case DAILY -> {
-                LocalDate today = now.toLocalDate();
-                int countToday = memberCouponRepository.countByMemberAndCouponAndVenueAndCreatedAtBetween(
-                        member, coupon, venue,
-                        today.atStartOfDay(), today.plusDays(1).atStartOfDay()
+                LocalDate today = LocalDate.now();
+                LocalDateTime startOfDay = today.atStartOfDay();
+                LocalDateTime endOfDay = today.plusDays(1).atStartOfDay().minusNanos(1);
+
+                int countToday = memberCouponRepository.countByMemberIdAndCouponIdAndVenueIdAndCreatedAtBetween(
+                        member.getId(), coupon.getId(), venue.getId(), startOfDay, endOfDay
                 );
+
                 if (countToday >= maxCount) {
                     throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED_TODAY);
                 }
@@ -222,7 +225,13 @@ public class CouponService {
             }
 
             case ONCE -> {
-                int count = memberCouponRepository.countByMemberAndCouponAndVenue(member, coupon, venue);
+                LocalDateTime start = coupon.getCreatedAt(); // 또는 정책 시작일(필드가 있다면)
+                LocalDateTime end = coupon.getExpireDate().atTime(23, 59, 59); // 하루 끝까지 포함
+
+                int count = memberCouponRepository.countByMemberIdAndCouponIdAndVenueIdAndCreatedAtBetween(
+                        member.getId(), coupon.getId(), venue.getId(), start, end
+                );
+
                 if (count >= maxCount) {
                     throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED);
                 }
