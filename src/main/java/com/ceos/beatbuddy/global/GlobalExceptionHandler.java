@@ -90,11 +90,13 @@ public class GlobalExceptionHandler {
             message = String.format("파라미터 '%s'의 형식이 올바르지 않습니다.", param);
         }
 
+        log.warn("Parameter Type Mismatch: parameter={}, value={}, requiredType={}", 
+                 param, ex.getValue(), requiredType != null ? requiredType.getSimpleName() : "unknown");
+
         return ResponseEntity
-                .status(ErrorCode.INVALID_PARAMETER_TYPE.getStatus().value())
+                .status(ErrorCode.INVALID_PARAMETER_TYPE.getStatus())
                 .body(new ErrorResponseDTO(ErrorCode.INVALID_PARAMETER_TYPE, message));
     }
-
 
 
 
