@@ -49,52 +49,60 @@ public interface EventMyPageApiDocs {
                                                   "status": 200,
                                                   "code": "SUCCESS_GET_MY_PAGE_EVENTS",
                                                   "message": "마이페이지의 이벤트를 성공적으로 조회했습니다",
-                                                  "data": [
-                                                    {
-                                                      "eventId": 4,
-                                                      "title": "이벤트 제목",
-                                                      "content": "내용입니다.",
-                                                      "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
-                                                      "liked": false,
-                                                      "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                                                      "likes": 1,
-                                                      "views": 0,
-                                                      "startDate": "2025-06-24",
-                                                      "endDate": "2025-07-21",
-                                                      "receiveInfo": false,
-                                                      "receiveName": false,
-                                                      "receiveGender": false,
-                                                      "receivePhoneNumber": false,
-                                                      "receiveTotalCount": false,
-                                                      "receiveSNSId": false,
-                                                      "receiveMoney": false,
-                                                      "dday": "D-1",
-                                                      "isAuthor": true,
-                                                      "region": "홍대"
-                                                    },
-                                                    {
-                                                      "eventId": 12,
-                                                      "title": "이벤트 제목",
-                                                      "content": "내용입니다.",
-                                                      "thumbImage": "",
-                                                      "liked": false,
-                                                      "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                                                      "likes": 0,
-                                                      "views": 1,
-                                                      "startDate": "2025-08-22",
-                                                      "endDate": "2025-09-21",
-                                                      "receiveInfo": false,
-                                                      "receiveName": false,
-                                                      "receiveGender": false,
-                                                      "receivePhoneNumber": false,
-                                                      "receiveTotalCount": false,
-                                                      "receiveSNSId": false,
-                                                      "receiveMoney": false,
-                                                      "dday": "D-60",
-                                                      "isAuthor": false,
-                                                      "region": "홍대"
-                                                    }
-                                                  ]
+                                                  "data": {
+                                                    "sort": "latest",
+                                                    "page": 1,
+                                                    "size": 10,
+                                                    "totalSize": 6,
+                                                    "eventResponseDTOS": [
+                                                      {
+                                                        "eventId": 5,
+                                                        "title": "이벤트 제목",
+                                                        "content": "내용입니다.",
+                                                        "thumbImage": "",
+                                                        "liked": true,
+                                                        "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                                                        "likes": 1,
+                                                        "views": 0,
+                                                        "startDate": "2025-04-20",
+                                                        "endDate": "2025-07-21",
+                                                        "receiveInfo": false,
+                                                        "receiveName": false,
+                                                        "receiveGender": false,
+                                                        "receivePhoneNumber": false,
+                                                        "receiveTotalCount": false,
+                                                        "receiveSNSId": false,
+                                                        "receiveMoney": false,
+                                                        "region": "강남_신사",
+                                                        "dday": "D--81",
+                                                        "isAttending": false,
+                                                        "isAuthor": true
+                                                      },
+                                                      {
+                                                        "eventId": 1,
+                                                        "title": "이벤트 시작",
+                                                        "content": "이게 바로 이트",
+                                                        "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
+                                                        "liked": false,
+                                                        "location": "경기도 파주",
+                                                        "likes": 5,
+                                                        "views": 26,
+                                                        "startDate": "2025-06-17",
+                                                        "endDate": "2025-06-17",
+                                                        "receiveInfo": false,
+                                                        "receiveName": false,
+                                                        "receiveGender": false,
+                                                        "receivePhoneNumber": false,
+                                                        "receiveTotalCount": false,
+                                                        "receiveSNSId": false,
+                                                        "receiveMoney": false,
+                                                        "region": "강남_신사",
+                                                        "dday": "D--23",
+                                                        "isAttending": true,
+                                                        "isAuthor": true
+                                                      }
+                                                    ]
+                                                  }
                                                 }
                                     """),
                                     @ExampleObject(
@@ -147,34 +155,63 @@ public interface EventMyPageApiDocs {
                                                             이 값은 null이 아닌 빈 문자열입니다.
                                                             """,
                                             value = """
-                                                {
-                                                  "status": 200,
-                                                  "code": "SUCCESS_GET_MY_PAGE_EVENTS",
-                                                  "message": "마이페이지의 이벤트를 성공적으로 조회했습니다",
-                                                  "data": [
-                                                    {
-                                                      "eventId": 2,
-                                                      "title": "string",
-                                                      "content": "string",
-                                                      "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
-                                                      "liked": false,
-                                                      "location": "string",
-                                                      "likes": 2,
-                                                      "views": 0,
-                                                      "startDate": "2025-06-18",
-                                                      "endDate": "2025-06-23",
-                                                      "receiveInfo": false,
-                                                      "receiveName": false,
-                                                      "receiveGender": false,
-                                                      "receivePhoneNumber": false,
-                                                      "receiveTotalCount": false,
-                                                      "receiveSNSId": false,
-                                                      "receiveMoney": false,
-                                                      "isAuthor": false,
-                                                      "region": "홍대"
-                                                    }
-                                                  ]
-                                                }
+                                            {
+                                              "status": 200,
+                                              "code": "SUCCESS_GET_MY_PAGE_EVENTS",
+                                              "message": "마이페이지의 이벤트를 성공적으로 조회했습니다",
+                                              "data": {
+                                                "sort": "latest",
+                                                "page": 1,
+                                                "size": 10,
+                                                "totalSize": 6,
+                                                "eventResponseDTOS": [
+                                                  {
+                                                    "eventId": 12,
+                                                    "title": "이벤트 제목",
+                                                    "content": "내용입니다.",
+                                                    "thumbImage": "",
+                                                    "liked": false,
+                                                    "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                                                    "likes": 1,
+                                                    "views": 5,
+                                                    "startDate": "2025-08-22",
+                                                    "endDate": "2025-09-21",
+                                                    "receiveInfo": false,
+                                                    "receiveName": false,
+                                                    "receiveGender": false,
+                                                    "receivePhoneNumber": false,
+                                                    "receiveTotalCount": false,
+                                                    "receiveSNSId": false,
+                                                    "receiveMoney": false,
+                                                    "region": "홍대",
+                                                    "isAttending": true,
+                                                    "isAuthor": true
+                                                  },
+                                                  {
+                                                    "eventId": 13,
+                                                    "title": "이벤트 제목",
+                                                    "content": "내용입니다.",
+                                                    "thumbImage": "",
+                                                    "liked": false,
+                                                    "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                                                    "likes": 0,
+                                                    "views": 1,
+                                                    "startDate": "2025-08-22",
+                                                    "endDate": "2025-09-21",
+                                                    "receiveInfo": false,
+                                                    "receiveName": false,
+                                                    "receiveGender": false,
+                                                    "receivePhoneNumber": false,
+                                                    "receiveTotalCount": false,
+                                                    "receiveSNSId": false,
+                                                    "receiveMoney": false,
+                                                    "region": "압구정_로데오",
+                                                    "isAttending": true,
+                                                    "isAuthor": true
+                                                  }
+                                                ]
+                                              }
+                                            }
                     """
                                     ),
                                     @ExampleObject(
@@ -228,55 +265,63 @@ public interface EventMyPageApiDocs {
                                                             이 값은 null이 아닌 빈 문자열입니다.
                                                             """,
                                             value = """
-                                                {
-                                                  "status": 200,
-                                                  "code": "SUCCESS_GET_MY_PAGE_EVENTS",
-                                                  "message": "마이페이지의 이벤트를 성공적으로 조회했습니다",
-                                                  "data": [
-                                                    {
-                                                      "eventId": 1,
-                                                      "title": "이벤트 시작",
-                                                      "content": "이게 바로 이트",
-                                                      "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
-                                                      "liked": false,
-                                                      "location": "경기도 파주",
-                                                      "likes": 5,
-                                                      "views": 0,
-                                                      "startDate": "2025-06-17",
-                                                      "endDate": "2025-06-17",
-                                                      "receiveInfo": false,
-                                                      "receiveName": false,
-                                                      "receiveGender": false,
-                                                      "receivePhoneNumber": false,
-                                                      "receiveTotalCount": false,
-                                                      "receiveSNSId": false,
-                                                      "receiveMoney": false,
-                                                      "isAuthor": false,
-                                                      "region": "홍대"
-                                                    },
-                                                    {
-                                                      "eventId": 5,
-                                                      "title": "이벤트 제목",
-                                                      "content": "내용입니다.",
-                                                      "thumbImage": "",
-                                                      "liked": false,
-                                                      "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                                                      "likes": 1,
-                                                      "views": 0,
-                                                      "startDate": "2025-04-20",
-                                                      "endDate": "2025-04-21",
-                                                      "receiveInfo": false,
-                                                      "receiveName": false,
-                                                      "receiveGender": false,
-                                                      "receivePhoneNumber": false,
-                                                      "receiveTotalCount": false,
-                                                      "receiveSNSId": false,
-                                                      "receiveMoney": false,
-                                                      "isAuthor": false,
-                                                      "region": "홍대"
-                                                    }
-                                                  ]
-                                                }
+                                                        {
+                                                          "status": 200,
+                                                          "code": "SUCCESS_GET_MY_PAGE_EVENTS",
+                                                          "message": "마이페이지의 이벤트를 성공적으로 조회했습니다",
+                                                          "data": {
+                                                            "sort": "latest",
+                                                            "page": 1,
+                                                            "size": 10,
+                                                            "totalSize": 6,
+                                                            "eventResponseDTOS": [
+                                                              {
+                                                                "eventId": 13,
+                                                                "title": "이벤트 제목",
+                                                                "content": "내용입니다.",
+                                                                "thumbImage": "",
+                                                                "liked": false,
+                                                                "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                                                                "likes": 0,
+                                                                "views": 1,
+                                                                "startDate": "2025-08-22",
+                                                                "endDate": "2025-09-21",
+                                                                "receiveInfo": false,
+                                                                "receiveName": false,
+                                                                "receiveGender": false,
+                                                                "receivePhoneNumber": false,
+                                                                "receiveTotalCount": false,
+                                                                "receiveSNSId": false,
+                                                                "receiveMoney": false,
+                                                                "region": "압구정_로데오",
+                                                                "isAttending": true,
+                                                                "isAuthor": true
+                                                              },
+                                                              {
+                                                                "eventId": 12,
+                                                                "title": "이벤트 제목",
+                                                                "content": "내용입니다.",
+                                                                "thumbImage": "",
+                                                                "liked": false,
+                                                                "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                                                                "likes": 1,
+                                                                "views": 5,
+                                                                "startDate": "2025-08-22",
+                                                                "endDate": "2025-09-21",
+                                                                "receiveInfo": false,
+                                                                "receiveName": false,
+                                                                "receiveGender": false,
+                                                                "receivePhoneNumber": false,
+                                                                "receiveTotalCount": false,
+                                                                "receiveSNSId": false,
+                                                                "receiveMoney": false,
+                                                                "region": "홍대",
+                                                                "isAttending": true,
+                                                                "isAuthor": true
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
                     """
                                     ),
                                     @ExampleObject(
@@ -333,57 +378,65 @@ public interface EventMyPageApiDocs {
                                                             이 값은 null이 아닌 빈 문자열입니다.
                                                             """,
                                             value = """
-                                                {
-                                                  "status": 200,
-                                                  "code": "SUCCESS_GET_MY_PAGE_EVENTS",
-                                                  "message": "마이페이지의 이벤트를 성공적으로 조회했습니다",
-                                                  "data": [
-                                                    {
-                                                      "eventId": 4,
-                                                      "title": "이벤트 제목",
-                                                      "content": "내용입니다.",
-                                                      "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
-                                                      "liked": false,
-                                                      "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                                                      "likes": 1,
-                                                      "views": 0,
-                                                      "startDate": "2025-06-24",
-                                                      "endDate": "2025-07-21",
-                                                      "receiveInfo": false,
-                                                      "receiveName": false,
-                                                      "receiveGender": false,
-                                                      "receivePhoneNumber": false,
-                                                      "receiveTotalCount": false,
-                                                      "receiveSNSId": false,
-                                                      "receiveMoney": false,
-                                                      "dday": "D-1",
-                                                      "isAuthor": true,
-                                                      "region": "홍대"
-                                                    },
-                                                    {
-                                                      "eventId": 12,
-                                                      "title": "이벤트 제목",
-                                                      "content": "내용입니다.",
-                                                      "thumbImage": "",
-                                                      "liked": false,
-                                                      "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                                                      "likes": 0,
-                                                      "views": 1,
-                                                      "startDate": "2025-08-22",
-                                                      "endDate": "2025-09-21",
-                                                      "receiveInfo": false,
-                                                      "receiveName": false,
-                                                      "receiveGender": false,
-                                                      "receivePhoneNumber": false,
-                                                      "receiveTotalCount": false,
-                                                      "receiveSNSId": false,
-                                                      "receiveMoney": false,
-                                                      "dday": "D-60",
-                                                      "isAuthor": true,
-                                                      "region": "홍대"
-                                                    }
-                                                  ]
-                                                }
+                                            {
+                                              "status": 200,
+                                              "code": "SUCCESS_GET_MY_EVENTS",
+                                              "message": "성공적으로 내가 작성한 이벤트를 가져왔습니다.",
+                                              "data": {
+                                                "sort": "latest",
+                                                "page": 1,
+                                                "size": 10,
+                                                "totalSize": 3,
+                                                "eventResponseDTOS": [
+                                                  {
+                                                    "eventId": 3,
+                                                    "title": "이벤트 제목",
+                                                    "content": "내용입니다.",
+                                                    "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/event/20250622_175153_c7950d03-c0d4-4d6f-a9c5-94896f3b5185.png",
+                                                    "liked": false,
+                                                    "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                                                    "likes": 2,
+                                                    "views": 5,
+                                                    "startDate": "2025-08-22",
+                                                    "endDate": "2025-09-21",
+                                                    "receiveInfo": false,
+                                                    "receiveName": false,
+                                                    "receiveGender": false,
+                                                    "receivePhoneNumber": false,
+                                                    "receiveTotalCount": false,
+                                                    "receiveSNSId": false,
+                                                    "receiveMoney": false,
+                                                    "region": "강남_신사",
+                                                    "dday": "D-43",
+                                                    "isAttending": false,
+                                                    "isAuthor": true
+                                                  },
+                                                  {
+                                                    "eventId": 12,
+                                                    "title": "이벤트 제목",
+                                                    "content": "내용입니다.",
+                                                    "thumbImage": "",
+                                                    "liked": false,
+                                                    "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                                                    "likes": 1,
+                                                    "views": 5,
+                                                    "startDate": "2025-08-22",
+                                                    "endDate": "2025-09-21",
+                                                    "receiveInfo": false,
+                                                    "receiveName": false,
+                                                    "receiveGender": false,
+                                                    "receivePhoneNumber": false,
+                                                    "receiveTotalCount": false,
+                                                    "receiveSNSId": false,
+                                                    "receiveMoney": false,
+                                                    "region": "홍대",
+                                                    "dday": "D-43",
+                                                    "isAttending": true,
+                                                    "isAuthor": true
+                                                  }
+                                                ]
+                                              }
+                                            }
                                     """),
                                     @ExampleObject(
                                             name = "빈 이벤트 마이페이지 글",
@@ -436,34 +489,41 @@ public interface EventMyPageApiDocs {
                                                             이 값은 null이 아닌 빈 문자열입니다.
                                                             """,
                                             value = """
-                                                {
-                                                  "status": 200,
-                                                  "code": "SUCCESS_GET_MY_PAGE_EVENTS",
-                                                  "message": "마이페이지의 이벤트를 성공적으로 조회했습니다",
-                                                  "data": [
-                                                    {
-                                                      "eventId": 2,
-                                                      "title": "string",
-                                                      "content": "string",
-                                                      "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
-                                                      "liked": false,
-                                                      "location": "string",
-                                                      "likes": 2,
-                                                      "views": 0,
-                                                      "startDate": "2025-06-18",
-                                                      "endDate": "2025-06-23",
-                                                      "receiveInfo": false,
-                                                      "receiveName": false,
-                                                      "receiveGender": false,
-                                                      "receivePhoneNumber": false,
-                                                      "receiveTotalCount": false,
-                                                      "receiveSNSId": false,
-                                                      "receiveMoney": false,
-                                                      "isAuthor": true,
-                                                      "region": "홍대"
-                                                    }
-                                                  ]
-                                                }
+                                                        {
+                                                          "status": 200,
+                                                          "code": "SUCCESS_GET_MY_EVENTS",
+                                                          "message": "성공적으로 내가 작성한 이벤트를 가져왔습니다.",
+                                                          "data": {
+                                                            "sort": "latest",
+                                                            "page": 1,
+                                                            "size": 10,
+                                                            "totalSize": 1,
+                                                            "eventResponseDTOS": [
+                                                              {
+                                                                "eventId": 4,
+                                                                "title": "이벤트 제목",
+                                                                "content": "내용입니다.",
+                                                                "thumbImage": "",
+                                                                "liked": true,
+                                                                "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                                                                "likes": 2,
+                                                                "views": 354,
+                                                                "startDate": "2025-06-24",
+                                                                "endDate": "2025-07-21",
+                                                                "receiveInfo": false,
+                                                                "receiveName": false,
+                                                                "receiveGender": false,
+                                                                "receivePhoneNumber": false,
+                                                                "receiveTotalCount": false,
+                                                                "receiveSNSId": false,
+                                                                "receiveMoney": false,
+                                                                "region": "이태원",
+                                                                "isAttending": false,
+                                                                "isAuthor": true
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
                     """
                                     ),
                                     @ExampleObject(
@@ -516,55 +576,63 @@ public interface EventMyPageApiDocs {
                                                             이 값은 null이 아닌 빈 문자열입니다.
                                                             """,
                                             value = """
-                                                {
-                                                  "status": 200,
-                                                  "code": "SUCCESS_GET_MY_PAGE_EVENTS",
-                                                  "message": "마이페이지의 이벤트를 성공적으로 조회했습니다",
-                                                  "data": [
-                                                    {
-                                                      "eventId": 1,
-                                                      "title": "이벤트 시작",
-                                                      "content": "이게 바로 이트",
-                                                      "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
-                                                      "liked": false,
-                                                      "location": "경기도 파주",
-                                                      "likes": 5,
-                                                      "views": 0,
-                                                      "startDate": "2025-06-17",
-                                                      "endDate": "2025-06-17",
-                                                      "receiveInfo": false,
-                                                      "receiveName": false,
-                                                      "receiveGender": false,
-                                                      "receivePhoneNumber": false,
-                                                      "receiveTotalCount": false,
-                                                      "receiveSNSId": false,
-                                                      "receiveMoney": false,
-                                                      "isAuthor": true,
-                                                      "region": "홍대"
-                                                    },
-                                                    {
-                                                      "eventId": 5,
-                                                      "title": "이벤트 제목",
-                                                      "content": "내용입니다.",
-                                                      "thumbImage": "",
-                                                      "liked": false,
-                                                      "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                                                      "likes": 1,
-                                                      "views": 0,
-                                                      "startDate": "2025-04-20",
-                                                      "endDate": "2025-04-21",
-                                                      "receiveInfo": false,
-                                                      "receiveName": false,
-                                                      "receiveGender": false,
-                                                      "receivePhoneNumber": false,
-                                                      "receiveTotalCount": false,
-                                                      "receiveSNSId": false,
-                                                      "receiveMoney": false,
-                                                      "isAuthor": true,
-                                                      "region": "홍대"
-                                                    }
-                                                    ]
-                                                }
+                                            {
+                                              "status": 200,
+                                              "code": "SUCCESS_GET_MY_EVENTS",
+                                              "message": "성공적으로 내가 작성한 이벤트를 가져왔습니다.",
+                                              "data": {
+                                                "sort": "latest",
+                                                "page": 1,
+                                                "size": 10,
+                                                "totalSize": 4,
+                                                "eventResponseDTOS": [
+                                                  {
+                                                    "eventId": 6,
+                                                    "title": "이벤트 제목",
+                                                    "content": "내용입니다.",
+                                                    "thumbImage": "",
+                                                    "liked": false,
+                                                    "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                                                    "likes": 1,
+                                                    "views": 39,
+                                                    "startDate": "2025-06-20",
+                                                    "endDate": "2025-06-28",
+                                                    "receiveInfo": false,
+                                                    "receiveName": false,
+                                                    "receiveGender": false,
+                                                    "receivePhoneNumber": false,
+                                                    "receiveTotalCount": false,
+                                                    "receiveSNSId": false,
+                                                    "receiveMoney": false,
+                                                    "region": "압구정_로데오",
+                                                    "isAttending": false,
+                                                    "isAuthor": true
+                                                  },
+                                                  {
+                                                    "eventId": 8,
+                                                    "title": "이벤트 제목",
+                                                    "content": "내용입니다.",
+                                                    "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/event/20250622_224204_e8799c68-8ea2-4dea-bbd0-4e1922604b7e.jpg",
+                                                    "liked": false,
+                                                    "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                                                    "likes": 0,
+                                                    "views": 4,
+                                                    "startDate": "2025-06-23",
+                                                    "endDate": "2025-06-24",
+                                                    "receiveInfo": false,
+                                                    "receiveName": false,
+                                                    "receiveGender": false,
+                                                    "receivePhoneNumber": false,
+                                                    "receiveTotalCount": false,
+                                                    "receiveSNSId": false,
+                                                    "receiveMoney": false,
+                                                    "region": "이태원",
+                                                    "isAttending": false,
+                                                    "isAuthor": true
+                                                  }
+                                                ]
+                                              }
+                                            }
                                     """),
                                     @ExampleObject(
                                             name = "빈 이벤트 마이페이지 글",
