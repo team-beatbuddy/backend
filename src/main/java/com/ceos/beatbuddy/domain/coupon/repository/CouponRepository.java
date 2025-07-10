@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.coupon.repository;
 
 import com.ceos.beatbuddy.domain.coupon.domain.Coupon;
+import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,4 +16,6 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
     WHERE v.id = :venueId AND c.expireDate >= :today
 """)
     List<Coupon> findAllValidByVenueId(@Param("venueId") Long venueId, @Param("today") LocalDate today);
+
+    boolean existsByVenues_IdAndExpireDateIsAfter(Long venueId, LocalDate now);
 }
