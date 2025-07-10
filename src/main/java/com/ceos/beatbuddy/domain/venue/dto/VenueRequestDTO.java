@@ -21,4 +21,7 @@ public class VenueRequestDTO {
     private String instaId;
     private String instaUrl;
     private String phoneNum;
+
+    private String entranceFee; // 입장료
+    private String notice;
 }
