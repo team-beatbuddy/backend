@@ -25,10 +25,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -286,6 +284,40 @@ public class EventService {
 
         return EventResponseDTO.toDTO(event, liked, member.getId().equals(event.getHost().getId()), isAttending);
     }
+
+    @Transactional
+    public EventListResponseDTO getEventsInPeriod(Long memberId, LocalDate startDate, LocalDate endDate, int page, int size) {
+        Member member = memberService.validateAndGetMember(memberId);
+
+        int offset = (page - 1) * size;
+        List<Event> events = eventQueryRepository.findEventsInPeriod(startDate, endDate, offset, size);
+        long totalSize = eventQueryRepository.countEventsInPeriod(startDate, endDate);
+
+
+        Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
+
+        Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
+                .map(att -> att.getEvent().getId())
+                .collect(Collectors.toSet());
+
+        List<EventResponseDTO> dtoList = events.stream()
+                .map(event ->
+                        EventResponseDTO.toDTO(event,
+                                likedEventIds.contains(event.getId()), // 좋아요 여부
+                                member.getId().equals(event.getHost().getId()), // 내가 작성자 여부
+                                attendingEventIds.contains(event.getId()))) // 참여 여부)) // 좋아요 여부는 false, 내가 작성자 여부는 false로 설정, 참여는 false
+                .collect(Collectors.toList());
+
+        return EventListResponseDTO.builder()
+                .sort("period")
+                .page(page)
+                .size(size)
+                .totalSize((int) totalSize)
+                .eventResponseDTOS(dtoList)
+                .build();
+    }
+
+
 
     public Event validateAndGet(Long eventId) {
         return eventRepository.findById(eventId)

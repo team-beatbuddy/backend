@@ -181,4 +181,33 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
                 .orderBy(event.startDate.desc())
                 .fetch();
     }
+
+    @Override
+    public List<Event> findEventsInPeriod(LocalDate startDate, LocalDate endDate, int offset, int limit) {
+        QEvent event = QEvent.event;
+
+        return queryFactory
+                .selectFrom(event)
+                .where(
+                        event.startDate.loe(endDate)
+                                .and(event.endDate.goe(startDate))
+                )
+                .orderBy(event.startDate.asc())
+                .offset(offset)
+                .limit(limit)
+                .fetch();
+    }
+
+    @Override
+    public long countEventsInPeriod(LocalDate startDate, LocalDate endDate) {
+        QEvent event = QEvent.event;
+
+        return queryFactory
+                .selectFrom(event)
+                .where(
+                        event.startDate.loe(endDate)
+                                .and(event.endDate.goe(startDate))
+                )
+                .fetchCount();
+    }
 }

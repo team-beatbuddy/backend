@@ -5,6 +5,7 @@ import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import io.micrometer.common.lang.Nullable;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,8 @@ public interface EventQueryRepository {
     List<Event> findMyUpcomingEvents(Member member);
     List<Event> findMyNowEvents(Member member);
     List<Event> findMyPastEvents(Member member);
+    List<Event> findEventsInPeriod(LocalDate startDate, LocalDate endDate, int offset, int limit);
+    long countEventsInPeriod(LocalDate startDate, LocalDate endDate);
 
 
 }
