@@ -135,6 +135,13 @@ public class VenueInfoService {
         List<String> deleteImageUrls = dto.getDeleteImageUrls();
         List<String> existingImages = new ArrayList<>(currentImageUrls);
 
+        // 총 이미지 수 유효성 검사 (기존 + 업로드 예정 <= 5)
+        int newImageCount = (backgroundImages != null) ? backgroundImages.size() : 0;
+        int finalImageCount = existingImages.size() + newImageCount;
+        if (finalImageCount > 5) {
+            throw new CustomException(ErrorCode.TOO_MANY_IMAGES_5);
+        }
+
         // 유효성 검사 - 삭제 대상이 실제 존재하는 이미지인지
         if (deleteImageUrls != null && !deleteImageUrls.isEmpty()) {
             if (!new HashSet<>(existingImages).containsAll(deleteImageUrls)) {
@@ -148,12 +155,6 @@ public class VenueInfoService {
             existingImages.removeAll(deleteImageUrls);
         }
 
-        // 총 이미지 수 유효성 검사 (기존 + 업로드 예정 <= 5)
-        int finalImageCount = existingImages.size() + backgroundImages.size();
-        if (finalImageCount > 5) {
-            throw new CustomException(ErrorCode.TOO_MANY_IMAGES_5);
-        }
-
         // 로고 이미지 변경
         if (logoImage != null) {
             uploadUtil.deleteImage(logoImageUrl, UploadUtil.BucketType.VENUE);
@@ -162,7 +163,7 @@ public class VenueInfoService {
         }
 
         // 새로운 이미지 업로드
-        if (!backgroundImages.isEmpty()) {
+        if (backgroundImages!= null && !backgroundImages.isEmpty()) {
             List<String> newImageUrls = uploadUtil.uploadImages(backgroundImages, UploadUtil.BucketType.VENUE, null);
             existingImages.addAll(newImageUrls);
         }
