@@ -40,4 +40,17 @@ public class CouponController implements CouponApiDocs {
                 .status(SuccessCode.SUCCESS_GET_MY_COUPONS.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_COUPONS, myPageCouponList));
     }
+
+    @Override
+    @GetMapping("/my-coupons/unavailable")
+    public ResponseEntity<ResponseDTO<MyPageCouponList>> getMyUnavailableCoupons(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        MyPageCouponList myPageCouponList = couponService.getMyAllCouponUnavailable(memberId, page, size);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_MY_COUPONS.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_COUPONS, myPageCouponList));
+    }
+
 }

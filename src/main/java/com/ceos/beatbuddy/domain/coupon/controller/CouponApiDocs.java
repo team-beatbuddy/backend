@@ -96,28 +96,58 @@ public interface CouponApiDocs {
                             @ExampleObject(
                                     name = "내 쿠폰 조회 성공 예시",
                                     value = """
-                                            {
-                                              "status": 200,
-                                              "code": "SUCCESS_GET_MY_COUPONS",
-                                              "message": "내 쿠폰 목록을 성공적으로 조회했습니다.",
-                                              "data": {
-                                                "coupons": [
-                                                  {
-                                                    "memberCouponId": 1,
-                                                    "couponId": 2,
-                                                    "couponName": "할인 쿠폰",
-                                                    "venueName": "비트버디 카페",
-                                                    "receivedDate": "2025-07-07T10:00:00",
-                                                    "usedDate": null,
-                                                    "expirationDate": "2025-07-14",
-                                                    "status": "RECEIVED"
-                                                  }
-                                                ],
-                                                "totalElements": 1,
-                                                "totalPages": 1,
-                                                "currentPage": 1
-                                              }
-                                            }
+                                    {
+                                      "status": 200,
+                                      "code": "SUCCESS_GET_MY_COUPONS",
+                                      "message": "내 쿠폰 목록을 성공적으로 조회했습니다.",
+                                      "data": {
+                                        "totalCount": 3,
+                                        "totalPage": 1,
+                                        "currentPage": 1,
+                                        "pageSize": 10,
+                                        "coupons": [
+                                          {
+                                            "memberCouponId": 1,
+                                            "couponId": 1,
+                                            "memberId": 156,
+                                            "couponName": "1번 테스트",
+                                            "couponContent": "이건 이렇게 이렇게 할인해주는 거고여",
+                                            "howToUse": "우리한테 보여주세여",
+                                            "venueName": "클럽 트립",
+                                            "receivedDate": "2025-07-08T23:43:08.28746",
+                                            "usedDate": null,
+                                            "expirationDate": "2025-07-13",
+                                            "status": "RECEIVED"
+                                          },
+                                          {
+                                            "memberCouponId": 3,
+                                            "couponId": 2,
+                                            "memberId": 156,
+                                            "couponName": "2번 테스트",
+                                            "couponContent": "이거는 이렇게 이렇게 할인해주는 거고여 예예예",
+                                            "howToUse": "거기 직원에 보여주세요",
+                                            "venueName": "클럽 트립",
+                                            "receivedDate": "2025-07-08T23:43:08.28746",
+                                            "usedDate": null,
+                                            "expirationDate": "2025-07-13",
+                                            "status": "RECEIVED"
+                                          },
+                                          {
+                                            "memberCouponId": 4,
+                                            "couponId": 2,
+                                            "memberId": 156,
+                                            "couponName": "2번 테스트",
+                                            "couponContent": "이거는 이렇게 이렇게 할인해주는 거고여 예예예",
+                                            "howToUse": "거기 직원에 보여주세요",
+                                            "venueName": "클럽 트립",
+                                            "receivedDate": "2025-07-08T23:43:08.28746",
+                                            "usedDate": null,
+                                            "expirationDate": "2025-07-13",
+                                            "status": "RECEIVED"
+                                          }
+                                        ]
+                                      }
+                                    }
                                             """,
                                     description = "내 쿠폰 조회 성공 시 응답 예시"
                             ),
@@ -148,5 +178,72 @@ public interface CouponApiDocs {
             @RequestParam(defaultValue = "10") int size);
 
 
-
+    @Operation(summary = "내 사용 불가능 쿠폰 조회", description = """
+    내 사용 불가능 쿠폰 목록을 조회합니다.
+    - status 가 USED 이면  사용을 한 쿠폰입니다.
+    - expirationDate 가 오늘 이전이면 만료된 쿠폰입니다.
+    """)
+    @ApiResponse(
+            responseCode = "200",
+            description = "내 사용 불가능 쿠폰 목록 조회 성공",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(
+                                    name = "내 사용 불가능 쿠폰 조회 성공 예시",
+                                    value = """
+                                    {
+                                      "status": 200,
+                                      "code": "SUCCESS_GET_MY_COUPONS",
+                                      "message": "내 쿠폰 목록을 성공적으로 조회했습니다.",
+                                      "data": {
+                                        "totalCount": 1,
+                                        "totalPage": 1,
+                                        "currentPage": 1,
+                                        "pageSize": 10,
+                                        "coupons": [
+                                          {
+                                            "memberCouponId": 3,
+                                            "couponId": 2,
+                                            "memberId": 156,
+                                            "couponName": "1번 테스트",
+                                            "couponContent": null,
+                                            "howToUse": "string",
+                                            "venueName": "클럽 트립",
+                                            "receivedDate": "2025-07-08T23:43:08.28746",
+                                            "usedDate": "2025-07-10T15:08:34.864157",
+                                            "expirationDate": "2025-07-13",
+                                            "status": "USED"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                            """,
+                                    description = "내 사용 불가능 쿠폰 조회 성공 시 응답 예시"
+                            ),
+                            @ExampleObject(name = "쿠폰이 없을 때", value = SwaggerExamples.SUCCESS_BUT_EMPTY_LIST, description = "쿠폰이 없을 때의 응답 예시")
+                    }
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "잘못된 요청",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "잘못된 페이지 요청", value = SwaggerExamples.PAGE_OUT_OF_BOUNDS, description = "잘못된 페이지 요청 시의 응답 예시")
+                    }
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "리스소 없음",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)
+            )
+    )
+    ResponseEntity<ResponseDTO<MyPageCouponList>> getMyUnavailableCoupons(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size);
 }

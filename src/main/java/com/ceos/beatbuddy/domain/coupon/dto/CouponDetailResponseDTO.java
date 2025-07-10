@@ -13,6 +13,7 @@ public class CouponDetailResponseDTO {
     private Long couponId;
     private String name;
     private String description;
+    private String howToUse;
     private String imageUrl;
     private int quota;
     private int usedQuota;
