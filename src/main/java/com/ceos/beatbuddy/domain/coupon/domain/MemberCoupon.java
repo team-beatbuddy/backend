@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @Table(
         name = "MemberCoupon",
         indexes = {
-                @Index(name = "idx_member_coupon_date", columnList = "memberId, couponId, receivedDate")
+                @Index(name = "idx_member_coupon_date", columnList = "memberId, couponId, createdAt")
         }
 )
 public class MemberCoupon extends BaseTimeEntity {
