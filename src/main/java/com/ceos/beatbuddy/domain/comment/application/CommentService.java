@@ -87,7 +87,11 @@ public class CommentService {
     }
 
     public Page<CommentResponseDto> getAllComments(Long postId, int page, int size, Long memberId) {
-        Pageable pageable = PageRequest.of(page, size);
+        // 페이지 유효성 조회
+        if (page < 1) {
+            throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
+        }
+        Pageable pageable = PageRequest.of(page-1, size);
         Page<Comment> comments = commentRepository.findAllByPost_Id(postId, pageable);
 
         Set<Long> followingIds = followRepository.findFollowingMemberIds(memberId);

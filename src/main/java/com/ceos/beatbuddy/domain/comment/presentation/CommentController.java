@@ -75,7 +75,7 @@ public class CommentController {
     })
     public ResponseEntity<Page<CommentResponseDto>> getAllComments(
             @PathVariable Long postId,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         return ResponseEntity.ok(commentService.getAllComments(postId, page, size, memberId));
