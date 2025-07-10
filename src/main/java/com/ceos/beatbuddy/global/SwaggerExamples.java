@@ -222,6 +222,26 @@ public class SwaggerExamples {
         }
         """;
 
+    //INVALID_PARAMETER_TYPE
+    public static final String INVALID_PARAMETER_DATE_TYPE = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "INVALID_PARAMETER_TYPE",
+          "message": "날짜 형식이 잘못되었습니다. yyyy-MM-dd 형식이어야 합니다."
+        }
+        """;
+
+    //INVALID_DATE_RANGE
+    public static final String INVALID_DATE_RANGE = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "INVALID_DATE_RANGE",
+          "message": "시작 날짜가 종료 날짜보다 늦을 수 없습니다."
+        }
+        """;
+
     /**
      * 404
      * */

@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.global;
 
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.dto.ErrorResponseDTO;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import jakarta.validation.ConstraintViolationException;
@@ -10,6 +11,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.HashMap;
@@ -71,6 +73,29 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(apiCode.getStatus())
                 .body(new ErrorResponseDTO(apiCode));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponseDTO> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String param = ex.getName();
+        Class<?> requiredType = ex.getRequiredType();
+
+        String message;
+
+        if ("startDate".equals(param) || "endDate".equals(param)) {
+            message = "날짜 형식이 잘못되었습니다. yyyy-MM-dd 형식이어야 합니다.";
+        } else if (requiredType != null && requiredType.isEnum()) {
+            message = String.format("'%s'은(는) 허용되지 않는 값입니다. 올바른 값을 입력해 주세요.", ex.getValue());
+        } else {
+            message = String.format("파라미터 '%s'의 형식이 올바르지 않습니다.", param);
+        }
+
+        log.warn("Parameter Type Mismatch: parameter={}, value={}, requiredType={}", 
+                 param, ex.getValue(), requiredType != null ? requiredType.getSimpleName() : "unknown");
+
+        return ResponseEntity
+                .status(ErrorCode.INVALID_PARAMETER_TYPE.getStatus())
+                .body(new ErrorResponseDTO(ErrorCode.INVALID_PARAMETER_TYPE, message));
     }
 
 
