@@ -1,4 +1,4 @@
-package com.ceos.beatbuddy.domain.venue.dto;
+package com.ceos.beatbuddy.domain.admin.dto;
 
 import lombok.Getter;
 

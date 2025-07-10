@@ -318,6 +318,14 @@ public class SwaggerExamples {
           "message": "해당 이벤트에 대한 접근 권한이 없습니다."
         }
         """;
+    public static final String NOT_ADMIN = """
+        {
+          "status": 403,
+          "error": "FORBIDDEN",
+          "code": "NOT_ADMIN",
+          "message": "해당 계정은 어드민이 아닙니다."
+        }
+        """;
 
     public static final String CANNOT_ADD_EVENT_UNAUTHORIZED_MEMBER = """
     {
@@ -485,6 +493,15 @@ public class SwaggerExamples {
           "error": "NOT_FOUND",
           "code": "REPORT_NOT_FOUND",
           "message": "신고가 존재하지 않습니다."
+        }
+        """;
+
+    public static final String NOT_FOUND_IMAGE = """
+        {
+          "status": 404,
+          "error": "NOT_FOUND",
+          "code": "NOT_FOUND_IMAGE",
+          "message": "해당 이미지를 찾을 수 없습니다."
         }
         """;
 
