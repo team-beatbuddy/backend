@@ -237,7 +237,7 @@ public interface CouponApiDocs {
     )
     @ApiResponse(
             responseCode = "404",
-            description = "리스소 없음",
+            description = "리소스 없음",
             content = @Content(
                     mediaType = "application/json",
                     examples = @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)
