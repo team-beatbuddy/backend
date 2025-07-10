@@ -1,24 +1,23 @@
 package com.ceos.beatbuddy.domain.admin.controller;
 
-import com.ceos.beatbuddy.domain.admin.dto.ReportSummaryDTO;
-import com.ceos.beatbuddy.domain.coupon.application.CouponService;
-import com.ceos.beatbuddy.domain.coupon.dto.CouponCreateRequestDTO;
-import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
 import com.ceos.beatbuddy.domain.admin.application.AdminService;
+import com.ceos.beatbuddy.domain.admin.dto.ReportSummaryDTO;
+import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
+import com.ceos.beatbuddy.domain.report.service.ReportService;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
-import com.ceos.beatbuddy.domain.venue.dto.LoginRequest;
+import com.ceos.beatbuddy.domain.admin.dto.LoginRequest;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
+import com.ceos.beatbuddy.domain.venue.dto.VenueUpdateDTO;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
@@ -26,21 +25,21 @@ import org.springframework.web.multipart.MultipartFile;
 public class AdminController implements AdminApiDocs {
     private final VenueInfoService venueInfoService;
     private final AdminService adminService;
-    private final CouponService couponService;
+    private final ReportService reportService;
 
-
+    // 베뉴 등록
     @Override
-    @PostMapping
-    public ResponseEntity<Long> PostVenueInfo(@RequestBody VenueRequestDTO venueRequestDTO,
-                                              @Parameter(description = "로고 이미지", required = false,
-                                                      content = @Content(mediaType = "multipart/form-data"))
-                                              @RequestParam(value = "file", required = false) MultipartFile logoImage,
-                                              @Parameter(description = "배경 이미지, 비디오 파일", required = false,
-                                                      content = @Content(mediaType = "multipart/form-data"))
-                                              @RequestParam(value = "file", required = false) List<MultipartFile> backgroundImage)
-            throws IOException {
-        return ResponseEntity.ok(
-                venueInfoService.addVenueInfo(venueRequestDTO, logoImage, backgroundImage).getId());
+    @PostMapping(value = "/venue", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseDTO<Long>> PostVenueInfo(
+            @RequestPart(value = "venueRequestDTO") VenueRequestDTO venueRequestDTO,
+            @RequestPart(value = "logoImage", required = false) MultipartFile logoImage,
+            @RequestPart(value = "backgroundImage", required = false) List<MultipartFile> backgroundImage
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        Long venueId = venueInfoService.addVenueInfo(venueRequestDTO, logoImage, backgroundImage, memberId);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_CREATE_VENUE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATE_VENUE, venueId));
     }
 
 
@@ -52,18 +51,19 @@ public class AdminController implements AdminApiDocs {
 
 
     @Override
-    @PutMapping("/{venueId}")
-    public ResponseEntity<Long> updateVenueInfo(@PathVariable Long venueId,
-                                                @RequestBody VenueRequestDTO venueRequestDTO,
-                                                @Parameter(description = "로고 이미지", required = false,
-                                                        content = @Content(mediaType = "multipart/form-data"))
-                                                @RequestParam(value = "file", required = false) MultipartFile logoImage,
-                                                @Parameter(description = "배경 이미지, 비디오 파일", required = false,
-                                                        content = @Content(mediaType = "multipart/form-data"))
-                                                @RequestParam(value = "file", required = false) List<MultipartFile> backgroundImage)
-            throws IOException {
-        return ResponseEntity.ok(
-                venueInfoService.updateVenueInfo(venueId, venueRequestDTO, logoImage, backgroundImage).getId());
+    @PutMapping(value = "/{venueId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseDTO<String>> updateVenueInfo(
+            @PathVariable Long venueId,
+            @RequestPart(value = "venueRequestDTO") VenueUpdateDTO venueUpdateDTO,
+            @RequestPart(value = "logoImage", required = false) MultipartFile logoImage,
+            @RequestPart(value = "backgroundImage", required = false) List<MultipartFile> backgroundImage
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        venueInfoService.updateVenueInfo(venueId, venueUpdateDTO, logoImage, backgroundImage, memberId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_UPDATE_VENUE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_VENUE, "수정이 완료되었습니다."));
     }
 
 
@@ -83,10 +83,11 @@ public class AdminController implements AdminApiDocs {
         return adminService.createAdminToken(adminId, request.getId());
     }
 
+    @Override
     @GetMapping("/report")
     public ResponseEntity<ResponseDTO<List<ReportSummaryDTO>>> getAllReports() {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        List<ReportSummaryDTO> reports = adminService.getAllReports(memberId);
+        List<ReportSummaryDTO> reports = reportService.getAllReports(memberId);
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_REPORT_LIST.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_REPORT_LIST, reports));
@@ -97,7 +98,7 @@ public class AdminController implements AdminApiDocs {
             @PathVariable Long reportId
     ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        adminService.deleteReport(reportId, memberId);
+        reportService.deleteReport(reportId, memberId);
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_DELETE_REPORT.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_DELETE_REPORT, "신고가 삭제되었습니다."));
@@ -110,7 +111,7 @@ public class AdminController implements AdminApiDocs {
             @PathVariable Long reportId
     ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        adminService.processReport(reportId, memberId);
+        reportService.processReport(reportId, memberId);
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_PROCESS_REPORT.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_PROCESS_REPORT, "신고가 처리되었습니다."));
