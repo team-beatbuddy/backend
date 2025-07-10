@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.venue.application;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.ceos.beatbuddy.domain.admin.application.AdminService;
 import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
@@ -19,6 +20,7 @@ import com.ceos.beatbuddy.domain.venue.repository.VenueMoodRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.UploadUtil;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -44,8 +46,7 @@ public class VenueInfoService {
     private final VenueGenreRepository venueGenreRepository;
     private final VenueMoodRepository venueMoodRepository;
     private final VenueSearchService venueSearchService;
-
-    private final AmazonS3 amazonS3;
+    private final AdminService adminService;
 
     private final UploadUtil uploadUtil;
     public List<Venue> getVenueInfoList() {
@@ -92,25 +93,31 @@ public class VenueInfoService {
     }
 
     @Transactional
-    public Venue addVenueInfo(VenueRequestDTO request, MultipartFile logoImage, List<MultipartFile> backgroundImage)
-            throws IOException {
+    public Long addVenueInfo(VenueRequestDTO request, MultipartFile logoImage, List<MultipartFile> backgroundImage, Long memberId) {
+        // 베뉴 등록 시, 멤버가 ADMIN인지 확인
+        adminService.validateAdmin(memberId);
+
+        // backgroundImage가 5개 초과면 예외
+        if (backgroundImage.size() > 5) {
+            throw new CustomException(ErrorCode.TOO_MANY_IMAGES_5);
+        }
 
         String logoImageUrl = null;
         List<String> backgroundImageUrls = new ArrayList<>();
 
-        if (logoImage != null) {
+        if (logoImage != null && !logoImage.isEmpty()) {
             logoImageUrl = uploadUtil.upload(logoImage, UploadUtil.BucketType.VENUE, null);
         }
 
-        if (!backgroundImage.isEmpty()) {
-            uploadUtil.uploadImages(backgroundImage, UploadUtil.BucketType.VENUE, null);
+        if (backgroundImage != null && !backgroundImage.isEmpty()) {
+            backgroundImageUrls = uploadUtil.uploadImages(backgroundImage, UploadUtil.BucketType.VENUE, null);
         }
 
-        Venue venue =venueRepository.save(Venue.of(request, logoImageUrl, backgroundImageUrls));
+        Venue venue = venueRepository.save(Venue.of(request, logoImageUrl, backgroundImageUrls));
 
         venueSearchService.save(venue); // Venue 정보를 Elasticsearch에 저장
 
-        return venue;
+        return venue.getId();
     }
 
     @Transactional

@@ -32,6 +32,9 @@ public class Venue extends BaseTimeEntity {
     private String instaUrl;
     private String phoneNum;
 
+    private String entranceFee; // 입장료
+    private String notice;
+
     @ElementCollection
     private Map<String,String> operationHours;
 
@@ -41,9 +44,6 @@ public class Venue extends BaseTimeEntity {
 
     @Builder.Default
     private Long heartbeatNum = 0L;
-
-    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Event> events;
 
     public void addHeartbeatNum() {
         if(this.heartbeatNum==null) {
@@ -87,6 +87,8 @@ public class Venue extends BaseTimeEntity {
                 .operationHours(request.getWeeklyOperationHours())
                 .logoUrl(logoUrl)
                 .backgroundUrl(backgroundUrl)
+                .notice(request.getNotice())
+                .entranceFee(request.getEntranceFee())
                 .build();
     }
 }

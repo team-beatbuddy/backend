@@ -15,10 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -26,19 +23,36 @@ import java.util.List;
 
 public interface AdminApiDocs {
     @Operation(summary = "베뉴 정보 등록", description = "베뉴 정보를 등록합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "베뉴 정보 등록 성공"),
-            @ApiResponse(responseCode = "400", description = "틀린 이미지 형식"),
-            @ApiResponse(responseCode = "500", description = "이미지 업로드 실패")
-    })
-    ResponseEntity<Long> PostVenueInfo(@RequestBody VenueRequestDTO venueRequestDTO,
-                                              @Parameter(description = "로고 이미지", required = false,
-                                                      content = @Content(mediaType = "multipart/form-data"))
-                                              @RequestParam(value = "file", required = false) MultipartFile logoImage,
-                                              @Parameter(description = "배경 이미지, 비디오 파일", required = false,
-                                                      content = @Content(mediaType = "multipart/form-data"))
-                                              @RequestParam(value = "file", required = false) List<MultipartFile> backgroundImage)
-            throws IOException;
+    @ApiResponse(
+            responseCode = "201", description = "베뉴 정보 등록 성공",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ResponseDTO.class),
+                    examples = @ExampleObject(value = """
+                            {
+                              "status": 201,
+                              "code": "SUCCESS_CREATE_VENUE",
+                              "message": "베뉴 정보가 성공적으로 등록되었습니다.",
+                              "data": 1
+                            }
+                            """))
+    )
+    @ApiResponse(
+            responseCode = "400", description = "잘못된 요청",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ResponseDTO.class),
+                    examples = @ExampleObject(value = SwaggerExamples.TOO_MANY_IMAGES_5_EXAMPLE))
+    )
+    @ApiResponse(
+            responseCode = "500", description = "이미지 업로드 실패",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ResponseDTO.class),
+                    examples = @ExampleObject(value = SwaggerExamples.IMAGE_UPLOAD_FAILED))
+    )
+    ResponseEntity<ResponseDTO<Long>> PostVenueInfo(
+            @RequestPart(value = "venueRequestDTO") VenueRequestDTO venueRequestDTO,
+            @RequestPart(value = "logoImage", required = false) MultipartFile logoImage,
+            @RequestPart(value = "backgroundImage", required = false) List<MultipartFile> backgroundImage
+    );
 
     @Operation(summary = "베뉴 정보 수정", description = "베뉴 정보를 수정합니다.")
     @ApiResponses({
