@@ -23,6 +23,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -49,7 +50,7 @@ public class CouponService {
         Venue venue = venueInfoService.validateAndGetVenue(venueId);
 
         validateCouponAvailable(coupon);
-        validateCouponReceivePolicy(member, coupon);
+        validateCouponReceivePolicy(member, coupon, venue);
 
         // redis 에서 티켓 감소
         luaScriptService.decreaseQuotaOrThrow(redisKey);
@@ -188,32 +189,51 @@ public class CouponService {
                 .orElseThrow(() -> new CustomException(CouponErrorCode.MEMBER_COUPON_NOT_FOUND));
     }
 
-    private void validateCouponReceivePolicy(Member member, Coupon coupon) {
-        LocalDateTime today = LocalDateTime.now();
+    private void validateCouponReceivePolicy(Member member, Coupon coupon, Venue venue) {
+        LocalDateTime now = LocalDateTime.now();
+
+        int maxCount = coupon.getMaxReceiveCountPerUser() != null
+                ? coupon.getMaxReceiveCountPerUser()
+                : 1; // 기본값은 1
 
         switch (coupon.getPolicy()) {
             case DAILY -> {
-                if (memberCouponRepository.existsByMemberAndCouponAndCreatedAt(member, coupon, today)) {
+                LocalDate today = LocalDate.now();
+                LocalDateTime startOfDay = today.atStartOfDay();
+                LocalDateTime endOfDay = today.plusDays(1).atStartOfDay().minusNanos(1);
+
+                int countToday = memberCouponRepository.countByMemberIdAndCouponIdAndVenueIdAndCreatedAtBetween(
+                        member.getId(), coupon.getId(), venue.getId(), startOfDay, endOfDay
+                );
+
+                if (countToday >= maxCount) {
                     throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED_TODAY);
                 }
             }
-            case ONCE -> {
-                if (memberCouponRepository.existsByMemberAndCoupon(member, coupon)) {
-                    throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED);
+
+            case WEEKLY -> {
+                LocalDate weekStart = now.with(java.time.DayOfWeek.MONDAY).toLocalDate();
+                LocalDate weekEnd = now.with(java.time.DayOfWeek.SUNDAY).toLocalDate();
+
+                int countThisWeek = memberCouponRepository.countByMemberAndCouponAndVenueAndCreatedAtBetween(
+                        member, coupon, venue,
+                        weekStart.atStartOfDay(), weekEnd.plusDays(1).atStartOfDay()
+                );
+                if (countThisWeek >= maxCount) {
+                    throw new CustomException(CouponErrorCode.COUPON_RECEIVE_LIMIT_EXCEEDED);
                 }
             }
-            case WEEKLY -> {
-                if (coupon.getMaxReceiveCountPerUser() != null) {
-                    // 주 시작(월요일)과 종료(일요일) 계산
-                    LocalDateTime startOfWeek = today.with(java.time.DayOfWeek.MONDAY);
-                    LocalDateTime endOfWeek = today.with(java.time.DayOfWeek.SUNDAY);
 
-                    int countThisWeek = memberCouponRepository.countByMemberAndCouponAndCreatedAtBetween(
-                            member, coupon, startOfWeek, endOfWeek);
+            case ONCE -> {
+                LocalDateTime start = coupon.getCreatedAt(); // 또는 정책 시작일(필드가 있다면)
+                LocalDateTime end = coupon.getExpireDate().atTime(23, 59, 59); // 하루 끝까지 포함
 
-                    if (countThisWeek >= coupon.getMaxReceiveCountPerUser()) {
-                        throw new CustomException(CouponErrorCode.COUPON_RECEIVE_LIMIT_EXCEEDED);
-                    }
+                int count = memberCouponRepository.countByMemberIdAndCouponIdAndVenueIdAndCreatedAtBetween(
+                        member.getId(), coupon.getId(), venue.getId(), start, end
+                );
+
+                if (count >= maxCount) {
+                    throw new CustomException(CouponErrorCode.COUPON_ALREADY_RECEIVED);
                 }
             }
         }

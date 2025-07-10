@@ -13,5 +13,6 @@ import java.util.List;
 public class VenueInfoResponseDTO {
     private Venue venue;
     private Boolean isHeartbeat;
+    private Boolean isCoupon;
     private List<String> tagList;
 }

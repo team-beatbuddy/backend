@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.coupon.repository;
 import com.ceos.beatbuddy.domain.coupon.domain.Coupon;
 import com.ceos.beatbuddy.domain.coupon.domain.MemberCoupon;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -39,4 +40,29 @@ public interface MemberCouponRepository extends JpaRepository<MemberCoupon, Long
             @Param("now") LocalDate now,
             Pageable pageable
     );
+
+    int countByMemberAndCouponAndVenue(Member member, Coupon coupon, Venue venue);
+
+    int countByMemberAndCouponAndVenueAndCreatedAtBetween(
+            Member member,
+            Coupon coupon,
+            Venue venue,
+            LocalDateTime start,
+            LocalDateTime end
+    );
+
+    boolean existsByMemberIdAndCouponIdAndVenueId(Long memberId, Long couponId, Long venueId);
+
+
+    // DAILY
+    int countByMemberIdAndCouponIdAndVenueIdAndCreatedAt(Long memberId, Long couponId, Long venueId, LocalDateTime date);
+
+    // WEEKLY
+    int countByMemberIdAndCouponIdAndVenueIdAndCreatedAtBetween(
+            Long memberId, Long couponId, Long venueId, LocalDateTime start, LocalDateTime end
+    );
+
+    // ONCE
+    int countByMemberIdAndCouponIdAndVenueId(Long memberId, Long couponId, Long venueId);
+
 }
