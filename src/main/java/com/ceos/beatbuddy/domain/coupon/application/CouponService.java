@@ -127,8 +127,29 @@ public class CouponService {
 
         // 멤버의 쿠폰 정보 조회 (페이지네이션으로 조회)
         Page<MemberCoupon> memberCouponsPage = memberCouponRepository.findByMember_IdAndStatusAndCoupon_ExpireDateAfter
-                (memberId, MemberCoupon.CouponStatus.RECEIVED, PageRequest.of(page - 1, size), LocalDateTime.now());
+                (memberId, MemberCoupon.CouponStatus.RECEIVED, PageRequest.of(page - 1, size), LocalDate.now());
 
+        // 쿠폰 정보와 함께 반환
+        return convertToMyPageCouponList(memberCouponsPage);
+    }
+
+    public MyPageCouponList getMyAllCouponUnavailable(Long memberId, int page, int size) {
+        memberService.validateAndGetMember(memberId);
+
+        // 페이지네이션 잘못됐는지 확인
+        if (page < 1) {
+            throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
+        }
+
+        // 멤버의 쿠폰 정보 조회 (페이지네이션으로 조회)
+        Page<MemberCoupon> memberCouponsPage = memberCouponRepository.findUnavailableCoupons
+                (memberId, MemberCoupon.CouponStatus.USED, LocalDate.now(), PageRequest.of(page - 1, size));
+
+        // 쿠폰 정보와 함께 반환
+        return convertToMyPageCouponList(memberCouponsPage);
+    }
+
+    private MyPageCouponList convertToMyPageCouponList(Page<MemberCoupon> memberCouponsPage) {
         // 쿠폰 정보와 함께 반환
         List<MyPageCouponDTO> myPageCoupons = memberCouponsPage.stream()
                 .map(MyPageCouponDTO::toDTO)

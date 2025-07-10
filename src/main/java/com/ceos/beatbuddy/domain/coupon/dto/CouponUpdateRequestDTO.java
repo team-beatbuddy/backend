@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class CouponUpdateRequestDTO {
     private String name;
+    private String content;
     private String howToUse;
     private String notes;
     private List<Long> venueIds;

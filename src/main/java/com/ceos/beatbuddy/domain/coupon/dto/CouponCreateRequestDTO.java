@@ -20,6 +20,8 @@ import java.util.List;
 public class CouponCreateRequestDTO {
     @NotNull(message = "쿠폰명은 필수입니다")
     private String name;
+    @NotNull(message = "쿠폰 내용은 필수입니다")
+    private String content; // 쿠폰 내용 (팝업 제목)
     @NotNull(message = "사용방법은 필수입니다")
     private String howToUse;
     private String notes;
@@ -39,6 +41,7 @@ public class CouponCreateRequestDTO {
     public static Coupon toEntity(CouponCreateRequestDTO requestDTO, List<Venue> venues) {
         return Coupon.builder()
                 .name(requestDTO.getName())
+                .content(requestDTO.getContent())
                 .howToUse(requestDTO.getHowToUse())
                 .notes(requestDTO.getNotes())
                 .expireDate(requestDTO.getExpireDate())

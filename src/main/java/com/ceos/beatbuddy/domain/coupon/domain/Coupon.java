@@ -28,6 +28,7 @@ public class Coupon {
     private Long id;
 
     private String name;              // 쿠폰 이름
+    private String content;         // 쿠폰 내용 (팝업 제목)
 
     private LocalDate expireDate;     // 쿠폰 만료일
 
@@ -73,6 +74,9 @@ public class Coupon {
     public void updateFromRequest(CouponUpdateRequestDTO dto, List<Venue> venues) {
         if (dto.getName() != null) {
             this.name = dto.getName();
+        }
+        if (dto.getContent() != null) {
+            this.content = dto.getContent();
         }
         if (dto.getHowToUse() != null) {
             this.howToUse = dto.getHowToUse();
