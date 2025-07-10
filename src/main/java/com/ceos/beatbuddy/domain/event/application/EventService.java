@@ -247,41 +247,6 @@ public class EventService {
     }
 
     @Transactional
-    public void likeEvent(Long eventId, Long memberId) {
-        Member member = memberService.validateAndGetMember(memberId);
-
-        Event event = validateAndGet(eventId);
-
-        EventInteractionId id = new EventInteractionId(memberId, eventId);
-
-        if (eventLikeRepository.existsById(id)) {
-            throw new CustomException(ErrorCode.ALREADY_LIKED);
-        }
-
-        EventLike eventLike = EventLike.toEntity(member, event);
-        eventLikeRepository.save(eventLike);
-        eventRepository.increaseLike(eventId);
-    }
-
-    @Transactional
-    public void deleteLikeEvent(Long eventId, Long memberId) {
-        // 멤버 조회
-        Member member = memberService.validateAndGetMember(memberId);
-
-        // 이벤트 조회
-        Event event = validateAndGet(eventId);
-
-
-        // 좋아요 여부 확인
-        EventInteractionId id = new EventInteractionId(memberId, eventId);
-        EventLike eventLike = eventLikeRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_LIKE));
-
-        eventLikeRepository.delete(eventLike);
-        eventRepository.decreaseLike(eventId);
-    }
-
-    @Transactional
     public EventResponseDTO getEventDetail(Long eventId, Long memberId) {
         // 멤버 조회
         Member member = memberService.validateAndGetMember(memberId);

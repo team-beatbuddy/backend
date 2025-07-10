@@ -142,6 +142,7 @@ public class MagazineService {
      * @return 매거진을 나타내는 상세 DTO
      * @throws CustomException 회원 또는 매거진이 존재하지 않거나, 매거진이 표시 불가능한 경우
      */
+    @Transactional
     public MagazineDetailDTO readDetailMagazine(Long memberId, Long magazineId) {
         memberService.validateAndGetMember(memberId);
 
