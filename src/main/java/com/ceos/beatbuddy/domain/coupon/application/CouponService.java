@@ -117,6 +117,7 @@ public class CouponService {
         memberCoupon.setUsedDate(LocalDateTime.now());
     }
 
+    @Transactional(readOnly = true)
     public MyPageCouponList getMyAllCouponAvailable(Long memberId, int page, int size) {
          memberService.validateAndGetMember(memberId);
 
