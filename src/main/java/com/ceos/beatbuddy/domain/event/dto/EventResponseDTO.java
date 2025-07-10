@@ -50,16 +50,24 @@ public class EventResponseDTO {
 
     private String region;
 
+    @JsonProperty("isAttending")
+    private Boolean isAttending;
+
 
     @JsonProperty("isAuthor")
     private Boolean isAuthor;
+
+
+    public Boolean getIsAttending() {
+        return isAttending;
+    }
 
     public Boolean getIsAuthor() {
         return isAuthor;
     }
 
 
-    public static EventResponseDTO toDTO(Event event, boolean liked, boolean isAuthor) {
+    public static EventResponseDTO toDTO(Event event, boolean liked, boolean isAuthor, boolean isAttending) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
@@ -80,13 +88,14 @@ public class EventResponseDTO {
                 .depositAccount(Optional.ofNullable(event.getDepositAccount()).orElse(""))
                 .depositAmount(Optional.ofNullable(event.getDepositAmount()).orElse(0))
                 .isAuthor(isAuthor)
+                .isAttending(isAttending)
                 .ticketCost(Optional.ofNullable(event.getTicketCost()).orElse(""))
                 .notice(Optional.ofNullable(event.getNotice()).orElse(""))
                 .region(Optional.of(event.getRegion().name()).orElse(""))
                 .build();
     }
 
-    public static EventResponseDTO toUpcomingListDTO(Event event, boolean isAuthor, boolean liked) {
+    public static EventResponseDTO toUpcomingListDTO(Event event, boolean isAuthor, boolean liked, boolean isAttending) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
@@ -100,11 +109,30 @@ public class EventResponseDTO {
                 .location(event.getLocation())
                 .isAuthor(isAuthor)
                 .liked(liked)
+                .isAttending(isAttending)
                 .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
                 .build();
     }
 
-    public static EventResponseDTO toPastListDTO(Event event, boolean isAuthor, boolean liked) {
+    public static EventResponseDTO toPastListDTO(Event event, boolean isAuthor, boolean liked, boolean isAttending) {
+        return EventResponseDTO.builder()
+                .eventId(event.getId())
+                .title(event.getTitle())
+                .content(event.getContent())
+                .startDate(event.getStartDate())
+                .endDate(event.getEndDate())
+                .thumbImage(Optional.ofNullable(event.getThumbImage()).orElse(""))
+                .likes(event.getLikes())
+                .views(event.getViews())
+                .location(event.getLocation())
+                .isAuthor(isAuthor)
+                .isAttending(isAttending)
+                .liked(liked)
+                .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
+                .build();
+    }
+
+    public static EventResponseDTO toNowListDTO(Event event, boolean isAuthor, boolean liked, boolean isAttending) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
@@ -117,23 +145,7 @@ public class EventResponseDTO {
                 .location(event.getLocation())
                 .isAuthor(isAuthor)
                 .liked(liked)
-                .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
-                .build();
-    }
-
-    public static EventResponseDTO toNowListDTO(Event event, boolean isAuthor, boolean liked) {
-        return EventResponseDTO.builder()
-                .eventId(event.getId())
-                .title(event.getTitle())
-                .content(event.getContent())
-                .startDate(event.getStartDate())
-                .endDate(event.getEndDate())
-                .thumbImage(Optional.ofNullable(event.getThumbImage()).orElse(""))
-                .likes(event.getLikes())
-                .views(event.getViews())
-                .location(event.getLocation())
-                .isAuthor(isAuthor)
-                .liked(liked)
+                .isAttending(isAttending)
                 .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
                 .build();
     }
