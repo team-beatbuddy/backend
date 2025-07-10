@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface EventApiDocs {
@@ -970,4 +971,122 @@ public interface EventApiDocs {
             @PathVariable Long eventId,
             @RequestBody EventAttendanceUpdateDTO dto);
 
+    @Operation(
+            summary = "특정 기간 내 진행되는 이벤트 조회",
+            description = """
+                특정 기간 내에 진행되는 이벤트를 조회합니다.
+                - 시작 날짜와 종료 날짜를 기준으로 이벤트를 필터링합니다.
+                - 페이지네이션을 지원합니다.
+                """
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "특정 기간 내 진행되는 이벤트 조회 성공",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ResponseDTO.class),
+                    examples = @ExampleObject(value = """
+                    {
+                      "status": 200,
+                      "code": "SUCCESS_GET_SEARCH_EVENT_LIST",
+                      "message": "이벤트 검색을 성공적으로 했습니다.",
+                      "data": {
+                        "sort": "period",
+                        "page": 1,
+                        "size": 10,
+                        "totalSize": 7,
+                        "eventResponseDTOS": [
+                          {
+                            "eventId": 5,
+                            "title": "이벤트 제목",
+                            "content": "내용입니다.",
+                            "images": [],
+                            "liked": true,
+                            "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                            "likes": 1,
+                            "views": 0,
+                            "startDate": "2025-04-20",
+                            "endDate": "2025-07-21",
+                            "receiveInfo": true,
+                            "receiveName": true,
+                            "receiveGender": true,
+                            "receivePhoneNumber": true,
+                            "receiveTotalCount": false,
+                            "receiveSNSId": true,
+                            "receiveMoney": true,
+                            "depositAccount": "국민 122235-455678952",
+                            "depositAmount": 20000,
+                            "ticketCost": "",
+                            "notice": "",
+                            "region": "강남_신사",
+                            "isAttending": false,
+                            "isAuthor": true
+                          },
+                          {
+                            "eventId": 1,
+                            "title": "이벤트 시작",
+                            "content": "이게 바로 이트",
+                            "images": [],
+                            "liked": false,
+                            "location": "경기도 파주",
+                            "likes": 5,
+                            "views": 28,
+                            "startDate": "2025-06-17",
+                            "endDate": "2025-06-17",
+                            "receiveInfo": true,
+                            "receiveName": false,
+                            "receiveGender": false,
+                            "receivePhoneNumber": false,
+                            "receiveTotalCount": false,
+                            "receiveSNSId": false,
+                            "receiveMoney": false,
+                            "depositAccount": "국민 123-456-789",
+                            "depositAmount": 20000,
+                            "ticketCost": "",
+                            "notice": "",
+                            "region": "강남_신사",
+                            "isAttending": true,
+                            "isAuthor": true
+                          },
+                          {
+                            "eventId": 2,
+                            "title": "string",
+                            "content": "string",
+                            "images": [
+                                 "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/event/20250622_224204_e8799c68-8ea2-4dea-bbd0-4e1922604b7e.jpg",
+                                 "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/event/20250623_011130_b39d5833-6793-4fa9-a3b4-a7174a86e6c9.png",
+                                 "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/event/20250623_011130_9dacc431-7b82-4c65-a582-870ab237f3f0.png"
+                            ],
+                            "liked": true,
+                            "location": "string",
+                            "likes": 2,
+                            "views": 12,
+                            "startDate": "2025-06-18",
+                            "endDate": "2025-06-23",
+                            "receiveInfo": true,
+                            "receiveName": true,
+                            "receiveGender": true,
+                            "receivePhoneNumber": true,
+                            "receiveTotalCount": false,
+                            "receiveSNSId": true,
+                            "receiveMoney": true,
+                            "depositAccount": "string",
+                            "depositAmount": 0,
+                            "ticketCost": "",
+                            "notice": "",
+                            "region": "홍대",
+                            "isAttending": true,
+                            "isAuthor": true
+                          }
+                        ]
+                      }
+                    }
+                        """)
+            )
+    )
+    ResponseEntity<ResponseDTO<EventListResponseDTO>> getSearchEventWithPeriod(
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size);
 }
