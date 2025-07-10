@@ -1084,6 +1084,17 @@ public interface EventApiDocs {
                         """)
             )
     )
+    @ApiResponse(
+            responseCode = "400",
+            description = "잘못된 요청 또는 입력값 누락",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "잘못된 날짜 형식", value = SwaggerExamples.INVALID_PARAMETER_DATE_TYPE),
+                            @ExampleObject(name = "시작 날짜가 종료 날짜보다 늦은 경우", value = SwaggerExamples.INVALID_DATE_RANGE)
+                    }
+            )
+    )
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getSearchEventWithPeriod(
             @RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate,

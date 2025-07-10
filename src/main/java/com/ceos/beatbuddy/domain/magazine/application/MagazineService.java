@@ -313,9 +313,6 @@ public class MagazineService {
 
     }
 
-
-
-
     // 홈에 고정되는 매거진의 유효성 검사
     private void validatePinnedMagazine(boolean isPinned, Integer orderInHome, Long excludeMagazineId) {
         if (isPinned) {
@@ -331,7 +328,6 @@ public class MagazineService {
             }
         }
     }
-
     private void updateCommonFields(Magazine magazine, MagazineUpdateRequestDTO dto) {
         if (dto.getTitle() != null) magazine.setTitle(dto.getTitle());
         if (dto.getContent() != null) magazine.setContent(dto.getContent());
