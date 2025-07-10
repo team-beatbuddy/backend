@@ -50,6 +50,7 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_LIKE_MAGAZINE(HttpStatus.CREATED, "매거진에 성공적으로 좋아요를 표시했습니다."),
     SUCCESS_DELETE_LIKE(HttpStatus.OK, "좋아요를 취소했습니다."),
     SUCCESS_UPDATE_MAGAZINE(HttpStatus.OK, "매거진을 성공적으로 수정했습니다."),
+    SUCCESS_DELETE_MAGAZINE(HttpStatus.OK, "매거진을 성공적으로 삭제했습니다."),
 
     /**
      * Event

@@ -293,6 +293,24 @@ public class MagazineService {
         return MagazineDetailDTO.toDTO(magazine, false, true); // 작성자는 항상 좋아요가 false로 설정됨
     }
 
+    // 매거진 삭제 - 연관도 함께 삭제
+    @Transactional
+    public void deleteMagazine(Long memberId, Long magazineId) {
+        Member member = memberService.validateAndGetMember(memberId);
+        Magazine magazine = magazineValidator.validateAndGetMagazine(magazineId);
+
+        // 작성자가 아니거나 관리자 권한이 없는 경우
+        if (!magazine.getMember().getId().equals(memberId) && member.getRole() != Role.ADMIN) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
+        }
+
+        // 매거진 삭제
+        magazineRepository.delete(magazine);
+
+        // 매거진 좋아요 삭제
+        magazineLikeRepository.deleteAllById_MagazineId(magazineId);
+    }
+
 
 
 
