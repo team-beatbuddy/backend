@@ -309,7 +309,7 @@ public class MagazineService {
         magazineRepository.delete(magazine);
 
         // 매거진 좋아요 삭제
-        magazineLikeRepository.deleteAllById_MagazineId(magazineId);
+        magazineLikeRepository.deleteAllByMagazine_Id(magazineId);
     }
 
 
