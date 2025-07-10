@@ -9,6 +9,7 @@ import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.vector.entity.Vector;
 import com.ceos.beatbuddy.domain.venue.dto.VenueInfoResponseDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
+import com.ceos.beatbuddy.domain.venue.dto.VenueUpdateDTO;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.entity.VenueGenre;
 import com.ceos.beatbuddy.domain.venue.entity.VenueMood;
@@ -29,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -121,29 +123,55 @@ public class VenueInfoService {
     }
 
     @Transactional
-    public Venue updateVenueInfo(Long venueId, VenueRequestDTO venueRequestDTO, MultipartFile logoImage, List<MultipartFile> backgroundImages)
-            throws IOException {
+    public void updateVenueInfo(Long venueId, VenueUpdateDTO dto, MultipartFile logoImage, List<MultipartFile> backgroundImages, Long memberId)  {
         Venue venue = venueRepository.findById(venueId)
                 .orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
 
-        String logoImageUrl = venue.getLogoUrl();
-        List<String> backgroundImageUrls = venue.getBackgroundUrl();
+        // 베뉴 수정 시, 멤버가 ADMIN인지 확인
+        adminService.validateAdmin(memberId);
 
+        String logoImageUrl = venue.getLogoUrl();
+        List<String> currentImageUrls = venue.getBackgroundUrl();
+        List<String> deleteImageUrls = dto.getDeleteImageUrls();
+        List<String> existingImages = new ArrayList<>(currentImageUrls);
+
+        // 유효성 검사 - 삭제 대상이 실제 존재하는 이미지인지
+        if (deleteImageUrls != null && !deleteImageUrls.isEmpty()) {
+            if (!new HashSet<>(existingImages).containsAll(deleteImageUrls)) {
+                throw new CustomException(ErrorCode.NOT_FOUND_IMAGE);
+            }
+
+            // S3에서 삭제
+            uploadUtil.deleteImages(deleteImageUrls, UploadUtil.BucketType.VENUE);
+
+            // 기존 이미지 리스트에서 삭제
+            existingImages.removeAll(deleteImageUrls);
+        }
+
+        // 총 이미지 수 유효성 검사 (기존 + 업로드 예정 <= 5)
+        int finalImageCount = existingImages.size() + backgroundImages.size();
+        if (finalImageCount > 5) {
+            throw new CustomException(ErrorCode.TOO_MANY_IMAGES_5);
+        }
+
+        // 로고 이미지 변경
         if (logoImage != null) {
             uploadUtil.deleteImage(logoImageUrl, UploadUtil.BucketType.VENUE);
             logoImageUrl = uploadUtil.upload(logoImage, UploadUtil.BucketType.VENUE, null);
+            venue.updateLogoUrl(logoImageUrl);
         }
 
+        // 새로운 이미지 업로드
         if (!backgroundImages.isEmpty()) {
-            uploadUtil.deleteImages(backgroundImageUrls, UploadUtil.BucketType.VENUE);
-            backgroundImageUrls = uploadUtil.uploadImages(backgroundImages, UploadUtil.BucketType.VENUE, null);
+            List<String> newImageUrls = uploadUtil.uploadImages(backgroundImages, UploadUtil.BucketType.VENUE, null);
+            existingImages.addAll(newImageUrls);
         }
 
-        venue.update(venueRequestDTO, logoImageUrl, backgroundImageUrls);
+        // venue에 최종 이미지 리스트 반영
+        venue.updateBackgroundUrl(existingImages);
 
-        Venue updatedVenue = venueRepository.save(venue);
-        venueSearchService.save(updatedVenue);
-        return updatedVenue;
+        venue.update(dto);
+        venueSearchService.save(venue); // Venue 정보를 Elasticsearch에 저장
     }
 
     public Venue validateAndGetVenue(Long venueId) {

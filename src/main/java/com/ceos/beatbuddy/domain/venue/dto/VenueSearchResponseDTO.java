@@ -1,6 +1,5 @@
 package com.ceos.beatbuddy.domain.venue.dto;
 
-import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.entity.VenueDocument;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

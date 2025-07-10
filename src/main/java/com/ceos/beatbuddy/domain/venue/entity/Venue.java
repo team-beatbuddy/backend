@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.venue.entity;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
+import com.ceos.beatbuddy.domain.venue.dto.VenueUpdateDTO;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -58,19 +59,27 @@ public class Venue extends BaseTimeEntity {
         }
     }
 
-    public void update(VenueRequestDTO venueRequestDTO, String logoImageUrl, List<String> backgroundImageUrls){
-        this.isSmokingAllowed = venueRequestDTO.isSmokingAllowed();
-        this.englishName = venueRequestDTO.getEnglishName();
-        this.koreanName = venueRequestDTO.getKoreanName();
-        this.region = venueRequestDTO.getRegion();
-        this.description = venueRequestDTO.getDescription();
-        this.address = venueRequestDTO.getAddress();
-        this.instaId = venueRequestDTO.getInstaId();
-        this.instaUrl = venueRequestDTO.getInstaUrl();
-        this.phoneNum = venueRequestDTO.getPhoneNum();
-        this.operationHours = venueRequestDTO.getWeeklyOperationHours();
-        this.logoUrl = logoImageUrl;
-        this.backgroundUrl = backgroundImageUrls;
+    public void updateLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
+    }
+
+    public void updateBackgroundUrl(List<String> backgroundUrl) {
+        this.backgroundUrl = backgroundUrl;
+    }
+
+    public void update(VenueUpdateDTO venueUpdateDTO) {
+        this.isSmokingAllowed = venueUpdateDTO.getVenueRequestDTO().isSmokingAllowed();
+        this.englishName = venueUpdateDTO.getVenueRequestDTO().getEnglishName();
+        this.koreanName = venueUpdateDTO.getVenueRequestDTO().getKoreanName();
+        this.region = venueUpdateDTO.getVenueRequestDTO().getRegion();
+        this.description = venueUpdateDTO.getVenueRequestDTO().getDescription();
+        this.address = venueUpdateDTO.getVenueRequestDTO().getAddress();
+        this.instaId = venueUpdateDTO.getVenueRequestDTO().getInstaId();
+        this.instaUrl = venueUpdateDTO.getVenueRequestDTO().getInstaUrl();
+        this.phoneNum = venueUpdateDTO.getVenueRequestDTO().getPhoneNum();
+        this.operationHours = venueUpdateDTO.getVenueRequestDTO().getWeeklyOperationHours();
+        this.entranceFee = venueUpdateDTO.getVenueRequestDTO().getEntranceFee();
+        this.notice = venueUpdateDTO.getVenueRequestDTO().getNotice();
     }
 
     public static Venue of(VenueRequestDTO request, String  logoUrl, List<String> backgroundUrl){
