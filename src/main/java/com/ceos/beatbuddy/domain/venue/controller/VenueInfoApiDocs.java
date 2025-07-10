@@ -48,6 +48,9 @@ public interface VenueInfoApiDocs {
                   "couponDescription": "뭔가를 할인받을 수 잇어요",
                   "howToUse": "이렇게  쓰시면 됩니다",
                   "notes": "이러면 안 돼요",
+                  "maxQuota": 2,
+                  "receivedCount": 2,
+                  "received": true,
                   "soldOut": false
                 }
               ]
