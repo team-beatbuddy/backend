@@ -18,4 +18,6 @@ public class VenueResponseDTO {
     private String logoUrl;
     private List<String> backgroundUrl;
     private Boolean isHeartbeat;
+    private Boolean isSmokingAllowed;
+    private Boolean isFreeEntrance;
 }
