@@ -14,7 +14,6 @@ import com.ceos.beatbuddy.domain.event.repository.EventRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.EventInteractionId;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.EventLike;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.CustomException;
@@ -26,7 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service

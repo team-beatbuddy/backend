@@ -3,7 +3,6 @@ package com.ceos.beatbuddy.domain.event.entity;
 import com.ceos.beatbuddy.domain.event.dto.EventUpdateRequestDTO;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import com.ceos.beatbuddy.global.CustomException;
