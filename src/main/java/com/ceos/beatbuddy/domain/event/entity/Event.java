@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.event.entity;
 
+import com.ceos.beatbuddy.domain.event.dto.EventUpdateRequestDTO;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
@@ -32,8 +33,10 @@ public class Event extends BaseTimeEntity {
     private LocalDate endDate;
     private String location;
 
-    private String ticketCost; // 입장료
+    private int entranceFee; // 입장료
+    private String entranceNotice; // 입장료 공지
     private String notice;
+    private boolean isFreeEntrance; // 무료 입장 여부
 
     private String thumbImage;
 
@@ -104,21 +107,42 @@ public class Event extends BaseTimeEntity {
         this.venue = venue;
     }
 
-    public void updateEventInfo(String title, String content, LocalDate startDate,
-                                LocalDate endDate, String location, Boolean isVisible, String ticketCost, String notice, String region) {
-        if (title != null) this.title = title;
-        if (content != null) this.content = content;
-        if (startDate != null) this.startDate = startDate;
-        if (endDate != null) this.endDate = endDate;
-        if (location != null) this.location = location;
-        if (isVisible != null) this.isVisible = isVisible;
-        if (ticketCost != null) this.ticketCost = ticketCost;
-        if (notice != null) this.notice = notice;
-        if (region != null) {
+    public void updateEventInfo(EventUpdateRequestDTO dto) {
+        if (dto.getTitle() != null && !dto.getTitle().trim().isEmpty()) {
+            this.title = dto.getTitle();
+        }
+        if (dto.getContent() != null) {
+            this.content = dto.getContent();
+        }
+        if (dto.getStartDate() != null) {
+            this.startDate = dto.getStartDate();
+        }
+        if (dto.getEndDate() != null) {
+            this.endDate = dto.getEndDate();
+        }
+        if (dto.getLocation() != null) {
+            this.location = dto.getLocation();
+        }
+        if (dto.getIsVisible() != null) {
+            this.isVisible = dto.getIsVisible();
+        }
+        if (dto.getEntranceFee() != null) {
+            this.entranceFee = dto.getEntranceFee();
+        }
+        if (dto.getEntranceNotice() != null && !dto.getEntranceNotice().trim().isEmpty()) {
+            this.entranceNotice = dto.getEntranceNotice();
+        }
+        if (dto.getIsFreeEntrance() != null) {
+            this.isFreeEntrance = dto.getIsFreeEntrance();
+        }
+        if (dto.getNotice() != null && !dto.getNotice().trim().isEmpty()) {
+            this.notice = dto.getNotice();
+        }
+        if (dto.getRegion() != null) {
             try {
-                this.region = Region.valueOf(region);
+                this.region = Region.valueOf(dto.getRegion());
             } catch (IllegalArgumentException e) {
-                throw new CustomException(MemberErrorCode.REGION_NOT_EXIST);
+                throw new CustomException(EventErrorCode.REGION_NOT_EXIST);
             }
         }
     }

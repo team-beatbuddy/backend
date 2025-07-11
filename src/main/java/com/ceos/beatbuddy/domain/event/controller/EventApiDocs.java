@@ -24,20 +24,23 @@ import java.util.List;
 
 public interface EventApiDocs {
     @Operation(
-            summary = "이벤트 작성 기능",
+            summary = "이벤트 작성 기능 (admin/business)",
             description = """
-                    admin과 business 멤버에 한해서만 이벤트를 작성할 수 있도록 해두었습니다. (추후 변경 가능)\n
-                    데이터 전달은 multipart/form-data이며 'eventCreateRequestDTO'는 JSON 문자열 형태로 전송해야 합니다.\n
-                    - receiveInfo: 참석자 정보 수집 여부\n
-                    - receiveName: 참석자 이름 수집 여부\n
-                    - receiveGender: 참석자 성별 수집 여부\n
-                    - receivePhoneNumber: 참석자 전화번호 수집 여부\n
-                    - receiveTotalCount: 참석자 본인 포함 동행인원 수집 여부\n
-                    - receiveSNSId: 참석자 SNS ID 수집 여부\n
+                    admin 과 business 멤버에 한해서만 이벤트를 작성할 수 있도록 해두었습니다. (추후 변경 가능)
+                    데이터 전달은 multipart/form-data이며 'eventCreateRequestDTO'는 JSON 문자열 형태로 전송해야 합니다.
+                    - receiveInfo: 참석자 정보 수집 여부
+                    - receiveName: 참석자 이름 수집 여부
+                    - receiveGender: 참석자 성별 수집 여부
+                    - receivePhoneNumber: 참석자 전화번호 수집 여부
+                    - receiveTotalCount: 참석자 본인 포함 동행인원 수집 여부
+                    - receiveSNSId: 참석자 SNS ID 수집 여부
                     - receiveMoney: 예약금 설정 여부
                     - region: 홍대, 강남_신사, 압구정_로데오, 이태원, 기타
-                    - ticketCost: 티켓 비용
-                    - notice: 주의사항
+                    - entranceFee: 티켓 비용
+                    - entranceNotice: 입장료 공지사항
+                    - notice: 이벤트 관련 공지사항 (티켓 발급 날짜)
+                    - isFreeEntrance: 무료 입장 여부
+                    - location: 서울시 강남구 테헤란로 123, venue 를 고르셨다면 해당 장소의 주소를 넣어주세요.
                     """
                 )
 
@@ -71,8 +74,10 @@ public interface EventApiDocs {
                                     "depositAccount": "",
                                     "depositAmount": 0,
                                     "isAuthor": true,
-                                    "ticketCost": "20000원",
-                                    "notice": "공지사항입니다.",
+                                    "entranceFee": 20000,
+                                    "entranceNotice": "입장료는 현장에서 결제해주세요.",
+                                    "notice": "이벤트 관련 공지사항입니다.",
+                                    "freeEntrance": false,
                                     "region": "홍대",
                                     "isAttending": false
                                   }
@@ -162,8 +167,11 @@ public interface EventApiDocs {
                     - receiveSNSId: 참석자 SNS ID 수집 여부
                     - receiveMoney: 예약금 설정 여부
                     - region: 홍대, 강남_신사, 압구정_로데오, 이태원, 기타
-                    - ticketCost: 티켓 비용
-                    - notice: 주의사항
+                    - entranceFee: 티켓 비용
+                    - entranceNotice: 입장료 공지사항
+                    - notice: 이벤트 관련 공지사항 (티켓 발급 날짜)
+                    - isFreeEntrance: 무료 입장 여부
+                    - location: 서울시 강남구 테헤란로 123, venue 를 고르셨다면 해당 장소의 주소를 넣어주세요.
                     예시)
                     ``` json
                     {
@@ -214,7 +222,11 @@ public interface EventApiDocs {
                                 "ticketCost": "20000원",
                                 "notice": "공지사항입니다.",
                                 "region": "홍대",
-                                "isAttending": false
+                                "isAttending": false,
+                                "entranceFee": 20000,
+                                "entranceNotice": "입장료는 현장에서 결제해주세요.",
+                                "notice": "이벤트 관련 공지사항입니다.",
+                                "freeEntrance": false
                               }
                             }
                                     """)
@@ -491,28 +503,6 @@ public interface EventApiDocs {
                         "totalSize": 3,
                         "eventResponseDTOS": [
                           {
-                            "eventId": 7,
-                            "title": "이벤트 제목",
-                            "content": "내용입니다.",
-                            "thumbImage": "",
-                            "liked": false,
-                            "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                            "likes": 0,
-                            "views": 2,
-                            "startDate": "2025-06-20",
-                            "endDate": "2025-06-22",
-                            "receiveInfo": false,
-                            "receiveName": false,
-                            "receiveGender": false,
-                            "receivePhoneNumber": false,
-                            "receiveTotalCount": false,
-                            "receiveSNSId": false,
-                            "receiveMoney": false,
-                            "region": "이태원",
-                            "isAttending": false,
-                            "isAuthor": true
-                          },
-                          {
                             "eventId": 6,
                             "title": "이벤트 제목",
                             "content": "내용입니다.",
@@ -523,14 +513,22 @@ public interface EventApiDocs {
                             "views": 39,
                             "startDate": "2025-06-20",
                             "endDate": "2025-06-28",
-                            "receiveInfo": false,
-                            "receiveName": false,
-                            "receiveGender": false,
-                            "receivePhoneNumber": false,
-                            "receiveTotalCount": false,
-                            "receiveSNSId": false,
-                            "receiveMoney": false,
                             "region": "압구정_로데오",
+                            "isAttending": false,
+                            "isAuthor": true
+                          },
+                          {
+                            "eventId": 8,
+                            "title": "이벤트 제목",
+                            "content": "내용입니다.",
+                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/event/20250622_224204_e8799c68-8ea2-4dea-bbd0-4e1922604b7e.jpg",
+                            "liked": false,
+                            "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                            "likes": 0,
+                            "views": 4,
+                            "startDate": "2025-06-23",
+                            "endDate": "2025-06-24",
+                            "region": "이태원",
                             "isAttending": false,
                             "isAuthor": true
                           }
@@ -761,8 +759,10 @@ public interface EventApiDocs {
                                         "receiveMoney": false,
                                         "depositAccount": "국민 123-456-789",
                                         "depositAmount": 20000,
-                                        "ticketCost": "",
-                                        "notice": "",
+                                        "entranceFee": 20000,
+                                        "entranceNotice": "입장료는 현장에서 결제해주세요.",
+                                        "notice": "이벤트 관련 공지사항입니다.",
+                                        "freeEntrance": false,
                                         "region": "강남_신사",
                                         "isAttending": true,
                                         "isAuthor": true
