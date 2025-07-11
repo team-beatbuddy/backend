@@ -37,14 +37,14 @@ public class EventCreateRequestDTO {
     @NotNull(message = "장소는 필수입니다.")
     private String location;
 
-    @Schema(description = "티켓 가격 (0이면 무료)", example = "20000")
-    private int entranceFee; // 입장료
     @Schema(description = "입장료 공지", example = "입장료는 현장에서 결제해주세요.")
     private String entranceNotice; // 입장료 공지
     @Schema(description = "이벤트 공지사항", example = "이벤트 관련 공지사항입니다.")
     private String notice;
-    @Schema(description = "무료 입장 여부 (true면 무료)", example = "false")
-    private boolean isFreeEntrance; // 무료 입장 여부
+    @Schema(description = "무료 여부", example = "false")
+    private boolean isFreeEntrance;
+    @Schema(description = "입장료 (무료이면 0)", example = "15000")
+    private Integer entranceFee;
 
     @Schema(description = "참석자 정보 수집 여부 (true면 수집)", example = "true")
     @NotNull(message = "참석자 정보 수집 여부는 필수입니다.")
