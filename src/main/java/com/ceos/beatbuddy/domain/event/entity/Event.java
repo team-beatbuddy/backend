@@ -141,14 +141,8 @@ public class Event extends BaseTimeEntity {
         if (dto.getIsVisible() != null) {
             this.isVisible = dto.getIsVisible();
         }
-        if (dto.getEntranceFee() != null) {
-            this.entranceFee = dto.getEntranceFee();
-        }
         if (dto.getEntranceNotice() != null && !dto.getEntranceNotice().trim().isEmpty()) {
             this.entranceNotice = dto.getEntranceNotice();
-        }
-        if (dto.getIsFreeEntrance() != null) {
-            this.isFreeEntrance = dto.getIsFreeEntrance();
         }
         if (dto.getNotice() != null && !dto.getNotice().trim().isEmpty()) {
             this.notice = dto.getNotice();
