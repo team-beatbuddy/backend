@@ -20,7 +20,4 @@ public class EventListResponseDTO {
     private Integer totalSize;
     // latest 전용
     private List<EventResponseDTO> eventResponseDTOS;
-
-    // popular 전용
-    private List<EventGroupByMonthDTO> groupedByMonth;
 }

@@ -33,12 +33,18 @@ public class EventCreateRequestDTO {
     @NotNull(message = "종료날짜는 필수입니다.")
     private LocalDate endDate;
 
-    @Schema(description = "이벤트 장소 주소", example = "아직 정해지지 않음... 여기 elastic search 쓸 것 같음")
+    @Schema(description = "이벤트 장소 주소", example = "서울시 강남구 테헤란로 123, venue 를 고르셨다면 해당 장소의 주소를 넣어주세요.")
     @NotNull(message = "장소는 필수입니다.")
     private String location;
 
-    private String ticketCost; // 입장료
-    private String notice; // 공지사항
+    @Schema(description = "티켓 가격 (0이면 무료)", example = "20000")
+    private int entranceFee; // 입장료
+    @Schema(description = "입장료 공지", example = "입장료는 현장에서 결제해주세요.")
+    private String entranceNotice; // 입장료 공지
+    @Schema(description = "이벤트 공지사항", example = "이벤트 관련 공지사항입니다.")
+    private String notice;
+    @Schema(description = "무료 입장 여부 (true면 무료)", example = "false")
+    private boolean isFreeEntrance; // 무료 입장 여부
 
     @Schema(description = "참석자 정보 수집 여부 (true면 수집)", example = "true")
     @NotNull(message = "참석자 정보 수집 여부는 필수입니다.")
@@ -65,6 +71,7 @@ public class EventCreateRequestDTO {
     @Schema(description = "예약 금액", example = "20000")
     private Integer depositAmount; // 사전 예약금 금액
 
+    @Schema(description = "이벤트 지역 (예: 홍대, 강남_신사 등)", example = "홍대")
     @NotNull(message = "지역은 필수입니다.")
     private String region;
 
@@ -77,8 +84,10 @@ public class EventCreateRequestDTO {
                 .likes(0)
                 .isVisible(true)
                 .views(0)
-                .ticketCost(eventCreateRequestDTO.getTicketCost())
+                .entranceFee(eventCreateRequestDTO.getEntranceFee())
+                .entranceNotice(eventCreateRequestDTO.getEntranceNotice())
                 .notice(eventCreateRequestDTO.getNotice())
+                .isFreeEntrance(eventCreateRequestDTO.isFreeEntrance())
                 .receiveInfo(eventCreateRequestDTO.isReceiveInfo())
                 .depositAccount(eventCreateRequestDTO.getDepositAccount())
                 .depositAmount(eventCreateRequestDTO.getDepositAmount())

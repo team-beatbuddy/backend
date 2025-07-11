@@ -99,17 +99,7 @@ public class EventService {
         }
 
         // 1. 기본 정보 업데이트
-        event.updateEventInfo(
-                eventValidator.isNotBlank(dto.getTitle()) ? dto.getTitle() : null,
-                eventValidator.isNotBlank(dto.getContent()) ? dto.getContent() : null,
-                dto.getStartDate(),
-                dto.getEndDate(),
-                eventValidator.isNotBlank(dto.getLocation()) ? dto.getLocation() : null,
-                dto.getIsVisible(),
-                dto.getTicketCost(),
-                dto.getNotice(),
-                dto.getRegion()
-        );
+        event.updateEventInfo(dto);
 
         // 2. 참석자 정보 설정
         eventValidator.validateReceiveInfoConfig(dto);
@@ -302,7 +292,7 @@ public class EventService {
 
         List<EventResponseDTO> dtoList = events.stream()
                 .map(event ->
-                        EventResponseDTO.toDTO(event,
+                        EventResponseDTO.toNowListDTO(event,
                                 likedEventIds.contains(event.getId()), // 좋아요 여부
                                 member.getId().equals(event.getHost().getId()), // 내가 작성자 여부
                                 attendingEventIds.contains(event.getId()))) // 참여 여부)) // 좋아요 여부는 false, 내가 작성자 여부는 false로 설정, 참여는 false

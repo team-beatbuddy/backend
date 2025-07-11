@@ -25,28 +25,30 @@ public class EventResponseDTO {
 
     private String dDay;
 
-    private boolean liked;
+    private Boolean liked;
     private String location;
 
-    private int likes;
-    private int views;
+    private Integer likes;
+    private Integer views;
 
     private LocalDate startDate;
     private LocalDate endDate;
 
-    private boolean receiveInfo;
-    private boolean receiveName; // 이름 받을 건지
-    private boolean receiveGender; // 성별 받을 건지
-    private boolean receivePhoneNumber; // 전화번호 받을 건지
-    private boolean receiveTotalCount; // 동행 인원 받을 건지
-    private boolean receiveSNSId; // sns id 받을 건지
-    private boolean receiveMoney; // 예약금 받을 건지
+    private Boolean receiveInfo;
+    private Boolean receiveName; // 이름 받을 건지
+    private Boolean receiveGender; // 성별 받을 건지
+    private Boolean receivePhoneNumber; // 전화번호 받을 건지
+    private Boolean receiveTotalCount; // 동행 인원 받을 건지
+    private Boolean receiveSNSId; // sns id 받을 건지
+    private Boolean receiveMoney; // 예약금 받을 건지
 
     private String depositAccount;
     private Integer depositAmount;
-    
-    private String ticketCost;
+
+    private Integer entranceFee; // 입장료
+    private String entranceNotice; // 입장료 공지
     private String notice;
+    private Boolean isFreeEntrance; // 무료 입장 여부
 
     private String region;
 
@@ -89,8 +91,10 @@ public class EventResponseDTO {
                 .depositAmount(Optional.ofNullable(event.getDepositAmount()).orElse(0))
                 .isAuthor(isAuthor)
                 .isAttending(isAttending)
-                .ticketCost(Optional.ofNullable(event.getTicketCost()).orElse(""))
+                .entranceFee(event.getEntranceFee())
+                .entranceNotice(Optional.ofNullable(event.getEntranceNotice()).orElse(""))
                 .notice(Optional.ofNullable(event.getNotice()).orElse(""))
+                .isFreeEntrance(event.isFreeEntrance())
                 .region(Optional.of(event.getRegion().name()).orElse(""))
                 .build();
     }
