@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.venue.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,4 +19,6 @@ public class VenueResponseDTO {
     private String logoUrl;
     private List<String> backgroundUrl;
     private Boolean isHeartbeat;
+    private Boolean isSmokingAllowed;
+    private Boolean isFreeEntrance;
 }
