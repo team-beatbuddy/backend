@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.venue.application;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.ceos.beatbuddy.domain.venue.dto.VenueSearchResponseDTO;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.entity.VenueDocument;
@@ -12,7 +13,6 @@ import com.ceos.beatbuddy.global.code.SuccessCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import co.elastic.clients.elasticsearch.core.search.Hit;
 
 import java.io.IOException;
 import java.util.List;

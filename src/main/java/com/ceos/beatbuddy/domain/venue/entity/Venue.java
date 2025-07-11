@@ -1,6 +1,5 @@
 package com.ceos.beatbuddy.domain.venue.entity;
 
-import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueUpdateDTO;
