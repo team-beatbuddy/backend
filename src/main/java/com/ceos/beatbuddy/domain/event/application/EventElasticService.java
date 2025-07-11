@@ -72,7 +72,7 @@ public class EventElasticService {
         }
     }
 
-    public List<EventResponseDTO> search(String keyword, Long memberId) throws IOException {
+    public List<EventResponseDTO> search(String keyword, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
         boolean isAdmin = member.isAdmin();
 
@@ -103,11 +103,16 @@ public class EventElasticService {
                 )
         );
 
-        SearchResponse<EventDocument> response = elasticsearchClient.search(s -> s
-                        .index("event")
-                        .query(query),
-                EventDocument.class
-        );
+        SearchResponse<EventDocument> response;
+        try {
+            response = elasticsearchClient.search(s -> s
+                            .index("event")
+                            .query(query),
+                    EventDocument.class
+            );
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.ELASTICSEARCH_SEARCH_FAILED);
+        }
 
         return response.hits().hits().stream()
                 .map(Hit::source)

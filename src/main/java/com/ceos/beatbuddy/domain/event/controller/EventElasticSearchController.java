@@ -34,7 +34,7 @@ public class EventElasticSearchController implements EventSearchApiDocs {
     @GetMapping("/search")
     public ResponseEntity<ResponseDTO<List<EventResponseDTO>>> searchEvents(
             @RequestParam String keyword
-    ) throws IOException {
+    ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         List<EventResponseDTO> results = eventElasticService.search(keyword, memberId);
         return ResponseEntity

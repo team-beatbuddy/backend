@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.event.controller;
 
 import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
+import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -84,7 +85,23 @@ public interface EventSearchApiDocs {
                             """)
             )
     )
+    @ApiResponse(
+            responseCode = "404",
+            description = "리소스 없음",
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(value = SwaggerExamples.MEMBER_NOT_EXIST)
+            )
+    )
+    @ApiResponse(
+            responseCode = "500",
+            description = "검색 실패",
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(value = SwaggerExamples.ELASTICSEARCH_SEARCH_FAILED)
+            )
+    )
     ResponseEntity<ResponseDTO<List<EventResponseDTO>>> searchEvents(
             @RequestParam String keyword
-    ) throws IOException;
+    );
 }
