@@ -22,7 +22,7 @@ public record CommentResponseDto(
                 comment.getContent(),
                 comment.isAnonymous(),
                 comment.getReply() != null ? comment.getReply().getId() : null,
-                comment.isAnonymous() ? "익명" : comment.getMember().getRealName(),
+                comment.isAnonymous() ? "익명" : comment.getMember().getNickname(),
                 comment.getLikes(),
                 comment.getCreatedAt(),
                 isAuthor,
