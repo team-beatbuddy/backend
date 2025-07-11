@@ -32,7 +32,7 @@ public class Event extends BaseTimeEntity {
     private LocalDate endDate;
     private String location;
 
-    private int entranceFee; // 입장료
+    private int entranceFee = 0; // 입장료
     private String entranceNotice; // 입장료 공지
     private String notice;
     private boolean isFreeEntrance; // 무료 입장 여부
