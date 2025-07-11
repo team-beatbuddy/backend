@@ -45,7 +45,64 @@ public interface RecentSearchApiDocs {
                             value = SwaggerExamples.INVALID_SEARCH_TYPE)
             )
     )
+    @ApiResponse(
+            responseCode = "404", description = "리소스 없음",
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(
+                            name = "존재하지 않는 유저",
+                            value = SwaggerExamples.MEMBER_NOT_EXIST)
+            )
+    )
     ResponseEntity<ResponseDTO<List<String>>> getRecentSearches(
             @RequestParam String searchType
+    );
+
+    @Operation(summary = "최근 검색어 삭제", description = """
+        최근 검색어를 삭제합니다. 검색 타입에 따라 이벤트, 장소, 자유 게시글의 최근 검색어를 삭제합니다.
+        - 검색 타입은 `EVENT`, `VENUE`, `FREE_POST` 중 하나여야 합니다.
+        - 검색 타입이 잘못된 경우 `400 Bad Request` 에러가 발생합니다.
+        - 삭제할 검색어가 존재하지 않는 경우 `404 Not Found` 에러가 발생합니다.
+            """)
+
+    @ApiResponse(responseCode = "200", description = "최근 검색어 삭제 성공",
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(
+                            name = "최근 검색어 삭제 성공 예시",
+                            value = """
+                                {
+                                    "status": 200,
+                                    "code": "RECENT_SEARCH_DELETE_SUCCESS",
+                                    "message": "최근 검색어를 성공적으로 삭제했습니다.",
+                                    "data": "최근 검색어를 성공적으로 삭제했습니다."
+                                }
+                                    """)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400", description = "잘못된 검색 타입",
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(
+                            name = "잘못된 검색 타입 예시",
+                            value = SwaggerExamples.INVALID_SEARCH_TYPE)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404", description = "리소스 없음",
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    mediaType = "application/json",
+                    examples = {@ExampleObject(
+                            name = "존재하지 않는 검색어",
+                            value = SwaggerExamples.RECENT_SEARCH_NOT_FOUND),
+                            @ExampleObject(
+                                    name = "존재하지 않는 유저",
+                                    value = SwaggerExamples.MEMBER_NOT_EXIST)}
+            )
+    )
+    ResponseEntity<ResponseDTO<String>> deleteRecentSearch(
+            @RequestParam String searchType,
+            @RequestParam String keyword
     );
 }

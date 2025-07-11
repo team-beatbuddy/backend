@@ -5,6 +5,8 @@ import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.recent_search.entity.RecentSearch;
 import com.ceos.beatbuddy.domain.recent_search.entity.SearchTypeEnum;
 import com.ceos.beatbuddy.domain.recent_search.repository.RecentSearchRepository;
+import com.ceos.beatbuddy.global.CustomException;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,4 +58,17 @@ public class RecentSearchService {
                 .map(RecentSearch::getKeyword)
                 .toList();
     }
+
+    @Transactional
+    public void deleteRecentSearch(Long memberId, String keyword, String rawType) {
+        Member member = memberService.validateAndGetMember(memberId);
+        SearchTypeEnum type = SearchTypeEnum.from(rawType);
+
+        RecentSearch recentSearch = recentSearchRepository
+                .findByMemberAndKeywordAndSearchType(member, keyword, type)
+                .orElseThrow(() -> new CustomException(ErrorCode.RECENT_SEARCH_NOT_FOUND));
+
+        recentSearchRepository.delete(recentSearch);
+    }
+
 }
