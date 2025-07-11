@@ -1,6 +1,5 @@
 package com.ceos.beatbuddy.domain.event.exception;
 
-import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.global.ApiCode;
 import org.springframework.http.HttpStatus;
 

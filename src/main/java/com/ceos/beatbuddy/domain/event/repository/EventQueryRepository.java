@@ -1,13 +1,10 @@
 package com.ceos.beatbuddy.domain.event.repository;
 
 import com.ceos.beatbuddy.domain.event.entity.Event;
-import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import io.micrometer.common.lang.Nullable;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 public interface EventQueryRepository {
     // 예정 이벤트

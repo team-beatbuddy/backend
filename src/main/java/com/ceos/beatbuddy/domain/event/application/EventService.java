@@ -14,7 +14,6 @@ import com.ceos.beatbuddy.domain.event.repository.EventRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.EventInteractionId;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.EventLike;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.CustomException;
@@ -26,7 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -99,17 +101,7 @@ public class EventService {
         }
 
         // 1. 기본 정보 업데이트
-        event.updateEventInfo(
-                eventValidator.isNotBlank(dto.getTitle()) ? dto.getTitle() : null,
-                eventValidator.isNotBlank(dto.getContent()) ? dto.getContent() : null,
-                dto.getStartDate(),
-                dto.getEndDate(),
-                eventValidator.isNotBlank(dto.getLocation()) ? dto.getLocation() : null,
-                dto.getIsVisible(),
-                dto.getTicketCost(),
-                dto.getNotice(),
-                dto.getRegion()
-        );
+        event.updateEventInfo(dto);
 
         // 2. 참석자 정보 설정
         eventValidator.validateReceiveInfoConfig(dto);
@@ -302,7 +294,7 @@ public class EventService {
 
         List<EventResponseDTO> dtoList = events.stream()
                 .map(event ->
-                        EventResponseDTO.toDTO(event,
+                        EventResponseDTO.toNowListDTO(event,
                                 likedEventIds.contains(event.getId()), // 좋아요 여부
                                 member.getId().equals(event.getHost().getId()), // 내가 작성자 여부
                                 attendingEventIds.contains(event.getId()))) // 참여 여부)) // 좋아요 여부는 false, 내가 작성자 여부는 false로 설정, 참여는 false

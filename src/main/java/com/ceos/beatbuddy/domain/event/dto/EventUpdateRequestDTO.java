@@ -19,8 +19,11 @@ public class EventUpdateRequestDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private String location;
-    private String ticketCost; // 입장료
+
+    private Integer entranceFee; // 입장료
+    private String entranceNotice; // 입장료 공지
     private String notice;
+    private Boolean isFreeEntrance; // 무료 입장 여부
 
     private Boolean isVisible;
 
