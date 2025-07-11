@@ -109,6 +109,7 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_GET_POST_LIST_BY_HASHTAG(HttpStatus.OK, "해시태그에 해당하는 포스트 목록을 성공적으로 조회했습니다."),
     GET_USER_POST_LIST(HttpStatus.OK, "사용자가 작성한 포스트 목록을 성공적으로 조회했습니다."),
     SUCCESS_DELETE_POST(HttpStatus.OK, "포스트를 삭제했습니다."),
+    EVENT_SEARCH_SUCCESS(HttpStatus.OK, "이벤트 검색을 성공적으로 했습니다."),
 
     /**
      * Venue
