@@ -242,6 +242,15 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String INVALID_SEARCH_TYPE = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "INVALID_SEARCH_TYPE",
+          "message": "유효하지 않은 검색 타입입니다."
+        }
+        """;
+
     /**
      * 404
      * */
