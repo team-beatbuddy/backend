@@ -77,6 +77,8 @@ public class EventCreateRequestDTO {
 
 
     public static Event toEntity(EventCreateRequestDTO eventCreateRequestDTO, Member member) {
+        int entranceFee = eventCreateRequestDTO.isFreeEntrance() ? 0 : eventCreateRequestDTO.getEntranceFee();
+
         return Event.builder()
                 .host(member)
                 .title(eventCreateRequestDTO.getTitle())
@@ -84,7 +86,7 @@ public class EventCreateRequestDTO {
                 .likes(0)
                 .isVisible(true)
                 .views(0)
-                .entranceFee(eventCreateRequestDTO.getEntranceFee())
+                .entranceFee(entranceFee)
                 .entranceNotice(eventCreateRequestDTO.getEntranceNotice())
                 .notice(eventCreateRequestDTO.getNotice())
                 .isFreeEntrance(eventCreateRequestDTO.isFreeEntrance())

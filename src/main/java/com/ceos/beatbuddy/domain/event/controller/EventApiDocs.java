@@ -40,6 +40,11 @@ public interface EventApiDocs {
                     - entranceNotice: 입장료 공지사항
                     - notice: 이벤트 관련 공지사항 (티켓 발급 날짜)
                     - isFreeEntrance: 무료 입장 여부
+                    ```
+                    isFreeEntrance == true이면 항상 entranceFee == 0 이어야 한다.
+                    유료 전환 시(isFreeEntrance == false)에만 entranceFee 반영을 허용한다.
+                    entranceFee만 단독으로 왔을 경우, 기존 isFreeEntrance == true 상태에서는 무시해야 한다.
+                    ```
                     - location: 서울시 강남구 테헤란로 123, venue 를 고르셨다면 해당 장소의 주소를 넣어주세요.
                     """
                 )
@@ -171,6 +176,11 @@ public interface EventApiDocs {
                     - entranceNotice: 입장료 공지사항
                     - notice: 이벤트 관련 공지사항 (티켓 발급 날짜)
                     - isFreeEntrance: 무료 입장 여부
+                    ```
+                    isFreeEntrance == true이면 항상 entranceFee == 0 이어야 한다.
+                    유료 전환 시(isFreeEntrance == false)에만 entranceFee 반영을 허용한다.
+                    entranceFee만 단독으로 왔을 경우, 기존 isFreeEntrance == true 상태에서는 무시해야 한다.
+                    ```
                     - location: 서울시 강남구 테헤란로 123, venue 를 고르셨다면 해당 장소의 주소를 넣어주세요.
                     예시)
                     ``` json

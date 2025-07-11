@@ -107,6 +107,22 @@ public class Event extends BaseTimeEntity {
     }
 
     public void updateEventInfo(EventUpdateRequestDTO dto) {
+        // 1. 무료 여부 먼저 처리
+        if (dto.getIsFreeEntrance() != null) {
+            this.isFreeEntrance = dto.getIsFreeEntrance();
+            if (dto.getIsFreeEntrance()) {
+                this.entranceFee = 0; // 무료 체크되면 무조건 0원
+            }
+        }
+
+        // 2. 금액이 온 경우
+        if (dto.getEntranceFee() != null) {
+            // 무료 상태일 경우 무시 (불변성 유지)
+            if (!this.isFreeEntrance) {
+                this.entranceFee = dto.getEntranceFee();
+            }
+        }
+
         if (dto.getTitle() != null && !dto.getTitle().trim().isEmpty()) {
             this.title = dto.getTitle();
         }
