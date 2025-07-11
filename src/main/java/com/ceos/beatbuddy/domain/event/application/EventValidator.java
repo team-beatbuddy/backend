@@ -49,11 +49,6 @@ public class EventValidator {
         }
     }
 
-    public boolean isNotBlank(String str) {
-        return str != null && !str.trim().isEmpty();
-    }
-
-
     // 에약금을 받지만 계좌 정보가 없는 경우
     public void validateReceiveMoney(boolean receiveMoney, String depositAccount, Integer depositMoney) {
         if (receiveMoney) {
