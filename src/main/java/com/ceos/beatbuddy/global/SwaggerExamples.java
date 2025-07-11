@@ -251,19 +251,6 @@ public class SwaggerExamples {
         }
         """;
 
-    /**
-     * 404
-     * */
-
-    public static final String COUPON_NOT_FOUND = """
-        {
-          "status": 404,
-          "error": "NOT_FOUND",
-          "code": "COUPON_NOT_FOUND",
-          "message": "존재하지 않는 쿠폰입니다."
-        }
-        """;
-
     public static final String COUPON_QUOTA_SOLD_OUT = """
         {
           "status": 400,
@@ -531,6 +518,25 @@ public class SwaggerExamples {
           "error": "NOT_FOUND",
           "code": "NOT_FOUND_IMAGE",
           "message": "해당 이미지를 찾을 수 없습니다."
+        }
+        """;
+
+
+    public static final String COUPON_NOT_FOUND = """
+        {
+          "status": 404,
+          "error": "NOT_FOUND",
+          "code": "COUPON_NOT_FOUND",
+          "message": "존재하지 않는 쿠폰입니다."
+        }
+        """;
+
+    public static final String RECENT_SEARCH_NOT_FOUND = """
+        {
+          "status": 404,
+          "error": "NOT_FOUND",
+          "code": "RECENT_SEARCH_NOT_FOUND",
+          "message": "해당 최근 검색어를 찾을 수 없습니다."
         }
         """;
 

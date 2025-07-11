@@ -148,6 +148,7 @@ public enum SuccessCode implements ApiCode {
      * Recent Search
      * */
     RECENT_SEARCH_SUCCESS(HttpStatus.OK, "최근 검색어를 성공적으로 조회했습니다."),
+    RECENT_SEARCH_DELETE_SUCCESS(HttpStatus.OK, "최근 검색어를 성공적으로 삭제했습니다."),
 
     /**
      * empty

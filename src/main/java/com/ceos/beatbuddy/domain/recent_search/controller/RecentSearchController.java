@@ -42,4 +42,18 @@ public class RecentSearchController implements RecentSearchApiDocs {
                 .status(SuccessCode.RECENT_SEARCH_SUCCESS.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.RECENT_SEARCH_SUCCESS, keywords));
     }
+
+    @Override
+    @DeleteMapping("/delete")
+    public ResponseEntity<ResponseDTO<String>> deleteRecentSearch(
+            @RequestParam String searchType,
+            @RequestParam String keyword
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        recentSearchService.deleteRecentSearch(memberId, searchType, keyword);
+
+        return ResponseEntity
+                .status(SuccessCode.RECENT_SEARCH_DELETE_SUCCESS.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.RECENT_SEARCH_DELETE_SUCCESS, "최근 검색어를 성공적으로 삭제했습니다."));
+    }
 }
