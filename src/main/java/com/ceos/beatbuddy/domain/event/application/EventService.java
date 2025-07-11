@@ -42,6 +42,7 @@ public class EventService {
     private final EventLikeRepository eventLikeRepository;
     private final EventValidator eventValidator;
     private final EventAttendanceRepository eventAttendanceRepository;
+    private final EventElasticService eventElasticService;
 
     @Transactional
     public EventResponseDTO addEvent(Long memberId, EventCreateRequestDTO eventCreateRequestDTO, List<MultipartFile> images) {
@@ -76,6 +77,9 @@ public class EventService {
         }
 
         eventRepository.save(event);
+
+        // 일래스틱 저장
+        eventElasticService.save(event);
 
         return EventResponseDTO.toDTO(event, false, true, false); // 좋아요 여부는 false, 내가 작성자 여부는 true로 설정, 참여는 false
     }
@@ -134,6 +138,9 @@ public class EventService {
             List<String> imageUrls = uploadUtil.uploadImages(imageFiles, UploadUtil.BucketType.MEDIA, "event");
             event.getImageUrls().addAll(imageUrls);
         }
+
+        // 일래스틱 저장
+        eventElasticService.save(event);
 
         // 참여 여부 확인
         boolean isAttending = eventAttendanceRepository.existsById(new EventAttendanceId(memberId, eventId));
