@@ -2,13 +2,10 @@ package com.ceos.beatbuddy.domain.event.application;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import com.ceos.beatbuddy.domain.admin.application.AdminService;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
-import com.ceos.beatbuddy.domain.event.dto.EventSearchListResponseDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventDocument;
 import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
-import com.ceos.beatbuddy.domain.event.repository.EventElasticRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
@@ -22,7 +19,6 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -76,7 +72,7 @@ public class EventElasticService {
         }
     }
 
-    public EventSearchListResponseDTO searchCategorized(String keyword, Long memberId) throws IOException {
+    public List<EventResponseDTO> search(String keyword, Long memberId) throws IOException {
         Member member = memberService.validateAndGetMember(memberId);
         boolean isAdmin = member.isAdmin();
 
@@ -113,59 +109,17 @@ public class EventElasticService {
                 EventDocument.class
         );
 
-        LocalDate today = LocalDate.now();
-
-        List<Event> matchedEvents = response.hits().hits().stream()
+        return response.hits().hits().stream()
                 .map(Hit::source)
                 .filter(Objects::nonNull)
                 .map(doc -> eventRepository.findById(doc.getId()).orElse(null))
                 .filter(Objects::nonNull)
+                .map(event -> EventResponseDTO.toNowListDTO(
+                        event,
+                        event.getHost().getId().equals(memberId),
+                        likedEventIds.contains(event.getId()),
+                        attendingEventIds.contains(event.getId())
+                ))
                 .toList();
-
-        // 카테고리별 분류
-        Map<String, List<EventResponseDTO>> categorized = new HashMap<>();
-
-        for (Event event : matchedEvents) {
-            String category;
-            if (!event.getStartDate().isAfter(today) && !event.getEndDate().isBefore(today)) {
-                category = "now";
-            } else if (event.getStartDate().isAfter(today)) {
-                category = "upcoming";
-            } else {
-                category = "past";
-            }
-
-            EventResponseDTO dto = switch (category) {
-                case "now" -> EventResponseDTO.toNowListDTO(
-                        event,
-                        event.getHost().getId().equals(memberId),
-                        likedEventIds.contains(event.getId()),
-                        attendingEventIds.contains(event.getId())
-                );
-                case "upcoming" -> EventResponseDTO.toUpcomingListDTO(
-                        event,
-                        event.getHost().getId().equals(memberId),
-                        likedEventIds.contains(event.getId()),
-                        attendingEventIds.contains(event.getId())
-                );
-                case "past" -> EventResponseDTO.toPastListDTO(event,
-                        event.getHost().getId().equals(memberId),
-                        likedEventIds.contains(event.getId()),
-                        attendingEventIds.contains(event.getId())
-                );
-                default -> throw new IllegalStateException("Unexpected category: " + category);
-            };
-
-            categorized.computeIfAbsent(category, k -> new ArrayList<>()).add(dto);
-        }
-
-        // 빈 카테고리 보완 (프론트에서 키가 항상 존재하도록)
-        categorized.putIfAbsent("now", List.of());
-        categorized.putIfAbsent("upcoming", List.of());
-        categorized.putIfAbsent("past", List.of());
-
-        return EventSearchListResponseDTO.builder()
-                .eventResponseDTOS(categorized)
-                .build();
     }
 }
