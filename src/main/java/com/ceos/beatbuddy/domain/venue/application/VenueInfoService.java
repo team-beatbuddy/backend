@@ -1,6 +1,5 @@
 package com.ceos.beatbuddy.domain.venue.application;
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.ceos.beatbuddy.domain.admin.application.AdminService;
 import com.ceos.beatbuddy.domain.coupon.repository.CouponRepository;
 import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
@@ -29,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;

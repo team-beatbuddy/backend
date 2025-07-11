@@ -1,6 +1,5 @@
 package com.ceos.beatbuddy.domain.venue.entity;
 
-import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueUpdateDTO;
@@ -33,8 +32,10 @@ public class Venue extends BaseTimeEntity {
     private String instaUrl;
     private String phoneNum;
 
-    private String entranceFee; // 입장료
+    private int entranceFee; // 입장료
+    private String entranceNotice; // 입장료 공지
     private String notice;
+    private boolean isFreeEntrance; // 무료 입장 여부
 
     @ElementCollection
     private Map<String,String> operationHours;
@@ -65,11 +66,20 @@ public class Venue extends BaseTimeEntity {
         this.instaUrl = venueUpdateDTO.getVenueRequestDTO().getInstaUrl();
         this.phoneNum = venueUpdateDTO.getVenueRequestDTO().getPhoneNum();
         this.operationHours = venueUpdateDTO.getVenueRequestDTO().getWeeklyOperationHours();
-        this.entranceFee = venueUpdateDTO.getVenueRequestDTO().getEntranceFee();
+        this.entranceNotice = venueUpdateDTO.getVenueRequestDTO().getEntranceNotice();
         this.notice = venueUpdateDTO.getVenueRequestDTO().getNotice();
+
+        this.isFreeEntrance = venueUpdateDTO.getVenueRequestDTO().isFreeEntrance();
+        if (this.isFreeEntrance) {
+            this.entranceFee = 0; // 무료일 경우 금액 무시
+        } else {
+            this.entranceFee = venueUpdateDTO.getVenueRequestDTO().getEntranceFee(); // 유료일 경우만 금액 반영
+        }
     }
 
     public static Venue of(VenueRequestDTO request, String  logoUrl, List<String> backgroundUrl){
+        int entranceFee = request.isFreeEntrance() ? 0 : request.getEntranceFee();
+
         return Venue.builder()
                 .isSmokingAllowed(request.isSmokingAllowed())
                 .englishName(request.getEnglishName())
@@ -83,8 +93,10 @@ public class Venue extends BaseTimeEntity {
                 .operationHours(request.getWeeklyOperationHours())
                 .logoUrl(logoUrl)
                 .backgroundUrl(backgroundUrl)
+                .entranceFee(entranceFee)
+                .entranceNotice(request.getEntranceNotice())
                 .notice(request.getNotice())
-                .entranceFee(request.getEntranceFee())
+                .isFreeEntrance(request.isFreeEntrance())
                 .build();
     }
 }
