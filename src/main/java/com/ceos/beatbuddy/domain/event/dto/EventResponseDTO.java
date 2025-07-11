@@ -48,6 +48,7 @@ public class EventResponseDTO {
     private Integer entranceFee; // 입장료
     private String entranceNotice; // 입장료 공지
     private String notice;
+    @JsonProperty("isFreeEntrance")
     private Boolean isFreeEntrance; // 무료 입장 여부
 
     private String region;
@@ -60,6 +61,9 @@ public class EventResponseDTO {
     private Boolean isAuthor;
 
 
+    public Boolean getIsFreeEntrance() {
+        return isFreeEntrance;
+    }
     public Boolean getIsAttending() {
         return isAttending;
     }
@@ -114,6 +118,7 @@ public class EventResponseDTO {
                 .isAuthor(isAuthor)
                 .liked(liked)
                 .isAttending(isAttending)
+                .isFreeEntrance(event.isFreeEntrance())
                 .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
                 .build();
     }
@@ -132,6 +137,7 @@ public class EventResponseDTO {
                 .isAuthor(isAuthor)
                 .isAttending(isAttending)
                 .liked(liked)
+                .isFreeEntrance(event.isFreeEntrance())
                 .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
                 .build();
     }
@@ -150,6 +156,7 @@ public class EventResponseDTO {
                 .isAuthor(isAuthor)
                 .liked(liked)
                 .isAttending(isAttending)
+                .isFreeEntrance(event.isFreeEntrance())
                 .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
                 .build();
     }

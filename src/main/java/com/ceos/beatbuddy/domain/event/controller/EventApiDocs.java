@@ -82,7 +82,7 @@ public interface EventApiDocs {
                                     "entranceFee": 20000,
                                     "entranceNotice": "입장료는 현장에서 결제해주세요.",
                                     "notice": "이벤트 관련 공지사항입니다.",
-                                    "freeEntrance": false,
+                                    "isFreeEntrance": false,
                                     "region": "홍대",
                                     "isAttending": false
                                   }
@@ -229,14 +229,12 @@ public interface EventApiDocs {
                                 "depositAccount": "",
                                 "depositAmount": 0,
                                 "isAuthor": true,
-                                "ticketCost": "20000원",
-                                "notice": "공지사항입니다.",
                                 "region": "홍대",
                                 "isAttending": false,
                                 "entranceFee": 20000,
                                 "entranceNotice": "입장료는 현장에서 결제해주세요.",
                                 "notice": "이벤트 관련 공지사항입니다.",
-                                "freeEntrance": false
+                                "isFreeEntrance": false
                               }
                             }
                                     """)
@@ -397,7 +395,8 @@ public interface EventApiDocs {
                             "isAuthor": false,
                             "region": "홍대",
                             "isAttending": false,
-                            "liked": false
+                            "liked": false,
+                            "isFreeEntrance": false
                           },
                           {
                             "eventId": 2,
@@ -413,7 +412,8 @@ public interface EventApiDocs {
                             "isAuthor": false,
                             "region": "홍대",
                             "isAttending": true,
-                            "liked": false
+                            "liked": false,
+                            "isFreeEntrance": false
                           }
                         ]
                       }
@@ -470,7 +470,8 @@ public interface EventApiDocs {
                             "isAuthor": false,
                             "region": "홍대",
                             "isAttending": false,
-                            "liked": false
+                            "liked": false,
+                            "isFreeEntrance": false
                           }
                         ]
                       }
@@ -525,7 +526,8 @@ public interface EventApiDocs {
                             "endDate": "2025-06-28",
                             "region": "압구정_로데오",
                             "isAttending": false,
-                            "isAuthor": true
+                            "isAuthor": true,
+                            "isFreeEntrance": false,
                           },
                           {
                             "eventId": 8,
@@ -540,7 +542,8 @@ public interface EventApiDocs {
                             "endDate": "2025-06-24",
                             "region": "이태원",
                             "isAttending": false,
-                            "isAuthor": true
+                            "isAuthor": true,
+                            "isFreeEntrance": false
                           }
                         ]
                       }
@@ -772,7 +775,7 @@ public interface EventApiDocs {
                                         "entranceFee": 20000,
                                         "entranceNotice": "입장료는 현장에서 결제해주세요.",
                                         "notice": "이벤트 관련 공지사항입니다.",
-                                        "freeEntrance": false,
+                                        "isFreeEntrance": false,
                                         "region": "강남_신사",
                                         "isAttending": true,
                                         "isAuthor": true
@@ -1004,89 +1007,39 @@ public interface EventApiDocs {
                         "sort": "period",
                         "page": 1,
                         "size": 10,
-                        "totalSize": 7,
+                        "totalSize": 5,
                         "eventResponseDTOS": [
-                          {
-                            "eventId": 5,
-                            "title": "이벤트 제목",
-                            "content": "내용입니다.",
-                            "images": [],
-                            "liked": true,
-                            "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                            "likes": 1,
-                            "views": 0,
-                            "startDate": "2025-04-20",
-                            "endDate": "2025-07-21",
-                            "receiveInfo": true,
-                            "receiveName": true,
-                            "receiveGender": true,
-                            "receivePhoneNumber": true,
-                            "receiveTotalCount": false,
-                            "receiveSNSId": true,
-                            "receiveMoney": true,
-                            "depositAccount": "국민 122235-455678952",
-                            "depositAmount": 20000,
-                            "ticketCost": "",
-                            "notice": "",
-                            "region": "강남_신사",
-                            "isAttending": false,
-                            "isAuthor": true
-                          },
                           {
                             "eventId": 1,
                             "title": "이벤트 시작",
                             "content": "이게 바로 이트",
-                            "images": [],
-                            "liked": false,
+                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
+                            "liked": true,
                             "location": "경기도 파주",
                             "likes": 5,
-                            "views": 28,
+                            "views": 29,
                             "startDate": "2025-06-17",
                             "endDate": "2025-06-17",
-                            "receiveInfo": true,
-                            "receiveName": false,
-                            "receiveGender": false,
-                            "receivePhoneNumber": false,
-                            "receiveTotalCount": false,
-                            "receiveSNSId": false,
-                            "receiveMoney": false,
-                            "depositAccount": "국민 123-456-789",
-                            "depositAmount": 20000,
-                            "ticketCost": "",
-                            "notice": "",
                             "region": "강남_신사",
                             "isAttending": true,
-                            "isAuthor": true
+                            "isAuthor": false,
+                            "isFreeEntrance": false
                           },
                           {
                             "eventId": 2,
                             "title": "string",
                             "content": "string",
-                            "images": [
-                                 "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/event/20250622_224204_e8799c68-8ea2-4dea-bbd0-4e1922604b7e.jpg",
-                                 "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/event/20250623_011130_b39d5833-6793-4fa9-a3b4-a7174a86e6c9.png",
-                                 "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/event/20250623_011130_9dacc431-7b82-4c65-a582-870ab237f3f0.png"
-                            ],
+                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
                             "liked": true,
                             "location": "string",
                             "likes": 2,
                             "views": 12,
                             "startDate": "2025-06-18",
                             "endDate": "2025-06-23",
-                            "receiveInfo": true,
-                            "receiveName": true,
-                            "receiveGender": true,
-                            "receivePhoneNumber": true,
-                            "receiveTotalCount": false,
-                            "receiveSNSId": true,
-                            "receiveMoney": true,
-                            "depositAccount": "string",
-                            "depositAmount": 0,
-                            "ticketCost": "",
-                            "notice": "",
                             "region": "홍대",
                             "isAttending": true,
-                            "isAuthor": true
+                            "isAuthor": true,
+                            "isFreeEntrance": true
                           }
                         ]
                       }
