@@ -10,7 +10,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -105,7 +104,7 @@ public class EventCreateRequestDTO {
                 .location(eventCreateRequestDTO.getLocation())
                 .startDate(eventCreateRequestDTO.getStartDate())
                 .endDate(eventCreateRequestDTO.getEndDate())
-                .region(Event.of(eventCreateRequestDTO.getRegion()))
+                .region(Event.Region.of(eventCreateRequestDTO.getRegion()))
                 .build();
     }
 }

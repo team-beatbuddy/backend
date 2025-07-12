@@ -9,6 +9,8 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import java.time.LocalDateTime;
+
 @Document(indexName = "event")
 @Getter
 @Builder
@@ -39,6 +41,10 @@ public class EventDocument {
     private Boolean isVisible;
     @Field(type = FieldType.Text)
     private String region;
+    @Field(type = FieldType.Date)
+    private LocalDateTime startDate;
+    @Field(type = FieldType.Date)
+    private LocalDateTime endDate;
 
     public static EventDocument from(Event event) {
         return EventDocument.builder()
@@ -54,6 +60,8 @@ public class EventDocument {
                 .venueLocation(event.getVenue() != null ? event.getVenue().getAddress() : "")
                 .region(event.getRegion().name())
                 .isVisible(event.isVisible())
+                .startDate(event.getStartDate())
+                .endDate(event.getEndDate())
                 .build();
     }
 }
