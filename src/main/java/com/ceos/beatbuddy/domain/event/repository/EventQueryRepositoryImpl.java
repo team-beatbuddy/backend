@@ -327,6 +327,4 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
     }
-
-
 }

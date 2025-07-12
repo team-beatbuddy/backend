@@ -4,7 +4,6 @@ import com.ceos.beatbuddy.domain.admin.application.AdminService;
 import com.ceos.beatbuddy.domain.coupon.repository.CouponRepository;
 import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
-import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
@@ -12,8 +11,6 @@ import com.ceos.beatbuddy.domain.event.repository.EventRepository;
 import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
-import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.vector.entity.Vector;
 import com.ceos.beatbuddy.domain.venue.dto.VenueInfoResponseDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
@@ -62,9 +59,9 @@ public class VenueInfoService {
     private final CouponRepository couponRepository;
     private final MemberService memberService;
     private final EventQueryRepository eventQueryRepository;
-    private final EventRepository eventRepository;
     private final EventLikeRepository eventLikeRepository;
     private final EventAttendanceRepository eventAttendanceRepository;
+    private final EventRepository eventRepository;
 
     private final UploadUtil uploadUtil;
     public List<Venue> getVenueInfoList() {
@@ -267,7 +264,7 @@ public class VenueInfoService {
         return EventListResponseDTO.builder()
                 .page(page)
                 .size(size)
-                .totalSize(eventQueryRepository.countVenueOngoingOrUpcomingEvents(venueId))
+                .totalSize(eventRepository.countAllByVenue_Id(venueId))
                 .sort("popular")
                 .eventResponseDTOS(events)
                 .build();
