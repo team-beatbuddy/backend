@@ -302,8 +302,8 @@ public class EventService {
         List<EventResponseDTO> dtoList = events.stream()
                 .map(event ->
                         EventResponseDTO.toListDTO(event,
-                                likedEventIds.contains(event.getId()), // 좋아요 여부
                                 member.getId().equals(event.getHost().getId()), // 내가 작성자 여부
+                                likedEventIds.contains(event.getId()), // 좋아요 여부
                                 attendingEventIds.contains(event.getId()))) // 참여 여부)) // 좋아요 여부는 false, 내가 작성자 여부는 false로 설정, 참여는 false
                 .collect(Collectors.toList());
 
