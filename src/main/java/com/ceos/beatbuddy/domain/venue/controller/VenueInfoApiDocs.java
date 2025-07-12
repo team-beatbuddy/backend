@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.venue.controller;
 
+import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueCouponResponseDTO;
 import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -63,4 +65,164 @@ public interface VenueInfoApiDocs {
                     examples = @ExampleObject(name = "베뉴 없음", value = SwaggerExamples.VENUE_NOT_EXIST))
     )
     ResponseEntity<ResponseDTO<List<VenueCouponResponseDTO>>> getCouponsByVenue(@PathVariable Long venueId);
+
+
+
+    @Operation(summary = "베뉴의 이벤트 목록 조회(최신순)",
+            description = """
+                - isPast 파라미터가 true인 경우, 과거 이벤트를 조회합니다.
+                - isPast 파라미터가 false인 경우, 현재 및 예정 이벤트를 조회합니다.
+                - ⚠️ 주의) 현재 및 예정 이벤트를 모두 조회한 뒤에는 Past를 true로 받아 과거 이벤트를 조회해야 합니다.
+    """)
+    @ApiResponse(
+            responseCode = "200",
+            description = "이벤트 목록 조회 성공",
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(name = "조회 성공", value = """
+                    {
+                      "status": 200,
+                      "code": "SUCCESS_GET_VENUE_EVENTS",
+                      "message": "베뉴의 이벤트 목록을 성공적으로 조회했습니다.",
+                      "data": {
+                        "sort": "latest",
+                        "page": 1,
+                        "size": 10,
+                        "totalSize": 7,
+                        "eventResponseDTOS": [
+                          {
+                            "eventId": 5,
+                            "title": "이벤트 제목",
+                            "content": "내용입니다.",
+                            "thumbImage": "",
+                            "liked": true,
+                            "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                            "likes": 1,
+                            "views": 0,
+                            "startDate": "2025-04-20T00:00:00",
+                            "endDate": "2025-07-21T00:00:00",
+                            "region": "강남_신사",
+                            "isFreeEntrance": false,
+                            "isAttending": false,
+                            "isAuthor": true
+                          },
+                          {
+                            "eventId": 7,
+                            "title": "이벤트 제목",
+                            "content": "내용입니다.",
+                            "thumbImage": "",
+                            "liked": false,
+                            "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                            "likes": 0,
+                            "views": 20,
+                            "startDate": "2025-06-20T00:00:00",
+                            "endDate": "2025-07-22T00:00:00",
+                            "region": "이태원",
+                            "isFreeEntrance": false,
+                            "isAttending": false,
+                            "isAuthor": true
+                          }
+                        ]
+                      }
+                    }
+            """))
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "리소스 없음",
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    mediaType = "application/json",
+                    examples = {@ExampleObject(name = "베뉴 없음", value = SwaggerExamples.VENUE_NOT_EXIST),
+                            @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)})
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "잘못된 요청",
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(name = "잘못된 페이지 요청", value = SwaggerExamples.PAGE_OUT_OF_BOUNDS))
+    )
+    ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventsByVenueLatest(@PathVariable Long venueId,
+                                                                                           @RequestParam(defaultValue = "1") int page,
+                                                                                           @RequestParam(defaultValue = "10") int size,
+                                                                                           @RequestParam(defaultValue = "false") boolean isPast);
+
+
+    @Operation(summary = "베뉴의 이벤트 목록 조회(인기순)",
+            description = """
+    특정 베뉴의 이벤트 목록을 인기순으로 조회합니다.
+    - 인기순으로 정렬된 이벤트 목록을 조회합니다.
+    - 페이지네이션을 지원합니다.
+    """)
+    @ApiResponse(
+            responseCode = "200",
+            description = "이벤트 목록 조회 성공",
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(name = "조회 성공", value = """
+                    {
+                      "status": 200,
+                      "code": "SUCCESS_GET_VENUE_EVENTS",
+                      "message": "베뉴의 이벤트 목록을 성공적으로 조회했습니다.",
+                      "data": {
+                        "sort": "popular",
+                        "page": 1,
+                        "size": 10,
+                        "totalSize": 7,
+                        "eventResponseDTOS": [
+                          {
+                            "eventId": 5,
+                            "title": "이벤트 제목",
+                            "content": "내용입니다.",
+                            "thumbImage": "",
+                            "liked": true,
+                            "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                            "likes": 5,
+                            "views": 0,
+                            "startDate": "2025-04-20T00:00:00",
+                            "endDate": "2025-07-21T00:00:00",
+                            "region": "강남_신사",
+                            "isFreeEntrance": false,
+                            "isAttending": false,
+                            "isAuthor": true
+                          },
+                          {
+                            "eventId": 7,
+                            "title": "이벤트 제목",
+                            "content": "내용입니다.",
+                            "thumbImage": "",
+                            "liked": false,
+                            "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
+                            "likes": 3,
+                            "views": 20,
+                            "startDate": "2025-06-20T00:00:00",
+                            "endDate": "2025-07-22T00:00:00",
+                            "region": "이태원",
+                            "isFreeEntrance": false,
+                            "isAttending": false,
+                            "isAuthor": true
+                          }
+                        ]
+                      }
+                    }
+            """))
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "리소스 없음",
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    mediaType = "application/json",
+                    examples = {@ExampleObject(name = "베뉴 없음", value = SwaggerExamples.VENUE_NOT_EXIST),
+                            @ExampleObject(name = "존재하지 않는 유저", value = SwaggerExamples.MEMBER_NOT_EXIST)})
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "잘못된 요청",
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(name = "잘못된 페이지 요청", value = SwaggerExamples.PAGE_OUT_OF_BOUNDS)))
+    ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventsByVenuePopular(@PathVariable Long venueId,
+                                                                              @RequestParam(defaultValue = "1") int page,
+                                                                              @RequestParam(defaultValue = "10") int size);
+
 }
