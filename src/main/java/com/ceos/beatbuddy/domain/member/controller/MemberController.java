@@ -3,6 +3,8 @@ package com.ceos.beatbuddy.domain.member.controller;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.application.OnboardingService;
 import com.ceos.beatbuddy.domain.member.dto.*;
+import com.ceos.beatbuddy.domain.member.dto.MemberBlockRequestDTO;
+import com.ceos.beatbuddy.domain.member.dto.MemberBlockResponseDTO;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.ResponseTemplate;
@@ -234,5 +236,96 @@ public class MemberController implements MemberApiDocs{
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_UPDATE_NICKNAME.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_NICKNAME, result));
+    }
+
+    // ============= Member Blocking Endpoints =============
+    
+    @PostMapping("/block")
+    @Operation(summary = "멤버 차단", description = "특정 멤버를 차단합니다.")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "멤버 차단 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MemberBlockResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "자기 자신을 차단할 수 없습니다 or 이미 차단된 사용자입니다",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseTemplate.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 멤버입니다",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseTemplate.class)))
+    })
+    public ResponseEntity<MemberBlockResponseDTO> blockMember(@RequestBody MemberBlockRequestDTO request) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        memberService.blockMember(memberId, request.getBlockedMemberId());
+        
+        List<Long> blockedMemberIds = memberService.getBlockedMemberIds(memberId);
+        MemberBlockResponseDTO response = MemberBlockResponseDTO.builder()
+                .message("멤버 차단이 완료되었습니다.")
+                .blockedMemberIds(blockedMemberIds)
+                .build();
+                
+        return ResponseEntity.ok(response);
+    }
+    
+    @DeleteMapping("/block/{blockedMemberId}")
+    @Operation(summary = "멤버 차단 해제", description = "특정 멤버의 차단을 해제합니다.")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "멤버 차단 해제 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MemberBlockResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "차단 관계를 찾을 수 없습니다",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseTemplate.class)))
+    })
+    public ResponseEntity<MemberBlockResponseDTO> unblockMember(@PathVariable Long blockedMemberId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        memberService.unblockMember(memberId, blockedMemberId);
+        
+        List<Long> blockedMemberIds = memberService.getBlockedMemberIds(memberId);
+        MemberBlockResponseDTO response = MemberBlockResponseDTO.builder()
+                .message("멤버 차단 해제가 완료되었습니다.")
+                .blockedMemberIds(blockedMemberIds)
+                .build();
+                
+        return ResponseEntity.ok(response);
+    }
+    
+    @GetMapping("/blocked")
+    @Operation(summary = "차단된 멤버 목록 조회", description = "현재 사용자가 차단한 멤버들의 ID 목록을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "차단된 멤버 목록 조회 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MemberBlockResponseDTO.class)))
+    })
+    public ResponseEntity<MemberBlockResponseDTO> getBlockedMembers() {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        List<Long> blockedMemberIds = memberService.getBlockedMemberIds(memberId);
+        
+        MemberBlockResponseDTO response = MemberBlockResponseDTO.builder()
+                .message("차단된 멤버 목록 조회가 완료되었습니다.")
+                .blockedMemberIds(blockedMemberIds)
+                .build();
+                
+        return ResponseEntity.ok(response);
+    }
+    
+    @GetMapping("/blocked/{targetMemberId}")
+    @Operation(summary = "특정 멤버 차단 여부 확인", description = "특정 멤버가 차단되어 있는지 확인합니다.")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "차단 여부 확인 성공",
+                    content = @Content(mediaType = "application/json"))
+    })
+    public ResponseEntity<Boolean> isBlockedMember(@PathVariable Long targetMemberId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        boolean isBlocked = memberService.isBlocked(memberId, targetMemberId);
+        
+        return ResponseEntity.ok(isBlocked);
     }
 }
