@@ -78,12 +78,15 @@ public class VenueReviewService {
         // 정렬 기준
         String sortBy = (sort != null && sort.equals("popular")) ? "popular" : "latest";
 
-        // 리뷰 조회 - 이미지 유무 + 정렬 기준 포함
+        // 차단된 멤버 목록 조회
+        List<Long> blockedMemberIds = memberService.getBlockedMemberIds(memberId);
+
+        // 리뷰 조회 - 이미지 유무 + 정렬 기준 + 차단 멤버 필터링 포함
         List<VenueReview> reviews;
         if (hasImage) {
-            reviews = venueReviewQueryRepository.findReviewsWithImagesSorted(venueId, sortBy);
+            reviews = venueReviewQueryRepository.findReviewsWithImagesSortedExcludingBlocked(venueId, sortBy, blockedMemberIds);
         } else {
-            reviews = venueReviewQueryRepository.findAllReviewsSorted(venueId, sortBy);
+            reviews = venueReviewQueryRepository.findAllReviewsSortedExcludingBlocked(venueId, sortBy, blockedMemberIds);
         }
 
         Set<Long> followingMemberIds = followRepository.findFollowingMemberIds(memberId);
