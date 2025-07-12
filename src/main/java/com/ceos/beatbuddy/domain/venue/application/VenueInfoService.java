@@ -2,8 +2,6 @@ package com.ceos.beatbuddy.domain.venue.application;
 
 import com.ceos.beatbuddy.domain.admin.application.AdminService;
 import com.ceos.beatbuddy.domain.coupon.repository.CouponRepository;
-import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
-import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
@@ -34,7 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service

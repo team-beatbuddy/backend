@@ -106,46 +106,7 @@ public class EventResponseDTO {
                 .build();
     }
 
-    public static EventResponseDTO toUpcomingListDTO(Event event, boolean isAuthor, boolean liked, boolean isAttending) {
-        return EventResponseDTO.builder()
-                .eventId(event.getId())
-                .title(event.getTitle())
-                .content(event.getContent())
-                .dDay("D-" + ChronoUnit.DAYS.between(LocalDate.now(), event.getStartDate()))
-                .startDate(event.getStartDate())
-                .endDate(event.getEndDate())
-                .thumbImage(Optional.ofNullable(event.getThumbImage()).orElse(""))
-                .likes(event.getLikes())
-                .views(event.getViews())
-                .location(event.getLocation())
-                .isAuthor(isAuthor)
-                .liked(liked)
-                .isAttending(isAttending)
-                .isFreeEntrance(event.isFreeEntrance())
-                .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
-                .build();
-    }
-
-    public static EventResponseDTO toPastListDTO(Event event, boolean isAuthor, boolean liked, boolean isAttending) {
-        return EventResponseDTO.builder()
-                .eventId(event.getId())
-                .title(event.getTitle())
-                .content(event.getContent())
-                .startDate(event.getStartDate())
-                .endDate(event.getEndDate())
-                .thumbImage(Optional.ofNullable(event.getThumbImage()).orElse(""))
-                .likes(event.getLikes())
-                .views(event.getViews())
-                .location(event.getLocation())
-                .isAuthor(isAuthor)
-                .isAttending(isAttending)
-                .liked(liked)
-                .isFreeEntrance(event.isFreeEntrance())
-                .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
-                .build();
-    }
-
-    public static EventResponseDTO toNowListDTO(Event event, boolean isAuthor, boolean liked, boolean isAttending) {
+    public static EventResponseDTO toListDTO(Event event, boolean isAuthor, boolean liked, boolean isAttending) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
