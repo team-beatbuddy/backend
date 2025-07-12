@@ -41,10 +41,24 @@ public class EventDocument {
     private Boolean isVisible;
     @Field(type = FieldType.Text)
     private String region;
-    @Field(type = FieldType.Date)
-    private LocalDateTime startDate;
-    @Field(type = FieldType.Date)
-    private LocalDateTime endDate;
+public static EventDocument from(Event event) {
+    return EventDocument.builder()
+            .id(event.getId())
+            .title(event.getTitle())
+            .content(event.getContent())
+            .location(event.getLocation())
+            .entranceNotice(event.getEntranceNotice())
+            .notice(event.getNotice())
+            .isFreeEntrance(event.isFreeEntrance() ? "무료입장" : "유료입장")
+            .venueKoreanName(event.getVenue() != null ? event.getVenue().getKoreanName() : "")
+            .venueEnglishName(event.getVenue() != null ? event.getVenue().getEnglishName() : "")
+            .venueLocation(event.getVenue() != null ? event.getVenue().getAddress() : "")
+            .region(event.getRegion().name())
+            .isVisible(event.isVisible())
+            .startDate(event.getStartDate())
+            .endDate(event.getEndDate())
+            .build();
+}
 
     public static EventDocument from(Event event) {
         return EventDocument.builder()
