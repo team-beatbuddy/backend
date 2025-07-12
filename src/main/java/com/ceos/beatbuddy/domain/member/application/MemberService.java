@@ -8,11 +8,13 @@ import com.ceos.beatbuddy.domain.member.dto.MemberProfileSummaryDTO;
 import com.ceos.beatbuddy.domain.member.dto.MemberResponseDTO;
 import com.ceos.beatbuddy.domain.member.dto.NicknameDTO;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.member.entity.MemberBlock;
 import com.ceos.beatbuddy.domain.member.entity.MemberGenre;
 import com.ceos.beatbuddy.domain.member.entity.MemberMood;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.exception.MemberGenreErrorCode;
 import com.ceos.beatbuddy.domain.member.exception.MemberMoodErrorCode;
+import com.ceos.beatbuddy.domain.member.repository.MemberBlockRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberGenreRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberMoodRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberQueryRepository;
@@ -31,12 +33,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final MemberBlockRepository memberBlockRepository;
     private final MemberMoodRepository memberMoodRepository;
     private final MemberGenreRepository memberGenreRepository;
     private final HeartbeatRepository heartbeatRepository;
@@ -191,5 +195,67 @@ public class MemberService {
     public Member validateAndGetMember(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+    }
+
+    // ============= Member Blocking Functionality =============
+    
+    /**
+     * 특정 사용자가 차단한 멤버들의 ID 목록을 조회
+     * @param blockerId 차단하는 사용자의 ID
+     * @return 차단된 멤버들의 ID 목록
+     */
+    public Set<Long> getBlockedMemberIds(Long blockerId) {
+        return memberBlockRepository.findBlockedMemberIdsByBlockerId(blockerId);
+    }
+    
+    /**
+     * 멤버 차단
+     * @param blockerId 차단하는 사용자의 ID
+     * @param blockedId 차단당하는 사용자의 ID
+     */
+    @Transactional
+    public void blockMember(Long blockerId, Long blockedId) {
+        // 자기 자신을 차단할 수 없음
+        if (blockerId.equals(blockedId)) {
+            throw new CustomException(MemberErrorCode.CANNOT_BLOCK_SELF);
+        }
+        
+        Member blocker = validateAndGetMember(blockerId);
+        Member blocked = validateAndGetMember(blockedId);
+        
+        // 이미 차단되어 있는지 확인
+        if (memberBlockRepository.findByBlockerIdAndBlockedId(blockerId, blockedId).isPresent()) {
+            throw new CustomException(MemberErrorCode.ALREADY_BLOCKED);
+        }
+        
+        MemberBlock memberBlock = MemberBlock.builder()
+                .blocker(blocker)
+                .blocked(blocked)
+                .build();
+                
+        memberBlockRepository.save(memberBlock);
+    }
+    // v2 개발 기능
+    /**
+     * 멤버 차단 해제
+     * @param blockerId 차단하는 사용자의 ID
+     * @param blockedId 차단당하는 사용자의 ID
+     */
+    @Transactional
+    public void unblockMember(Long blockerId, Long blockedId) {
+        MemberBlock memberBlock = memberBlockRepository.findByBlockerIdAndBlockedId(blockerId, blockedId)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.BLOCK_NOT_FOUND));
+        
+        memberBlockRepository.delete(memberBlock);
+    }
+    
+    /**
+     * 두 사용자 간 차단 상태 확인
+     * @param blockerId 차단하는 사용자의 ID
+     * @param blockedId 차단당하는 사용자의 ID
+     * @return 차단 상태 여부
+     */
+    public boolean isBlocked(Long blockerId, Long blockedId) {
+        return memberBlockRepository.findByBlockerIdAndBlockedId(blockerId, blockedId).isPresent();
     }
 }

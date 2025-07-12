@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -49,7 +50,7 @@ public class CommentService {
 
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, member.getId());
 
-        return CommentResponseDto.from(savedComment, true, isFollowing); // 자신이 작성
+        return CommentResponseDto.from(savedComment, true, isFollowing, false); // 자신이 작성, 스스로는 차단할 수 없음
     }
 
     @Transactional
@@ -75,7 +76,7 @@ public class CommentService {
 
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, member.getId());
 
-        return CommentResponseDto.from(savedReply, true, isFollowing); // 자신이 작성
+        return CommentResponseDto.from(savedReply, true, isFollowing, false); // 자신이 작성, 스스로는 차단할 수 없음
     }
 
     public CommentResponseDto getComment(Long commentId, Long memberId) {
@@ -83,7 +84,9 @@ public class CommentService {
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
-        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing); // 자신이 작성한 댓글인지 여부
+        boolean isBlockedMember = memberService.isBlocked(memberId, comment.getMember().getId());
+
+        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember); // 자신이 작성한 댓글인지 여부
     }
 
     public Page<CommentResponseDto> getAllComments(Long postId, int page, int size, Long memberId) {
@@ -92,12 +95,17 @@ public class CommentService {
             throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
         }
         Pageable pageable = PageRequest.of(page-1, size);
-        Page<Comment> comments = commentRepository.findAllByPost_Id(postId, pageable);
+
+        // 차단한 사용자
+        Set<Long> blockedMemberIds = memberService.getBlockedMemberIds(memberId);
+
+        Page<Comment> comments =  commentRepository.findAllByPost_Id(postId, pageable);
 
         Set<Long> followingIds = followRepository.findFollowingMemberIds(memberId);
         return comments.map(comment ->
                     CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId),
-                            followingIds.contains(comment.getMember().getId())
+                            followingIds.contains(comment.getMember().getId()),
+                            blockedMemberIds.contains(comment.getMember().getId())
                     )
         );
     }
@@ -123,7 +131,7 @@ public CommentResponseDto updateComment(Long commentId, Long memberId, CommentRe
 
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
 
-        return CommentResponseDto.from(commentRepository.save(updatedComment), true, isFollowing); // 자신이 작성한 댓글이므로 true
+        return CommentResponseDto.from(commentRepository.save(updatedComment), true, isFollowing, false); // 자신이 작성한 댓글이므로 true, 자신을 차단할 수 없음.
     }
 
     @Transactional
@@ -144,13 +152,19 @@ public CommentResponseDto updateComment(Long commentId, Long memberId, CommentRe
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
+        boolean isBlockedMember = memberService.isBlocked(memberId, comment.getMember().getId());
+        if (isBlockedMember) {
+            throw new CustomException(ErrorCode.BLOCKED_MEMBER);
+        }
+
         // 좋아요 로직 구현 필요 (중복 좋아요 방지 등)
         comment.increaseLike();
 
         // 팔로잉 여부
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
+        // 차단 여부
 
-        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing); // 자신이 작성한 댓글인지 여부
+        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember); // 자신이 작성한 댓글인지 여부
     }
 
     @Transactional
@@ -158,10 +172,15 @@ public CommentResponseDto updateComment(Long commentId, Long memberId, CommentRe
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
+        boolean isBlockedMember = memberService.isBlocked(memberId, comment.getMember().getId());
+        if (isBlockedMember) {
+            throw new CustomException(ErrorCode.BLOCKED_MEMBER);
+        }
+
         // 좋아요 로직 구현 필요 (중복 좋아요 방지 등)
         comment.decreaseLike();
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
 
-        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing); // 자신이 작성한 댓글인지 여부
+        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember); // 자신이 작성한 댓글인지 여부
     }
 }

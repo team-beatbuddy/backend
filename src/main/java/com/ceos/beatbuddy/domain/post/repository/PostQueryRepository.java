@@ -15,4 +15,20 @@ public interface PostQueryRepository {
     Page<FreePost> findPostsByHashtags(List<FixedHashtag> hashtags, Pageable pageable);
 
     Page<FreePost> readAllPostsByUserExcludingAnonymous(Long userId, Pageable pageable);
+    
+    /**
+     * 핫 포스트 조회 (차단된 멤버 제외)
+     * @param blockedMemberIds 차단된 멤버 ID 목록
+     * @return 핫 포스트 목록 (차단된 멤버 제외)
+     */
+    List<Post> findHotPostsWithin12HoursExcludingBlocked(List<Long> blockedMemberIds);
+    
+    /**
+     * 해시태그별 포스트 조회 (차단된 멤버 제외)
+     * @param hashtags 해시태그 목록
+     * @param pageable 페이징 정보
+     * @param blockedMemberIds 차단된 멤버 ID 목록
+     * @return 포스트 페이지 (차단된 멤버 제외)
+     */
+    Page<FreePost> findPostsByHashtagsExcludingBlocked(List<FixedHashtag> hashtags, Pageable pageable, List<Long> blockedMemberIds);
 }

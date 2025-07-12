@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
+
 @Repository
 @RequiredArgsConstructor
 public class VenueReviewQueryRepositoryImpl implements VenueReviewQueryRepository {
@@ -33,6 +35,35 @@ public class VenueReviewQueryRepositoryImpl implements VenueReviewQueryRepositor
                 .where(
                         review.venue.id.eq(venueId),
                         review.imageUrls.isNotEmpty()
+                )
+                .orderBy(getOrderSpecifier(review, sortBy))
+                .fetch();
+    }
+
+    @Override
+    public List<VenueReview> findAllReviewsSortedExcludingBlocked(Long venueId, String sortBy, Set<Long> blockedMemberIds) {
+        QVenueReview review = QVenueReview.venueReview;
+
+        return queryFactory
+                .selectFrom(review)
+                .where(
+                        review.venue.id.eq(venueId),
+                        blockedMemberIds.isEmpty() ? null : review.member.id.notIn(blockedMemberIds)
+                )
+                .orderBy(getOrderSpecifier(review, sortBy))
+                .fetch();
+    }
+
+    @Override
+    public List<VenueReview> findReviewsWithImagesSortedExcludingBlocked(Long venueId, String sortBy, Set<Long> blockedMemberIds) {
+        QVenueReview review = QVenueReview.venueReview;
+
+        return queryFactory
+                .selectFrom(review)
+                .where(
+                        review.venue.id.eq(venueId),
+                        review.imageUrls.isNotEmpty(),
+                        blockedMemberIds.isEmpty() ? null : review.member.id.notIn(blockedMemberIds)
                 )
                 .orderBy(getOrderSpecifier(review, sortBy))
                 .fetch();
