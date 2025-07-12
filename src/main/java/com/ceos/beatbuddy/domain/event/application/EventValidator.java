@@ -7,7 +7,6 @@ import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventAttendance;
 import com.ceos.beatbuddy.domain.event.entity.EventComment;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
-import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
@@ -23,7 +22,6 @@ import java.util.Objects;
 public class EventValidator {
     private final MemberService memberService;
     private final EventRepository eventRepository;
-    private final EventAttendanceRepository eventAttendanceRepository;
 
     public void checkAccessForEvent(Long eventId, Long memberId) {
         Member host = memberService.validateAndGetMember(memberId);

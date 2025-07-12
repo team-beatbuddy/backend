@@ -10,6 +10,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -17,6 +18,14 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(
+        name = "Event",
+        indexes = {
+                @Index(name = "idx_event_status_start", columnList = "status, startDate"),
+                @Index(name = "idx_event_status_region_start", columnList = "status, region, startDate"),
+                @Index(name = "idx_event_status_end", columnList = "status, endDate")
+        }
+)
 public class Event extends BaseTimeEntity {
 
     @Id
@@ -28,8 +37,8 @@ public class Event extends BaseTimeEntity {
     @Lob
     private String content;
 
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
     private String location;
 
     private int entranceFee = 0; // 입장료
@@ -68,6 +77,10 @@ public class Event extends BaseTimeEntity {
 
     @Column(nullable = false)
     private boolean isVisible = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EventStatus status;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -135,6 +148,10 @@ public class Event extends BaseTimeEntity {
         if (dto.getEndDate() != null) {
             this.endDate = dto.getEndDate();
         }
+
+        // 날짜 변경 후 상태 자동 업데이트
+        updateEventStatusByDate();
+
         if (dto.getLocation() != null) {
             this.location = dto.getLocation();
         }
@@ -193,6 +210,19 @@ public class Event extends BaseTimeEntity {
         } else {
             this.depositAccount = null;
             this.depositAmount = null;
+        }
+    }
+
+    public void updateEventStatusByDate() {
+        LocalDateTime today = LocalDateTime.now();
+        if (startDate != null && endDate != null) {
+            if (!startDate.isAfter(today) && !endDate.isBefore(today)) {
+                this.status = EventStatus.NOW;
+            } else if (startDate.isAfter(today)) {
+                this.status = EventStatus.UPCOMING;
+            } else {
+                this.status = EventStatus.PAST;
+            }
         }
     }
 }
