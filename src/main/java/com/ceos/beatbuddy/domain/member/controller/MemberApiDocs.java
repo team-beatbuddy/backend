@@ -198,6 +198,7 @@ public interface MemberApiDocs {
     ResponseEntity<ResponseDTO<MemberResponseDTO>> updateNickname(@Valid @RequestBody NicknameDTO nicknameDTO);
 
     @Operation(summary = "멤버 차단", description = "특정 멤버를 차단합니다. 차단된 멤버는 게시글, 댓글 등에서 보이지 않습니다.")
+    @ApiResponses(value = {
     @ApiResponse(
             responseCode = "200",
             description = "멤버 차단 성공",
@@ -217,7 +218,7 @@ public interface MemberApiDocs {
                     """
                     )
             )
-    )
+    ),
     @ApiResponse(
             responseCode = "400",
             description = "잘못된 요청입니다. 자신을 차단하려는 시도입니다.",
@@ -229,7 +230,7 @@ public interface MemberApiDocs {
                                     value = SwaggerExamples.SELF_BLOCKING_ATTEMPT)
                     }
             )
-    )
+    ),
     @ApiResponse(
             responseCode = "404",
             description = "유저가 존재하지 않습니다.",
@@ -242,5 +243,6 @@ public interface MemberApiDocs {
                     }
             )
     )
+    })
     ResponseEntity<ResponseDTO<String>> blockMember(@Valid @RequestBody MemberBlockRequestDTO request);
 }
