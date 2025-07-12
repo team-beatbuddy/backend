@@ -248,6 +248,39 @@ public class VenueInfoService {
         }
     }
 
+    public EventListResponseDTO getVenueEventsByPopularity(Long venueId, Long memberId, int page, int size) {
+        // 멤버 유효성 검사
+        Member member = memberService.validateAndGetMember(memberId);
+
+        // Venue 유효성 검사
+        validateAndGetVenue(venueId);
+
+        // 페이지 유효성 검사
+        if (page < 0) {
+            throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
+        }
+
+        Set<Long> likedEventIds = eventLikeRepository.findLikedEventIdsByMember(member);
+        Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
+                .map(att -> att.getEvent().getId())
+                .collect(Collectors.toSet());
+
+        List<EventResponseDTO> events = eventQueryRepository.findEventsByVenueOrderByPopularity(venueId, PageRequest.of(page-1, size))
+                .stream()
+                .map(event -> EventResponseDTO.toListDTO(event, event.getHost().getId().equals(memberId),
+                        likedEventIds.contains(event.getId()),
+                        attendingEventIds.contains(event.getId())))
+                .collect(Collectors.toList());
+
+        return EventListResponseDTO.builder()
+                .page(page)
+                .size(size)
+                .totalSize(eventQueryRepository.countVenueOngoingOrUpcomingEvents(venueId))
+                .sort("popular")
+                .eventResponseDTOS(events)
+                .build();
+    }
+
 
     public Venue validateAndGetVenue(Long venueId) {
         return venueRepository.findById(venueId)

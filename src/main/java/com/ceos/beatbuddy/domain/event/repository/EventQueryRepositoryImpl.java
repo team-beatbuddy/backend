@@ -6,6 +6,8 @@ import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.QEventLike;
 import com.ceos.beatbuddy.domain.venue.entity.QVenue;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -298,5 +300,33 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
                         .and(event.endDate.lt(today)))
                 .fetchOne()).intValue();
     }
+
+    @Override
+    public List<Event> findEventsByVenueOrderByPopularity(Long venueId, Pageable pageable) {
+        QEvent event = QEvent.event;
+        QEventLike like = QEventLike.eventLike;
+        LocalDateTime now = LocalDateTime.now();
+
+        NumberExpression<Integer> statusOrder = new CaseBuilder()
+                .when(event.startDate.loe(now).and(event.endDate.goe(now))).then(0)
+                .when(event.startDate.gt(now)).then(1)
+                .otherwise(2);
+
+        return queryFactory
+                .select(event)
+                .from(event)
+                .leftJoin(event.venue, QVenue.venue).fetchJoin()
+                .leftJoin(like).on(like.event.eq(event))
+                .where(event.venue.id.eq(venueId))
+                .groupBy(event)
+                .orderBy(
+                        like.count().desc(),
+                        statusOrder.asc()
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
+
 
 }
