@@ -16,6 +16,15 @@ public class SwaggerExamples {
     /**
      * 400 잘못된 요청
      * */
+
+    public static final String SELF_BLOCKING_ATTEMPT = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "SELF_BLOCKING_ATTEMPT",
+          "message": "자기 자신을 차단할 수 없습니다."
+        }
+        """;
     public static final String INVALID_POST_TYPE = """
         {
           "status": 400,
@@ -311,6 +320,15 @@ public class SwaggerExamples {
           "error": "BAD_REQUEST",
           "code": "COUPON_RECEIVE_LIMIT_EXCEEDED",
           "message": "쿠폰 수령 한도를 초과했습니다."
+        }
+        """;
+
+    public static final String BLOCKED_MEMBER = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "BLOCKED_MEMBER",
+          "message": "차단된 멤버입니다."
         }
         """;
 

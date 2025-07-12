@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.member.controller;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.application.OnboardingService;
 import com.ceos.beatbuddy.domain.member.dto.*;
+import com.ceos.beatbuddy.domain.member.dto.MemberBlockRequestDTO;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.ResponseTemplate;
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -235,4 +237,49 @@ public class MemberController implements MemberApiDocs{
                 .status(SuccessCode.SUCCESS_UPDATE_NICKNAME.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_NICKNAME, result));
     }
+
+    // ============= Member Blocking Endpoints =============
+
+    @Override
+    @PostMapping("/block")
+    public ResponseEntity<ResponseDTO<String>> blockMember(@Valid @RequestBody MemberBlockRequestDTO request) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        memberService.blockMember(memberId, request.getBlockedMemberId());
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_BLOCK_MEMBER.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_BLOCK_MEMBER, "성공적으로 차단했습니다."));
+    }
+    
+//    @DeleteMapping("/block/{blockedMemberId}")
+//    public ResponseEntity<ResponseDTO<String>> unblockMember(@PathVariable @NotNull(message = "차단을 해제할 멤버 ID 는 필수입니다.") Long blockedMemberId) {
+//        Long memberId = SecurityUtils.getCurrentMemberId();
+//        memberService.unblockMember(memberId, blockedMemberId);
+//
+//        return ResponseEntity
+//                .status(SuccessCode.SUCCESS_UNBLOCK_MEMBER.getStatus().value())
+//                .body(new ResponseDTO<>(SuccessCode.SUCCESS_UNBLOCK_MEMBER, "성공적으로 차단을 해제했습니다."));
+//    }
+//
+//    @GetMapping("/blocked")
+//    public ResponseEntity<ResponseDTO<List<MemberBlockResponseDTO>>> getBlockedMembers() {
+//        Long memberId = SecurityUtils.getCurrentMemberId();
+//        List<Long> blockedMemberIds = memberService.getBlockedMemberIds(memberId);
+//
+//        return ResponseEntity.ok(response);
+//    }
+//
+//    @GetMapping("/blocked/{targetMemberId}")
+//    @Operation(summary = "특정 멤버 차단 여부 확인", description = "특정 멤버가 차단되어 있는지 확인합니다.")
+//    @ApiResponses({
+//            @ApiResponse(
+//                    responseCode = "200",
+//                    description = "차단 여부 확인 성공",
+//                    content = @Content(mediaType = "application/json"))
+//    })
+//    public ResponseEntity<Boolean> isBlockedMember(@PathVariable Long targetMemberId) {
+//        Long memberId = SecurityUtils.getCurrentMemberId();
+//        boolean isBlocked = memberService.isBlocked(memberId, targetMemberId);
+//
+//        return ResponseEntity.ok(isBlocked);
+//    }
 }

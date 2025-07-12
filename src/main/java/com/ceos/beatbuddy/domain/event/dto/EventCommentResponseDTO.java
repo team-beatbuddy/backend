@@ -21,17 +21,23 @@ public class EventCommentResponseDTO {
     private boolean anonymous;
     private LocalDateTime createdAt;
 
-
     @JsonProperty("isAuthor")
     private Boolean isAuthor;
 
     @JsonProperty("isFollowing")
     private Boolean isFollowing;
 
+    @JsonProperty("isBlockedMember")
+    private Boolean isBlockedMember;
+
     @JsonProperty("isStaff")
     private Boolean isStaff;
 
     private Long writerId;
+
+    public Boolean getIsBlockedMember() {
+        return isBlockedMember;
+    }
 
     public Boolean getIsStaff() {return isStaff;}
     public Boolean getIsFollowing() {
@@ -42,16 +48,17 @@ public class EventCommentResponseDTO {
         return isAuthor;
     }
 
-    public static EventCommentResponseDTO toDTO(EventComment eventComment, boolean isAuthor, boolean isFollowing, boolean isStaff) {
+    public static EventCommentResponseDTO toDTO(EventComment eventComment, boolean isAuthor, boolean isFollowing, boolean isStaff, boolean isBlockedMember) {
         return EventCommentResponseDTO.builder()
                 .commentId(eventComment.getId())
                 .commentLevel(eventComment.getLevel())
-                .content(eventComment.getContent())
+                .content(isBlockedMember ? "차단한 멤버의 댓글입니다." : eventComment.getContent())
                 .authorNickname(eventComment.isAnonymous() ? "익명" : eventComment.getAuthor().getNickname())
                 .anonymous(eventComment.isAnonymous())
                 .createdAt(eventComment.getCreatedAt())
                 .isAuthor(isAuthor)
                 .isFollowing(isFollowing)
+                .isBlockedMember(isBlockedMember)
                 .isStaff(isStaff)
                 .writerId(eventComment.getAuthor().getId())
                 .build();

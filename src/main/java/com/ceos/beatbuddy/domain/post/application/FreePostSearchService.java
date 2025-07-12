@@ -21,10 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -107,14 +104,7 @@ public class FreePostSearchService {
                     .map(Long::parseLong)
                     .toList();
 
-            // 3. DB에서 실제 FreePost 조회
-            List<FreePost> posts = freePostRepository.findAllById(postIds);
-
-            Map<Long, FreePost> postMap = posts.stream()
-                    .collect(Collectors.toMap(FreePost::getId, Function.identity()));
-            List<FreePost> orderedPosts = postIds.stream()
-                    .map(postMap::get)
-                    .toList();
+            Set<Long> blockedIds = memberService.getBlockedMemberIds(memberId);
 
             // 4. 좋아요/스크랩/댓글 여부 IN 쿼리
             PostInteractionStatus status = postInteractionService.getAllPostInteractions(memberId, postIds);
@@ -122,6 +112,22 @@ public class FreePostSearchService {
             // 팔로잉 중인 대상 ID 목록 가져오기
             Set<Long> followingIds = followRepository.findFollowingMemberIds(member.getId());
 
+            // 3. DB에서 실제 FreePost 조회
+            List<FreePost> posts = freePostRepository.findAllById(postIds);
+
+            posts = posts.stream()
+                    .filter(post -> !blockedIds.contains(post.getMember().getId()))
+                    .toList();
+
+            // 4. ID → 객체 매핑
+            Map<Long, FreePost> postMap = posts.stream()
+                    .collect(Collectors.toMap(FreePost::getId, Function.identity()));
+
+            // 5. ES 순서에 맞춰 정렬 (차단된 건 null → 제거)
+            List<FreePost> orderedPosts = postIds.stream()
+                    .map(postMap::get)
+                    .filter(Objects::nonNull)
+                    .toList();
 
             // 5. DTO로 변환
             List<PostPageResponseDTO> dtoList = orderedPosts.stream()

@@ -13,13 +13,14 @@ public record CommentResponseDto(
         LocalDateTime createdAt,
         Boolean isAuthor,
         Long writerId,
-        Boolean isFollowing
+        Boolean isFollowing,
+        Boolean isBlocked
 
         ) {
-    public static CommentResponseDto from(Comment comment, Boolean isAuthor, Boolean isFollowing) {
+    public static CommentResponseDto from(Comment comment, Boolean isAuthor, Boolean isFollowing, Boolean isBlockedMember) {
         return new CommentResponseDto(
                 comment.getId(),
-                comment.getContent(),
+                isBlockedMember ? "차단한 멤버의 댓글입니다." : comment.getContent(),
                 comment.isAnonymous(),
                 comment.getReply() != null ? comment.getReply().getId() : null,
                 comment.isAnonymous() ? "익명" : comment.getMember().getNickname(),
@@ -27,7 +28,8 @@ public record CommentResponseDto(
                 comment.getCreatedAt(),
                 isAuthor,
                 comment.getMember().getId(),
-                isFollowing
+                isFollowing,
+                isBlockedMember
         );
     }
 }
