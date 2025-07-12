@@ -11,7 +11,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +26,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/events")
 @Tag(name = "Event Controller", description = "이벤트 기능\n")
 public class EventController implements EventApiDocs {
@@ -252,6 +255,18 @@ public class EventController implements EventApiDocs {
         return ResponseEntity
                 .status(SuccessCode.EVENT_SEARCH_SUCCESS.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.EVENT_SEARCH_SUCCESS, results));
+    }
+
+    @Profile("dev")
+    @PostMapping("sync")
+    public ResponseEntity<Void> sync() throws IOException {
+        try {
+            eventElasticService.syncAll();
+        } catch (IOException e) {
+            log.error("Event Elasticsearch sync failed: {}", e.getMessage(), e);
+        }
+
+        return ResponseEntity.ok().build();
     }
 
 }

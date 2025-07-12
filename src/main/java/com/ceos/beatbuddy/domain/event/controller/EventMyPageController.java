@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.event.controller;
 import com.ceos.beatbuddy.domain.event.application.EventMyPageService;
 import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
+import com.ceos.beatbuddy.domain.event.entity.EventStatus;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @RestController
@@ -25,27 +27,13 @@ public class EventMyPageController implements EventMyPageApiDocs{
 
     @Override
     @GetMapping("/upcoming")
-    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyPageEventsUpcoming(
-            @RequestParam(required = false) String region,
+    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyPageEventsNowAndUpcoming(
+            @RequestParam(required = false) List<String> region,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        EventListResponseDTO result = eventMyPageService.getMyPageEventsUpcoming(memberId, region, page, size);
-        return ResponseEntity
-                .status(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS, result));
-    }
-
-    @Override
-    @GetMapping("/now")
-    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyPageEventsNow(
-            @RequestParam(required = false) String region,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        EventListResponseDTO result = eventMyPageService.getMyPageEventsNow(memberId, region, page, size);
+        EventListResponseDTO result = eventMyPageService.getMyPageEventsNowAndUpcoming(memberId, region, page, size);
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS, result));
@@ -54,7 +42,7 @@ public class EventMyPageController implements EventMyPageApiDocs{
     @Override
     @GetMapping("/past")
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyPageEventsPast(
-            @RequestParam(required = false) String region,
+            @RequestParam(required = false) List<String> region,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -69,39 +57,28 @@ public class EventMyPageController implements EventMyPageApiDocs{
     // 내가 작성한 이벤트 조회
     @Override
     @GetMapping("/my-event/upcoming")
-    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyEventsUpcoming(
-            @RequestParam(required = false) String region,
+    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyEventsNowAndUpcoming(
+            @RequestParam(required = false) List<String> region,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        EventListResponseDTO result = eventMyPageService.getMyUpcomingEvents(memberId, region, page, size);
+        // 현재 진행 중이거나 예정인 이벤트를 조회
+        Set<EventStatus> statuses = Set.of(EventStatus.UPCOMING, EventStatus.NOW);
+        EventListResponseDTO result = eventMyPageService.getMyPageEventsByStatuses(memberId, region, statuses, page, size);
 
         return buildEventResponse(result);
-    }
-    @Override
-    @GetMapping("/my-event/now")
-    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyEventsNow(
-            @RequestParam(required = false) String region,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        EventListResponseDTO result = eventMyPageService.getMyNowEvents(memberId, region, page, size);
-
-        return buildEventResponse(result);
-
     }
 
     @Override
     @GetMapping("/my-event/past")
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyEventsPast(
-            @RequestParam(required = false) String region,
+            @RequestParam(required = false) List<String> region,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        EventListResponseDTO result = eventMyPageService.getMyPastEvents(memberId, region, page, size);
+        EventListResponseDTO result = eventMyPageService.getMyPageEventsByStatus(memberId, region, EventStatus.PAST, page, size);
 
         return buildEventResponse(result);
     }
