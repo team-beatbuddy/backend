@@ -18,6 +18,5 @@ public class EventListResponseDTO {
     private Integer page;
     private Integer size;
     private Integer totalSize;
-    // latest 전용
     private List<EventResponseDTO> eventResponseDTOS;
 }
