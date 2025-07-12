@@ -201,7 +201,7 @@ public class VenueInfoService {
         validateAndGetVenue(venueId);
 
         // 페이지 유효성 검사
-        if (page < 0) {
+        if (page < 1) {
             throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
         }
 
@@ -256,7 +256,7 @@ public class VenueInfoService {
         validateAndGetVenue(venueId);
 
         // 페이지 유효성 검사
-        if (page < 0) {
+        if (page < 1) {
             throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
         }
 
