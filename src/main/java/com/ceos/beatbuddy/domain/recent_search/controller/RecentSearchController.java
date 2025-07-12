@@ -4,6 +4,10 @@ import com.ceos.beatbuddy.domain.recent_search.application.RecentSearchService;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +39,10 @@ public class RecentSearchController implements RecentSearchApiDocs {
     @Override
     @GetMapping()
     public ResponseEntity<ResponseDTO<List<String>>> getRecentSearches(
-            @RequestParam String searchType
+            @RequestParam @Pattern(regexp = "^(EVENT|VENUE|FREE_POST)$",
+                    message = "검색 타입은 EVENT, VENUE, FREE_POST 중 하나여야 합니다")
+            @Schema(description = "검색 타입", allowableValues = {"EVENT", "VENUE", "FREE_POST"})
+            String searchType
     ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         List<String> keywords = recentSearchService.getRecentSearches(memberId, searchType);
@@ -48,8 +55,11 @@ public class RecentSearchController implements RecentSearchApiDocs {
     @Override
     @DeleteMapping("/delete")
     public ResponseEntity<ResponseDTO<String>> deleteRecentSearch(
-            @RequestParam String searchType,
-            @RequestParam String keyword
+            @RequestParam @Pattern(regexp = "^(EVENT|VENUE|FREE_POST)$",
+                    message = "검색 타입은 EVENT, VENUE, FREE_POST 중 하나여야 합니다")
+            @Schema(description = "검색 타입", allowableValues = {"EVENT", "VENUE", "FREE_POST"})
+            String searchType,
+            @RequestParam @NotNull(message = "삭제하고자 하는 키워드는 비어있을 수 없습니다.") String keyword
     ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         recentSearchService.deleteRecentSearch(memberId, keyword, searchType);
