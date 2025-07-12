@@ -2,6 +2,11 @@ package com.ceos.beatbuddy.domain.venue.application;
 
 import com.ceos.beatbuddy.domain.admin.application.AdminService;
 import com.ceos.beatbuddy.domain.coupon.repository.CouponRepository;
+import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
+import com.ceos.beatbuddy.domain.event.entity.Event;
+import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
+import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
+import com.ceos.beatbuddy.domain.event.repository.EventRepository;
 import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
@@ -29,9 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,6 +53,9 @@ public class VenueInfoService {
     private final VenueSearchService venueSearchService;
     private final AdminService adminService;
     private final CouponRepository couponRepository;
+    private final EventRepository eventRepository;
+    private final EventLikeRepository eventLikeRepository;
+    private final EventAttendanceRepository eventAttendanceRepository;
 
     private final UploadUtil uploadUtil;
     public List<Venue> getVenueInfoList() {

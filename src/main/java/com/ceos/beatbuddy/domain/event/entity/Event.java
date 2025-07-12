@@ -69,6 +69,10 @@ public class Event extends BaseTimeEntity {
     @Column(nullable = false)
     private boolean isVisible = true;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EventStatus status;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberId")
@@ -135,6 +139,10 @@ public class Event extends BaseTimeEntity {
         if (dto.getEndDate() != null) {
             this.endDate = dto.getEndDate();
         }
+
+        // 날짜 변경 후 상태 자동 업데이트
+        updateEventStatusByDate();
+
         if (dto.getLocation() != null) {
             this.location = dto.getLocation();
         }
@@ -193,6 +201,19 @@ public class Event extends BaseTimeEntity {
         } else {
             this.depositAccount = null;
             this.depositAmount = null;
+        }
+    }
+
+    public void updateEventStatusByDate() {
+        LocalDate today = LocalDate.now();
+        if (startDate != null && endDate != null) {
+            if (!startDate.isAfter(today) && !endDate.isBefore(today)) {
+                this.status = EventStatus.NOW;
+            } else if (startDate.isAfter(today)) {
+                this.status = EventStatus.UPCOMING;
+            } else {
+                this.status = EventStatus.PAST;
+            }
         }
     }
 }

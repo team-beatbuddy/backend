@@ -1,13 +1,16 @@
 package com.ceos.beatbuddy.domain.event.repository;
 
 import com.ceos.beatbuddy.domain.event.entity.Event;
+import com.ceos.beatbuddy.domain.event.entity.EventStatus;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -26,4 +29,12 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Modifying
     @Query("UPDATE Event e SET e.views = e.views + 1 WHERE e.id = :eventId")
     void increaseViews(@Param("eventId") Long eventId);
+
+    List<Event> findByVenue(Venue venue);
+
+    @Modifying
+    @Query("UPDATE Event e SET e.status = :toStatus WHERE e.status = :fromStatus AND " +
+            "( ( :fromStatus = 'NOW' AND e.endDate = :targetDate ) OR " +
+            "  ( :fromStatus = 'UPCOMING' AND e.startDate = :targetDate ) )")
+    void updateStatus(EventStatus fromStatus, EventStatus toStatus, LocalDate targetDate);
 }
