@@ -10,6 +10,8 @@ import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.recent_search.application.RecentSearchService;
+import com.ceos.beatbuddy.domain.recent_search.entity.SearchTypeEnum;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
@@ -31,6 +33,7 @@ public class EventElasticService {
     private final EventAttendanceRepository eventAttendanceRepository;
     private final ElasticsearchClient elasticsearchClient;
     private final MemberService memberService;
+    private final RecentSearchService recentSearchService;
 
     public void syncAll() throws IOException {
         List<Event> events = eventRepository.findAll();
@@ -74,6 +77,10 @@ public class EventElasticService {
 
     public List<EventResponseDTO> search(String keyword, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
+
+        // 최근 검색어 추가
+        recentSearchService.saveRecentSearch(SearchTypeEnum.EVENT.name(), keyword, memberId);
+
         boolean isAdmin = member.isAdmin();
 
         Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
@@ -127,4 +134,7 @@ public class EventElasticService {
                 ))
                 .toList();
     }
+
+
+
 }

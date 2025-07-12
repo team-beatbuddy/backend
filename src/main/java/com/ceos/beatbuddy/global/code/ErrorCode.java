@@ -17,6 +17,7 @@ public enum ErrorCode implements ApiCode {
     TOO_MANY_IMAGES_20(HttpStatus.BAD_REQUEST, "이미지는 최대 20개까지 업로드할 수 있습니다."),
     PAGE_OUT_OF_BOUNDS(HttpStatus.BAD_REQUEST, "페이지 번호가 범위를 벗어났습니다."),
     INVALID_PARAMETER_TYPE(HttpStatus.BAD_REQUEST, "잘못된 파라미터 타입입니다."),
+    INVALID_SEARCH_TYPE(HttpStatus.BAD_REQUEST, "잘못된 검색 타입입니다."),
 
     /**
      * 401
@@ -41,10 +42,9 @@ public enum ErrorCode implements ApiCode {
     NOT_FOUND_SCRAP(HttpStatus.NOT_FOUND, "기존에 스크랩하지 않았습니다. 스크랩을 취소할 수 없습니다."),
     NOT_FOUND_LIKE(HttpStatus.NOT_FOUND, "기존에 좋아요를 누르지 않았습니다. 좋아요를 취소할 수 없습니다."),
     NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다."),
-    // 댓글이 속하지 않을 때
     NOT_FOUND_COMMENT_IN_EVENT(HttpStatus.NOT_FOUND, "해당 댓글이 이벤트에 속하지 않습니다."),
     NOT_FOUND_IMAGE(HttpStatus.NOT_FOUND, "해당 이미지를 찾을 수 없습니다."),
-
+    RECENT_SEARCH_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 최근 검색어를 찾을 수 없습니다."),
     /**
      * 409
      * */

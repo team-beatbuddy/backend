@@ -12,6 +12,8 @@ import com.ceos.beatbuddy.domain.member.exception.MemberMoodErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberGenreRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberMoodRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
+import com.ceos.beatbuddy.domain.recent_search.application.RecentSearchService;
+import com.ceos.beatbuddy.domain.recent_search.entity.SearchTypeEnum;
 import com.ceos.beatbuddy.domain.search.dto.*;
 import com.ceos.beatbuddy.domain.search.exception.SearchErrorCode;
 import com.ceos.beatbuddy.domain.search.repository.SearchRepository;
@@ -53,12 +55,15 @@ public class SearchService {
     private final HeartbeatRepository heartbeatRepository;
     private final MemberMoodRepository memberMoodRepository;
     private final MemberGenreRepository memberGenreRepository;
+    private final RecentSearchService recentSearchService;
 
     @Transactional
     public List<SearchQueryResponseDTO> keywordSearch(SearchDTO.RequestDTO searchRequestDTO, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        // 최근 검색어로 추가
+        recentSearchService.saveRecentSearch(SearchTypeEnum.VENUE.name(), searchRequestDTO.getKeyword().get(0), memberId);
 
         List<SearchQueryResponseDTO> venueList = searchRepository.keywordFilter(searchRequestDTO, memberId);
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
         MemberMood latestMemberMood = memberMoodRepository.findLatestMoodByMember(member).orElseThrow(() -> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));
         MemberGenre latestMemberGenre = memberGenreRepository.findLatestGenreByMember(member).orElseThrow(() -> new CustomException(MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST));
