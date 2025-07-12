@@ -13,9 +13,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
@@ -108,6 +110,20 @@ public interface MemberApiDocs {
                     )
             ),
             @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청입니다. 멤버 ID가 null인 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "잘못된 멤버 ID",
+                                            value = """
+                                                    
+                                                    """)
+                            }
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "유저가 존재하지 않습니다.",
                     content = @Content(
@@ -120,7 +136,9 @@ public interface MemberApiDocs {
                     )
             )
     })
-    ResponseEntity<ResponseDTO<MemberProfileSummaryDTO>> getProfileSummary();
+    ResponseEntity<ResponseDTO<MemberProfileSummaryDTO>> getProfileSummary(
+            @PathVariable @NotNull(message = "프로필 요약을 조회할 멤버 ID 는 필수입니다.") Long memberId
+    );
 
     @Operation(summary = "닉네임 변경, 14일 이내 조건이 포함된 변경 API", description = "닉네임을 변경합니다. 14일 내 최대 2회 변경 가능")
     @ApiResponses(value = {
