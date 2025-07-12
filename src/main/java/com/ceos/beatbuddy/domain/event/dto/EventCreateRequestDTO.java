@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.event.dto;
 
 import com.ceos.beatbuddy.domain.event.entity.Event;
+import com.ceos.beatbuddy.domain.event.entity.EventStatus;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -81,6 +82,7 @@ public class EventCreateRequestDTO {
 
         return Event.builder()
                 .host(member)
+                .status(EventStatus.UPCOMING)
                 .title(eventCreateRequestDTO.getTitle())
                 .content(eventCreateRequestDTO.getContent())
                 .likes(0)
