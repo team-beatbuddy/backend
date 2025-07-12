@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.event.application;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventDocument;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,10 +77,14 @@ public class EventElasticService {
         }
     }
 
-    public List<EventResponseDTO> search(String keyword, Long memberId) {
+    public EventListResponseDTO search(String keyword, Long memberId, int page, int size) {
         Member member = memberService.validateAndGetMember(memberId);
 
-        // 최근 검색어 추가
+        // 페이지 유효성 검사
+        if (page < 1) {
+            throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
+        }
+        
         recentSearchService.saveRecentSearch(SearchTypeEnum.EVENT.name(), keyword, memberId);
 
         boolean isAdmin = member.isAdmin();
@@ -104,16 +110,18 @@ public class EventElasticService {
                                                 "entranceNotice", "venueKoreanName", "venueEnglishName", "venueLocation", "region", "isFreeEntrance")
                                         .query(keyword)
                                         .fuzziness("AUTO")
-                                )
-                        )
+                                ))
                         .filter(f -> f.term(t -> t.field("isVisible").value(true)))
-                )
-        );
+                ));
+
+        int from = Math.max(0, (page - 1)) * size;
 
         SearchResponse<EventDocument> response;
         try {
             response = elasticsearchClient.search(s -> s
                             .index("event")
+                            .from(from)
+                            .size(size)
                             .query(query),
                     EventDocument.class
             );
@@ -121,10 +129,17 @@ public class EventElasticService {
             throw new CustomException(ErrorCode.ELASTICSEARCH_SEARCH_FAILED);
         }
 
-        return response.hits().hits().stream()
+        List<Long> ids = response.hits().hits().stream()
                 .map(Hit::source)
                 .filter(Objects::nonNull)
-                .map(doc -> eventRepository.findById(doc.getId()).orElse(null))
+                .map(EventDocument::getId)
+                .toList();
+
+        Map<Long, Event> eventMap = eventRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(Event::getId, Function.identity()));
+
+        List<EventResponseDTO> eventResponseDTOS = ids.stream()
+                .map(eventMap::get)
                 .filter(Objects::nonNull)
                 .map(event -> EventResponseDTO.toListDTO(
                         event,
@@ -133,8 +148,14 @@ public class EventElasticService {
                         attendingEventIds.contains(event.getId())
                 ))
                 .toList();
+
+        int totalSize = (int) Objects.requireNonNull(response.hits().total()).value();
+        return EventListResponseDTO.builder()
+                .sort("search")
+                .page(page)
+                .size(size)
+                .totalSize(totalSize)
+                .eventResponseDTOS(eventResponseDTOS)
+                .build();
     }
-
-
-
 }

@@ -1,9 +1,6 @@
 package com.ceos.beatbuddy.domain.event.controller;
 
-import com.ceos.beatbuddy.domain.event.application.EventAttendanceExcelExporter;
-import com.ceos.beatbuddy.domain.event.application.EventAttendanceService;
-import com.ceos.beatbuddy.domain.event.application.EventInteractionService;
-import com.ceos.beatbuddy.domain.event.application.EventService;
+import com.ceos.beatbuddy.domain.event.application.*;
 import com.ceos.beatbuddy.domain.event.dto.*;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.global.CustomException;
@@ -33,6 +30,7 @@ public class EventController implements EventApiDocs {
     private final EventService eventService;
     private final EventAttendanceService eventAttendanceService;
     private final EventInteractionService eventInteractionService;
+    private final EventElasticService eventElasticService;
 
     @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -239,6 +237,21 @@ public class EventController implements EventApiDocs {
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_SEARCH_EVENT_LIST.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_SEARCH_EVENT_LIST, result));
+    }
+
+
+    @Override
+    @GetMapping("/search")
+    public ResponseEntity<ResponseDTO<EventListResponseDTO>> searchEvents(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        EventListResponseDTO results = eventElasticService.search(keyword, memberId, page, size);
+        return ResponseEntity
+                .status(SuccessCode.EVENT_SEARCH_SUCCESS.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.EVENT_SEARCH_SUCCESS, results));
     }
 
 }
