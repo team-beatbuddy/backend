@@ -108,12 +108,13 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
                 .and(event.startDate.loe(LocalDateTime.now()))
                 .and(event.endDate.goe(LocalDateTime.now()));
 
-        return Objects.requireNonNull(queryFactory
-                        .select(event.count())
-                        .from(event)
-                        .where(builder)
-                        .fetchOne())
-                .intValue();
+        Long count = queryFactory
+                .select(event.count())
+                .from(event)
+                .where(builder)
+                .fetchOne();
+
+        return count != null ? count.intValue() : 0;
     }
 
     @Override
@@ -123,11 +124,13 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
         BooleanBuilder builder = buildRegionFilter(event, regions)
                 .and(event.endDate.lt(LocalDateTime.now()));
 
-        return Objects.requireNonNull(queryFactory
+        Long count = queryFactory
                 .select(event.count())
                 .from(event)
                 .where(builder)
-                .fetchOne()).intValue();
+                .fetchOne();
+
+        return count != null ? count.intValue() : 0;
     }
 
     @Override
