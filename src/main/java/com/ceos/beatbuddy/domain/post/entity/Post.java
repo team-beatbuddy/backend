@@ -29,7 +29,8 @@ public abstract class Post extends BaseTimeEntity {
     @Column(nullable = true)
     private String title;
 
-    @Column(nullable = false, columnDefinition = "TEXT", length = 1000)
+    @Column(nullable = false,length = 1000)
+    @Lob
     private String content;
     private boolean anonymous;
     private int likes;
