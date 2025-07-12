@@ -13,6 +13,7 @@ import com.ceos.beatbuddy.domain.post.entity.FreePost;
 import com.ceos.beatbuddy.domain.post.entity.FreePostDocument;
 import com.ceos.beatbuddy.domain.post.repository.FreePostRepository;
 import com.ceos.beatbuddy.domain.recent_search.application.RecentSearchService;
+import com.ceos.beatbuddy.domain.recent_search.entity.SearchTypeEnum;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -69,7 +70,7 @@ public class FreePostSearchService {
         Member member = memberService.validateAndGetMember(memberId);
 
         // 최근 검색어 추가
-        recentSearchService.saveRecentSearch("FREE_POST", keyword, memberId);
+        recentSearchService.saveRecentSearch(SearchTypeEnum.FREE_POST.name(), keyword, memberId);
 
         int adjustedPage = Math.max(0, page - 1);
 
