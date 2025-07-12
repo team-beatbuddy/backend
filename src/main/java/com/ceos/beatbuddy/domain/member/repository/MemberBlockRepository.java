@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface MemberBlockRepository extends JpaRepository<MemberBlock, Long> {
@@ -17,8 +18,8 @@ public interface MemberBlockRepository extends JpaRepository<MemberBlock, Long> 
      * 특정 사용자가 차단한 멤버들의 ID 목록을 조회
      */
     @Query("SELECT mb.blocked.id FROM MemberBlock mb WHERE mb.blocker.id = :blockerId")
-    List<Long> findBlockedMemberIdsByBlockerId(@Param("blockerId") Long blockerId);
-    
+    Set<Long> findBlockedMemberIdsByBlockerId(@Param("blockerId") Long blockerId);
+
     /**
      * 두 사용자 간의 차단 관계가 존재하는지 확인
      */

@@ -60,7 +60,7 @@ public class EventCommentService {
 
         boolean isStaff = event.getHost().getId().equals(memberId);
 
-        return EventCommentResponseDTO.toDTO(saved, true, false, isStaff);
+        return EventCommentResponseDTO.toDTO(saved, true, false, isStaff, false); // 본인 차단 불가능
     }
 
 
@@ -91,6 +91,8 @@ public class EventCommentService {
 
         List<EventComment> all = eventCommentRepository.findAllByEvent(event);
         Set<Long> followingIds = followRepository.findFollowingMemberIds(memberId);
+        // 차단한 사용자 ID 목록
+        Set<Long> blockedMemberIds = memberService.getBlockedMemberIds(memberId);
 
         Map<Long, List<EventComment>> grouped = all.stream()
                 .collect(Collectors.groupingBy(c -> c.getParentId() == null ? c.getId() : c.getParentId()));
@@ -102,12 +104,14 @@ public class EventCommentService {
                             .filter(c -> c.getParentId() != null)
                             .sorted(Comparator.comparing(EventComment::getCreatedAt))
                             .map(c -> EventCommentResponseDTO.toDTO(c, c.getAuthor().getId().equals(memberId),
-                                    followingIds.contains(c.getAuthor().getId()), c.getAuthor().equals(event.getHost())))
+                                    followingIds.contains(c.getAuthor().getId()), c.getAuthor().equals(event.getHost()),
+                                    blockedMemberIds.contains(c.getAuthor().getId())))
                             .toList();
 
                     return EventCommentTreeResponseDTO.toDTO(parent, replies,
                             parent.getAuthor().getId().equals(memberId),
-                            followingIds.contains(parent.getAuthor().getId()), parent.getAuthor().equals(event.getHost()));
+                            followingIds.contains(parent.getAuthor().getId()), parent.getAuthor().equals(event.getHost()),
+                            blockedMemberIds.contains(parent.getAuthor().getId()));
                 })
                 .sorted(Comparator.comparing(EventCommentTreeResponseDTO::getCreatedAt).reversed())
                 .toList();
@@ -134,7 +138,7 @@ public class EventCommentService {
 
         boolean isStaff = comment.getAuthor().equals(event.getHost());
 
-        return EventCommentResponseDTO.toDTO(comment, comment.getAuthor().getId().equals(member.getId()), false, isStaff);
+        return EventCommentResponseDTO.toDTO(comment, comment.getAuthor().getId().equals(member.getId()), false, isStaff, false);
     }
 
     private EventComment validateAndGetComment(Long commentId) {
