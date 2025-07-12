@@ -234,7 +234,7 @@ public class MemberService {
                 
         memberBlockRepository.save(memberBlock);
     }
-    
+    // v2 개발 기능
     /**
      * 멤버 차단 해제
      * @param blockerId 차단하는 사용자의 ID
