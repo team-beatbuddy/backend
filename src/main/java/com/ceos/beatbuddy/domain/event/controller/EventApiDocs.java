@@ -433,7 +433,7 @@ public interface EventApiDocs {
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventUpcomingSorted (        @PathVariable String sort,
                                                                                       @RequestParam(defaultValue = "1") Integer page,
                                                                                       @RequestParam(defaultValue = "10") Integer size,
-                                                                                      @RequestParam(required = false) String region);
+                                                                                      @RequestParam(required = false) List<String> region);
 
     @Operation(summary = "진행되는 이벤트",
             description = """
@@ -490,7 +490,7 @@ public interface EventApiDocs {
     })
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventNowSorted (@RequestParam(defaultValue = "1") Integer page,
                                                                          @RequestParam(defaultValue = "10") Integer size,
-                                                                         @RequestParam(required = false) String region);
+                                                                         @RequestParam(required = false) List<String> region);
     @Operation(summary = "종료된 이벤트",
             description = """
                     (종료 날짜 기준 < 오늘) 종료가 된 이벤트를 보여줍니다.
@@ -564,7 +564,7 @@ public interface EventApiDocs {
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventPastSorted(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(required = false) String region);
+            @RequestParam(required = false) List<String> region);
 
 
 

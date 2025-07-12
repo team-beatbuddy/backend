@@ -33,7 +33,7 @@ public class EventMyPageService{
     public EventListResponseDTO getMyPageEventsUpcoming(Long memberId, String regionStr, int page, int size) {
         Member member = memberService.validateAndGetMember(memberId);
 
-        Event.Region region = regionStr != null ? Event.of(regionStr) : null;
+        Event.Region region = regionStr != null ? Event.Region.of(regionStr) : null;
         Set<Event> myEvents = getMyPageEventList(member);
         Set<Long> likedEventIds = eventLikeRepository.findLikedEventIdsByMember(member);
         Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
@@ -57,7 +57,7 @@ public class EventMyPageService{
     // 내가 좋아요 + 참여하는 이벤트 (now)
     public EventListResponseDTO getMyPageEventsNow(Long memberId, String regionStr, int page, int size) {
         Member member = memberService.validateAndGetMember(memberId);
-        Event.Region region = regionStr != null ? Event.of(regionStr) : null;
+        Event.Region region = regionStr != null ? Event.Region.of(regionStr) : null;
 
         Set<Event> myEvents = getMyPageEventList(member);
         Set<Long> likedEventIds = eventLikeRepository.findLikedEventIdsByMember(member);
@@ -82,7 +82,7 @@ public class EventMyPageService{
     // 내가 좋아요 + 참여하는 이벤트 (past)
     public EventListResponseDTO getMyPageEventsPast(Long memberId, String regionStr, int page, int size) {
         Member member = memberService.validateAndGetMember(memberId);
-        Event.Region region = regionStr != null ? Event.of(regionStr) : null;
+        Event.Region region = regionStr != null ? Event.Region.of(regionStr) : null;
 
         Set<Event> myEvents = getMyPageEventList(member);
         Set<Long> likedEventIds = eventLikeRepository.findLikedEventIdsByMember(member);
@@ -124,7 +124,7 @@ public class EventMyPageService{
     // 내가 작성한 이벤트
     public EventListResponseDTO getMyUpcomingEvents(Long memberId, String regionStr, int page, int size) {
         Member member = memberService.validateAndGetMember(memberId);
-        Event.Region region = regionStr != null ? Event.of(regionStr) : null;
+        Event.Region region = regionStr != null ? Event.Region.of(regionStr) : null;
         Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
         Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
                 .map(att -> att.getEvent().getId())
@@ -146,7 +146,7 @@ public class EventMyPageService{
 
     public EventListResponseDTO getMyNowEvents(Long memberId, String regionStr, int page, int size) {
         Member member = memberService.validateAndGetMember(memberId);
-        Event.Region region = regionStr != null ? Event.of(regionStr) : null;
+        Event.Region region = regionStr != null ? Event.Region.of(regionStr) : null;
         Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
         Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
                 .map(att -> att.getEvent().getId())
@@ -168,7 +168,7 @@ public class EventMyPageService{
 
     public EventListResponseDTO getMyPastEvents(Long memberId, String regionStr, int page, int size) {
         Member member = memberService.validateAndGetMember(memberId);
-        Event.Region region = regionStr != null ? Event.of(regionStr) : null;
+        Event.Region region = regionStr != null ? Event.Region.of(regionStr) : null;
         Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
         Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
                 .map(att -> att.getEvent().getId())

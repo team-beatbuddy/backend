@@ -90,7 +90,7 @@ public class EventController implements EventApiDocs {
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventUpcomingSorted (        @PathVariable String sort,
                                                                                                @RequestParam(defaultValue = "1") Integer page,
                                                                                                @RequestParam(defaultValue = "10") Integer size,
-                                                                                             @RequestParam(required = false) String region) {
+                                                                                             @RequestParam(required = false) List<String> region) {
         Long memberId = SecurityUtils.getCurrentMemberId();
 
         EventListResponseDTO result = eventService.getUpcomingEvents(sort, page, size, memberId, region);
@@ -105,7 +105,7 @@ public class EventController implements EventApiDocs {
     @GetMapping("/now")
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventNowSorted (@RequestParam(defaultValue = "1") Integer page,
                                                                                 @RequestParam(defaultValue = "10") Integer size,
-                                                                                @RequestParam(required = false) String region) {
+                                                                                @RequestParam(required = false) List<String> region) {
         Long memberId = SecurityUtils.getCurrentMemberId();
 
         EventListResponseDTO result = eventService.getNowEvents(page, size, memberId, region);
@@ -122,7 +122,7 @@ public class EventController implements EventApiDocs {
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventPastSorted(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(required = false) String region) {
+            @RequestParam(required = false) List<String> region) {
 
         Long memberId = SecurityUtils.getCurrentMemberId();
 
