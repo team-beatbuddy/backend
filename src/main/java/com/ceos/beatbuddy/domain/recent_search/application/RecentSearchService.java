@@ -8,6 +8,7 @@ import com.ceos.beatbuddy.domain.recent_search.repository.RecentSearchRepository
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class RecentSearchService {
     private final RecentSearchRepository recentSearchRepository;
@@ -29,14 +31,20 @@ public class RecentSearchService {
 
         Optional<RecentSearch> existing = recentSearchRepository.findByMemberAndKeywordAndSearchType(member, keyword, type);
 
-        if (existing.isPresent()) {
-            existing.get().updateTheUpdatedAt(LocalDateTime.now());
-        } else {
-            recentSearchRepository.save(RecentSearch.builder()
-                    .member(member)
-                    .keyword(keyword)
-                    .searchType(type)
-                    .build());
+
+        try {
+            if (existing.isPresent()) {
+                existing.get().updateTheUpdatedAt(LocalDateTime.now());
+            } else {
+                recentSearchRepository.save(RecentSearch.builder()
+                        .member(member)
+                        .keyword(keyword)
+                        .searchType(type)
+                        .build());
+            }
+        }
+        catch (Exception e) {
+            log.warn("최근 검색어 저장 실패: keyword={}, memberId={}, error={}", keyword, memberId, e.getMessage());
         }
 
         // 10개 초과 시 오래된 것 제거
