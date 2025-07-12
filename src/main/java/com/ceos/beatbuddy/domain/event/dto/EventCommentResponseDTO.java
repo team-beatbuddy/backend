@@ -48,12 +48,12 @@ public class EventCommentResponseDTO {
         return isAuthor;
     }
 
-    public static EventCommentResponseDTO toDTO(EventComment eventComment, boolean isAuthor, boolean isFollowing, boolean isStaff, boolean isBlockedMember) {
+    public static EventCommentResponseDTO toDTO(EventComment eventComment, boolean isAuthor, boolean isFollowing, boolean isStaff, boolean isBlockedMember, String authorNickname) {
         return EventCommentResponseDTO.builder()
                 .commentId(eventComment.getId())
                 .commentLevel(eventComment.getLevel())
                 .content(isBlockedMember ? "차단한 멤버의 댓글입니다." : eventComment.getContent())
-                .authorNickname(eventComment.isAnonymous() ? "익명" : eventComment.getAuthor().getNickname())
+                .authorNickname(authorNickname)
                 .anonymous(eventComment.isAnonymous())
                 .createdAt(eventComment.getCreatedAt())
                 .isAuthor(isAuthor)
