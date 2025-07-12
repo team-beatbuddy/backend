@@ -13,6 +13,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(indexes = {
+        @Index(name = "idx_member_searchtype_updatedat",
+                columnList = "memberId, searchType, updatedAt")
+})
 public class RecentSearch extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
@@ -23,7 +27,9 @@ public class RecentSearch extends BaseTimeEntity {
     private SearchTypeEnum searchType;
 
     @ManyToOne
+    @JoinColumn(name = "memberId", nullable = false)
     private Member member; // 검색어를 저장한 회원
 
+    @Column(name = "keyword", nullable = false, length = 20)
     private String keyword; // 검색어
 }
