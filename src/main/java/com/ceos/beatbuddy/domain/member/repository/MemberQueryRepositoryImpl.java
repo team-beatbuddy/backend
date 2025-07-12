@@ -36,14 +36,14 @@ public class MemberQueryRepositoryImpl implements MemberQueryRepository{
                         qMember.profileImage,
                         qMember.role,
                         qPost.id.countDistinct(),
-                        qFollowerFollow.follower.id.countDistinct(),
-                        qFollowingFollow.following.id.countDistinct()
+                        qFollowerFollow.id.countDistinct(),
+                        qFollowingFollow.id.countDistinct()
 
                 )
                 .from(qMember)
                 .leftJoin(qPost).on(qPost.member.id.eq(qMember.id))
-                .leftJoin(qFollowerFollow).on(qFollowerFollow.follower.id.eq(qMember.id))
-                .leftJoin(qFollowingFollow).on(qFollowingFollow.following.id.eq(qMember.id))
+                .leftJoin(qFollowerFollow).on(qFollowerFollow.following.id.eq(qMember.id))
+                .leftJoin(qFollowingFollow).on(qFollowingFollow.follower.id.eq(qMember.id))
                 .where(qMember.id.eq(memberId))
                 .groupBy(qMember.id, qMember.nickname, qMember.profileImage, qMember.role)
                 .fetchOne();
