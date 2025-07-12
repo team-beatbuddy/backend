@@ -66,8 +66,8 @@ public class EventCommentService {
 
     @Transactional
     public void deleteComment(Long eventId, Long commentId, Long memberId) {
-        Member member = memberService.validateAndGetMember(memberId);
-        Event event = eventService.validateAndGet(eventId);
+        memberService.validateAndGetMember(memberId);
+        eventService.validateAndGet(eventId);
 
         EventComment target = eventCommentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMENT));
@@ -86,7 +86,7 @@ public class EventCommentService {
 
     @Transactional(readOnly = true)
     public List<EventCommentTreeResponseDTO> getSortedEventComments(Long memberId, Long eventId) {
-        Member member = memberService.validateAndGetMember(memberId);
+        memberService.validateAndGetMember(memberId);
         Event event = eventService.validateAndGet(eventId);
 
         List<EventComment> all = eventCommentRepository.findAllByEvent(event);

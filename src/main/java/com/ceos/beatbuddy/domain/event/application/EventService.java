@@ -185,7 +185,7 @@ public class EventService {
                 .collect(Collectors.toSet());
 
         List<EventResponseDTO> dto = events.stream()
-                .map(event -> EventResponseDTO.toUpcomingListDTO(event, member.getId().equals(event.getHost().getId()),
+                .map(event -> EventResponseDTO.toListDTO(event, member.getId().equals(event.getHost().getId()),
                         likedEventIds.contains(event.getId()),
                         attendingEventIds.contains(event.getId())))
                 .toList();
@@ -216,7 +216,7 @@ public class EventService {
                 .collect(Collectors.toSet());
 
         List<EventResponseDTO> dto = events.stream()
-                .map(event -> EventResponseDTO.toNowListDTO(event, member.getId().equals(event.getHost().getId()),
+                .map(event -> EventResponseDTO.toListDTO(event, member.getId().equals(event.getHost().getId()),
                         likedEventIds.contains(event.getId()),
                         attendingEventIds.contains(event.getId())))
                 .toList();
@@ -250,7 +250,7 @@ public class EventService {
                 .collect(Collectors.toSet());
 
         List<EventResponseDTO> responseList = events.stream()
-                .map(event -> EventResponseDTO.toPastListDTO(event, member.getId().equals(event.getHost().getId()),
+                .map(event -> EventResponseDTO.toListDTO(event, member.getId().equals(event.getHost().getId()),
                         likedEventIds.contains(event.getId()),
                         attendingEventIds.contains(event.getId())))
                 .toList();
@@ -301,9 +301,9 @@ public class EventService {
 
         List<EventResponseDTO> dtoList = events.stream()
                 .map(event ->
-                        EventResponseDTO.toNowListDTO(event,
-                                likedEventIds.contains(event.getId()), // 좋아요 여부
+                        EventResponseDTO.toListDTO(event,
                                 member.getId().equals(event.getHost().getId()), // 내가 작성자 여부
+                                likedEventIds.contains(event.getId()), // 좋아요 여부
                                 attendingEventIds.contains(event.getId()))) // 참여 여부)) // 좋아요 여부는 false, 내가 작성자 여부는 false로 설정, 참여는 false
                 .collect(Collectors.toList());
 

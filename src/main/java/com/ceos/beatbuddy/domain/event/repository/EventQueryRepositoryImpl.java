@@ -6,8 +6,13 @@ import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.QEventLike;
 import com.ceos.beatbuddy.domain.venue.entity.QVenue;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -15,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -214,5 +220,111 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
                                 .and(event.endDate.goe(startDateTime))
                 )
                 .fetchCount();
+    }
+
+    @Override
+    public Page<Event> findVenueOngoingOrUpcomingEvents(Long venueId, Pageable pageable) {
+        QEvent event = QEvent.event;
+        LocalDateTime today = LocalDateTime.now();
+
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(event.venue.id.eq(venueId))
+                .and(event.endDate.goe(today));
+
+        List<Event> content = queryFactory
+                .selectFrom(event)
+                .where(builder)
+                .orderBy(event.startDate.asc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long count = Optional.ofNullable(queryFactory
+                .select(event.count())
+                .from(event)
+                .where(builder)
+                .fetchOne()).orElse(0L);
+
+        return new PageImpl<>(content, pageable, count);
+    }
+
+    @Override
+    public Page<Event> findVenuePastEvents(Long venueId, Pageable pageable) {
+        QEvent event = QEvent.event;
+        LocalDateTime today = LocalDateTime.now();
+
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(event.venue.id.eq(venueId))
+                .and(event.endDate.lt(today));
+
+        List<Event> content = queryFactory
+                .selectFrom(event)
+                .where(builder)
+                .orderBy(event.endDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long count = Optional.ofNullable(queryFactory
+                .select(event.count())
+                .from(event)
+                .where(builder)
+                .fetchOne()) //결과 "한 줄"을 가져옴 → count(Long)
+                .orElse(0L);
+
+        return new PageImpl<>(content, pageable, count);
+    }
+
+    @Override
+    public int countVenueOngoingOrUpcomingEvents(Long venueId) {
+        QEvent event = QEvent.event;
+        LocalDateTime today = LocalDateTime.now();
+
+        return Objects.requireNonNull(queryFactory
+                .select(event.count())
+                .from(event)
+                .where(event.venue.id.eq(venueId)
+                        .and(event.endDate.goe(today)))
+                .fetchOne()).intValue();
+    }
+
+    @Override
+    public int countVenuePastEvents(Long venueId) {
+        QEvent event = QEvent.event;
+        LocalDateTime today = LocalDateTime.now();
+
+        return Objects.requireNonNull(queryFactory
+                .select(event.count())
+                .from(event)
+                .where(event.venue.id.eq(venueId)
+                        .and(event.endDate.lt(today)))
+                .fetchOne()).intValue();
+    }
+
+    @Override
+    public List<Event> findEventsByVenueOrderByPopularity(Long venueId, Pageable pageable) {
+        QEvent event = QEvent.event;
+        QEventLike like = QEventLike.eventLike;
+        LocalDateTime now = LocalDateTime.now();
+
+        NumberExpression<Integer> statusOrder = new CaseBuilder()
+                .when(event.startDate.loe(now).and(event.endDate.goe(now))).then(0)
+                .when(event.startDate.gt(now)).then(1)
+                .otherwise(2);
+
+        return queryFactory
+                .select(event)
+                .from(event)
+                .leftJoin(event.venue, QVenue.venue).fetchJoin()
+                .leftJoin(like).on(like.event.eq(event))
+                .where(event.venue.id.eq(venueId))
+                .groupBy(event)
+                .orderBy(
+                        like.count().desc(),
+                        statusOrder.asc()
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
     }
 }

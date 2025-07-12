@@ -31,7 +31,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("UPDATE Event e SET e.views = e.views + 1 WHERE e.id = :eventId")
     void increaseViews(@Param("eventId") Long eventId);
 
-    List<Event> findByVenue(Venue venue);
+    int countAllByVenue_Id(Long venueId);
 
     @Modifying
     @Query("UPDATE Event e SET e.status = 'PAST' WHERE e.status = 'NOW' AND e.endDate < :now")

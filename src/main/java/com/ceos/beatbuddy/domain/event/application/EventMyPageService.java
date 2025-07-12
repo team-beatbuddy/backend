@@ -44,7 +44,7 @@ public class EventMyPageService{
                 .filter(e -> e.getStatus() == EventStatus.UPCOMING)
                 .filter(e -> region == null || e.getRegion() == region)
                 .sorted(Comparator.comparing(Event::getStartDate))
-                .map(event -> EventResponseDTO.toUpcomingListDTO(
+                .map(event -> EventResponseDTO.toListDTO(
                         event,
                         event.getHost().getId().equals(memberId),
                         likedEventIds.contains(event.getId()),
@@ -69,7 +69,7 @@ public class EventMyPageService{
                 .filter(e -> e.getStatus() == EventStatus.NOW)
                 .filter(e -> region == null || e.getRegion() == region)
                 .sorted(Comparator.comparing(Event::getStartDate).reversed()) // 최근 시작 순
-                .map(event -> EventResponseDTO.toNowListDTO(
+                .map(event -> EventResponseDTO.toListDTO(
                         event,
                         event.getHost().getId().equals(memberId),
                         likedEventIds.contains(event.getId()),
@@ -94,7 +94,7 @@ public class EventMyPageService{
                 .filter(e -> e.getStatus() == EventStatus.PAST)
                 .filter(e -> region == null || e.getRegion() == region)
                 .sorted(Comparator.comparing(Event::getEndDate).reversed()) // 최근 종료 순
-                .map(event -> EventResponseDTO.toPastListDTO(
+                .map(event -> EventResponseDTO.toListDTO(
                         event,
                         event.getHost().getId().equals(memberId),
                         likedEventIds.contains(event.getId()),
@@ -134,7 +134,7 @@ public class EventMyPageService{
                 .filter(e -> region == null || e.getRegion() == region)
                 .filter(e -> e.getStatus() == EventStatus.UPCOMING)
                 .sorted(Comparator.comparing(Event::getStartDate)) // 가까운 순
-                .map(event -> EventResponseDTO.toUpcomingListDTO(
+                .map(event -> EventResponseDTO.toListDTO(
                         event,
                         true, // 작성자 본인
                         likedEventIds.contains(event.getId()),
@@ -156,7 +156,7 @@ public class EventMyPageService{
                 .filter(e -> region == null || e.getRegion() == region)
                 .filter(e -> e.getStatus() == EventStatus.NOW)
                 .sorted(Comparator.comparing(Event::getStartDate).reversed()) // 최근 시작
-                .map(event -> EventResponseDTO.toNowListDTO(
+                .map(event -> EventResponseDTO.toListDTO(
                         event,
                         true,
                         likedEventIds.contains(event.getId()),
@@ -178,7 +178,7 @@ public class EventMyPageService{
                 .filter(e -> region == null || e.getRegion() == region)
                 .filter(e -> e.getStatus() == EventStatus.PAST)
                 .sorted(Comparator.comparing(Event::getEndDate).reversed()) // 최근 종료
-                .map(event -> EventResponseDTO.toPastListDTO(
+                .map(event -> EventResponseDTO.toListDTO(
                         event,
                         true,
                         likedEventIds.contains(event.getId()),
@@ -200,7 +200,7 @@ public class EventMyPageService{
                 .filter(e -> e.getStatus() == EventStatus.UPCOMING) // 오늘 이후 시작
                 .sorted(Comparator.comparing(Event::getStartDate)) // 가까운 순
                 .limit(3)
-                .map(event -> EventResponseDTO.toUpcomingListDTO(
+                .map(event -> EventResponseDTO.toListDTO(
                         event,
                         event.getHost().getId().equals(memberId),
                         likedEventIds.contains(event.getId()),
