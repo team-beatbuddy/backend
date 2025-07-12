@@ -1,4 +1,4 @@
-package com.ceos.beatbuddy.domain.event.schedular;
+package com.ceos.beatbuddy.domain.event.scheduler;
 
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
 import lombok.RequiredArgsConstructor;

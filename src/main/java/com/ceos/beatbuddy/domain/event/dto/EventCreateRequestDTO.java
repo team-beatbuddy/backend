@@ -27,11 +27,11 @@ public class EventCreateRequestDTO {
     @NotNull(message = "본문은 필수입니다.")
     private String content;
 
-    @Schema(description = "이벤트 시작 날짜 (yyyy-MM-dd)", example = "2025-08-22")
+    @Schema(description = "이벤트 시작 날짜 및 시간 (yyyy-MM-ddTHH:mm:ss)", example = "2025-08-22T14:00:00")
     @NotNull(message = "시작날짜는 필수입니다.")
     private LocalDateTime startDate;
 
-    @Schema(description = "이벤트 종료 날짜 (yyyy-MM-dd)", example = "2025-09-21")
+    @Schema(description = "이벤트 종료 날짜 및 시간 (yyyy-MM-ddTHH:mm:ss)", example = "2025-09-21T18:00:00")
     @NotNull(message = "종료날짜는 필수입니다.")
     private LocalDateTime endDate;
 
