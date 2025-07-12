@@ -14,7 +14,6 @@ import com.ceos.beatbuddy.domain.scrapandlike.entity.EventLike;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -127,7 +126,6 @@ public class EventMyPageService{
         Member member = memberService.validateAndGetMember(memberId);
         Event.Region region = regionStr != null ? Event.of(regionStr) : null;
         Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
-        LocalDate today = LocalDate.now();
         Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
                 .map(att -> att.getEvent().getId())
                 .collect(Collectors.toSet());
@@ -150,7 +148,6 @@ public class EventMyPageService{
         Member member = memberService.validateAndGetMember(memberId);
         Event.Region region = regionStr != null ? Event.of(regionStr) : null;
         Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
-        LocalDate today = LocalDate.now();
         Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
                 .map(att -> att.getEvent().getId())
                 .collect(Collectors.toSet());
@@ -173,7 +170,6 @@ public class EventMyPageService{
         Member member = memberService.validateAndGetMember(memberId);
         Event.Region region = regionStr != null ? Event.of(regionStr) : null;
         Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
-        LocalDate today = LocalDate.now();
         Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
                 .map(att -> att.getEvent().getId())
                 .collect(Collectors.toSet());
@@ -199,8 +195,6 @@ public class EventMyPageService{
         Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
                 .map(att -> att.getEvent().getId())
                 .collect(Collectors.toSet());
-
-        LocalDate today = LocalDate.now();
 
         return myEvents.stream()
                 .filter(e -> e.getStatus() == EventStatus.UPCOMING) // 오늘 이후 시작
