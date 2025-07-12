@@ -314,6 +314,15 @@ public class SwaggerExamples {
         }
         """;
 
+    public static final String BLOCKED_MEMBER = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "BLOCKED_MEMBER",
+          "message": "차단된 멤버입니다."
+        }
+        """;
+
     /**
      * 403 권한 없음
      * */

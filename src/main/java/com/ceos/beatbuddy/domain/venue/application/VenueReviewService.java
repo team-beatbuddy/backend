@@ -79,7 +79,7 @@ public class VenueReviewService {
         String sortBy = (sort != null && sort.equals("popular")) ? "popular" : "latest";
 
         // 차단된 멤버 목록 조회
-        List<Long> blockedMemberIds = memberService.getBlockedMemberIds(memberId);
+        Set<Long> blockedMemberIds = memberService.getBlockedMemberIds(memberId);
 
         // 리뷰 조회 - 이미지 유무 + 정렬 기준 + 차단 멤버 필터링 포함
         List<VenueReview> reviews;
@@ -133,6 +133,13 @@ public class VenueReviewService {
     public void likeVenueReview(Long venueReviewId, Long memberId) {
         // VenueReview ID 유효성 검사
         VenueReview venueReview = validateAndGetVenueReview(venueReviewId);
+
+        // 차단한 멤버인지 여부
+        boolean isBlockedMember = memberService.isBlocked(memberId, venueReview.getMember().getId());
+        if (isBlockedMember) {
+            throw new CustomException(ErrorCode.BLOCKED_MEMBER);
+        }
+
         // Member ID 유효성 검사
         Member member = memberService.validateAndGetMember(memberId);
 
@@ -158,6 +165,13 @@ public class VenueReviewService {
     public void deleteLikeVenueReview(Long venueReviewId, Long memberId) {
         // VenueReview ID 유효성 검사
         VenueReview venueReview = validateAndGetVenueReview(venueReviewId);
+
+        // 차단한 멤버인지 여부
+        boolean isBlockedMember = memberService.isBlocked(memberId, venueReview.getMember().getId());
+        if (isBlockedMember) {
+            throw new CustomException(ErrorCode.BLOCKED_MEMBER);
+        }
+
         // Member ID 유효성 검사
         Member member = memberService.validateAndGetMember(memberId);
 

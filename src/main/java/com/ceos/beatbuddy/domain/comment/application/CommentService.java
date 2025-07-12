@@ -84,9 +84,9 @@ public class CommentService {
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
-        boolean isBlockedByWriter = memberService.isBlocked(memberId, comment.getMember().getId());
+        boolean isBlockedMember = memberService.isBlocked(memberId, comment.getMember().getId());
 
-        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedByWriter); // 자신이 작성한 댓글인지 여부
+        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember); // 자신이 작성한 댓글인지 여부
     }
 
     public Page<CommentResponseDto> getAllComments(Long postId, int page, int size, Long memberId) {
@@ -152,9 +152,9 @@ public CommentResponseDto updateComment(Long commentId, Long memberId, CommentRe
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
-        boolean isBlockedByWriter = memberService.isBlocked(memberId, comment.getMember().getId());
-        if (isBlockedByWriter) {
-            throw new CustomException(ErrorCode.BLOCKED_BY_WRITER);
+        boolean isBlockedMember = memberService.isBlocked(memberId, comment.getMember().getId());
+        if (isBlockedMember) {
+            throw new CustomException(ErrorCode.BLOCKED_MEMBER);
         }
 
         // 좋아요 로직 구현 필요 (중복 좋아요 방지 등)
@@ -164,7 +164,7 @@ public CommentResponseDto updateComment(Long commentId, Long memberId, CommentRe
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
         // 차단 여부
 
-        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedByWriter); // 자신이 작성한 댓글인지 여부
+        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember); // 자신이 작성한 댓글인지 여부
     }
 
     @Transactional
@@ -172,15 +172,15 @@ public CommentResponseDto updateComment(Long commentId, Long memberId, CommentRe
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
-        boolean isBlockedByWriter = memberService.isBlocked(memberId, comment.getMember().getId());
-        if (isBlockedByWriter) {
-            throw new CustomException(ErrorCode.BLOCKED_BY_WRITER);
+        boolean isBlockedMember = memberService.isBlocked(memberId, comment.getMember().getId());
+        if (isBlockedMember) {
+            throw new CustomException(ErrorCode.BLOCKED_MEMBER);
         }
 
         // 좋아요 로직 구현 필요 (중복 좋아요 방지 등)
         comment.decreaseLike();
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
 
-        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedByWriter); // 자신이 작성한 댓글인지 여부
+        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember); // 자신이 작성한 댓글인지 여부
     }
 }

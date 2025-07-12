@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.venue.repository;
 import com.ceos.beatbuddy.domain.venue.entity.VenueReview;
 
 import java.util.List;
+import java.util.Set;
 
 public interface VenueReviewQueryRepository {
     // 필요한 쿼리 메서드를 정의합니다.
@@ -30,7 +31,7 @@ public interface VenueReviewQueryRepository {
      * @param blockedMemberIds 차단된 멤버 ID 목록
      * @return 정렬된 베뉴 리뷰 목록 (차단된 멤버의 리뷰 제외)
      */
-    List<VenueReview> findAllReviewsSortedExcludingBlocked(Long venueId, String sortBy, List<Long> blockedMemberIds);
+    List<VenueReview> findAllReviewsSortedExcludingBlocked(Long venueId, String sortBy, Set<Long> blockedMemberIds);
     
     /**
      * 특정 베뉴의 이미지가 있는 리뷰만 정렬해서 조회합니다 (차단된 멤버 제외).
@@ -39,5 +40,5 @@ public interface VenueReviewQueryRepository {
      * @param blockedMemberIds 차단된 멤버 ID 목록
      * @return 정렬된 베뉴 리뷰 목록 (이미지 포함, 차단된 멤버의 리뷰 제외)
      */
-    List<VenueReview> findReviewsWithImagesSortedExcludingBlocked(Long venueId, String sortBy, List<Long> blockedMemberIds);
+    List<VenueReview> findReviewsWithImagesSortedExcludingBlocked(Long venueId, String sortBy, Set<Long> blockedMemberIds);
 }
