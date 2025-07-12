@@ -2,7 +2,6 @@ package com.ceos.beatbuddy.domain.event.application;
 
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
-import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
@@ -20,7 +19,6 @@ public class EventInteractionService {
     private final MemberService memberService;
     private final EventRepository eventRepository;
     private final EventLikeRepository eventLikeRepository;
-    private final EventQueryRepository eventQueryRepository;
     private final EventService eventService;
 
     @Transactional

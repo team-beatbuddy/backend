@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,7 +28,7 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
         QEventLike eventLike = QEventLike.eventLike;
 
         BooleanBuilder builder = new BooleanBuilder()
-                .and(event.startDate.gt(LocalDate.now()));
+                .and(event.startDate.gt(LocalDateTime.now()));
 
         if (region != null) {
             builder.and(event.region.eq(Event.of(region)));
@@ -67,7 +68,7 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
         return Objects.requireNonNull(queryFactory
                         .select(event.count())
                         .from(event)
-                        .where(event.startDate.gt(LocalDate.now()))
+                        .where(event.startDate.gt(LocalDateTime.now()))
                         .fetchOne())
                 .intValue();
     }
@@ -78,8 +79,8 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
         QEvent event = QEvent.event;
 
         BooleanBuilder builder = new BooleanBuilder()
-                .and(event.startDate.loe(LocalDate.now()))
-                .and(event.endDate.goe(LocalDate.now()));
+                .and(event.startDate.loe(LocalDateTime.now()))
+                .and(event.endDate.goe(LocalDateTime.now()));
 
         if (region != null) {
             builder.and(event.region.eq(Event.of(region)));
@@ -103,8 +104,8 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
         return Objects.requireNonNull(queryFactory
                         .select(event.count())
                         .from(event)
-                        .where(event.startDate.loe(LocalDate.now())
-                                .and(event.endDate.goe(LocalDate.now())))
+                        .where(event.startDate.loe(LocalDateTime.now())
+                                .and(event.endDate.goe(LocalDateTime.now())))
                         .fetchOne())
                 .intValue();
     }
@@ -116,7 +117,7 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
         return Objects.requireNonNull(queryFactory
                 .select(event.count())
                 .from(event)
-                .where(event.endDate.lt(LocalDate.now()))
+                .where(event.endDate.lt(LocalDateTime.now()))
                 .fetchOne()).intValue();
     }
 
@@ -125,7 +126,7 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
         QEvent event = QEvent.event;
 
         BooleanBuilder builder = new BooleanBuilder()
-                .and(event.endDate.lt(LocalDate.now()));
+                .and(event.endDate.lt(LocalDateTime.now()));
 
         if (region != null) {
             builder.and(event.region.eq(Event.of(region)));
@@ -148,7 +149,7 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
                 .selectFrom(event)
                 .leftJoin(event.venue, QVenue.venue).fetchJoin()
                 .where(event.host.eq(member)
-                        .and(event.startDate.gt(LocalDate.now())))
+                        .and(event.startDate.gt(LocalDateTime.now())))
                 .orderBy(event.startDate.asc())
                 .fetch();
     }
@@ -156,7 +157,7 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
     @Override
     public List<Event> findMyNowEvents(Member member) {
         QEvent event = QEvent.event;
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDateTime.now();
         return queryFactory
                 .selectFrom(event)
                 .leftJoin(event.venue, QVenue.venue).fetchJoin()
@@ -174,7 +175,7 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
                 .selectFrom(event)
                 .leftJoin(event.venue, QVenue.venue).fetchJoin()
                 .where(event.host.eq(member)
-                        .and(event.endDate.lt(LocalDate.now())))
+                        .and(event.endDate.lt(LocalDateTime.now())))
                 .orderBy(event.startDate.desc())
                 .fetch();
     }
@@ -183,11 +184,15 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
     public List<Event> findEventsInPeriod(LocalDate startDate, LocalDate endDate, int offset, int limit) {
         QEvent event = QEvent.event;
 
+        LocalDateTime startDateTime = startDate.atStartOfDay(); // 00:00
+        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX); // 23:59:59.999999999
+
+
         return queryFactory
                 .selectFrom(event)
                 .where(
-                        event.startDate.loe(endDate)
-                                .and(event.endDate.goe(startDate))
+                        event.startDate.loe(endDateTime)
+                                .and(event.endDate.goe(startDateTime))
                 )
                 .orderBy(event.startDate.asc())
                 .offset(offset)
@@ -199,11 +204,14 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
     public long countEventsInPeriod(LocalDate startDate, LocalDate endDate) {
         QEvent event = QEvent.event;
 
+        LocalDateTime startDateTime = startDate.atStartOfDay(); // 00:00
+        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX); // 23:59:59.999999999
+
         return queryFactory
                 .selectFrom(event)
                 .where(
-                        event.startDate.loe(endDate)
-                                .and(event.endDate.goe(startDate))
+                        event.startDate.loe(endDateTime)
+                                .and(event.endDate.goe(startDateTime))
                 )
                 .fetchCount();
     }

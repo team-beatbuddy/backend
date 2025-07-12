@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -33,8 +34,10 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findByVenue(Venue venue);
 
     @Modifying
-    @Query("UPDATE Event e SET e.status = :toStatus WHERE e.status = :fromStatus AND " +
-            "( ( :fromStatus = 'NOW' AND e.endDate = :targetDate ) OR " +
-            "  ( :fromStatus = 'UPCOMING' AND e.startDate = :targetDate ) )")
-    void updateStatus(EventStatus fromStatus, EventStatus toStatus, LocalDate targetDate);
+    @Query("UPDATE Event e SET e.status = 'PAST' WHERE e.status = 'NOW' AND e.endDate < :now")
+    void updateToPast(@Param("now") LocalDateTime now);
+
+    @Modifying
+    @Query("UPDATE Event e SET e.status = 'NOW' WHERE e.status = 'UPCOMING' AND e.startDate <= :now AND e.endDate > :now")
+    void updateToNow(@Param("now") LocalDateTime now);
 }
