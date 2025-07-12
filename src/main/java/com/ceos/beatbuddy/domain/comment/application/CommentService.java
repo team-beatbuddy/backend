@@ -14,13 +14,14 @@ import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -90,28 +91,81 @@ public class CommentService {
     }
 
     public Page<CommentResponseDto> getAllComments(Long postId, int page, int size, Long memberId) {
-        // 페이지 유효성 조회
         if (page < 1) {
             throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
         }
-        Pageable pageable = PageRequest.of(page-1, size);
 
-        // 차단한 사용자
+        // 전체 댓글 조회 (createdAt 기준 정렬)
+        List<Comment> allComments = commentRepository.findAllByPost_IdOrderByCreatedAtAsc(postId);
+
+        // 차단/팔로우 처리
         Set<Long> blockedMemberIds = memberService.getBlockedMemberIds(memberId);
-
-        Page<Comment> comments =  commentRepository.findAllByPost_Id(postId, pageable);
-
         Set<Long> followingIds = followRepository.findFollowingMemberIds(memberId);
-        return comments.map(comment ->
-                    CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId),
-                            followingIds.contains(comment.getMember().getId()),
-                            blockedMemberIds.contains(comment.getMember().getId())
-                    )
-        );
+
+        // 익명 처리용 ID → 익명 N 매핑
+        List<Long> anonymousAuthorIds = allComments.stream()
+                .filter(Comment::isAnonymous)
+                .map(c -> c.getMember().getId())
+                .distinct()
+                .toList();
+
+        Map<Long, String> anonymousNameMap = new HashMap<>();
+        for (int i = 0; i < anonymousAuthorIds.size(); i++) {
+            anonymousNameMap.put(anonymousAuthorIds.get(i), "익명 " + (i + 1));
+        }
+
+        // 트리 정렬: 부모 댓글 아래에 자식 댓글 붙이기
+        List<Comment> sortedComments = new ArrayList<>();
+        Map<Long, List<Comment>> repliesGrouped = allComments.stream()
+                .filter(c -> c.getReply() != null)
+                .collect(Collectors.groupingBy(c -> c.getReply().getId()));
+
+        allComments.stream()
+                .filter(c -> c.getReply() == null)
+                .forEach(parent -> {
+                    sortedComments.add(parent);
+                    List<Comment> replies = repliesGrouped.getOrDefault(parent.getId(), Collections.emptyList());
+                    sortedComments.addAll(replies);
+                });
+
+        // 페이징 수동 처리
+        int start = Math.min((page - 1) * size, sortedComments.size());
+        int end = Math.min(start + size, sortedComments.size());
+
+        List<Comment> paged = sortedComments.subList(start, end);
+
+        List<CommentResponseDto> dtoList = paged.stream().map(comment -> {
+            Long writerId = comment.getMember().getId();
+            boolean isAuthor = writerId.equals(memberId);
+            boolean isFollowing = followingIds.contains(writerId);
+            boolean isBlocked = blockedMemberIds.contains(writerId);
+
+            String mappedName = comment.isAnonymous()
+                    ? anonymousNameMap.get(writerId)
+                    : comment.getMember().getNickname();
+
+            return new CommentResponseDto(
+                    comment.getId(),
+                    isBlocked ? "차단한 멤버의 댓글입니다." : comment.getContent(),
+                    comment.isAnonymous(),
+                    comment.getReply() != null ? comment.getReply().getId() : null,
+                    mappedName,
+                    comment.getLikes(),
+                    comment.getCreatedAt(),
+                    isAuthor,
+                    writerId,
+                    isFollowing,
+                    isBlocked
+            );
+        }).toList();
+
+        return new PageImpl<>(dtoList, PageRequest.of(page - 1, size), sortedComments.size());
     }
 
+
+
     @Transactional
-public CommentResponseDto updateComment(Long commentId, Long memberId, CommentRequestDto requestDto) {
+    public CommentResponseDto updateComment(Long commentId, Long memberId, CommentRequestDto requestDto) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
