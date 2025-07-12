@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.event.dto;
 
 import com.ceos.beatbuddy.domain.event.entity.Event;
+import com.ceos.beatbuddy.domain.event.entity.EventStatus;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -10,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -25,13 +27,13 @@ public class EventCreateRequestDTO {
     @NotNull(message = "본문은 필수입니다.")
     private String content;
 
-    @Schema(description = "이벤트 시작 날짜 (yyyy-MM-dd)", example = "2025-08-22")
+    @Schema(description = "이벤트 시작 날짜 및 시간 (yyyy-MM-ddTHH:mm:ss)", example = "2025-08-22T14:00:00")
     @NotNull(message = "시작날짜는 필수입니다.")
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 
-    @Schema(description = "이벤트 종료 날짜 (yyyy-MM-dd)", example = "2025-09-21")
+    @Schema(description = "이벤트 종료 날짜 및 시간 (yyyy-MM-ddTHH:mm:ss)", example = "2025-09-21T18:00:00")
     @NotNull(message = "종료날짜는 필수입니다.")
-    private LocalDate endDate;
+    private LocalDateTime endDate;
 
     @Schema(description = "이벤트 장소 주소", example = "서울시 강남구 테헤란로 123, venue 를 고르셨다면 해당 장소의 주소를 넣어주세요.")
     @NotNull(message = "장소는 필수입니다.")
@@ -81,6 +83,7 @@ public class EventCreateRequestDTO {
 
         return Event.builder()
                 .host(member)
+                .status(EventStatus.UPCOMING)
                 .title(eventCreateRequestDTO.getTitle())
                 .content(eventCreateRequestDTO.getContent())
                 .likes(0)

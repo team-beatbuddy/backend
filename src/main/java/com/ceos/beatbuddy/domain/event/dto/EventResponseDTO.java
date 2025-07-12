@@ -1,12 +1,14 @@
 package com.ceos.beatbuddy.domain.event.dto;
 
 import com.ceos.beatbuddy.domain.event.entity.Event;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +32,10 @@ public class EventResponseDTO {
 
     private Integer likes;
     private Integer views;
-
-    private LocalDate startDate;
-    private LocalDate endDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime startDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime endDate;
 
     private Boolean receiveInfo;
     private Boolean receiveName; // 이름 받을 건지
