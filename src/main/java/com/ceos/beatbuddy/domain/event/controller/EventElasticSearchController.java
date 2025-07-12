@@ -1,13 +1,13 @@
 package com.ceos.beatbuddy.domain.event.controller;
 
 import com.ceos.beatbuddy.domain.event.application.EventElasticService;
-import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +24,7 @@ public class EventElasticSearchController implements EventSearchApiDocs {
      * 개발/테스트 목적으로 모든 이벤트를 Elasticsearch에 동기화합니다.
      * 운영 환경에서는 이벤트 저장 시 개별적으로 인덱싱됩니다.
      */
+    @Profile("dev")
     @PostMapping("/events/sync")
     public ResponseEntity<String> reindexAllEvents() throws IOException {
         eventElasticService.syncAll();
