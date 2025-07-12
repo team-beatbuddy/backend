@@ -30,7 +30,6 @@ public abstract class Post extends BaseTimeEntity {
     private String title;
 
     @Column(nullable = false,length = 1000)
-    @Lob
     private String content;
     private boolean anonymous;
     private int likes;
