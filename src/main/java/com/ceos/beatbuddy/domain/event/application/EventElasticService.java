@@ -11,6 +11,7 @@ import com.ceos.beatbuddy.domain.event.repository.EventRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.recent_search.application.RecentSearchService;
+import com.ceos.beatbuddy.domain.recent_search.entity.SearchTypeEnum;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
@@ -78,7 +79,7 @@ public class EventElasticService {
         Member member = memberService.validateAndGetMember(memberId);
 
         // 최근 검색어 추가
-        recentSearchService.saveRecentSearch("EVENT", keyword, memberId);
+        recentSearchService.saveRecentSearch(SearchTypeEnum.EVENT.name(), keyword, memberId);
 
         boolean isAdmin = member.isAdmin();
 
