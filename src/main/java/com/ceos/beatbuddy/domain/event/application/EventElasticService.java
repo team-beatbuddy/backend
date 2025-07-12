@@ -126,7 +126,7 @@ public class EventElasticService {
                 .filter(Objects::nonNull)
                 .map(doc -> eventRepository.findById(doc.getId()).orElse(null))
                 .filter(Objects::nonNull)
-                .map(event -> EventResponseDTO.toNowListDTO(
+                .map(event -> EventResponseDTO.toListDTO(
                         event,
                         event.getHost().getId().equals(memberId),
                         likedEventIds.contains(event.getId()),
