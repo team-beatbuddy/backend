@@ -2,10 +2,15 @@ package com.ceos.beatbuddy.domain.venue.application;
 
 import com.ceos.beatbuddy.domain.admin.application.AdminService;
 import com.ceos.beatbuddy.domain.coupon.repository.CouponRepository;
+import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
+import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
+import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
+import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
 import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
+import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
@@ -27,6 +32,7 @@ import com.ceos.beatbuddy.global.UploadUtil;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +41,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,12 +54,13 @@ public class VenueInfoService {
 
     private final VenueRepository venueRepository;
     private final HeartbeatRepository heartbeatRepository;
-    private final MemberRepository memberRepository;
     private final VenueGenreRepository venueGenreRepository;
     private final VenueMoodRepository venueMoodRepository;
     private final VenueSearchService venueSearchService;
     private final AdminService adminService;
     private final CouponRepository couponRepository;
+    private final MemberService memberService;
+    private final EventQueryRepository eventQueryRepository;
     private final EventRepository eventRepository;
     private final EventLikeRepository eventLikeRepository;
     private final EventAttendanceRepository eventAttendanceRepository;
@@ -63,8 +71,7 @@ public class VenueInfoService {
     }
 
     public VenueInfoResponseDTO getVenueInfo(Long venueId, Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(
-                () -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
         Venue venue = venueRepository.findById(venueId)
                 .orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
         boolean isHeartbeat = heartbeatRepository.findByMemberVenue(member, venue).isPresent();
@@ -185,6 +192,62 @@ public class VenueInfoService {
         venue.update(dto);
         venueSearchService.save(venue); // Venue 정보를 Elasticsearch에 저장
     }
+
+    public EventListResponseDTO getVenueEventsLatest(Long venueId, Long memberId, int page, int size, boolean isPast) {
+        // 멤버 유효성 검사
+        Member member = memberService.validateAndGetMember(memberId);
+
+        // Venue 유효성 검사
+        validateAndGetVenue(venueId);
+
+        // 페이지 유효성 검사
+        if (page < 0) {
+            throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
+        }
+
+        Set<Long> likedEventIds = eventLikeRepository.findLikedEventIdsByMember(member);
+        Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
+                .map(att -> att.getEvent().getId())
+                .collect(Collectors.toSet());
+
+        List<EventResponseDTO> events = new ArrayList<>();
+
+        if (isPast) {
+            // Venue에 해당하는 이벤트 조회
+            events = eventQueryRepository.findVenuePastEvents(venueId, PageRequest.of(page-1, size))
+                    .stream()
+                    .map(event -> EventResponseDTO.toListDTO(event, event.getHost().getId().equals(memberId),
+                            likedEventIds.contains(event.getId()),
+                            attendingEventIds.contains(event.getId())))
+                    .collect(Collectors.toList());
+
+            return EventListResponseDTO.builder()
+                    .page(page)
+                    .size(size)
+                    .totalSize( eventQueryRepository.countVenuePastEvents(venueId))
+                    .sort("latest")
+                    .eventResponseDTOS(events)
+                    .build();
+        }
+        else {
+            // Venue에 해당하는 이벤트 조회
+            events = eventQueryRepository.findVenueOngoingOrUpcomingEvents(venueId, PageRequest.of(page-1, size))
+                    .stream()
+                    .map(event -> EventResponseDTO.toListDTO(event, event.getHost().getId().equals(memberId),
+                            likedEventIds.contains(event.getId()),
+                            attendingEventIds.contains(event.getId())))
+                    .collect(Collectors.toList());
+
+            return EventListResponseDTO.builder()
+                    .page(page)
+                    .size(size)
+                    .totalSize( eventQueryRepository.countVenueOngoingOrUpcomingEvents(venueId))
+                    .sort("latest")
+                    .eventResponseDTOS(events)
+                    .build();
+        }
+    }
+
 
     public Venue validateAndGetVenue(Long venueId) {
         return venueRepository.findById(venueId)
