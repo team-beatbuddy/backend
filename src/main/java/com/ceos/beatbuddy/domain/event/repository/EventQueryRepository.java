@@ -2,6 +2,8 @@ package com.ceos.beatbuddy.domain.event.repository;
 
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,5 +27,11 @@ public interface EventQueryRepository {
     List<Event> findEventsInPeriod(LocalDate startDate, LocalDate endDate, int offset, int limit);
     long countEventsInPeriod(LocalDate startDate, LocalDate endDate);
 
+    Page<Event> findVenueOngoingOrUpcomingEvents(Long venueId, Pageable pageable);
+    Page<Event> findVenuePastEvents(Long venueId, Pageable pageable);
 
+
+    int countVenueOngoingOrUpcomingEvents(Long venueId);
+
+    int countVenuePastEvents(Long venueId);
 }
