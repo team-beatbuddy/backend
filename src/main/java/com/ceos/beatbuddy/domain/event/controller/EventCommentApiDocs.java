@@ -58,7 +58,7 @@ public interface EventCommentApiDocs {
                                 "isFollowing": false,
                                 "writerId": 156,
                                 "isStaff": true,
-                                "isBlockedByWriter": false
+                                "isBlockedMember": false
                               }
                             }
                                         """)
@@ -132,7 +132,7 @@ public interface EventCommentApiDocs {
                                 "isFollowing": false,
                                 "writerId": 156,
                                 "isStaff": true,
-                                "isBlockedByWriter": false
+                                "isBlockedMember": false
                               }
                             }
                                         """)
@@ -254,7 +254,7 @@ public interface EventCommentApiDocs {
                                           "writerId": 156,
                                           "replies": [],
                                           "isStaff": true,
-                                          "isBlockedByWriter": true
+                                          "isBlockedMember": true
                                         },
                                         {
                                           "commentId": 1,
@@ -267,7 +267,7 @@ public interface EventCommentApiDocs {
                                           "isFollowing": false,
                                           "writerId": 156,
                                           "isStaff": true,
-                                          "isBlockedByWriter": true,
+                                          "isBlockedMember": true,
                                           "replies": [
                                             {
                                               "commentId": 1,
@@ -279,7 +279,7 @@ public interface EventCommentApiDocs {
                                               "isFollowing": false,
                                               "writerId": 156,
                                               "isStaff": true,
-                                              "isBlockedByWriter": false,
+                                              "isBlockedMember": false,
                                               "createdAt": "2025-06-18T02:56:10.818788"
                                             },
                                             {
@@ -292,7 +292,7 @@ public interface EventCommentApiDocs {
                                               "isFollowing": false,
                                               "writerId": 156,
                                               "isStaff": true,
-                                              "isBlockedByWriter": false,
+                                              "isBlockedMember": false,
                                               "createdAt": "2025-06-18T03:03:16.206686"
                                             }
                                           ]

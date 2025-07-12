@@ -328,6 +328,12 @@ public interface VenueReviewApiDocs {
                                     """)}
                     )
             ),
+            @ApiResponse(
+                    responseCode = "400", description = "차단한 멤버의 리뷰",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {@ExampleObject(name = "차단한 멤버의 리뷰", value = SwaggerExamples.BLOCKED_MEMBER)}
+            )),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 베뉴 리뷰",
                     content = @Content(
                             mediaType = "application/json",
@@ -366,6 +372,11 @@ public interface VenueReviewApiDocs {
                                     """)}
                     )
             ),
+            @ApiResponse(responseCode = "400", description = "차단한 멤버의 리뷰",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {@ExampleObject(name = "차단한 멤버의 리뷰", value = SwaggerExamples.BLOCKED_MEMBER)}
+            )),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 베뉴 리뷰, 유저",
                     content = @Content(
                             mediaType = "application/json",

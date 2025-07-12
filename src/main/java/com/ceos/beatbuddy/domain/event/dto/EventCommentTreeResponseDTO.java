@@ -28,16 +28,16 @@ public class EventCommentTreeResponseDTO {
     @JsonProperty("isFollowing")
     private Boolean isFollowing;
 
-    @JsonProperty("isBlockedByWriter")
-    private Boolean isBlockedByWriter;
+    @JsonProperty("isBlockedMember")
+    private Boolean isBlockedMember;
 
     @JsonProperty("isStaff")
     private Boolean isStaff;
 
     private Long writerId;
 
-    public Boolean getIsBlockedByWriter() {
-        return isBlockedByWriter;
+    public Boolean getIsBlockedByMember() {
+        return isBlockedMember;
     }
     public Boolean getIsStaff() {
         return isStaff;
@@ -52,16 +52,17 @@ public class EventCommentTreeResponseDTO {
 
     private List<EventCommentResponseDTO> replies;
 
-    public static EventCommentTreeResponseDTO toDTO(EventComment root, List<EventCommentResponseDTO> replies, boolean isAuthor, boolean isFollowing, boolean isStaff, boolean isBlockedByWriter) {
+    public static EventCommentTreeResponseDTO toDTO(EventComment root, List<EventCommentResponseDTO> replies, boolean isAuthor, boolean isFollowing, boolean isStaff, boolean isBlockedMember) {
         return EventCommentTreeResponseDTO.builder()
                 .commentId(root.getId())
                 .commentLevel(root.getLevel())
-                .content(isBlockedByWriter ? "차단한 멤버의 댓글입니다." : root.getContent())
+                .content(isBlockedMember ? "차단한 멤버의 댓글입니다." : root.getContent())
                 .authorNickname(root.isAnonymous() ? "익명" : root.getAuthor().getNickname())
                 .anonymous(root.isAnonymous())
                 .createdAt(root.getCreatedAt())
                 .isAuthor(isAuthor)
                 .isFollowing(isFollowing)
+                .isBlockedMember(isBlockedMember)
                 .writerId(root.getAuthor().getId())
                 .isStaff(isStaff)
                 .replies(replies)

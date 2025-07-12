@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
+
 @Repository
 @RequiredArgsConstructor
 public class VenueReviewQueryRepositoryImpl implements VenueReviewQueryRepository {
@@ -39,7 +41,7 @@ public class VenueReviewQueryRepositoryImpl implements VenueReviewQueryRepositor
     }
 
     @Override
-    public List<VenueReview> findAllReviewsSortedExcludingBlocked(Long venueId, String sortBy, List<Long> blockedMemberIds) {
+    public List<VenueReview> findAllReviewsSortedExcludingBlocked(Long venueId, String sortBy, Set<Long> blockedMemberIds) {
         QVenueReview review = QVenueReview.venueReview;
 
         return queryFactory
@@ -53,7 +55,7 @@ public class VenueReviewQueryRepositoryImpl implements VenueReviewQueryRepositor
     }
 
     @Override
-    public List<VenueReview> findReviewsWithImagesSortedExcludingBlocked(Long venueId, String sortBy, List<Long> blockedMemberIds) {
+    public List<VenueReview> findReviewsWithImagesSortedExcludingBlocked(Long venueId, String sortBy, Set<Long> blockedMemberIds) {
         QVenueReview review = QVenueReview.venueReview;
 
         return queryFactory
