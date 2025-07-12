@@ -112,7 +112,9 @@ public class CommentController {
     @PutMapping("/{commentId}/like")
     @Operation(summary = "댓글 좋아요", description = "댓글에 좋아요를 추가합니다")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "좋아요 성공")
+        @ApiResponse(responseCode = "200", description = "좋아요 성공"),
+        @ApiResponse(responseCode = "404", description = "댓글이 존재하지 않습니다"),
+        @ApiResponse(responseCode = "400", description = "차단한 사용자의 댓글입니다.")
     })
     public ResponseEntity<CommentResponseDto> addLike(
             @PathVariable Long postId,
