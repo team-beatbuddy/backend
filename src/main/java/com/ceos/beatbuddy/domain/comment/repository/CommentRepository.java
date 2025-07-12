@@ -17,4 +17,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // 최적화용 bulk 조회
     List<Comment> findAllByMember_IdAndPost_IdIn(Long memberId, List<Long> postIds);
+
+    List<Comment> findAllByPost_IdOrderByCreatedAtAsc(Long postId);
 }
