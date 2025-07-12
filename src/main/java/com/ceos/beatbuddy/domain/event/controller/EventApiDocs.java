@@ -433,7 +433,7 @@ public interface EventApiDocs {
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventUpcomingSorted (        @PathVariable String sort,
                                                                                       @RequestParam(defaultValue = "1") Integer page,
                                                                                       @RequestParam(defaultValue = "10") Integer size,
-                                                                                      @RequestParam(required = false) String region);
+                                                                                      @RequestParam(required = false) List<String> region);
 
     @Operation(summary = "진행되는 이벤트",
             description = """
@@ -490,7 +490,7 @@ public interface EventApiDocs {
     })
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventNowSorted (@RequestParam(defaultValue = "1") Integer page,
                                                                          @RequestParam(defaultValue = "10") Integer size,
-                                                                         @RequestParam(required = false) String region);
+                                                                         @RequestParam(required = false) List<String> region);
     @Operation(summary = "종료된 이벤트",
             description = """
                     (종료 날짜 기준 < 오늘) 종료가 된 이벤트를 보여줍니다.
@@ -509,45 +509,44 @@ public interface EventApiDocs {
                         "sort": "latest",
                         "page": 1,
                         "size": 10,
-                        "totalSize": 3,
+                        "totalSize": 2,
                         "eventResponseDTOS": [
                           {
-                            "eventId": 6,
-                            "title": "이벤트 제목",
-                            "content": "내용입니다.",
-                            "thumbImage": "",
-                            "liked": false,
-                            "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                            "likes": 1,
-                            "views": 39,
-                            "startDate": "2025-06-20T00:00:00",
-                            "endDate": "2025-06-28T00:00:00",
-                            "region": "압구정_로데오",
-                            "isAttending": false,
-                            "isAuthor": true,
+                            "eventId": 2,
+                            "title": "string",
+                            "content": "string",
+                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
+                            "liked": true,
+                            "location": "string",
+                            "likes": 2,
+                            "views": 12,
+                            "startDate": "2025-06-18T00:00:00",
+                            "endDate": "2025-06-23T00:00:00",
+                            "region": "홍대",
                             "isFreeEntrance": false,
+                            "isAttending": true,
+                            "isAuthor": true
                           },
                           {
-                            "eventId": 8,
-                            "title": "이벤트 제목",
-                            "content": "내용입니다.",
-                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/event/20250622_224204_e8799c68-8ea2-4dea-bbd0-4e1922604b7e.jpg",
+                            "eventId": 1,
+                            "title": "이벤트 시작",
+                            "content": "이게 바로 이트",
+                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
                             "liked": false,
-                            "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                            "likes": 0,
-                            "views": 4,
-                            "startDate": "2025-06-23T00:00:00",
-                            "endDate": "2025-06-24T00:00:00",
-                            "region": "이태원",
-                            "isAttending": false,
-                            "isAuthor": true,
-                            "isFreeEntrance": false
+                            "location": "경기도 파주",
+                            "likes": 5,
+                            "views": 29,
+                            "startDate": "2025-06-17T00:00:00",
+                            "endDate": "2025-06-17T00:00:00",
+                            "region": "강남_신사",
+                            "isFreeEntrance": false,
+                            "isAttending": true,
+                            "isAuthor": true
                           }
                         ]
                       }
                     }
-                    """
-                   )}
+                    """)}
             )),
             @ApiResponse(
                     responseCode = "404",
@@ -564,7 +563,7 @@ public interface EventApiDocs {
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventPastSorted(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(required = false) String region);
+            @RequestParam(required = false) List<String> region);
 
 
 

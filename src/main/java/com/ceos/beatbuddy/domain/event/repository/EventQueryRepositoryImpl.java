@@ -29,16 +29,12 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Event> findUpcomingEvents(String sort, int offset, int limit, String region) {
+    public List<Event> findUpcomingEvents(String sort, int offset, int limit, List<String> regions) {
         QEvent event = QEvent.event;
         QEventLike eventLike = QEventLike.eventLike;
 
-        BooleanBuilder builder = new BooleanBuilder()
+        BooleanBuilder builder = buildRegionFilter(event, regions)
                 .and(event.startDate.gt(LocalDateTime.now()));
-
-        if (region != null) {
-            builder.and(event.region.eq(Event.of(region)));
-        }
 
         if ("popular".equals(sort)) {
             LocalDateTime now = LocalDateTime.now();
@@ -68,30 +64,31 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
     }
 
     @Override
-    public int countUpcomingEvents() {
+    public int countUpcomingEvents(List<String> regions) {
         QEvent event = QEvent.event;
 
-        return Objects.requireNonNull(queryFactory
-                        .select(event.count())
-                        .from(event)
-                        .where(event.startDate.gt(LocalDateTime.now()))
-                        .fetchOne())
-                .intValue();
+        BooleanBuilder builder = buildRegionFilter(event, regions)
+                .and(event.startDate.gt(LocalDateTime.now()));
+
+        Long count = queryFactory
+                .select(event.count())
+                .from(event)
+                .where(builder)
+                .fetchOne();
+
+        return count != null ? count.intValue() : 0;
     }
 
 
+
     @Override
-    public List<Event> findNowEvents(String sort, int offset, int limit, String region) {
+    public List<Event> findNowEvents(String sort, int offset, int limit, List<String> regions) {
         QEvent event = QEvent.event;
 
-        BooleanBuilder builder = new BooleanBuilder()
+        BooleanBuilder builder = buildRegionFilter(event, regions)
                 .and(event.startDate.loe(LocalDateTime.now()))
                 .and(event.endDate.goe(LocalDateTime.now()));
 
-        if (region != null) {
-            builder.and(event.region.eq(Event.of(region)));
-        }
-
         return queryFactory
                 .selectFrom(event)
                 .leftJoin(event.venue, QVenue.venue).fetchJoin()
@@ -104,39 +101,44 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
 
 
     @Override
-    public int countNowEvents() {
+    public int countNowEvents(List<String> regions) {
         QEvent event = QEvent.event;
 
-        return Objects.requireNonNull(queryFactory
-                        .select(event.count())
-                        .from(event)
-                        .where(event.startDate.loe(LocalDateTime.now())
-                                .and(event.endDate.goe(LocalDateTime.now())))
-                        .fetchOne())
-                .intValue();
-    }
+        BooleanBuilder builder = buildRegionFilter(event, regions)
+                .and(event.startDate.loe(LocalDateTime.now()))
+                .and(event.endDate.goe(LocalDateTime.now()));
 
-    @Override
-    public int countPastEvents() {
-        QEvent event = QEvent.event;
-
-        return Objects.requireNonNull(queryFactory
+        Long count = queryFactory
                 .select(event.count())
                 .from(event)
-                .where(event.endDate.lt(LocalDateTime.now()))
-                .fetchOne()).intValue();
+                .where(builder)
+                .fetchOne();
+
+        return count != null ? count.intValue() : 0;
     }
 
     @Override
-    public List<Event> findPastEvents(String sort, int offset, int limit, String region) {
+    public int countPastEvents(List<String> regions) {
         QEvent event = QEvent.event;
 
-        BooleanBuilder builder = new BooleanBuilder()
+        BooleanBuilder builder = buildRegionFilter(event, regions)
                 .and(event.endDate.lt(LocalDateTime.now()));
 
-        if (region != null) {
-            builder.and(event.region.eq(Event.of(region)));
-        }
+        Long count = queryFactory
+                .select(event.count())
+                .from(event)
+                .where(builder)
+                .fetchOne();
+
+        return count != null ? count.intValue() : 0;
+    }
+
+    @Override
+    public List<Event> findPastEvents(String sort, int offset, int limit, List<String> regions) {
+        QEvent event = QEvent.event;
+
+        BooleanBuilder builder = buildRegionFilter(event, regions)
+                .and(event.endDate.lt(LocalDateTime.now()));
 
         return queryFactory
                 .selectFrom(event)
@@ -146,6 +148,16 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
                 .offset(offset)
                 .limit(limit)
                 .fetch();
+    }
+
+    private BooleanBuilder buildRegionFilter(QEvent event, List<String> regions) {
+        BooleanBuilder regionBuilder = new BooleanBuilder();
+        if (regions != null && !regions.isEmpty()) {
+            for (String region : regions) {
+                regionBuilder.or(event.region.eq(Event.Region.of(region)));
+            }
+        }
+        return regionBuilder;
     }
 
     @Override

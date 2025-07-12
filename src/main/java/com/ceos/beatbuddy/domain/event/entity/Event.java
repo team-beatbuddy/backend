@@ -9,7 +9,6 @@ import com.ceos.beatbuddy.global.CustomException;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -100,14 +99,14 @@ public class Event extends BaseTimeEntity {
         강남_신사,
         압구정_로데오,
         이태원,
-        기타
-    }
+        기타;
 
-    public static Region of(String value) {
-        try {
-            return Region.valueOf(value);
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new CustomException(EventErrorCode.REGION_NOT_EXIST);
+        public static Region of(String value) {
+            try {
+                return Region.valueOf(value);
+            } catch (IllegalArgumentException | NullPointerException e) {
+                throw new CustomException(EventErrorCode.REGION_NOT_EXIST);
+            }
         }
     }
 
