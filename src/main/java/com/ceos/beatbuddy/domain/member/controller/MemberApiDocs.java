@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.member.controller;
 
+import com.ceos.beatbuddy.domain.member.dto.MemberBlockRequestDTO;
 import com.ceos.beatbuddy.domain.member.dto.MemberProfileSummaryDTO;
 import com.ceos.beatbuddy.domain.member.dto.MemberResponseDTO;
 import com.ceos.beatbuddy.domain.member.dto.NicknameDTO;
@@ -195,4 +196,51 @@ public interface MemberApiDocs {
             )
     })
     ResponseEntity<ResponseDTO<MemberResponseDTO>> updateNickname(@Valid @RequestBody NicknameDTO nicknameDTO);
+
+    @Operation(summary = "멤버 차단", description = "특정 멤버를 차단합니다. 차단된 멤버는 게시글, 댓글 등에서 보이지 않습니다.")
+    @ApiResponse(
+            responseCode = "200",
+            description = "멤버 차단 성공",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ResponseDTO.class),
+                    examples =
+                    @ExampleObject(
+                            name = "멤버 차단 성공",
+                            value = """
+                                    {
+                                      "status": 200,
+                                      "code": "SUCCESS_BLOCK_MEMBER",
+                                      "message": "멤버를 성공적으로 차단했습니다.",
+                                      "data": "성공적으로 차단했습니다."
+                                    }
+                    """
+                    )
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "잘못된 요청입니다. 자신을 차단하려는 시도입니다.",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(
+                                    name = "자신을 차단하려는 시도",
+                                    value = SwaggerExamples.SELF_BLOCKING_ATTEMPT)
+                    }
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "유저가 존재하지 않습니다.",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(
+                                    name = "존재하지 않는 유저",
+                                    value = SwaggerExamples.MEMBER_NOT_EXIST)
+                    }
+            )
+    )
+    ResponseEntity<ResponseDTO<String>> blockMember(@Valid @RequestBody MemberBlockRequestDTO request);
 }

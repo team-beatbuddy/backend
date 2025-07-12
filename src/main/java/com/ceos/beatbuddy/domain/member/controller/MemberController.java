@@ -240,6 +240,7 @@ public class MemberController implements MemberApiDocs{
 
     // ============= Member Blocking Endpoints =============
 
+    @Override
     @PostMapping("/block")
     public ResponseEntity<ResponseDTO<String>> blockMember(@Valid @RequestBody MemberBlockRequestDTO request) {
         Long memberId = SecurityUtils.getCurrentMemberId();
