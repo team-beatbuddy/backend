@@ -97,7 +97,7 @@ public class CommentService {
         Pageable pageable = PageRequest.of(page-1, size);
 
         // 차단한 사용자
-        List<Long> blockedMemberIds = memberService.getBlockedMemberIds(memberId);
+        Set<Long> blockedMemberIds = memberService.getBlockedMemberIds(memberId);
 
         Page<Comment> comments =  commentRepository.findAllByPost_Id(postId, pageable);
 

@@ -57,7 +57,8 @@ public interface EventCommentApiDocs {
                                 "isAuthor": true,
                                 "isFollowing": false,
                                 "writerId": 156,
-                                "isStaff": true
+                                "isStaff": true,
+                                "isBlockedByWriter": false
                               }
                             }
                                         """)
@@ -130,7 +131,8 @@ public interface EventCommentApiDocs {
                                 "isAuthor": true,
                                 "isFollowing": false,
                                 "writerId": 156,
-                                "isStaff": true
+                                "isStaff": true,
+                                "isBlockedByWriter": false
                               }
                             }
                                         """)
@@ -243,7 +245,7 @@ public interface EventCommentApiDocs {
                                         {
                                           "commentId": 2,
                                           "commentLevel": 0,
-                                          "content": "string",
+                                          "content": "차단한 멤버의 댓글입니다.",
                                           "authorNickname": "BeatBuddy",
                                           "anonymous": false,
                                           "createdAt": "2025-06-18T02:28:19.423835",
@@ -251,12 +253,13 @@ public interface EventCommentApiDocs {
                                           "isFollowing": false,
                                           "writerId": 156,
                                           "replies": [],
-                                          "isStaff": true
+                                          "isStaff": true,
+                                          "isBlockedByWriter": true
                                         },
                                         {
                                           "commentId": 1,
                                           "commentLevel": 0,
-                                          "content": "댓글 써봄",
+                                          "content": "차단한 멤버의 댓글입니다.",
                                           "authorNickname": "익명",
                                           "anonymous": true,
                                           "createdAt": "2025-06-18T02:08:31.418543",
@@ -264,6 +267,7 @@ public interface EventCommentApiDocs {
                                           "isFollowing": false,
                                           "writerId": 156,
                                           "isStaff": true,
+                                          "isBlockedByWriter": true,
                                           "replies": [
                                             {
                                               "commentId": 1,
@@ -275,6 +279,7 @@ public interface EventCommentApiDocs {
                                               "isFollowing": false,
                                               "writerId": 156,
                                               "isStaff": true,
+                                              "isBlockedByWriter": false,
                                               "createdAt": "2025-06-18T02:56:10.818788"
                                             },
                                             {
@@ -287,6 +292,7 @@ public interface EventCommentApiDocs {
                                               "isFollowing": false,
                                               "writerId": 156,
                                               "isStaff": true,
+                                              "isBlockedByWriter": false,
                                               "createdAt": "2025-06-18T03:03:16.206686"
                                             }
                                           ]

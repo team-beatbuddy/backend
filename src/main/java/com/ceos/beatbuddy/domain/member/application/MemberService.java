@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
@@ -203,7 +204,7 @@ public class MemberService {
      * @param blockerId 차단하는 사용자의 ID
      * @return 차단된 멤버들의 ID 목록
      */
-    public List<Long> getBlockedMemberIds(Long blockerId) {
+    public Set<Long> getBlockedMemberIds(Long blockerId) {
         return memberBlockRepository.findBlockedMemberIdsByBlockerId(blockerId);
     }
     
