@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.event.dto;
 
 import com.ceos.beatbuddy.domain.event.entity.Event;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -31,8 +32,9 @@ public class EventResponseDTO {
 
     private Integer likes;
     private Integer views;
-
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endDate;
 
     private Boolean receiveInfo;
