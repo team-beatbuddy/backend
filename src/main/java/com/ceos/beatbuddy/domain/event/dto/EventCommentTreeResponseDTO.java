@@ -52,12 +52,12 @@ public class EventCommentTreeResponseDTO {
 
     private List<EventCommentResponseDTO> replies;
 
-    public static EventCommentTreeResponseDTO toDTO(EventComment root, List<EventCommentResponseDTO> replies, boolean isAuthor, boolean isFollowing, boolean isStaff, boolean isBlockedMember) {
+    public static EventCommentTreeResponseDTO toDTO(EventComment root, List<EventCommentResponseDTO> replies, boolean isAuthor, boolean isFollowing, boolean isStaff, boolean isBlockedMember, String authorNickname) {
         return EventCommentTreeResponseDTO.builder()
                 .commentId(root.getId())
                 .commentLevel(root.getLevel())
                 .content(isBlockedMember ? "차단한 멤버의 댓글입니다." : root.getContent())
-                .authorNickname(root.isAnonymous() ? "익명" : root.getAuthor().getNickname())
+                .authorNickname(authorNickname)
                 .anonymous(root.isAnonymous())
                 .createdAt(root.getCreatedAt())
                 .isAuthor(isAuthor)

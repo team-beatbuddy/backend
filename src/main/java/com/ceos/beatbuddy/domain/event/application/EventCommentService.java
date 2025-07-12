@@ -16,10 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,7 +57,7 @@ public class EventCommentService {
 
         boolean isStaff = event.getHost().getId().equals(memberId);
 
-        return EventCommentResponseDTO.toDTO(saved, true, false, isStaff, false); // 본인 차단 불가능
+        return EventCommentResponseDTO.toDTO(saved, true, false, isStaff, false, member.getNickname()); // 본인 차단 불가능
     }
 
 
@@ -86,36 +83,68 @@ public class EventCommentService {
 
     @Transactional(readOnly = true)
     public List<EventCommentTreeResponseDTO> getSortedEventComments(Long memberId, Long eventId) {
-        memberService.validateAndGetMember(memberId);
+        Member member = memberService.validateAndGetMember(memberId);
+        boolean isAdmin = member.isAdmin(); // admin 여부 판단
+
         Event event = eventService.validateAndGet(eventId);
 
-        List<EventComment> all = eventCommentRepository.findAllByEvent(event);
-        Set<Long> followingIds = followRepository.findFollowingMemberIds(memberId);
-        // 차단한 사용자 ID 목록
-        Set<Long> blockedMemberIds = memberService.getBlockedMemberIds(memberId);
+        // 댓글 전체 조회 (author를 함께 fetch)
+        List<EventComment> all = eventCommentRepository.findAllByEventWithAuthor(event);
 
+        // 차단/팔로우 ID 조회
+        Set<Long> blockedMemberIds = memberService.getBlockedMemberIds(memberId);
+        Set<Long> followingIds = followRepository.findFollowingMemberIds(memberId);
+
+        // 익명 작성자 ID 추출 및 번호 매핑
+        List<Long> anonymousIds = all.stream()
+                .filter(EventComment::isAnonymous)
+                .map(c -> c.getAuthor().getId())
+                .distinct()
+                .toList();
+
+        Map<Long, String> anonymousNameMap = new HashMap<>();
+        for (int i = 0; i < anonymousIds.size(); i++) {
+            anonymousNameMap.put(anonymousIds.get(i), "익명 " + (i + 1));
+        }
+
+        // 댓글 트리 구성 (부모 ID 기준 그룹핑)
         Map<Long, List<EventComment>> grouped = all.stream()
                 .collect(Collectors.groupingBy(c -> c.getParentId() == null ? c.getId() : c.getParentId()));
 
         return grouped.values().stream()
                 .map(group -> {
-                    EventComment parent = group.stream().filter(c -> c.getParentId() == null).findFirst().orElseThrow();
+                    EventComment parent = group.stream()
+                            .filter(c -> c.getParentId() == null)
+                            .findFirst()
+                            .orElseThrow();
+
                     List<EventCommentResponseDTO> replies = group.stream()
                             .filter(c -> c.getParentId() != null)
                             .sorted(Comparator.comparing(EventComment::getCreatedAt))
-                            .map(c -> EventCommentResponseDTO.toDTO(c, c.getAuthor().getId().equals(memberId),
-                                    followingIds.contains(c.getAuthor().getId()), c.getAuthor().equals(event.getHost()),
-                                    blockedMemberIds.contains(c.getAuthor().getId())))
+                            .map(c -> EventCommentResponseDTO.toDTO(
+                                    c,
+                                    c.getAuthor().getId().equals(memberId),
+                                    followingIds.contains(c.getAuthor().getId()),
+                                    isAdmin || c.getAuthor().getId().equals(event.getHost().getId()),
+                                    blockedMemberIds.contains(c.getAuthor().getId()),
+                                    c.isAnonymous() ? anonymousNameMap.get(c.getAuthor().getId()) : c.getAuthor().getNickname()
+                            ))
                             .toList();
 
-                    return EventCommentTreeResponseDTO.toDTO(parent, replies,
+                    return EventCommentTreeResponseDTO.toDTO(
+                            parent,
+                            replies,
                             parent.getAuthor().getId().equals(memberId),
-                            followingIds.contains(parent.getAuthor().getId()), parent.getAuthor().equals(event.getHost()),
-                            blockedMemberIds.contains(parent.getAuthor().getId()));
+                            followingIds.contains(parent.getAuthor().getId()),
+                            isAdmin || parent.getAuthor().getId().equals(event.getHost().getId()),
+                            blockedMemberIds.contains(parent.getAuthor().getId()),
+                            parent.isAnonymous() ? anonymousNameMap.get(parent.getAuthor().getId()) : parent.getAuthor().getNickname()
+                    );
                 })
                 .sorted(Comparator.comparing(EventCommentTreeResponseDTO::getCreatedAt).reversed())
                 .toList();
     }
+
 
     // 이벤트 댓글 수정 구현
     @Transactional
@@ -138,7 +167,7 @@ public class EventCommentService {
 
         boolean isStaff = comment.getAuthor().equals(event.getHost());
 
-        return EventCommentResponseDTO.toDTO(comment, comment.getAuthor().getId().equals(member.getId()), false, isStaff, false);
+        return EventCommentResponseDTO.toDTO(comment, comment.getAuthor().getId().equals(member.getId()), false, isStaff, false, member.getNickname());
     }
 
     private EventComment validateAndGetComment(Long commentId) {
