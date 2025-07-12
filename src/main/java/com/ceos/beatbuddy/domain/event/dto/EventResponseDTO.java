@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +32,8 @@ public class EventResponseDTO {
     private Integer likes;
     private Integer views;
 
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
 
     private Boolean receiveInfo;
     private Boolean receiveName; // 이름 받을 건지

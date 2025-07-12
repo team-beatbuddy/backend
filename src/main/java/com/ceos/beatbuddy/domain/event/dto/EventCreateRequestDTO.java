@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -28,11 +29,11 @@ public class EventCreateRequestDTO {
 
     @Schema(description = "이벤트 시작 날짜 (yyyy-MM-dd)", example = "2025-08-22")
     @NotNull(message = "시작날짜는 필수입니다.")
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 
     @Schema(description = "이벤트 종료 날짜 (yyyy-MM-dd)", example = "2025-09-21")
     @NotNull(message = "종료날짜는 필수입니다.")
-    private LocalDate endDate;
+    private LocalDateTime endDate;
 
     @Schema(description = "이벤트 장소 주소", example = "서울시 강남구 테헤란로 123, venue 를 고르셨다면 해당 장소의 주소를 넣어주세요.")
     @NotNull(message = "장소는 필수입니다.")

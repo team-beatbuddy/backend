@@ -10,6 +10,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -17,6 +18,14 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(
+        name = "Event",
+        indexes = {
+                @Index(name = "idx_event_status_start", columnList = "status, startDate"),
+                @Index(name = "idx_event_status_region_start", columnList = "status, region, startDate"),
+                @Index(name = "idx_event_status_end", columnList = "status, endDate")
+        }
+)
 public class Event extends BaseTimeEntity {
 
     @Id
@@ -28,8 +37,8 @@ public class Event extends BaseTimeEntity {
     @Lob
     private String content;
 
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
     private String location;
 
     private int entranceFee = 0; // 입장료
@@ -205,7 +214,7 @@ public class Event extends BaseTimeEntity {
     }
 
     public void updateEventStatusByDate() {
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDateTime.now();
         if (startDate != null && endDate != null) {
             if (!startDate.isAfter(today) && !endDate.isBefore(today)) {
                 this.status = EventStatus.NOW;

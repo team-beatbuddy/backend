@@ -4,6 +4,7 @@ import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventAttendance;
+import com.ceos.beatbuddy.domain.event.entity.EventStatus;
 import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
@@ -41,7 +42,7 @@ public class EventMyPageService{
                 .collect(Collectors.toSet());
 
         List<EventResponseDTO> filtered = myEvents.stream()
-                .filter(e -> e.getStartDate().isAfter(LocalDate.now()))
+                .filter(e -> e.getStatus() == EventStatus.UPCOMING)
                 .filter(e -> region == null || e.getRegion() == region)
                 .sorted(Comparator.comparing(Event::getStartDate))
                 .map(event -> EventResponseDTO.toUpcomingListDTO(
@@ -66,7 +67,7 @@ public class EventMyPageService{
                 .collect(Collectors.toSet());
 
         List<EventResponseDTO> filtered = myEvents.stream()
-                .filter(e -> !e.getStartDate().isAfter(LocalDate.now()) && !e.getEndDate().isBefore(LocalDate.now()))
+                .filter(e -> e.getStatus() == EventStatus.NOW)
                 .filter(e -> region == null || e.getRegion() == region)
                 .sorted(Comparator.comparing(Event::getStartDate).reversed()) // 최근 시작 순
                 .map(event -> EventResponseDTO.toNowListDTO(
@@ -91,7 +92,7 @@ public class EventMyPageService{
                 .collect(Collectors.toSet());
 
         List<EventResponseDTO> filtered = myEvents.stream()
-                .filter(e -> e.getEndDate().isBefore(LocalDate.now())) // 오늘 이전 종료
+                .filter(e -> e.getStatus() == EventStatus.PAST)
                 .filter(e -> region == null || e.getRegion() == region)
                 .sorted(Comparator.comparing(Event::getEndDate).reversed()) // 최근 종료 순
                 .map(event -> EventResponseDTO.toPastListDTO(
@@ -133,7 +134,7 @@ public class EventMyPageService{
 
         List<EventResponseDTO> filtered = eventQueryRepository.findMyUpcomingEvents(member).stream()
                 .filter(e -> region == null || e.getRegion() == region)
-                .filter(e -> e.getStartDate().isAfter(today))
+                .filter(e -> e.getStatus() == EventStatus.UPCOMING)
                 .sorted(Comparator.comparing(Event::getStartDate)) // 가까운 순
                 .map(event -> EventResponseDTO.toUpcomingListDTO(
                         event,
@@ -156,7 +157,7 @@ public class EventMyPageService{
 
         List<EventResponseDTO> filtered = eventQueryRepository.findMyNowEvents(member).stream()
                 .filter(e -> region == null || e.getRegion() == region)
-                .filter(e -> !e.getStartDate().isAfter(today) && !e.getEndDate().isBefore(today))
+                .filter(e -> e.getStatus() == EventStatus.NOW)
                 .sorted(Comparator.comparing(Event::getStartDate).reversed()) // 최근 시작
                 .map(event -> EventResponseDTO.toNowListDTO(
                         event,
@@ -179,7 +180,7 @@ public class EventMyPageService{
 
         List<EventResponseDTO> filtered = eventQueryRepository.findMyPastEvents(member).stream()
                 .filter(e -> region == null || e.getRegion() == region)
-                .filter(e -> e.getEndDate().isBefore(today))
+                .filter(e -> e.getStatus() == EventStatus.PAST)
                 .sorted(Comparator.comparing(Event::getEndDate).reversed()) // 최근 종료
                 .map(event -> EventResponseDTO.toPastListDTO(
                         event,
@@ -202,7 +203,7 @@ public class EventMyPageService{
         LocalDate today = LocalDate.now();
 
         return myEvents.stream()
-                .filter(e -> e.getStartDate().isAfter(today)) // 오늘 이후 시작
+                .filter(e -> e.getStatus() == EventStatus.UPCOMING) // 오늘 이후 시작
                 .sorted(Comparator.comparing(Event::getStartDate)) // 가까운 순
                 .limit(3)
                 .map(event -> EventResponseDTO.toUpcomingListDTO(
