@@ -172,12 +172,12 @@ public class EventService {
     }
 
 
-    public EventListResponseDTO getUpcomingEvents(String sort, Integer page, Integer size, Long memberId, String region) {
+    public EventListResponseDTO getUpcomingEvents(String sort, Integer page, Integer size, Long memberId, List<String> regions) {
         Member member = memberService.validateAndGetMember(memberId);
 
         int offset = (page - 1) * size;
 
-        List<Event> events = eventQueryRepository.findUpcomingEvents(sort, offset, size, region);
+        List<Event> events = eventQueryRepository.findUpcomingEvents(sort, offset, size, regions);
 
         Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
         Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
@@ -190,7 +190,7 @@ public class EventService {
                         attendingEventIds.contains(event.getId())))
                 .toList();
 
-        int totalSize = eventQueryRepository.countUpcomingEvents(); // 총 개수 (페이지네이션용)
+        int totalSize = eventQueryRepository.countUpcomingEvents(regions); // 총 개수 (페이지네이션용)
 
         return EventListResponseDTO.builder()
                 .sort(sort)
@@ -201,13 +201,13 @@ public class EventService {
                 .build();
     }
 
-    public EventListResponseDTO getNowEvents(Integer page, Integer size, Long memberId, String region) {
+    public EventListResponseDTO getNowEvents(Integer page, Integer size, Long memberId, List<String> regions) {
         Member member = memberService.validateAndGetMember(memberId);
 
         String sort = "latest"; // 기본적으로 최신순으로 설정
         int offset = (page - 1) * size;
 
-        List<Event> events = eventQueryRepository.findNowEvents(sort, offset, size, region);
+        List<Event> events = eventQueryRepository.findNowEvents(sort, offset, size, regions);
 
         Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
 
@@ -221,7 +221,7 @@ public class EventService {
                         attendingEventIds.contains(event.getId())))
                 .toList();
 
-        int totalSize = eventQueryRepository.countNowEvents(); // 총 개수 (페이지네이션용)
+        int totalSize = eventQueryRepository.countNowEvents(regions); // 총 개수 (페이지네이션용)
 
         return EventListResponseDTO.builder()
                 .sort(sort)
@@ -232,7 +232,7 @@ public class EventService {
                 .build();
     }
 
-    public EventListResponseDTO getPastEvents(int page, int limit, Long memberId, String region) {
+    public EventListResponseDTO getPastEvents(int page, int limit, Long memberId, List<String> regions) {
         Member member = memberService.validateAndGetMember(memberId);
 
         int offset = (page - 1) * limit;
@@ -242,8 +242,8 @@ public class EventService {
         Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
 
         // 최신순 (기존 방식)
-        List<Event> events = eventQueryRepository.findPastEvents(sort, offset, limit, region);
-        int total = eventQueryRepository.countPastEvents();
+        List<Event> events = eventQueryRepository.findPastEvents(sort, offset, limit, regions);
+        int total = eventQueryRepository.countPastEvents(regions);
 
         Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
                 .map(att -> att.getEvent().getId())
