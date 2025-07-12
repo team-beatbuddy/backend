@@ -87,4 +87,54 @@ public class PostQueryRepositoryImpl implements PostQueryRepository{
 
         return new PageImpl<>(content, pageable, count != null ? count : 0);
     }
+
+    @Override
+    public List<Post> findHotPostsWithin12HoursExcludingBlocked(List<Long> blockedMemberIds) {
+        LocalDateTime twelveHoursAgo = LocalDateTime.now().minusHours(12);
+
+        return queryFactory
+                .selectFrom(post)
+                .where(
+                        post.createdAt.goe(twelveHoursAgo),
+                        blockedMemberIds.isEmpty() ? null : post.member.id.notIn(blockedMemberIds)
+                )
+                .orderBy(post.likes.add(post.comments).desc())
+                .limit(2)
+                .fetch();
+    }
+
+    @Override
+    public Page<FreePost> findPostsByHashtagsExcludingBlocked(List<FixedHashtag> hashtags, Pageable pageable, List<Long> blockedMemberIds) {
+        QFreePost freePost = QFreePost.freePost;
+
+        // 해시태그가 null이거나 비어있으면 빈 페이지 반환 (핸들러와 일관성 유지)
+        if (hashtags == null || hashtags.isEmpty()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
+        }
+
+        // where 조건을 변수로 추출하여 중복 제거
+        BooleanExpression whereCondition = freePost.hashtag.any().in(hashtags);
+        if (!blockedMemberIds.isEmpty()) {
+            whereCondition = whereCondition.and(freePost.member.id.notIn(blockedMemberIds));
+        }
+
+        // 최신순 정렬
+        JPQLQuery<FreePost> query = queryFactory
+                .selectFrom(freePost)
+                .where(whereCondition)
+                .orderBy(freePost.createdAt.desc());
+
+        List<FreePost> content = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long count = queryFactory
+                .select(freePost.count())
+                .from(freePost)
+                .where(whereCondition)
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, count != null ? count : 0L);
+    }
 }

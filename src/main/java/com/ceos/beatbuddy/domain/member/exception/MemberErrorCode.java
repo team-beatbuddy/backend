@@ -27,7 +27,12 @@ public enum MemberErrorCode implements ApiCode {
     VERIFICATION_CODE_EXPIRED(HttpStatus.EXPECTATION_FAILED, "인증번호가 만료되었습니다. 다시 생성해주세요."),
     SAME_NICKNAME(HttpStatus.BAD_REQUEST, "동일한 닉네임으로는 변경이 불가능합니다."),
     NICKNAME_CHANGE_LIMITED(HttpStatus.BAD_REQUEST, "닉네임 변경은 14일 내에 2번까지만 가능합니다. 14일 뒤에 변경해주세요."),
-    NICKNAME_CONFLICT(HttpStatus.CONFLICT, "동일한 시점에 닉네임 변경 시도가 발생했습니다. 잠시 후 다시 시도해주세요.")
+    NICKNAME_CONFLICT(HttpStatus.CONFLICT, "동일한 시점에 닉네임 변경 시도가 발생했습니다. 잠시 후 다시 시도해주세요."),
+    
+    // Member Blocking Error Codes
+    CANNOT_BLOCK_SELF(HttpStatus.BAD_REQUEST, "자기 자신을 차단할 수 없습니다."),
+    ALREADY_BLOCKED(HttpStatus.CONFLICT, "이미 차단된 사용자입니다."),
+    BLOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "차단 관계를 찾을 수 없습니다.")
 
     ;
 
