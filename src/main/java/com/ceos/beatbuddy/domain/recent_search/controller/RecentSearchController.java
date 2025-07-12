@@ -5,6 +5,7 @@ import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,7 @@ public class RecentSearchController implements RecentSearchApiDocs {
      * 개발용
      * */
     @PostMapping("/save")
+    @Profile("dev")
     public ResponseEntity<Void> saveRecentSearch(
             @RequestParam String searchType,
             @RequestParam String keyword
