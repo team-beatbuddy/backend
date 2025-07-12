@@ -33,6 +33,7 @@ import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -210,42 +211,33 @@ public class VenueInfoService {
                 .map(att -> att.getEvent().getId())
                 .collect(Collectors.toSet());
 
-        List<EventResponseDTO> events = new ArrayList<>();
+        Pageable pageable = PageRequest.of(page - 1, size);
 
-        if (isPast) {
-            // Venue에 해당하는 이벤트 조회
-            events = eventQueryRepository.findVenuePastEvents(venueId, PageRequest.of(page-1, size))
-                    .stream()
-                    .map(event -> EventResponseDTO.toListDTO(event, event.getHost().getId().equals(memberId),
-                            likedEventIds.contains(event.getId()),
-                            attendingEventIds.contains(event.getId())))
-                    .collect(Collectors.toList());
+        var pagedEvents = isPast
+                ? eventQueryRepository.findVenuePastEvents(venueId, pageable)
+                : eventQueryRepository.findVenueOngoingOrUpcomingEvents(venueId, pageable);
 
-            return EventListResponseDTO.builder()
-                    .page(page)
-                    .size(size)
-                    .totalSize( eventQueryRepository.countVenuePastEvents(venueId))
-                    .sort("latest")
-                    .eventResponseDTOS(events)
-                    .build();
-        }
-        else {
-            // Venue에 해당하는 이벤트 조회
-            events = eventQueryRepository.findVenueOngoingOrUpcomingEvents(venueId, PageRequest.of(page-1, size))
-                    .stream()
-                    .map(event -> EventResponseDTO.toListDTO(event, event.getHost().getId().equals(memberId),
-                            likedEventIds.contains(event.getId()),
-                            attendingEventIds.contains(event.getId())))
-                    .collect(Collectors.toList());
+        List<EventResponseDTO> events = pagedEvents.stream()
+                .map(event -> EventResponseDTO.toListDTO(
+                        event,
+                        event.getHost().getId().equals(memberId),
+                        likedEventIds.contains(event.getId()),
+                        attendingEventIds.contains(event.getId())
+                ))
+                .collect(Collectors.toList());
 
-            return EventListResponseDTO.builder()
-                    .page(page)
-                    .size(size)
-                    .totalSize( eventQueryRepository.countVenueOngoingOrUpcomingEvents(venueId))
-                    .sort("latest")
-                    .eventResponseDTOS(events)
-                    .build();
-        }
+        int totalSize = isPast
+                ? eventQueryRepository.countVenuePastEvents(venueId)
+                : eventQueryRepository.countVenueOngoingOrUpcomingEvents(venueId);
+
+        return EventListResponseDTO.builder()
+                .page(page)
+                .size(size)
+                .totalSize(totalSize)
+                .sort("latest")
+                .eventResponseDTOS(events)
+                .build();
+
     }
 
     public EventListResponseDTO getVenueEventsByPopularity(Long venueId, Long memberId, int page, int size) {
