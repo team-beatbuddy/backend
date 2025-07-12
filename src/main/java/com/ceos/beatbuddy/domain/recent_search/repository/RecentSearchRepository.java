@@ -14,4 +14,6 @@ public interface RecentSearchRepository extends JpaRepository<RecentSearch, Long
     Optional<RecentSearch> findByMemberAndKeywordAndSearchType(Member member, String keyword, SearchTypeEnum type);
 
     List<RecentSearch> findTop10ByMemberAndSearchTypeOrderByUpdatedAtDesc(Member member, SearchTypeEnum type);
+
+    List<RecentSearch> findByMemberAndSearchTypeOrderByUpdatedAtDesc(Member member, SearchTypeEnum type);
 }

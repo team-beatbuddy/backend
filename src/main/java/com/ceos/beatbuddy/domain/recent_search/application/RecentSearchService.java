@@ -48,7 +48,7 @@ public class RecentSearchService {
         }
 
         // 10개 초과 시 오래된 것 제거
-        List<RecentSearch> all = recentSearchRepository.findTop10ByMemberAndSearchTypeOrderByUpdatedAtDesc(member, type);
+        List<RecentSearch> all = recentSearchRepository.findByMemberAndSearchTypeOrderByUpdatedAtDesc(member, type);
         if (all.size() > 10) {
             List<RecentSearch> toDelete = all.subList(10, all.size());
             recentSearchRepository.deleteAll(toDelete);
