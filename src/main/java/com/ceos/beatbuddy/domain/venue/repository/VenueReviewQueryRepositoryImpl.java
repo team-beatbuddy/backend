@@ -38,6 +38,35 @@ public class VenueReviewQueryRepositoryImpl implements VenueReviewQueryRepositor
                 .fetch();
     }
 
+    @Override
+    public List<VenueReview> findAllReviewsSortedExcludingBlocked(Long venueId, String sortBy, List<Long> blockedMemberIds) {
+        QVenueReview review = QVenueReview.venueReview;
+
+        return queryFactory
+                .selectFrom(review)
+                .where(
+                        review.venue.id.eq(venueId),
+                        blockedMemberIds.isEmpty() ? null : review.member.id.notIn(blockedMemberIds)
+                )
+                .orderBy(getOrderSpecifier(review, sortBy))
+                .fetch();
+    }
+
+    @Override
+    public List<VenueReview> findReviewsWithImagesSortedExcludingBlocked(Long venueId, String sortBy, List<Long> blockedMemberIds) {
+        QVenueReview review = QVenueReview.venueReview;
+
+        return queryFactory
+                .selectFrom(review)
+                .where(
+                        review.venue.id.eq(venueId),
+                        review.imageUrls.isNotEmpty(),
+                        blockedMemberIds.isEmpty() ? null : review.member.id.notIn(blockedMemberIds)
+                )
+                .orderBy(getOrderSpecifier(review, sortBy))
+                .fetch();
+    }
+
     private static final String SORT_BY_POPULAR = "popular";
 
     private OrderSpecifier<?> getOrderSpecifier(QVenueReview review, String sortBy) {
