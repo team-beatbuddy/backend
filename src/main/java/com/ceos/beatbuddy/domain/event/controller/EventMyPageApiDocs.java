@@ -20,14 +20,13 @@ public interface EventMyPageApiDocs {
     @Operation(
             summary = "마이페이지 이벤트 조회 (upcoming)\n",
             description = """
-                마이페이지에서 내가 좋아요를 누르거나 참여한 이벤트 중 '예정된 이벤트'를 조회합니다.
+                마이페이지에서 내가 좋아요를 누르거나 참여한 이벤트 중 '예정된 이벤트 + 진행중인 이벤트'를 조회합니다.
                 정렬 기준은 아래와 같습니다:
                 
                 - region(홍대, 이태원, 강남_신사, 압구정_로데오, 기타)로 필터링할 수 있습니다.
                 - `latest` (기본): 다가오는 이벤트 순으로 정렬
                 
                 - 이미지를 등록하지 않으면 ("") 이렇게 나옵니다. 이 값은 null이 아닌 빈 문자열입니다.
-                - 예정된 이벤트에는, dday 필드가 존재합니다.
                 """
     )
     @ApiResponses( value = {
@@ -106,104 +105,8 @@ public interface EventMyPageApiDocs {
                     )
             )
     })
-    ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyPageEventsUpcoming(
-            @RequestParam(required = false) String region,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
-    );
-
-    @Operation(
-            summary = "마이페이지 이벤트 조회 (now)\n",
-            description = """
-                마이페이지에서 내가 좋아요를 누르거나 참여한 이벤트 중 '진행 중인 이벤트'를 조회합니다.
-                정렬 기준은 아래와 같습니다:
-
-                - region(홍대, 이태원, 강남_신사, 압구정_로데오, 기타)로 필터링할 수 있습니다.
-                - `latest` (기본): 최근 시작한 이벤트 순으로 정렬
-                
-                - 이미지를 등록하지 않으면 ("") 이렇게 나옵니다. 이 값은 null이 아닌 빈 문자열입니다.
-                """
-    )
-    @ApiResponses( value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "마이페이지 이벤트 조회 성공",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class),
-                            examples = {
-                                    @ExampleObject(
-                                            name = "마이페이지 이벤트 조회 성공",
-                                            description = """
-                                                            이미지를 등록하지 않으면 ("") 이렇게 나옵니다.
-                                                            이 값은 null이 아닌 빈 문자열입니다.
-                                                            """,
-                                            value = """
-                                            {
-                                              "status": 200,
-                                              "code": "SUCCESS_GET_MY_PAGE_EVENTS",
-                                              "message": "마이페이지의 이벤트를 성공적으로 조회했습니다",
-                                              "data": {
-                                                "sort": "latest",
-                                                "page": 1,
-                                                "size": 10,
-                                                "totalSize": 6,
-                                                "eventResponseDTOS": [
-                                                  {
-                                                    "eventId": 12,
-                                                    "title": "이벤트 제목",
-                                                    "content": "내용입니다.",
-                                                    "thumbImage": "",
-                                                    "liked": false,
-                                                    "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                                                    "likes": 1,
-                                                    "views": 5,
-                                                    "startDate": "2025-08-22T00:00:00",
-                                                    "endDate": "2025-09-21T00:00:00",
-                                                    "region": "홍대",
-                                                    "isAttending": true,
-                                                    "isAuthor": true
-                                                  },
-                                                  {
-                                                    "eventId": 13,
-                                                    "title": "이벤트 제목",
-                                                    "content": "내용입니다.",
-                                                    "thumbImage": "",
-                                                    "liked": false,
-                                                    "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                                                    "likes": 0,
-                                                    "views": 1,
-                                                    "startDate": "2025-08-22T00:00:00",
-                                                    "endDate": "2025-09-21T00:00:00",
-                                                    "region": "압구정_로데오",
-                                                    "isAttending": true,
-                                                    "isAuthor": true
-                                                  }
-                                                ]
-                                              }
-                                            }
-                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "빈 이벤트 마이페이지 글",
-                                            value = SwaggerExamples.SUCCESS_BUT_EMPTY_LIST)
-                            }
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "이벤트 또는 유저 정보 없음",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST)
-                            }
-                    )
-            )
-    })
-
-    ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyPageEventsNow(
-            @RequestParam(required = false) String region,
+    ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyPageEventsNowAndUpcoming(
+            @RequestParam(required = false) List<String> region,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     );
@@ -298,7 +201,7 @@ public interface EventMyPageApiDocs {
             )
     })
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyPageEventsPast(
-            @RequestParam(required = false) String region,
+            @RequestParam(required = false) List<String> region,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     );
@@ -309,14 +212,13 @@ public interface EventMyPageApiDocs {
     @Operation(
             summary = "내가 작성한 이벤트 조회 (upcoming)\n",
             description = """
-                내가 작성한 이벤트 중 '예정된 이벤트'를 조회합니다.
+                내가 작성한 이벤트 중 '예정된 이벤트와 진행중인 이벤트'를 조회합니다.
                 정렬 기준은 아래와 같습니다:
                 
                 - region(홍대, 이태원, 강남_신사, 압구정_로데오, 기타)로 필터링할 수 있습니다.
                 - `latest` (기본): 다가오는 이벤트 순으로 정렬
                 
                 - 이미지를 등록하지 않으면 ("") 이렇게 나옵니다. 이 값은 null이 아닌 빈 문자열입니다.
-                - 예정된 이벤트에는, dday 필드가 존재합니다.
                 """
     )
     @ApiResponses(value = {
@@ -394,92 +296,12 @@ public interface EventMyPageApiDocs {
                     )
             )
     })
-    ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyEventsUpcoming(
-            @RequestParam(required = false) String region,
+    ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyEventsNowAndUpcoming(
+            @RequestParam(required = false) List<String> region,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     );
 
-
-    @Operation(
-            summary = "내가 작성한 이벤트 조회 (now)\n",
-            description = """
-                내가 작성한 이벤트 중 '진행 중인 이벤트'를 조회합니다.
-                정렬 기준은 아래와 같습니다:
-
-                - region(홍대, 이태원, 강남_신사, 압구정_로데오, 기타)로 필터링할 수 있습니다.
-                - `latest` (기본): 최근 시작한 이벤트 순으로 정렬
-                
-                - 이미지를 등록하지 않으면 ("") 이렇게 나옵니다. 이 값은 null이 아닌 빈 문자열입니다.
-                """
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "내가 작성한 이벤트 조회 성공",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class),
-                            examples = {
-                                    @ExampleObject(
-                                            name = "내가 작성한 이벤트 조회 성공",
-                                            description = """
-                                                            이미지를 등록하지 않으면 ("") 이렇게 나옵니다.
-                                                            이 값은 null이 아닌 빈 문자열입니다.
-                                                            """,
-                                            value = """
-                                                        {
-                                                          "status": 200,
-                                                          "code": "SUCCESS_GET_MY_EVENTS",
-                                                          "message": "성공적으로 내가 작성한 이벤트를 가져왔습니다.",
-                                                          "data": {
-                                                            "sort": "latest",
-                                                            "page": 1,
-                                                            "size": 10,
-                                                            "totalSize": 1,
-                                                            "eventResponseDTOS": [
-                                                              {
-                                                                "eventId": 4,
-                                                                "title": "이벤트 제목",
-                                                                "content": "내용입니다.",
-                                                                "thumbImage": "",
-                                                                "liked": true,
-                                                                "location": "아직 정해지지 않음... 여기 elastic search 쓸 것 같음",
-                                                                "likes": 2,
-                                                                "views": 354,
-                                                                "startDate": "2025-06-24T00:00:00",
-                                                                "endDate": "2025-07-21T00:00:00",
-                                                                "region": "이태원",
-                                                                "isAttending": false,
-                                                                "isAuthor": true
-                                                              }
-                                                            ]
-                                                          }
-                                                        }
-                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "빈 이벤트 마이페이지 글",
-                                            value = SwaggerExamples.SUCCESS_BUT_EMPTY_LIST)
-                            }
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "이벤트 또는 유저 정보 없음",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(name = "유저 없음", value = SwaggerExamples.MEMBER_NOT_EXIST)
-                            }
-                    )
-            )
-    })
-    ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyEventsNow(
-            @RequestParam(required = false) String region,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
-    );
 
     @Operation(
             summary = "내가 작성한 이벤트 조회 (past)\n",
@@ -570,7 +392,7 @@ public interface EventMyPageApiDocs {
             )
     })
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyEventsPast(
-            @RequestParam(required = false) String region,
+            @RequestParam(required = false) List<String> region,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     );

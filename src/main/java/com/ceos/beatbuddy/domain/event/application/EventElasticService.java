@@ -1,9 +1,12 @@
 package com.ceos.beatbuddy.domain.event.application;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.json.JsonData;
 import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
@@ -22,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -84,7 +89,7 @@ public class EventElasticService {
         if (page < 1) {
             throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
         }
-        
+
         recentSearchService.saveRecentSearch(SearchTypeEnum.EVENT.name(), keyword, memberId);
 
         boolean isAdmin = member.isAdmin();
@@ -158,4 +163,5 @@ public class EventElasticService {
                 .eventResponseDTOS(eventResponseDTOS)
                 .build();
     }
+
 }
