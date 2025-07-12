@@ -50,7 +50,7 @@ public class RecentSearchController implements RecentSearchApiDocs {
             @RequestParam String keyword
     ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        recentSearchService.deleteRecentSearch(memberId, searchType, keyword);
+        recentSearchService.deleteRecentSearch(memberId, keyword, searchType);
 
         return ResponseEntity
                 .status(SuccessCode.RECENT_SEARCH_DELETE_SUCCESS.getStatus().value())
