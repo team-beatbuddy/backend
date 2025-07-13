@@ -58,7 +58,7 @@ public class FirebaseMessageScheduler {
         LocalDateTime from = today.atStartOfDay();
         LocalDateTime to = from.plusDays(1); // 오늘 하루 범위
 
-        List<Member> members = memberRepository.findAllWithFcmToken();
+        List<Member> members = memberRepository.findAllByFcmTokenIsNotNull();
 
         for (Member member : members) {
             List<Event> events = eventAttendanceRepository

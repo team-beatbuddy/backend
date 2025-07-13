@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.event.application;
 
+import com.ceos.beatbuddy.domain.event.EventCommentNotifier;
 import com.ceos.beatbuddy.domain.event.dto.EventCommentCreateRequestDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventCommentResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventCommentTreeResponseDTO;
@@ -28,19 +29,19 @@ public class EventCommentService {
     private final EventCommentRepository eventCommentRepository;
     private final EventValidator eventValidator;
     private final FollowRepository followRepository;
+    private final EventCommentNotifier eventCommentNotifier;
 
     @Transactional
     public EventCommentResponseDTO createComment(Long eventId, Long memberId, EventCommentCreateRequestDTO dto, Long parentCommentId) {
         Member member = memberService.validateAndGetMember(memberId);
         Event event = eventService.validateAndGet(eventId);
 
-        Long parentId = null;
+        EventComment parent = null;
         int level = 0;
 
         if (parentCommentId != null) {
-            EventComment parent = eventCommentRepository.findById(parentCommentId)
+            parent = eventCommentRepository.findById(parentCommentId)
                     .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMENT));
-            parentId = parent.getId();
             level = parent.getLevel() + 1;
         }
 
@@ -49,13 +50,19 @@ public class EventCommentService {
                 .author(member)
                 .content(dto.getContent())
                 .anonymous(dto.isAnonymous())
-                .parentId(parentId)
+                .parentId(parent != null ? parent.getId() : null)
                 .level(level)
                 .build();
 
         EventComment saved = eventCommentRepository.save(comment);
 
         boolean isStaff = event.getHost().getId().equals(memberId);
+
+        // ================ 알림 전송
+        if (parent != null && isStaff) {
+            eventCommentNotifier.notifyParentAuthorIfStaffReply(event, member, parent, saved);
+        }
+        eventCommentNotifier.notifyHostIfNewComment(event, member, saved);
 
         return EventCommentResponseDTO.toDTO(saved, true, false, isStaff, false, member.getNickname()); // 본인 차단 불가능
     }

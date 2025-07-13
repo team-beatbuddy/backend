@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.firebase.entity;
 
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity(name = "FailedNotification")
 public class FailedNotification {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
