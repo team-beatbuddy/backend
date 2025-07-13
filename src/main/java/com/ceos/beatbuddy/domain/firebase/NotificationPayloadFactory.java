@@ -1,14 +1,18 @@
 package com.ceos.beatbuddy.domain.firebase;
 
+import com.ceos.beatbuddy.global.CustomException;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static com.ceos.beatbuddy.domain.firebase.FirebaseMessageType.*;
 
 @Component
 public class NotificationPayloadFactory {
 
+    // 팔로우 알림
     public NotificationPayload createFollowPayload(Long followerId, String followerName) {
         return NotificationPayload.builder()
                 .title(followerName + "님이 나를 팔로우했어요!")
@@ -20,7 +24,7 @@ public class NotificationPayloadFactory {
                 .build();
     }
 
-    // 내 게시글 댓글 알림
+    // ============================================== 자유 게시판 내 게시글 댓글 알림
     public NotificationPayload createPostCommentPayload(Long postId, Long commentId, String commenterName, String commentContent) {
         return NotificationPayload.builder()
                 .title(commenterName + "님이 내 게시글에 댓글을 남겼어요.")
@@ -35,7 +39,7 @@ public class NotificationPayloadFactory {
     }
 
 
-    // 대댓글 알림
+    // ================================================ 자유게시판 대댓글 알림
     public NotificationPayload createReplyCommentPayload(Long postId, Long commentId, Long replyId, String replierName, String replyContent) {
         return NotificationPayload.builder()
                 .title(replierName + "님이 내 댓글에 대댓글을 남겼어요.")
@@ -50,7 +54,7 @@ public class NotificationPayloadFactory {
                 .build();
     }
 
-    // 이벤트 대댓글 알림 (담당자의 답변만 전송)
+    // ==================================================== 이벤트 대댓글 알림 (담당자의 답변만 전송)
     public NotificationPayload createEventReplyCommentPayload(Long eventId, Long commentId, String replyContent) {
         return NotificationPayload.builder()
                 .title("내 문의에 답변이 작성되었어요.")
@@ -64,7 +68,7 @@ public class NotificationPayloadFactory {
                 .build();
     }
 
-    // 이벤트 문의 댓글 알림 (글 작성자만 받음)
+    // ===================================================== 이벤트 문의 댓글 알림 (글 작성자만 받음)
     public NotificationPayload createEventCommentNotificationPayload(Long eventId, Long commentId, String commentContent) {
         return NotificationPayload.builder()
                 .title("새로운 문의 사항이 접수되었어요.")
@@ -78,7 +82,7 @@ public class NotificationPayloadFactory {
                 .build();
     }
 
-    // 참석하기로 한 이벤트에 대한 알림
+    // ======================================================  참석하기로 한 이벤트에 대한 알림
     // 1일 전
     public NotificationPayload createEventAttendanceD1NotificationPayload(Long eventId, String eventTitle) {
         return NotificationPayload.builder()
@@ -105,29 +109,39 @@ public class NotificationPayloadFactory {
                 .build();
     }
 
-
-    // 새로운 글 작성에 대한 홍보용
-    public NotificationPayload createNewPostPromotionPayload(String postTitle, String postUrl, String imageUrl) {
-        if (imageUrl != null && !imageUrl.isEmpty()) {
-            return NotificationPayload.builder()
-                    .title("새로운 글이 작성되었어요!")
-                    .body(postTitle + "를 확인해보세요!")
-                    .imageUrl(imageUrl)
-                    .data(Map.of(
-                            "type", NEW_POST_PROMOTION.getType(),
-                            "postUrl", postUrl
-                    ))
-                    .build();
-        } else {
-            return NotificationPayload.builder()
-                    .title("새로운 글이 작성되었어요!")
-                    .body(postTitle + "를 확인해보세요!")
-                    .data(Map.of(
-                            "type", NEW_POST_PROMOTION.getType(),
-                            "postUrl", postUrl
-                    ))
-                    .build();
+    // ======================================================== 새로운 게시글 홍보 알림
+    public NotificationPayload createNewPostPromotionPayload(String notiTitle, String notiContent, String type, Long postId, String imageUrl) {
+        if (type == null || type.isEmpty()) {
+            throw new CustomException(ErrorCode.INVALID_NOTIFICATION_TYPE);
         }
 
+        String finalType;
+        String url;
+
+        switch (type) {
+            case "magazine" -> {
+                finalType = NEW_MAGAZINE_PROMOTION.getType();
+                url = "/magazine";
+            }
+            case "event" -> {
+                finalType = NEW_EVENT_PROMOTION.getType();
+                url = "/event";
+            }
+            default -> throw new CustomException(ErrorCode.INVALID_NOTIFICATION_TYPE);
+        }
+
+        NotificationPayload.NotificationPayloadBuilder builder = NotificationPayload.builder()
+                .title(notiTitle)
+                .body(notiContent)
+                .data(Map.of(
+                        "type", finalType,
+                        "url", url + "/" + postId
+                ));
+
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            builder.imageUrl(imageUrl);
+        }
+
+        return builder.build();
     }
 }

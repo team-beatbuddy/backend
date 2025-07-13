@@ -18,6 +18,7 @@ public enum ErrorCode implements ApiCode {
     PAGE_OUT_OF_BOUNDS(HttpStatus.BAD_REQUEST, "페이지 번호가 범위를 벗어났습니다."),
     INVALID_PARAMETER_TYPE(HttpStatus.BAD_REQUEST, "잘못된 파라미터 타입입니다."),
     INVALID_SEARCH_TYPE(HttpStatus.BAD_REQUEST, "잘못된 검색 타입입니다."),
+    INVALID_NOTIFICATION_TYPE(HttpStatus.BAD_REQUEST, "잘못된 알림 타입입니다."),
     BLOCKED_MEMBER(HttpStatus.BAD_REQUEST, "차단된 멤버입니다."),
 
     /**
