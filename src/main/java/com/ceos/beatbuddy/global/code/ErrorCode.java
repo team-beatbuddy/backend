@@ -46,6 +46,7 @@ public enum ErrorCode implements ApiCode {
     NOT_FOUND_COMMENT_IN_EVENT(HttpStatus.NOT_FOUND, "해당 댓글이 이벤트에 속하지 않습니다."),
     NOT_FOUND_IMAGE(HttpStatus.NOT_FOUND, "해당 이미지를 찾을 수 없습니다."),
     RECENT_SEARCH_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 최근 검색어를 찾을 수 없습니다."),
+    NOT_FOUND_NOTIFICATION(HttpStatus.NOT_FOUND, "해당 알림을 찾을 수 없습니다."),
     /**
      * 409
      * */

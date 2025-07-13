@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -237,6 +238,14 @@ public class MemberController implements MemberApiDocs{
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_UPDATE_NICKNAME.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_NICKNAME, result));
+    }
+
+    @PostMapping("/members/fcm-token")
+    public ResponseEntity<Void> updateFcmToken(@RequestBody FcmTokenUpdateDTO dto) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        memberService.updateFcmToken(memberId, dto.getToken());
+
+        return ResponseEntity.ok().build();
     }
 
     // ============= Member Blocking Endpoints =============
