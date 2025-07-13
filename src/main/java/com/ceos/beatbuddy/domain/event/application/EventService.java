@@ -316,8 +316,6 @@ public class EventService {
                 .build();
     }
 
-
-
     public Event validateAndGet(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));

@@ -21,4 +21,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     boolean existsByLoginId(String id);
 
     List<Member> findAllByRole(Role role);
+
+    List<Member> findAllWithFcmToken();
 }
