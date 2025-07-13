@@ -154,6 +154,11 @@ public enum SuccessCode implements ApiCode {
     RECENT_SEARCH_DELETE_SUCCESS(HttpStatus.OK, "최근 검색어를 성공적으로 삭제했습니다."),
 
     /**
+     * Notification
+     * */
+    SUCCESS_GET_NOTIFICATIONS(HttpStatus.OK, "성공적으로 알림 목록을 조회했습니다."),
+
+    /**
      * empty
      * */
     SUCCESS_BUT_EMPTY_LIST(HttpStatus.OK,"성공적으로 조회했으나 리스트가 비었습니다."),

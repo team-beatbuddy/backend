@@ -58,6 +58,10 @@ public class Member extends BaseTimeEntity {
 
     private String profileImage;
 
+    @Column(length = 512)
+    @Setter
+    private String fcmToken;
+
     @Embedded
     @Builder.Default
     private BusinessInfo businessInfo = new BusinessInfo(

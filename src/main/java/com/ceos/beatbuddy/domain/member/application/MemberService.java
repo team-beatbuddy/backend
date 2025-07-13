@@ -258,4 +258,10 @@ public class MemberService {
     public boolean isBlocked(Long blockerId, Long blockedId) {
         return memberBlockRepository.findByBlockerIdAndBlockedId(blockerId, blockedId).isPresent();
     }
+
+    @Transactional
+    public void updateFcmToken(Long memberId, String token) {
+        Member member = validateAndGetMember(memberId);
+        member.setFcmToken(token);
+    }
 }
