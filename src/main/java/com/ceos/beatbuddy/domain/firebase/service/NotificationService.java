@@ -39,7 +39,7 @@ public class NotificationService {
                         .message(payload.getBody())
                         .imageUrl(payload.getImageUrl())
                         .type(FirebaseMessageType.valueOf(payload.getData().get("type")))
-                        .read(false)
+                        .isRead(false)
                         .readAt(null)
                         .build()
         );

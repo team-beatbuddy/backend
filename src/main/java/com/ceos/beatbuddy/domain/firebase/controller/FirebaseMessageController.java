@@ -4,7 +4,6 @@ import com.ceos.beatbuddy.domain.firebase.FirebaseNotificationBroadcaster;
 import com.ceos.beatbuddy.domain.firebase.NotificationPayload;
 import com.ceos.beatbuddy.domain.firebase.NotificationPayloadFactory;
 import com.ceos.beatbuddy.domain.firebase.dto.NotificationPageDTO;
-import com.ceos.beatbuddy.domain.firebase.service.FirebaseNotificationSender;
 import com.ceos.beatbuddy.domain.firebase.service.NotificationService;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
@@ -21,7 +20,6 @@ import java.util.List;
 @RequestMapping("/firebase")
 public class FirebaseMessageController {
     private final NotificationService notificationService;
-    private final FirebaseNotificationSender firebaseNotificationSender;
     private final NotificationPayloadFactory notificationPayloadFactory;
     private final FirebaseNotificationBroadcaster firebaseNotificationBroadcaster;
 

@@ -40,7 +40,7 @@ public class NotificationPayloadFactory {
 
 
     // ================================================ 자유게시판 대댓글 알림
-    public NotificationPayload createReplyCommentPayload(Long postId, Long commentId, Long replyId, String replierName, String replyContent) {
+    public NotificationPayload createReplyCommentPayload(Long postId, Long commentId, String replierName, String replyContent) {
         return NotificationPayload.builder()
                 .title(replierName + "님이 내 댓글에 대댓글을 남겼어요.")
                 .body(replyContent)
@@ -48,8 +48,7 @@ public class NotificationPayloadFactory {
                         "type", POST_COMMENT.getType(),
                         "postId", String.valueOf(postId),
                         "commentId", String.valueOf(commentId),
-                        "replyId", String.valueOf(replyId),
-                        "url", "/post/" + postId + "/comment/" + commentId + "/reply/" + replyId
+                        "url", "/post/" + postId + "/comment/" + commentId
                 ))
                 .build();
     }

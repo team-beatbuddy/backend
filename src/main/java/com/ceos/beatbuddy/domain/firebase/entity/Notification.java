@@ -33,12 +33,12 @@ public class Notification extends BaseTimeEntity {
     private String message;
     private String imageUrl;
 
-    private boolean read = false;
+    private boolean isRead = false;
 
     private LocalDateTime readAt;
 
     public void markAsRead() {
-        this.read = true;
+        this.isRead = true;
         this.readAt = LocalDateTime.now();
     }
 }
