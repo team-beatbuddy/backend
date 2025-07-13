@@ -117,6 +117,9 @@ dependencies {
 
     // 푸쉬 알림
     implementation 'com.google.firebase:firebase-admin:9.2.0'
+
+    // 날짜 직렬화
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
 
 test {
