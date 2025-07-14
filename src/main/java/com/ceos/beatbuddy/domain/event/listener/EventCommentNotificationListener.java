@@ -28,8 +28,7 @@ public class EventCommentNotificationListener {
                     event.event(), event.member(), event.comment());
 
         } catch (Exception e) {
-            log.error("💥 댓글 알림 전송 실패", e);
-            // TODO: 실패한 알림을 재시도 큐에 넣거나, 로그로만 남김
+            log.error("💥 댓글 알림 전송 실패 - 내부적으로 재시도 큐에 저장됨", e);
         }
     }
 }

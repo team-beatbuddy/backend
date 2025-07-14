@@ -24,7 +24,7 @@ public class PostCommentNotificationListener {
                 postCommentNotifier.notifyParentCommentAuthor(event.comment(), event.writer().getId());
             }
         } catch (Exception e) {
-            log.error("💥 게시글 댓글 알림 전송 실패", e);
+            log.error("💥 댓글 알림 전송 실패 - 내부적으로 재시도 큐에 저장됨", e);
         }
     }
 }
