@@ -56,8 +56,8 @@ public class FollowService {
 
         // ======== 알림 전송
         NotificationPayload notificationPayload = notificationPayloadFactory.createFollowPayload(followerId, follower.getNickname());
-        notificationSender.send(following.getFcmToken(), notificationPayload);
         notificationService.save(following, notificationPayload);
+        notificationSender.send(following.getFcmToken(), notificationPayload);
 
         return FollowResponseDTO.toDTO(follow);
     }

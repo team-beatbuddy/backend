@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.comment.application;
 
+import com.ceos.beatbuddy.domain.comment.PostCommentNotifier;
 import com.ceos.beatbuddy.domain.comment.dto.CommentRequestDto;
 import com.ceos.beatbuddy.domain.comment.dto.CommentResponseDto;
 import com.ceos.beatbuddy.domain.comment.entity.Comment;
@@ -31,6 +32,7 @@ public class CommentService {
     private final MemberService memberService;
     private final PostService postService;
     private final FollowRepository followRepository;
+    private final PostCommentNotifier postCommentNotifier;
 
     @Transactional
     public CommentResponseDto createComment(Long memberId, Long postId, CommentRequestDto requestDto) {
@@ -50,6 +52,10 @@ public class CommentService {
         post.increaseComments();
 
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, member.getId());
+
+        // ========  알림 전송
+        postCommentNotifier.notifyPostAuthor(savedComment, memberId);
+        postCommentNotifier.notifyParentCommentAuthor(savedComment, memberId);
 
         return CommentResponseDto.from(savedComment, true, isFollowing, false); // 자신이 작성, 스스로는 차단할 수 없음
     }
