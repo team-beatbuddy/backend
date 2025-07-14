@@ -3,6 +3,8 @@ package com.ceos.beatbuddy.domain.member.repository;
 import com.ceos.beatbuddy.domain.member.constant.Role;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import io.lettuce.core.dynamic.annotation.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -23,4 +25,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findAllByRole(Role role);
 
     List<Member> findAllByFcmTokenIsNotNull();
+
 }
