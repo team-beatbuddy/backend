@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.member.dto;
 
 import com.ceos.beatbuddy.domain.member.constant.Region;
+import com.ceos.beatbuddy.domain.member.entity.BusinessInfo;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,7 +46,8 @@ public class AdminMemberListDTO {
     private boolean isVerified;
 
     public static AdminMemberListDTO fromMember(Member member) {
-        // 필드 입력
+        BusinessInfo businessInfo = member.getBusinessInfo();
+
         return AdminMemberListDTO.builder()
                 .memberId(member.getId())
                 .loginId(member.getLoginId())
@@ -62,11 +64,11 @@ public class AdminMemberListDTO {
                 .isMarketingConsent(member.getIsMarketingConsent())
                 .latestArchiveId(member.getLatestArchiveId())
                 .fcmToken(member.getFcmToken())
-                .businessName(member.getBusinessInfo().getBusinessName() != null ? member.getBusinessInfo().getBusinessName() : null)
-                .isApproved(member.getBusinessInfo().isApproved())
-                .phoneNumber(member.getBusinessInfo().getPhoneNumber() != null ? member.getBusinessInfo().getPhoneNumber() : null)
-                .dateOfBirth(member.getBusinessInfo().getDateOfBirth() != null ? member.getBusinessInfo().getDateOfBirth() : null)
-                .isVerified(member.getBusinessInfo().isVerified())
+                .businessName(businessInfo != null ? businessInfo.getBusinessName() : null)
+                .isApproved(businessInfo != null && businessInfo.isApproved())
+                .phoneNumber(businessInfo != null ? businessInfo.getPhoneNumber() : null)
+                .dateOfBirth(businessInfo != null ? businessInfo.getDateOfBirth() : null)
+                .isVerified(businessInfo != null && businessInfo.isVerified())
                 .build();
     }
 }
