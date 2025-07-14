@@ -87,7 +87,7 @@ public class NotificationPayloadFactory {
                 .title(eventTitle + "참석 1일 전이에요!")
                 .body("참석 명단을 작성한 이벤트예요.")
                 .data(Map.of(
-                        "type", EVENT_COMMENT.getType(),
+                        "type", EVENT.getType(),
                         "eventId", String.valueOf(eventId),
                         "url", "/event/" + eventId,
                         "notificationId", String.valueOf(notificationId)
@@ -101,7 +101,7 @@ public class NotificationPayloadFactory {
                 .title(eventTitle + "참석 당일이에요!")
                 .body("참석 명단을 작성한 이벤트예요.")
                 .data(Map.of(
-                        "type", EVENT_COMMENT.getType(),
+                        "type", EVENT.getType(),
                         "eventId", String.valueOf(eventId),
                         "url", "/event/" + eventId,
                         "notificationId", String.valueOf(notificationId)
