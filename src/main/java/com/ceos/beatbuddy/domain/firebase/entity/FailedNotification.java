@@ -31,14 +31,16 @@ public class FailedNotification {
     private LocalDateTime lastTriedAt;
 
     private boolean resolved;
+    private String reason;
 
-    public static FailedNotification toEntity(String targetToken, String payloadJson) {
+    public static FailedNotification toEntity(String targetToken, String payloadJson, String reason) {
         return FailedNotification.builder()
                 .targetToken(targetToken)
                 .payloadJson(payloadJson)
                 .retryCount(0)
                 .lastTriedAt(LocalDateTime.now())
                 .resolved(false)
+                .reason(reason)
                 .build();
     }
 
@@ -58,5 +60,12 @@ public class FailedNotification {
             throw new IllegalArgumentException("Last tried time cannot be null");
         }
         this.lastTriedAt = now;
+    }
+
+    public void setFailReason(String reason) {
+        if (reason == null || reason.trim().isEmpty()) {
+            throw new IllegalArgumentException("Fail reason cannot be null or empty");
+        }
+        this.reason = reason;
     }
 }

@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -27,23 +28,45 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final MemberService memberService;
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void save(Member receiver, NotificationPayload payload) {
-        if (receiver == null || payload == null) return;
+        log.info("🔔 save called with receiverId={}, payload={}",
+                receiver != null ? receiver.getId() : null,
+                payload != null ? payload.getTitle() : "null");
 
-        // DB 저장
-        notificationRepository.save(
-                com.ceos.beatbuddy.domain.firebase.entity.Notification.builder()
-                        .receiver(receiver)
-                        .title(payload.getTitle())
-                        .message(payload.getBody())
-                        .imageUrl(payload.getImageUrl())
-                        .type(FirebaseMessageType.valueOf(payload.getData().get("type")))
-                        .isRead(false)
-                        .readAt(null)
-                        .build()
-        );
+        if (receiver == null || payload == null) {
+            log.warn("⚠️ 알림 저장 스킵됨: receiver 또는 payload null");
+            return;
+        }
+
+        try {
+            String typeStr = payload.getData().get("type");
+            if (typeStr == null) {
+                log.warn("⚠️ payload 내 'type' 없음: {}", payload.getData());
+                return;
+            }
+
+            FirebaseMessageType type = FirebaseMessageType.valueOf(typeStr);
+
+            notificationRepository.save(
+                    Notification.builder()
+                            .receiver(receiver)
+                            .title(payload.getTitle())
+                            .message(payload.getBody())
+                            .imageUrl(payload.getImageUrl())
+                            .type(type)
+                            .isRead(false)
+                            .readAt(null)
+                            .build()
+            );
+
+            log.info("✅ 알림 저장 완료 (type={}): {}", type, payload.getBody());
+
+        } catch (Exception e) {
+            log.error("❌ 알림 저장 중 예외 발생", e);
+        }
     }
+
 
     @Transactional
     public void markAsRead(Long memberId, Long notificationId) {

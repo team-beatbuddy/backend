@@ -118,12 +118,16 @@ public class NotificationPayloadFactory {
 
         switch (type) {
             case "magazine" -> {
-                finalType = NEW_MAGAZINE_PROMOTION.getType();
+                finalType = MAGAZINE.getType();
                 url = "/magazine";
             }
             case "event" -> {
-                finalType = NEW_EVENT_PROMOTION.getType();
+                finalType = EVENT.getType();
                 url = "/event";
+            }
+            case "venue" -> {
+                finalType = VENUE.getType();
+                url = "/venue";
             }
             default -> throw new CustomException(ErrorCode.INVALID_NOTIFICATION_TYPE);
         }
