@@ -82,27 +82,29 @@ public class NotificationPayloadFactory {
 
     // ======================================================  참석하기로 한 이벤트에 대한 알림
     // 1일 전
-    public NotificationPayload createEventAttendanceD1NotificationPayload(Long eventId, String eventTitle) {
+    public NotificationPayload createEventAttendanceD1NotificationPayload(Long eventId, String eventTitle, Long notificationId) {
         return NotificationPayload.builder()
                 .title(eventTitle + "참석 1일 전이에요!")
                 .body("참석 명단을 작성한 이벤트예요.")
                 .data(Map.of(
                         "type", EVENT_COMMENT.getType(),
                         "eventId", String.valueOf(eventId),
-                        "url", "/event/" + eventId
+                        "url", "/event/" + eventId,
+                        "notificationId", String.valueOf(notificationId)
                 ))
                 .build();
     }
 
     // 당일
-    public NotificationPayload createEventAttendanceDDayNotificationPayload(Long eventId, String eventTitle) {
+    public NotificationPayload createEventAttendanceDDayNotificationPayload(Long eventId, String eventTitle, Long notificationId) {
         return NotificationPayload.builder()
                 .title(eventTitle + "참석 당일이에요!")
                 .body("참석 명단을 작성한 이벤트예요.")
                 .data(Map.of(
                         "type", EVENT_COMMENT.getType(),
                         "eventId", String.valueOf(eventId),
-                        "url", "/event/" + eventId
+                        "url", "/event/" + eventId,
+                        "notificationId", String.valueOf(notificationId)
                 ))
                 .build();
     }
@@ -146,4 +148,5 @@ public class NotificationPayloadFactory {
 
         return builder.build();
     }
+
 }

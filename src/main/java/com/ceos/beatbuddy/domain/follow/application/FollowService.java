@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.follow.application;
 
 import com.ceos.beatbuddy.domain.firebase.NotificationPayload;
 import com.ceos.beatbuddy.domain.firebase.NotificationPayloadFactory;
+import com.ceos.beatbuddy.domain.firebase.entity.Notification;
 import com.ceos.beatbuddy.domain.firebase.service.NotificationSender;
 import com.ceos.beatbuddy.domain.firebase.service.NotificationService;
 import com.ceos.beatbuddy.domain.follow.dto.FollowResponseDTO;
@@ -56,7 +57,8 @@ public class FollowService {
 
         // ======== 알림 전송
         NotificationPayload notificationPayload = notificationPayloadFactory.createFollowPayload(followerId, follower.getNickname());
-        notificationService.save(following, notificationPayload);
+        Notification saved = notificationService.save(following, notificationPayload);
+        notificationPayload.getData().put("notificationId", String.valueOf(saved.getId()));
         notificationSender.send(following.getFcmToken(), notificationPayload);
 
         return FollowResponseDTO.toDTO(follow);

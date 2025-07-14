@@ -40,4 +40,10 @@ public class Notification extends BaseTimeEntity {
         this.isRead = true;
         this.readAt = LocalDateTime.now();
     }
+
+    public void update(String title, String body, String imageUrl) {
+        this.title = title;
+        this.message = body;
+        this.imageUrl = imageUrl;
+    }
 }

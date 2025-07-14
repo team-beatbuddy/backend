@@ -157,6 +157,7 @@ public enum SuccessCode implements ApiCode {
      * Notification
      * */
     SUCCESS_GET_NOTIFICATIONS(HttpStatus.OK, "성공적으로 알림 목록을 조회했습니다."),
+    SUCCESS_MARK_NOTIFICATION_AS_READ(HttpStatus.OK, "성공적으로 알림을 읽음 처리했습니다."),
 
     /**
      * empty
