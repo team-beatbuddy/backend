@@ -1,12 +1,11 @@
 package com.ceos.beatbuddy.domain.comment.application;
 
-import com.ceos.beatbuddy.domain.comment.PostCommentNotifier;
 import com.ceos.beatbuddy.domain.comment.dto.CommentRequestDto;
 import com.ceos.beatbuddy.domain.comment.dto.CommentResponseDto;
 import com.ceos.beatbuddy.domain.comment.entity.Comment;
+import com.ceos.beatbuddy.domain.comment.entity.PostCommentCreatedEvent;
 import com.ceos.beatbuddy.domain.comment.exception.CommentErrorCode;
 import com.ceos.beatbuddy.domain.comment.repository.CommentRepository;
-import com.ceos.beatbuddy.domain.firebase.service.NotificationService;
 import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
@@ -15,10 +14,10 @@ import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +32,7 @@ public class CommentService {
     private final MemberService memberService;
     private final PostService postService;
     private final FollowRepository followRepository;
-    private final PostCommentNotifier postCommentNotifier;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public CommentResponseDto createComment(Long memberId, Long postId, CommentRequestDto requestDto) {
@@ -55,7 +54,7 @@ public class CommentService {
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, member.getId());
 
         // ========  알림 전송
-        postCommentNotifier.notifyPostAuthor(savedComment, memberId);
+        eventPublisher.publishEvent(new PostCommentCreatedEvent(post, savedComment, member));
 
         return CommentResponseDto.from(savedComment, true, isFollowing, false); // 자신이 작성, 스스로는 차단할 수 없음
     }
@@ -84,8 +83,7 @@ public class CommentService {
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, member.getId());
 
         // ========  알림 전송
-        postCommentNotifier.notifyPostAuthor(savedReply, memberId);
-        postCommentNotifier.notifyParentCommentAuthor(savedReply, memberId);
+        eventPublisher.publishEvent(new PostCommentCreatedEvent(post, savedReply, member));
 
         return CommentResponseDto.from(savedReply, true, isFollowing, false); // 자신이 작성, 스스로는 차단할 수 없음
     }
