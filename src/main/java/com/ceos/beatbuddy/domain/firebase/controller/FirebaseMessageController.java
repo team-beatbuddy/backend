@@ -26,7 +26,7 @@ public class FirebaseMessageController implements FirebaseMessageApiDocs {
     // 전체 알림 (홍보용)
     @Override
     @PostMapping("/sendNotification")
-    public void sendNotificationToRole(@RequestParam String title,
+    public ResponseEntity<ResponseDTO<String>> sendNotificationToRole(@RequestParam String title,
                                        @RequestParam String body,
                                        @RequestParam(required = false) String imageUrl,
                                        @RequestParam(required = false) String type,
@@ -42,6 +42,10 @@ public class FirebaseMessageController implements FirebaseMessageApiDocs {
         );
 
         notificationService.sendNotificationToRoles(targetRole, basePayload);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_SEND_NOTIFICATION.getStatus())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_SEND_NOTIFICATION, "알림이 성공적으로 전송되었습니다."));
     }
 
     // 알림 읽음 처리
