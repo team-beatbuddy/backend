@@ -5,6 +5,7 @@ import com.ceos.beatbuddy.domain.event.entity.EventComment;
 import com.ceos.beatbuddy.domain.firebase.NotificationPayload;
 import com.ceos.beatbuddy.domain.firebase.NotificationPayloadFactory;
 import com.ceos.beatbuddy.domain.firebase.service.NotificationSender;
+import com.ceos.beatbuddy.domain.firebase.service.NotificationService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class EventCommentNotifier {
     private final NotificationSender notificationSender;
+    private final NotificationService notificationService;
     private final NotificationPayloadFactory notificationPayloadFactory;
 
     public void notifyParentAuthorIfStaffReply(Event event, Member replier, EventComment parent, EventComment reply) {
@@ -23,7 +25,8 @@ public class EventCommentNotifier {
             Member parentAuthor = parent.getAuthor();
             if (parentAuthor.getFcmToken() != null) {
                 NotificationPayload payload = notificationPayloadFactory.createEventReplyCommentPayload(
-                        event.getId(), parent.getId(), reply.getContent());
+                        event.getId(), parent.getId(), reply.getContent(), reply.getId());
+                notificationService.save(parentAuthor, payload);
                 notificationSender.send(parentAuthor.getFcmToken(), payload);
             }
         }
@@ -35,6 +38,7 @@ public class EventCommentNotifier {
             if (host.getFcmToken() != null) {
                 NotificationPayload payload = notificationPayloadFactory.createEventCommentNotificationPayload(
                         event.getId(), comment.getId(), comment.getContent());
+                notificationService.save(host, payload);
                 notificationSender.send(host.getFcmToken(), payload);
             }
         }
