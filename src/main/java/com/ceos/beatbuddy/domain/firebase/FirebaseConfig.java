@@ -26,6 +26,9 @@ public class FirebaseConfig {
     @Value("${firebase.private_key_id}")
     private String privateKeyId;
 
+    @Value("${firebase.client_id}")
+    private String clientId;
+
     @PostConstruct
     public void initializeFirebase() throws IOException {
         GoogleCredentials credentials = GoogleCredentials.fromStream(
@@ -50,50 +53,8 @@ public class FirebaseConfig {
           "private_key_id": "%s",
           "private_key": "%s",
           "client_email": "%s",
---- a/src/main/java/com/ceos/beatbuddy/domain/firebase/FirebaseConfig.java
-+++ b/src/main/java/com/ceos/beatbuddy/domain/firebase/FirebaseConfig.java
-@@ class FirebaseConfig {
-     @Value("${firebase.private_key_id}")
-     private String privateKeyId;
-+
-+    @Value("${firebase.client_id}")
-+    private String clientId;
- 
-     public String getCredentialsJson() {
--        return """
--            {
--              "type": "service_account",
--              "project_id": "%s",
--              "private_key_id": "%s",
--              "private_key": "%s",
--              "client_email": "%s",
--              "client_id": "1234567890"
--            }
--            """.formatted(
--                projectId,
--                privateKeyId,
--                privateKey.replace("\\n", "\n"),
--                clientEmail
--            );
-+        return """
-+            {
-+              "type": "service_account",
-+              "project_id": "%s",
-+              "private_key_id": "%s",
-+              "private_key": "%s",
-+              "client_email": "%s",
-+              "client_id": "%s"
-+            }
-+            """.formatted(
-+                projectId,
-+                privateKeyId,
-+                privateKey.replace("\\n", "\n"),
-+                clientEmail,
-+                clientId
-+            );
-     }
- }
+          "client_id": "%s"
         }
-        """.formatted(projectId, privateKeyId, privateKey.replace("\\n", "\n"), clientEmail);
+        """.formatted(projectId, privateKeyId, privateKey.replace("\\n", "\n"), clientEmail, clientId);
     }
 }
