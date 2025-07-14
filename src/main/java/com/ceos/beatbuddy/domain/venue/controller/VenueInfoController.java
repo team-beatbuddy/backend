@@ -33,10 +33,10 @@ public class VenueInfoController implements VenueInfoApiDocs {
     @GetMapping
     @Operation(summary = "존재하는 모든 베뉴의 리스트 조회", description = "모든 베뉴의 목록을 조회합니다")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "사용자 성인인증 여부 확인 성공",
+            @ApiResponse(responseCode = "200", description = "모든 베뉴 목록 조회 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Boolean.class))),
-            @ApiResponse(responseCode = "404", description = "요청한 유저가 존재하지 않습니다",
+                            schema = @Schema(implementation = Venue.class))),
+            @ApiResponse(responseCode = "404", description = "조회할 베뉴가 없습니다",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ResponseTemplate.class)))
     })
