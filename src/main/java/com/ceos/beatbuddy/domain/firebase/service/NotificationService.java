@@ -41,16 +41,16 @@ public class NotificationService {
 
         if (receiver == null || payload == null) {
             log.warn("⚠️ 알림 저장 스킵됨: receiver 또는 payload null");
-            return null;
+            throw new CustomException(ErrorCode.INVALID_NOTIFICATION_DATA);
+        }
+
+        String typeStr = payload.getData().get("type");
+        if (typeStr == null) {
+            log.warn("⚠️ payload 내 'type' 없음: {}", payload.getData());
+            throw new CustomException(ErrorCode.INVALID_NOTIFICATION_TYPE);
         }
 
         try {
-            String typeStr = payload.getData().get("type");
-            if (typeStr == null) {
-                log.warn("⚠️ payload 내 'type' 없음: {}", payload.getData());
-                return null;
-            }
-
             FirebaseMessageType type = FirebaseMessageType.valueOf(typeStr);
 
             Notification saved = Notification.builder()
@@ -62,16 +62,21 @@ public class NotificationService {
                     .isRead(false)
                     .readAt(null)
                     .build();
+
             notificationRepository.save(saved);
 
             log.info("✅ 알림 저장 완료 (type={}): {}", type, payload.getBody());
             return saved;
 
+        } catch (IllegalArgumentException e) {
+            log.error("❌ 유효하지 않은 알림 타입: {}", typeStr);
+            throw new CustomException(ErrorCode.INVALID_NOTIFICATION_TYPE);
         } catch (Exception e) {
             log.error("❌ 알림 저장 중 예외 발생", e);
+            throw new CustomException(ErrorCode.NOTIFICATION_SAVE_FAILED);
         }
-        return null;
     }
+
 
 
     @Transactional
