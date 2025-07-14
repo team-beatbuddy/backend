@@ -9,6 +9,7 @@ import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/firebase")
+@Tag(name = "Firebase controller", description = "Firebase 관련 API")
 public class FirebaseMessageController {
     private final NotificationService notificationService;
     private final NotificationPayloadFactory notificationPayloadFactory;
@@ -44,8 +46,6 @@ public class FirebaseMessageController {
             firebaseNotificationBroadcaster.broadcast(role, payload);
         });
     }
-
-    // 특정 사용자에게 알림 전송
 
     // 본인 알림 목록 가져오기
     @GetMapping("/notifications")

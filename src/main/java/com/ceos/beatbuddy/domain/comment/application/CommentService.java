@@ -6,6 +6,7 @@ import com.ceos.beatbuddy.domain.comment.dto.CommentResponseDto;
 import com.ceos.beatbuddy.domain.comment.entity.Comment;
 import com.ceos.beatbuddy.domain.comment.exception.CommentErrorCode;
 import com.ceos.beatbuddy.domain.comment.repository.CommentRepository;
+import com.ceos.beatbuddy.domain.firebase.service.NotificationService;
 import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
@@ -55,7 +56,6 @@ public class CommentService {
 
         // ========  알림 전송
         postCommentNotifier.notifyPostAuthor(savedComment, memberId);
-        postCommentNotifier.notifyParentCommentAuthor(savedComment, memberId);
 
         return CommentResponseDto.from(savedComment, true, isFollowing, false); // 자신이 작성, 스스로는 차단할 수 없음
     }
@@ -82,6 +82,10 @@ public class CommentService {
         post.increaseComments();
 
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, member.getId());
+
+        // ========  알림 전송
+        postCommentNotifier.notifyPostAuthor(savedReply, memberId);
+        postCommentNotifier.notifyParentCommentAuthor(savedReply, memberId);
 
         return CommentResponseDto.from(savedReply, true, isFollowing, false); // 자신이 작성, 스스로는 차단할 수 없음
     }
