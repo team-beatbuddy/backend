@@ -1,5 +1,9 @@
 package com.ceos.beatbuddy.domain.follow.application;
 
+import com.ceos.beatbuddy.domain.firebase.NotificationPayload;
+import com.ceos.beatbuddy.domain.firebase.NotificationPayloadFactory;
+import com.ceos.beatbuddy.domain.firebase.service.NotificationSender;
+import com.ceos.beatbuddy.domain.firebase.service.NotificationService;
 import com.ceos.beatbuddy.domain.follow.dto.FollowResponseDTO;
 import com.ceos.beatbuddy.domain.follow.entity.Follow;
 import com.ceos.beatbuddy.domain.follow.entity.FollowId;
@@ -20,6 +24,9 @@ import java.util.List;
 public class FollowService {
     private final FollowRepository followRepository;
     private final MemberRepository memberRepository;
+    private final NotificationPayloadFactory notificationPayloadFactory;
+    private final NotificationSender notificationSender;
+    private final NotificationService notificationService;
 
     @Transactional
     public FollowResponseDTO follow(Long followerId, Long followingId) {
@@ -30,10 +37,8 @@ public class FollowService {
         Member follower = memberRepository.findById(followerId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
-        // 팔로잉 할 상대가 존재하지 않는다
         Member following = memberRepository.findById(followingId)
                 .orElseThrow(() -> new CustomException(FollowErrorCode.FOLLOWING_TARGET_NOT_FOUND));
-
 
         FollowId followId = new FollowId(followerId, followingId);
 
@@ -49,8 +54,14 @@ public class FollowService {
 
         followRepository.save(follow);
 
+        // ======== 알림 전송
+        NotificationPayload notificationPayload = notificationPayloadFactory.createFollowPayload(followerId, follower.getNickname());
+        notificationSender.send(following.getFcmToken(), notificationPayload);
+        notificationService.save(following, notificationPayload);
+
         return FollowResponseDTO.toDTO(follow);
     }
+
 
     @Transactional
     public void unfollow(Long followerId, Long followingId) {
