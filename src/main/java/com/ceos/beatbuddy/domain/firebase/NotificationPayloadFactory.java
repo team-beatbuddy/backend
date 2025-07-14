@@ -53,7 +53,7 @@ public class NotificationPayloadFactory {
     }
 
     // ==================================================== 이벤트 대댓글 알림 (담당자의 답변만 전송)
-    public NotificationPayload createEventReplyCommentPayload(Long eventId, Long commentId, String replyContent) {
+    public NotificationPayload createEventReplyCommentPayload(Long eventId, Long commentId, String replyContent, Long replyId) {
         return NotificationPayload.builder()
                 .title("내 문의에 답변이 작성되었어요.")
                 .body(replyContent)
@@ -61,7 +61,7 @@ public class NotificationPayloadFactory {
                         "type", EVENT_COMMENT.getType(),
                         "eventId", String.valueOf(eventId),
                         "commentId", String.valueOf(commentId),
-                        "url", "/event/" + eventId + "/comment/" + commentId
+                        "url", "/event/" + eventId + "/comment/" + commentId + "/reply/" + replyId
                 ))
                 .build();
     }

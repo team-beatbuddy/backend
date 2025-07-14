@@ -22,7 +22,7 @@ import java.util.Optional;
 public class FirebaseNotificationSender implements NotificationSender {
     private final ObjectMapper objectMapper;
     private final FailedNotificationRepository failedNotificationRepository;
-
+    private static final int MAX_RETRY_COUNT = 3;
     @Override
     public void send(String targetToken, NotificationPayload payload) {
         if (targetToken == null || targetToken.trim().isEmpty()) {
@@ -55,23 +55,26 @@ public class FirebaseNotificationSender implements NotificationSender {
         try {
             String payloadJson = objectMapper.writeValueAsString(payload);
 
-            // 🔍 기존 실패 기록 조회
             Optional<FailedNotification> optional = failedNotificationRepository.findByTargetTokenAndPayloadJson(token, payloadJson);
 
             if (optional.isPresent()) {
                 FailedNotification existing = optional.get();
 
-                // 🔁 retryCount +1 및 lastTriedAt 갱신
+                if (existing.getRetryCount() >= MAX_RETRY_COUNT) {
+                    log.warn("🚫 재시도 한도 초과: retryCount={}, token={}", existing.getRetryCount(), token);
+                    return; // 재시도 횟수 초과 시 저장 생략
+                }
+
                 existing.setRetryCount(existing.getRetryCount() + 1);
                 existing.setLastTriedAt(LocalDateTime.now());
-                existing.setFailReason(reason); // 실패 이유 갱신 (선택)
+                existing.setFailReason(reason);
 
                 failedNotificationRepository.save(existing);
-                log.info("🔁 기존 실패 알림 업데이트: retryCount={}, reason={}", existing.getRetryCount(), reason);
+                log.info("🔁 실패 알림 업데이트: retryCount={}, reason={}", existing.getRetryCount(), reason);
+
             } else {
-                // 🆕 새 실패 알림 저장
                 FailedNotification failed = FailedNotification.toEntity(token, payloadJson, reason);
-                failed.setRetryCount(1); // 첫 실패이므로 1
+                failed.setRetryCount(1);
                 failed.setLastTriedAt(LocalDateTime.now());
 
                 failedNotificationRepository.save(failed);
