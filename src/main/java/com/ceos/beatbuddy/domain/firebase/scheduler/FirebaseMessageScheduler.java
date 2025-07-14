@@ -20,6 +20,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,12 +45,19 @@ public class FirebaseMessageScheduler {
         String cacheKey = "no_failed_notifications";
 
         if (Boolean.TRUE.equals(redisTemplate.hasKey(cacheKey))) {
-            log.info("⏳ 재시도 대상 없음 캐시 hit. 쿼리 생략");
+            log.info("재시도 대상 없음 캐시 hit. 쿼리 생략");
             return;
         }
 
         List<FailedNotification> toRetry = failedNotificationRepository
                 .findTop100ByResolvedFalseAndRetryCountLessThanOrderByLastTriedAtAsc(3);
+
+        if (toRetry.isEmpty()) {
+            // ❄캐시 저장: 10분간 유지
+            redisTemplate.opsForValue().set(cacheKey, "true", Duration.ofMinutes(10));
+            log.info("실패 알림 없음 → 캐시 저장 (10분)");
+            return;
+        }
 
         toRetry.forEach(failed -> {
             try {
@@ -64,7 +72,11 @@ public class FirebaseMessageScheduler {
 
             failedNotificationRepository.save(failed);
         });
+
+        // 쿼리 결과 있었으니 캐시 삭제
+        redisTemplate.delete(cacheKey);
     }
+
 
     // 참여하기로 한 이벤트 리마인드 알림
     @Scheduled(cron = "0 0 0 * * *") // 매일 자정

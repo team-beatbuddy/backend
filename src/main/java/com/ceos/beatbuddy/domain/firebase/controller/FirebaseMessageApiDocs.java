@@ -122,7 +122,40 @@ public interface FirebaseMessageApiDocs {
     )
     @Parameter(name = "notificationId", description = "읽음 처리할 알림의 ID", example = "1")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "읽음 처리 성공")
+            @ApiResponse(responseCode = "200", description = "읽음 처리 성공",
+                    content = @io.swagger.v3.oas.annotations.media.Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "Success Example",
+                                    value = """
+                                            {
+                                              "status": 200,
+                                              "code": "SUCCESS_MARK_NOTIFICATION_AS_READ",
+                                              "message": "성공적으로 알림을 읽음 처리했습니다.",
+                                              "data": "읽음 처리 되었습니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "알림을 찾을 수 없음",
+                    content = @io.swagger.v3.oas.annotations.media.Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "Not Found Example",
+                                    value = """
+                                            {
+                                              "status": 404,
+                                              "error": "NOT_FOUND",
+                                              "code": "NOT_FOUND_NOTIFICATION",
+                                              "message": "해당 알림을 찾을 수 없습니다."
+                                            }
+                                            """
+                            )
+                    )
+            )
     })
     ResponseEntity<ResponseDTO<String>> markAsRead(@PathVariable Long notificationId);
 }
