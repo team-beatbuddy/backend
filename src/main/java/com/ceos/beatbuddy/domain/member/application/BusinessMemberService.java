@@ -115,11 +115,12 @@ public class BusinessMemberService {
 
         Member businessMember = memberService.validateAndGetMember(memberId);
 
-        if (businessMember.getRole() != Role.BUSINESS) {
+        if (businessMember.getRole() != Role.BUSINESS_NOT) {
             throw new CustomException(MemberErrorCode.NOT_BUSINESS_MEMBER);
         }
 
         businessMember.getBusinessInfo().setApproved(true);
+        businessMember.setRole(Role.BUSINESS);
         memberRepository.save(businessMember);
     }
 

@@ -86,7 +86,7 @@ public class Member extends BaseTimeEntity {
     public void saveLatestArchiveId(Long latestArchiveId) {this.latestArchiveId = latestArchiveId;}
 
     public void setBusinessMember() {
-        this.role = Role.BUSINESS;
+        this.role = Role.BUSINESS_NOT;
     }
 
     public void setRealName(String realName){
@@ -137,5 +137,12 @@ public class Member extends BaseTimeEntity {
 
     public void setNickname(String newNickname) {
         this.nickname = newNickname;
+    }
+
+    public void setRole(Role role) {
+        if (role == null) {
+            throw new IllegalArgumentException("Role cannot be null");
+        }
+        this.role = role;
     }
 }
