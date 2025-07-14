@@ -4,6 +4,7 @@ import com.ceos.beatbuddy.domain.archive.repository.ArchiveRepository;
 import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.constant.Role;
+import com.ceos.beatbuddy.domain.member.dto.AdminMemberListDTO;
 import com.ceos.beatbuddy.domain.member.dto.MemberProfileSummaryDTO;
 import com.ceos.beatbuddy.domain.member.dto.MemberResponseDTO;
 import com.ceos.beatbuddy.domain.member.dto.NicknameDTO;
@@ -270,5 +271,19 @@ public class MemberService {
         } else {
             member.setFcmToken(null);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdminMemberListDTO> getAllMembers(Long memberId, String role) {
+        Member member = validateAndGetMember(memberId);
+        // 어드민인지 확인
+        if (!member.isAdmin()) {
+            throw new CustomException(MemberErrorCode.NOT_ADMIN);
+        }
+
+        List<Member> members = memberRepository.findAllByRole(Role.valueOf(role.toUpperCase()));
+        return members.stream()
+                .map(AdminMemberListDTO::fromMember)
+                .toList();
     }
 }

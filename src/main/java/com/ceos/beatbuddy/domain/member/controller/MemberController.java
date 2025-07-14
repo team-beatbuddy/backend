@@ -3,7 +3,6 @@ package com.ceos.beatbuddy.domain.member.controller;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.application.OnboardingService;
 import com.ceos.beatbuddy.domain.member.dto.*;
-import com.ceos.beatbuddy.domain.member.dto.MemberBlockRequestDTO;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.ResponseTemplate;
@@ -22,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
