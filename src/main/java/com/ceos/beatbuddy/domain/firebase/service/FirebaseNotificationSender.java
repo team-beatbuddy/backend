@@ -11,6 +11,7 @@ import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,6 +25,7 @@ public class FirebaseNotificationSender implements NotificationSender {
     private final FailedNotificationRepository failedNotificationRepository;
     private static final int MAX_RETRY_COUNT = 3;
     @Override
+    @Async
     public void send(String targetToken, NotificationPayload payload) {
         if (targetToken == null || targetToken.trim().isEmpty()) {
             log.warn("❌ FCM 토큰 없음: 전송 생략");
