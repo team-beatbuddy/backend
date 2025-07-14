@@ -1,6 +1,5 @@
 package com.ceos.beatbuddy.domain.event.application;
 
-import com.ceos.beatbuddy.domain.event.EventCommentNotifier;
 import com.ceos.beatbuddy.domain.event.dto.EventCommentCreateRequestDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventCommentResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventCommentTreeResponseDTO;
@@ -8,7 +7,6 @@ import com.ceos.beatbuddy.domain.event.dto.EventCommentUpdateDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventComment;
 import com.ceos.beatbuddy.domain.event.entity.EventCommentCreatedEvent;
-import com.ceos.beatbuddy.domain.event.listener.EventCommentNotificationListener;
 import com.ceos.beatbuddy.domain.event.repository.EventCommentRepository;
 import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
