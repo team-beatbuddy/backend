@@ -1,6 +1,5 @@
 package com.ceos.beatbuddy.domain.firebase.entity;
 
-import com.ceos.beatbuddy.domain.firebase.FirebaseMessageType;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;

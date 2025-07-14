@@ -1,4 +1,4 @@
-package com.ceos.beatbuddy.domain.firebase;
+package com.ceos.beatbuddy.domain.firebase.entity;
 
 public enum FirebaseMessageType {
     EVENT_COMMENT("EVENT_COMMENT"),

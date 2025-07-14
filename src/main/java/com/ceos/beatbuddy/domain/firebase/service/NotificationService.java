@@ -1,6 +1,6 @@
 package com.ceos.beatbuddy.domain.firebase.service;
 
-import com.ceos.beatbuddy.domain.firebase.FirebaseMessageType;
+import com.ceos.beatbuddy.domain.firebase.entity.FirebaseMessageType;
 import com.ceos.beatbuddy.domain.firebase.NotificationPayload;
 import com.ceos.beatbuddy.domain.firebase.dto.NotificationListDTO;
 import com.ceos.beatbuddy.domain.firebase.dto.NotificationPageDTO;
