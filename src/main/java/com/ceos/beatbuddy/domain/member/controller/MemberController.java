@@ -264,33 +264,6 @@ public class MemberController implements MemberApiDocs{
         return ResponseEntity.ok().build();
     }
 
-    @Operation(
-        summary = "모든 멤버 정보 조회",
-        description = "관리자가 모든 멤버의 정보를 조회합니다. 이 API는 관리자 권한이 필요합니다."
-    )
-    @ApiResponses(
-        value = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "모든 멤버 정보 조회 성공",
-                content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = AdminMemberListDTO.class))
-            ),
-            @ApiResponse(
-                responseCode = "403",
-                description = "권한이 없는 사용자: 관리자 권한이 필요합니다.",
-                content = @Content(mediaType = "application/json")
-            )
-        }
-    )
-    public ResponseEntity<ResponseDTO<List<AdminMemberListDTO>>> getMemberInfo() {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        List<AdminMemberListDTO> result = memberService.getAllMembers(memberId);
-        return ResponseEntity.ok(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MEMBER_INFO, result));
-    }
-
-
-
     // ============= Member Blocking Endpoints =============
 
     @Override
