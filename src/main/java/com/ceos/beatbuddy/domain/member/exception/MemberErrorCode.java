@@ -28,6 +28,7 @@ public enum MemberErrorCode implements ApiCode {
     SAME_NICKNAME(HttpStatus.BAD_REQUEST, "동일한 닉네임으로는 변경이 불가능합니다."),
     NICKNAME_CHANGE_LIMITED(HttpStatus.BAD_REQUEST, "닉네임 변경은 14일 내에 2번까지만 가능합니다. 14일 뒤에 변경해주세요."),
     NICKNAME_CONFLICT(HttpStatus.CONFLICT, "동일한 시점에 닉네임 변경 시도가 발생했습니다. 잠시 후 다시 시도해주세요."),
+    NOT_BUSINESS_MEMBER(HttpStatus.BAD_REQUEST, "비즈니스 멤버가 아닙니다. 비즈니스 멤버만 승인 처리를 할 수 있습니다."),
     
     // Member Blocking Error Codes
     CANNOT_BLOCK_SELF(HttpStatus.BAD_REQUEST, "자기 자신을 차단할 수 없습니다."),
