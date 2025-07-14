@@ -1,12 +1,8 @@
 package com.ceos.beatbuddy.domain.follow.application;
 
-import com.ceos.beatbuddy.domain.firebase.NotificationPayload;
-import com.ceos.beatbuddy.domain.firebase.NotificationPayloadFactory;
-import com.ceos.beatbuddy.domain.firebase.entity.Notification;
-import com.ceos.beatbuddy.domain.firebase.service.NotificationSender;
-import com.ceos.beatbuddy.domain.firebase.service.NotificationService;
 import com.ceos.beatbuddy.domain.follow.dto.FollowResponseDTO;
 import com.ceos.beatbuddy.domain.follow.entity.Follow;
+import com.ceos.beatbuddy.domain.follow.entity.FollowCreatedEvent;
 import com.ceos.beatbuddy.domain.follow.entity.FollowId;
 import com.ceos.beatbuddy.domain.follow.exception.FollowErrorCode;
 import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
@@ -15,6 +11,7 @@ import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,9 +22,7 @@ import java.util.List;
 public class FollowService {
     private final FollowRepository followRepository;
     private final MemberRepository memberRepository;
-    private final NotificationPayloadFactory notificationPayloadFactory;
-    private final NotificationSender notificationSender;
-    private final NotificationService notificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public FollowResponseDTO follow(Long followerId, Long followingId) {
@@ -56,10 +51,7 @@ public class FollowService {
         followRepository.save(follow);
 
         // ======== 알림 전송
-        NotificationPayload notificationPayload = notificationPayloadFactory.createFollowPayload(followerId, follower.getNickname());
-        Notification saved = notificationService.save(following, notificationPayload);
-        notificationPayload.getData().put("notificationId", String.valueOf(saved.getId()));
-        notificationSender.send(following.getFcmToken(), notificationPayload);
+        eventPublisher.publishEvent(new FollowCreatedEvent(follower, following));
 
         return FollowResponseDTO.toDTO(follow);
     }
