@@ -15,6 +15,7 @@ import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -129,7 +130,7 @@ public class AdminController implements AdminApiDocs {
 
 
     @Operation(
-            summary = "모든 멤버 정보 조회",
+            summary = "모든 멤버 정보 조회(관리자 전용)",
             description = "관리자가 모든 멤버의 정보를 조회합니다. 이 API는 관리자 권한이 필요합니다."
     )
     @ApiResponses(
@@ -148,7 +149,9 @@ public class AdminController implements AdminApiDocs {
             }
     )
     @GetMapping("/members")
-    public ResponseEntity<ResponseDTO<List<AdminMemberListDTO>>> getMemberInfo(@RequestParam(required = false) String role) {
+    public ResponseEntity<ResponseDTO<List<AdminMemberListDTO>>> getMemberInfo(
+            @Parameter(description = "멤버의 역할 필터링 (예: ADMIN, BUSINESS, BUSINESS_NOT 등)", required = false)
+            @RequestParam(required = false) String role) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         List<AdminMemberListDTO> result = memberService.getAllMembers(memberId, role);
         return ResponseEntity.ok(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MEMBER_INFO, result));
@@ -156,7 +159,7 @@ public class AdminController implements AdminApiDocs {
 
     @Operation(
             summary = "비즈니스 멤버 승인",
-            description = "관리자가 비즈니스 멤버를 승인합니다. 이 API는 관리자 권한이 필요합니다."
+            description = "관리자가 비즈니스 멤버를 승인합니다. 이 API는 관리자 권한이 필요합니다. BUSINESS_NOT 역할을 가진 멤버를 승인합니다."
     )
     @ApiResponses(
             value = {
