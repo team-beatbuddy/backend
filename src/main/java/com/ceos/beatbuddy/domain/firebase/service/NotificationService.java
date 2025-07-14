@@ -99,7 +99,13 @@ public class NotificationService {
 
         Page<Notification> notifications = notificationRepository.findByReceiver(member, PageRequest.of(page - 1, size));
         if (notifications.isEmpty()) {
-            throw new CustomException(SuccessCode.SUCCESS_BUT_EMPTY_LIST);
+            return NotificationPageDTO.builder()
+                    .page(page)
+                    .size(size)
+                    .totalElements(0)
+                    .totalPages(0)
+                    .content(Collections.emptyList())
+                    .build();
         }
 
         // 알림 목록 조회
