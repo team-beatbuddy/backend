@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -237,6 +238,32 @@ public class MemberController implements MemberApiDocs{
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_UPDATE_NICKNAME.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_NICKNAME, result));
+    }
+
+    @Operation(
+        summary = "FCM 토큰 업데이트",
+        description = "사용자의 FCM 토큰을 업데이트합니다. 이 토큰은 푸시 알림 전송에 사용됩니다."
+    )
+    @ApiResponses(
+        value = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "FCM 토큰 업데이트 성공",
+                content = @Content(mediaType = "application/json")
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "잘못된 요청: 토큰이 비어있거나 형식이 잘못됨",
+                content = @Content(mediaType = "application/json")
+            )
+        }
+    )
+    @PostMapping("/fcm-token")
+    public ResponseEntity<Void> updateFcmToken(@RequestBody @Valid FcmTokenUpdateDTO dto) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        memberService.updateFcmToken(memberId, dto.getToken());
+
+        return ResponseEntity.ok().build();
     }
 
     // ============= Member Blocking Endpoints =============

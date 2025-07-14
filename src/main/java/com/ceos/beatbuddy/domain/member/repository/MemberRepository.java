@@ -1,9 +1,11 @@
 package com.ceos.beatbuddy.domain.member.repository;
 
+import com.ceos.beatbuddy.domain.member.constant.Role;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -17,4 +19,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Boolean existsRegionsById(Long memberId);
 
     boolean existsByLoginId(String id);
+
+    List<Member> findAllByRole(Role role);
+
+    List<Member> findAllByFcmTokenIsNotNull();
 }
