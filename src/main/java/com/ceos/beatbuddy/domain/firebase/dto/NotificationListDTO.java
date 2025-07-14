@@ -25,6 +25,10 @@ public class NotificationListDTO {
     private LocalDateTime readAt;
 
     public static NotificationListDTO from(Notification entity) {
+        if (entity == null) {
+            throw new IllegalArgumentException("Notification entity cannot be null");
+        }
+
         return NotificationListDTO.builder()
                 .title(entity.getTitle())
                 .message(entity.getMessage())
