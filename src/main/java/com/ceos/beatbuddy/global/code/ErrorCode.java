@@ -18,7 +18,9 @@ public enum ErrorCode implements ApiCode {
     PAGE_OUT_OF_BOUNDS(HttpStatus.BAD_REQUEST, "페이지 번호가 범위를 벗어났습니다."),
     INVALID_PARAMETER_TYPE(HttpStatus.BAD_REQUEST, "잘못된 파라미터 타입입니다."),
     INVALID_SEARCH_TYPE(HttpStatus.BAD_REQUEST, "잘못된 검색 타입입니다."),
+    INVALID_NOTIFICATION_TYPE(HttpStatus.BAD_REQUEST, "잘못된 알림 타입입니다."),
     BLOCKED_MEMBER(HttpStatus.BAD_REQUEST, "차단된 멤버입니다."),
+    INVALID_NOTIFICATION_DATA(HttpStatus.BAD_REQUEST, "알림 데이터가 유효하지 않습니다."),
 
     /**
      * 401
@@ -46,6 +48,7 @@ public enum ErrorCode implements ApiCode {
     NOT_FOUND_COMMENT_IN_EVENT(HttpStatus.NOT_FOUND, "해당 댓글이 이벤트에 속하지 않습니다."),
     NOT_FOUND_IMAGE(HttpStatus.NOT_FOUND, "해당 이미지를 찾을 수 없습니다."),
     RECENT_SEARCH_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 최근 검색어를 찾을 수 없습니다."),
+    NOT_FOUND_NOTIFICATION(HttpStatus.NOT_FOUND, "해당 알림을 찾을 수 없습니다."),
     /**
      * 409
      * */
@@ -80,6 +83,8 @@ public enum ErrorCode implements ApiCode {
     ELASTICSEARCH_INDEXING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Elasticsearch 인덱싱에 실패했습니다."),
     ELASTICSEARCH_DELETION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Elasticsearch 삭제에 실패했습니다."),
     ELASTICSEARCH_SEARCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Elasticsearch 검색에 실패했습니다."),
+    NOTIFICATION_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "알림 저장에 실패했습니다."),
+
     ;
     private final HttpStatus status;
     private final String message;
