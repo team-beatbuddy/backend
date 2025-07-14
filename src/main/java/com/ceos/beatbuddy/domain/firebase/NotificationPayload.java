@@ -19,7 +19,7 @@ public class NotificationPayload {
     private Map<String, String> data;
 
     public NotificationPayload copy() {
-        Map<String, String> copiedData = new HashMap<>(this.data);
+        Map<String, String> copiedData = this.data != null ? new HashMap<>(this.data) : new HashMap<>();
 
         return NotificationPayload.builder()
                 .title(this.title)
