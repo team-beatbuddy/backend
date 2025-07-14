@@ -31,15 +31,15 @@ public class VenueInfoController implements VenueInfoApiDocs {
     private final VenueCouponService venueCouponService;
 
     @GetMapping
-//    @Operation(summary = "존재하는 모든 베뉴의 리스트 조회", description = "모든 베뉴의 목록을 조회합니다")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "사용자 성인인증 여부 확인 성공",
-//                    content = @Content(mediaType = "application/json",
-//                            schema = @Schema(implementation = Boolean.class))),
-//            @ApiResponse(responseCode = "404", description = "요청한 유저가 존재하지 않습니다",
-//                    content = @Content(mediaType = "application/json",
-//                            schema = @Schema(implementation = ResponseTemplate.class)))
-//    })
+    @Operation(summary = "존재하는 모든 베뉴의 리스트 조회", description = "모든 베뉴의 목록을 조회합니다")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "사용자 성인인증 여부 확인 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Boolean.class))),
+            @ApiResponse(responseCode = "404", description = "요청한 유저가 존재하지 않습니다",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseTemplate.class)))
+    })
     public ResponseEntity<List<Venue>> getAllVenueInfo() {
         return ResponseEntity.ok(venueInfoService.getVenueInfoList());
     }

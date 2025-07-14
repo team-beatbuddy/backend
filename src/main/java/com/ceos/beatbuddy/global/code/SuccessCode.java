@@ -27,6 +27,7 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_UPDATE_NICKNAME(HttpStatus.OK, "닉네임을 성공적으로 변경했습니다."),
     SUCCESS_BLOCK_MEMBER(HttpStatus.OK, "성공적으로 차단했습니다."),
     SUCCESS_UNBLOCK_MEMBER(HttpStatus.OK, "성공적으로 차단을 해제했습니다."),
+    SUCCESS_GET_MEMBER_INFO(HttpStatus.OK, "성공적으로 멤버 정보를 조회했습니다."),
 
     /**
      * Admin
