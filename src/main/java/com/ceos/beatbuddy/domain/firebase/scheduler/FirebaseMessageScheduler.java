@@ -12,6 +12,7 @@ import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -29,10 +30,18 @@ public class FirebaseMessageScheduler {
     private final MemberRepository memberRepository;
     private final EventAttendanceRepository eventAttendanceRepository;
     private final NotificationPayloadFactory notificationPayloadFactory;
+    private final StringRedisTemplate redisTemplate;
 
 
     @Scheduled(fixedRate = 60000) // 1분마다 실행
     public void retryFailedNotifications() {
+        String cacheKey = "no_failed_notifications";
+
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(cacheKey))) {
+            log.info("⏳ 재시도 대상 없음 캐시 hit. 쿼리 생략");
+            return;
+        }
+
         List<FailedNotification> toRetry = failedNotificationRepository
                 .findTop100ByResolvedFalseAndRetryCountLessThanOrderByLastTriedAtAsc(3);
 
