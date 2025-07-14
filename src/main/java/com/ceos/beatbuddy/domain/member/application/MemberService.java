@@ -274,14 +274,14 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public List<AdminMemberListDTO> getAllMembers(Long memberId) {
+    public List<AdminMemberListDTO> getAllMembers(Long memberId, String role) {
         Member member = validateAndGetMember(memberId);
         // 어드민인지 확인
         if (!member.isAdmin()) {
             throw new CustomException(MemberErrorCode.NOT_ADMIN);
         }
 
-        List<Member> members = memberRepository.findAll();
+        List<Member> members = memberRepository.findAllByRole(Role.valueOf(role.toUpperCase()));
         return members.stream()
                 .map(AdminMemberListDTO::fromMember)
                 .toList();

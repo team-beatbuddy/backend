@@ -146,9 +146,9 @@ public class AdminController implements AdminApiDocs {
             }
     )
     @GetMapping("/members")
-    public ResponseEntity<ResponseDTO<List<AdminMemberListDTO>>> getMemberInfo() {
+    public ResponseEntity<ResponseDTO<List<AdminMemberListDTO>>> getMemberInfo(@RequestParam(required = false) String role) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        List<AdminMemberListDTO> result = memberService.getAllMembers(memberId);
+        List<AdminMemberListDTO> result = memberService.getAllMembers(memberId, role);
         return ResponseEntity.ok(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MEMBER_INFO, result));
     }
 }
