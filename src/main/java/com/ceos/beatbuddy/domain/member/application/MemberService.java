@@ -262,6 +262,13 @@ public class MemberService {
     @Transactional
     public void updateFcmToken(Long memberId, String token) {
         Member member = validateAndGetMember(memberId);
-        member.setFcmToken(token);
+
+        if (token != null && !token.trim().isEmpty()) {
+            if (!Objects.equals(member.getFcmToken(), token)) {
+                member.setFcmToken(token);
+            }
+        } else {
+            member.setFcmToken(null);
+        }
     }
 }
