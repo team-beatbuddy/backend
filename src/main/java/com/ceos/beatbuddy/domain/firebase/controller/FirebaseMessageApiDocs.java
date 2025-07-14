@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.firebase.controller;
 
 import com.ceos.beatbuddy.domain.firebase.dto.NotificationPageDTO;
+import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,16 +27,44 @@ public interface FirebaseMessageApiDocs {
     @Parameter(name = "type", description = "알림 유형 (예: EVENT, MAGAZINE, VENUE)", example = "EVENT")
     @Parameter(name = "postId", description = "해당 홍보와 관련 있는 id (예: event 글 아이디 1)", example = "1")
     @Parameter(name = "targetRole", description = "알림을 받을 대상의 역할 (예: USER, BUSINESS, ADMIN 등)", example = "ALL")
-    void sendNotificationToRole(@RequestParam String title,
-                                @RequestParam String body,
-                                @RequestParam(required = false) String imageUrl,
-                                @RequestParam(required = false) String type,
-                                @Parameter(
-                                        description = "해당 홍보와 관련 있는 id 넣으시면 됩니다. 예시) event 글 아이디 1",
-                                        example = "1"
-                                )
-                                @RequestParam(required = false) Long postId,
-                                @RequestParam(defaultValue = "ALL") List<String> targetRole);
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "알림 전송 성공",
+                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(
+                                            name = "Success Example",
+                                            value = """
+                                                    {
+                                                      "status": 200,
+                                                      "code": "SUCCESS_SEND_NOTIFICATION",
+                                                      "message": "알림이 성공적으로 전송되었습니다.",
+                                                      "data": "알림이 성공적으로 전송되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                    mediaType = "application/json",
+                                    examples = {@ExampleObject(
+                                            name = "Invalid Notification Type Example",
+                                            value = SwaggerExamples.INVALID_NOTIFICATION_TYPE)}
+                            )
+                    )
+            }
+    )
+    ResponseEntity<ResponseDTO<String>> sendNotificationToRole(@RequestParam String title,
+                                                               @RequestParam String body,
+                                                               @RequestParam(required = false) String imageUrl,
+                                                               @RequestParam(required = false) String type,
+                                                               @Parameter(
+                                                                       description = "해당 홍보와 관련 있는 id 넣으시면 됩니다. 예시) event 글 아이디 1",
+                                                                       example = "1"
+                                                               )
+                                                               @RequestParam(required = false) Long postId,
+                                                               @RequestParam(defaultValue = "ALL") List<String> targetRole);
 
 
     @Operation(

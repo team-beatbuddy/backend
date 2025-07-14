@@ -16,6 +16,14 @@ public class SwaggerExamples {
     /**
      * 400 잘못된 요청
      * */
+    public static final String INVALID_NOTIFICATION_TYPE = """
+        {
+          "status": 400,
+          "error": "BAD_REQUEST",
+          "code": "INVALID_NOTIFICATION_TYPE",
+          "message": "알림 타입이 올바르지 않습니다."
+        }
+        """;
 
     public static final String SELF_BLOCKING_ATTEMPT = """
         {
