@@ -135,16 +135,23 @@ public class NotificationService {
             for (Member member : targetMembers) {
                 try {
                     NotificationPayload payloadCopy = basePayload.copy();
+
+                    // 실패 시 예외가 발생하므로 null 체크 불필요
                     Notification saved = save(member, payloadCopy);
+
                     payloadCopy.getData().put("notificationId", String.valueOf(saved.getId()));
 
                     notificationSender.send(member.getFcmToken(), payloadCopy);
+
+                } catch (CustomException e) {
+                    log.warn("⚠️ 알림 저장 또는 전송 실패: memberId={}, reason={}", member.getId(), e.getMessage());
                 } catch (Exception e) {
-                    log.warn("❌ 알림 전송 실패: memberId={}, reason={}", member.getId(), e.getMessage());
+                    log.error("❌ 알림 전송 중 예외 발생: memberId={}", member.getId(), e);
                 }
             }
         });
     }
+
 
     private List<Member> resolveTargetMembers(String role) {
         if (role.equalsIgnoreCase("ALL")) {
