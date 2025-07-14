@@ -4,7 +4,11 @@ import com.ceos.beatbuddy.domain.firebase.dto.NotificationPageDTO;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -41,7 +45,84 @@ public interface FirebaseMessageApiDocs {
     )
     @Parameter(name = "page", description = "페이지 번호 (기본값: 1)", example = "1")
     @Parameter(name = "size", description = "페이지당 알림 개수 (기본값: 10)", example = "10")
+    @ApiResponse(
+            responseCode = "200",
+            description = "알림 목록 조회 성공",
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(
+                            name = "NotificationPageDTO Example",
+                            value = ("""
+                                    {
+                                      "status": 200,
+                                      "code": "SUCCESS_GET_NOTIFICATIONS",
+                                      "message": "성공적으로 알림 목록을 조회했습니다.",
+                                      "data": {
+                                        "page": 1,
+                                        "size": 10,
+                                        "totalElements": 4,
+                                        "totalPages": 1,
+                                        "content": [
+                                          {
+                                            "title": "익명님이 내 게시글에 댓글을 남겼어요.",
+                                            "message": "대댓글 알림 확인",
+                                            "imageUrl": null,
+                                            "type": "POST_COMMENT",
+                                            "memberId": 156,
+                                            "createdAt": "2025-07-14T11:47:12.979572",
+                                            "readAt": null,
+                                            "isRead": false
+                                          },
+                                          {
+                                            "title": "익명님이 내 게시글에 댓글을 남겼어요.",
+                                            "message": "대댓글 알림 확인",
+                                            "imageUrl": null,
+                                            "type": "POST_COMMENT",
+                                            "memberId": 156,
+                                            "createdAt": "2025-07-14T11:48:42.074221",
+                                            "readAt": null,
+                                            "isRead": false
+                                          },
+                                          {
+                                            "title": "익명님이 내 게시글에 댓글을 남겼어요.",
+                                            "message": "대댓글 알림 확인",
+                                            "imageUrl": null,
+                                            "type": "POST_COMMENT",
+                                            "memberId": 156,
+                                            "createdAt": "2025-07-14T11:49:51.050378",
+                                            "readAt": null,
+                                            "isRead": false
+                                          },
+                                          {
+                                            "title": "익명님이 내 댓글에 대댓글을 남겼어요.",
+                                            "message": "대댓글 알림 확인",
+                                            "imageUrl": null,
+                                            "type": "POST_COMMENT",
+                                            "memberId": 156,
+                                            "createdAt": "2025-07-14T11:49:53.130245",
+                                            "readAt": null,
+                                            "isRead": false
+                                          }
+                                        ]
+                                      }
+                                    }
+                                    """)
+                    )
+            )
+    )
     ResponseEntity<ResponseDTO<NotificationPageDTO>> getNotifications(
             @RequestParam(defaultValue = "1")int page,
             @RequestParam(defaultValue = "10") int size);
+
+
+    @Operation(
+            summary = "알림 읽음 처리",
+            description = "특정 알림을 읽음 처리합니다. " +
+                    "알림 ID를 통해 해당 알림을 찾고, 읽음 상태로 변경합니다."
+    )
+    @Parameter(name = "notificationId", description = "읽음 처리할 알림의 ID", example = "1")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "읽음 처리 성공")
+    })
+    ResponseEntity<ResponseDTO<String>> markAsRead(@PathVariable Long notificationId);
 }

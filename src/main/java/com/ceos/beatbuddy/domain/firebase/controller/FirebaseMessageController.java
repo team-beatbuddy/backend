@@ -1,6 +1,5 @@
 package com.ceos.beatbuddy.domain.firebase.controller;
 
-import com.ceos.beatbuddy.domain.firebase.FirebaseNotificationBroadcaster;
 import com.ceos.beatbuddy.domain.firebase.NotificationPayload;
 import com.ceos.beatbuddy.domain.firebase.NotificationPayloadFactory;
 import com.ceos.beatbuddy.domain.firebase.dto.NotificationPageDTO;
@@ -20,12 +19,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/firebase")
 @Tag(name = "Firebase controller", description = "Firebase 관련 API")
-public class FirebaseMessageController {
+public class FirebaseMessageController implements FirebaseMessageApiDocs {
     private final NotificationService notificationService;
     private final NotificationPayloadFactory notificationPayloadFactory;
-    private final FirebaseNotificationBroadcaster firebaseNotificationBroadcaster;
 
     // 전체 알림 (홍보용)
+    @Override
     @PostMapping("/sendNotification")
     public void sendNotificationToRole(@RequestParam String title,
                                        @RequestParam String body,
@@ -37,17 +36,29 @@ public class FirebaseMessageController {
                                        )
                                        @RequestParam(required = false) Long postId,
                                        @RequestParam(defaultValue = "ALL") List<String> targetRole) {
-        NotificationPayload payload = notificationPayloadFactory.createNewPostPromotionPayload(title, body, type, postId, imageUrl);
-        // targetRole: 알림을 받을 대상의 역할 (USER, BUSINESS, ADMIN 등)
-        targetRole.forEach(role -> {
-            if (role.equalsIgnoreCase("ALL")) {
-                role = "ALL"; // ALL 역할은 모든 사용자에게 알림을 보냄
-            }
-            firebaseNotificationBroadcaster.broadcast(role, payload);
-        });
+        // 기본 payload 생성
+        NotificationPayload basePayload = notificationPayloadFactory.createNewPostPromotionPayload(
+                title, body, type, postId, imageUrl
+        );
+
+        notificationService.sendNotificationToRoles(targetRole, basePayload);
     }
 
+    // 알림 읽음 처리
+    @Override
+    @PatchMapping("/{notificationId}/read")
+    public ResponseEntity<ResponseDTO<String>> markAsRead(@PathVariable Long notificationId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        notificationService.markAsRead(memberId, notificationId);
+
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_MARK_NOTIFICATION_AS_READ.getStatus())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_MARK_NOTIFICATION_AS_READ, "읽음 처리 되었습니다."));
+    }
+
+
     // 본인 알림 목록 가져오기
+    @Override
     @GetMapping("/notifications")
     public ResponseEntity<ResponseDTO<NotificationPageDTO>> getNotifications(
             @RequestParam(defaultValue = "1")int page,

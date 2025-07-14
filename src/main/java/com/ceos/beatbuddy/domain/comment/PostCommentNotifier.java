@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.comment;
 import com.ceos.beatbuddy.domain.comment.entity.Comment;
 import com.ceos.beatbuddy.domain.firebase.NotificationPayload;
 import com.ceos.beatbuddy.domain.firebase.NotificationPayloadFactory;
+import com.ceos.beatbuddy.domain.firebase.entity.Notification;
 import com.ceos.beatbuddy.domain.firebase.service.NotificationSender;
 import com.ceos.beatbuddy.domain.firebase.service.NotificationService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
@@ -33,7 +34,8 @@ public class PostCommentNotifier {
         );
 
         if (notificationPayload != null) {
-            notificationService.save(postAuthor, notificationPayload);
+            Notification saved = notificationService.save(postAuthor, notificationPayload);
+            notificationPayload.getData().put("notificationId", String.valueOf(saved.getId()));
             notificationSender.send(postAuthor.getFcmToken(), notificationPayload);
         }
     }
@@ -64,8 +66,10 @@ public class PostCommentNotifier {
                 log.info("✅ 알림 payload 생성 완료: title={}, body={}", notificationPayload.getTitle(), notificationPayload.getBody());
                 log.debug("📦 payload data: {}", notificationPayload.getData());
 
-                notificationService.save(parentWriter, notificationPayload);
+                Notification saved = notificationService.save(parentWriter, notificationPayload);
                 log.info("💾 알림 DB 저장 완료");
+
+                notificationPayload.getData().put("notificationId", String.valueOf(saved.getId()));
 
                 notificationSender.send(parentWriter.getFcmToken(), notificationPayload);
                 log.info("📤 FCM 전송 요청 완료: token={}", parentWriter.getFcmToken());

@@ -5,8 +5,11 @@ import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.firebase.NotificationPayload;
 import com.ceos.beatbuddy.domain.firebase.NotificationPayloadFactory;
 import com.ceos.beatbuddy.domain.firebase.entity.FailedNotification;
+import com.ceos.beatbuddy.domain.firebase.entity.FirebaseMessageType;
+import com.ceos.beatbuddy.domain.firebase.entity.Notification;
 import com.ceos.beatbuddy.domain.firebase.repository.FailedNotificationRepository;
 import com.ceos.beatbuddy.domain.firebase.service.NotificationSender;
+import com.ceos.beatbuddy.domain.firebase.service.NotificationService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,10 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -31,6 +36,7 @@ public class FirebaseMessageScheduler {
     private final EventAttendanceRepository eventAttendanceRepository;
     private final NotificationPayloadFactory notificationPayloadFactory;
     private final StringRedisTemplate redisTemplate;
+    private final NotificationService notificationService;
 
 
     @Scheduled(fixedRate = 60000) // 1분마다 실행
@@ -61,11 +67,12 @@ public class FirebaseMessageScheduler {
     }
 
     // 참여하기로 한 이벤트 리마인드 알림
-    @Scheduled(cron = "0 0 0 * * *") // 매일 자정에 실행
+    @Scheduled(cron = "0 0 0 * * *") // 매일 자정
+    @Transactional
     public void remindEventAttendance() {
         LocalDate today = LocalDate.now();
         LocalDateTime from = today.atStartOfDay();
-        LocalDateTime to = from.plusDays(1); // 오늘 하루 범위
+        LocalDateTime to = from.plusDays(1);
 
         List<Member> members = memberRepository.findAllByFcmTokenIsNotNull();
 
@@ -74,10 +81,24 @@ public class FirebaseMessageScheduler {
                     .findEventsByMemberAndStartDateBetween(member, from, to);
 
             for (Event event : events) {
-                NotificationPayload payload = event.getStartDate().toLocalDate().equals(today)
-                        ? notificationPayloadFactory.createEventAttendanceDDayNotificationPayload(event.getId(), event.getTitle())
-                        : notificationPayloadFactory.createEventAttendanceD1NotificationPayload(event.getId(), event.getTitle());
+                // 1. 먼저 빈 payload로 Notification 저장
+                NotificationPayload dummyPayload = NotificationPayload.builder()
+                        .title("") // 임시
+                        .body("")
+                        .data(Map.of("type", FirebaseMessageType.EVENT.getType()))
+                        .build();
 
+                Notification saved = notificationService.save(member, dummyPayload);
+
+                // 2. 알림 id 포함된 payload 생성
+                NotificationPayload payload = event.getStartDate().toLocalDate().equals(today)
+                        ? notificationPayloadFactory.createEventAttendanceDDayNotificationPayload(event.getId(), event.getTitle(), saved.getId())
+                        : notificationPayloadFactory.createEventAttendanceD1NotificationPayload(event.getId(), event.getTitle(), saved.getId());
+
+                // 3. 실제 저장된 알림 업데이트 (제목/내용 등)
+                saved.update(payload.getTitle(), payload.getBody(), payload.getImageUrl());
+
+                // 4. 푸시 전송
                 notificationSender.send(member.getFcmToken(), payload);
             }
         }

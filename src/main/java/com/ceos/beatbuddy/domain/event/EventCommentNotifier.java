@@ -4,6 +4,7 @@ import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventComment;
 import com.ceos.beatbuddy.domain.firebase.NotificationPayload;
 import com.ceos.beatbuddy.domain.firebase.NotificationPayloadFactory;
+import com.ceos.beatbuddy.domain.firebase.entity.Notification;
 import com.ceos.beatbuddy.domain.firebase.service.NotificationSender;
 import com.ceos.beatbuddy.domain.firebase.service.NotificationService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
@@ -26,7 +27,9 @@ public class EventCommentNotifier {
             if (parentAuthor.getFcmToken() != null) {
                 NotificationPayload payload = notificationPayloadFactory.createEventReplyCommentPayload(
                         event.getId(), parent.getId(), reply.getContent(), reply.getId());
-                notificationService.save(parentAuthor, payload);
+                Notification saved =notificationService.save(parentAuthor, payload);
+                payload.getData().put("notificationId", String.valueOf(saved.getId()));
+
                 notificationSender.send(parentAuthor.getFcmToken(), payload);
             }
         }
@@ -38,7 +41,8 @@ public class EventCommentNotifier {
             if (host.getFcmToken() != null) {
                 NotificationPayload payload = notificationPayloadFactory.createEventCommentNotificationPayload(
                         event.getId(), comment.getId(), comment.getContent());
-                notificationService.save(host, payload);
+                Notification saved = notificationService.save(host, payload);
+                payload.getData().put("notificationId", String.valueOf(saved.getId()));
                 notificationSender.send(host.getFcmToken(), payload);
             }
         }
