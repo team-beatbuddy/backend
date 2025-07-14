@@ -240,8 +240,26 @@ public class MemberController implements MemberApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_NICKNAME, result));
     }
 
-    @PostMapping("/members/fcm-token")
-    public ResponseEntity<Void> updateFcmToken(@RequestBody FcmTokenUpdateDTO dto) {
+    @Operation(
+        summary = "FCM 토큰 업데이트",
+        description = "사용자의 FCM 토큰을 업데이트합니다. 이 토큰은 푸시 알림 전송에 사용됩니다."
+    )
+    @ApiResponses(
+        value = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "FCM 토큰 업데이트 성공",
+                content = @Content(mediaType = "application/json")
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "잘못된 요청: 토큰이 비어있거나 형식이 잘못됨",
+                content = @Content(mediaType = "application/json")
+            )
+        }
+    )
+    @PostMapping("/fcm-token")
+    public ResponseEntity<Void> updateFcmToken(@RequestBody @Valid FcmTokenUpdateDTO dto) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         memberService.updateFcmToken(memberId, dto.getToken());
 
