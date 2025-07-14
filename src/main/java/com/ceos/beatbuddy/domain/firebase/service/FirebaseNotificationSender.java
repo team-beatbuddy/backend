@@ -28,9 +28,8 @@ public class FirebaseNotificationSender implements NotificationSender {
     @Async
     public void send(String targetToken, NotificationPayload payload) {
         if (targetToken == null || targetToken.trim().isEmpty()) {
-            log.warn("❌ FCM 토큰 없음: 전송 생략");
-            saveFailedNotification(targetToken, payload, "토큰 없음");
-            return;
+            log.warn("❌ FCM 토큰 없음: 전송 생략 (재시도 대상 아님)");
+            return; // ❌ DB 저장도 하지 않음
         }
 
         try {
