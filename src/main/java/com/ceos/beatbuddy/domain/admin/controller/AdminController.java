@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.admin.controller;
 
 import com.ceos.beatbuddy.domain.admin.application.AdminService;
 import com.ceos.beatbuddy.domain.admin.dto.ReportSummaryDTO;
+import com.ceos.beatbuddy.domain.member.application.BusinessMemberService;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.dto.AdminMemberListDTO;
 import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
@@ -34,6 +35,7 @@ public class AdminController implements AdminApiDocs {
     private final AdminService adminService;
     private final ReportService reportService;
     private final MemberService memberService;
+    private final BusinessMemberService businessMemberService;
 
     // 베뉴 등록
     @Override
@@ -150,5 +152,35 @@ public class AdminController implements AdminApiDocs {
         Long memberId = SecurityUtils.getCurrentMemberId();
         List<AdminMemberListDTO> result = memberService.getAllMembers(memberId, role);
         return ResponseEntity.ok(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MEMBER_INFO, result));
+    }
+
+    @Operation(
+            summary = "비즈니스 멤버 승인",
+            description = "관리자가 비즈니스 멤버를 승인합니다. 이 API는 관리자 권한이 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "비즈니스 멤버 승인 성공",
+                            content = @Content(mediaType = "application/json")
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "권한이 없는 사용자: 관리자 권한이 필요합니다.",
+                            content = @Content(mediaType = "application/json")
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "멤버가 존재하지 않음",
+                            content = @Content(mediaType = "application/json")
+                    )
+            }
+    )
+    @PostMapping("/members/{memberId}/approve")
+    public ResponseEntity<ResponseDTO<String>> approveBusinessMember(@PathVariable Long memberId) {
+        Long adminId = SecurityUtils.getCurrentMemberId();
+        businessMemberService.approveBusinessMember(memberId, adminId);
+        return ResponseEntity.ok(new ResponseDTO<>(SuccessCode.SUCCESS_APPROVE_BUSINESS_MEMBER, "비즈니스 멤버가 승인되었습니다."));
     }
 }

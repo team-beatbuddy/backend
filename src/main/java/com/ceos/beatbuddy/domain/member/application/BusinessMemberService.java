@@ -1,7 +1,10 @@
 package com.ceos.beatbuddy.domain.member.application;
 
+import com.ceos.beatbuddy.domain.member.constant.Role;
 import com.ceos.beatbuddy.domain.member.dto.*;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
+import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +26,7 @@ public class BusinessMemberService {
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisTemplate<String, BusinessMemberDTO> businessMemberTempRedisTemplate;
     private final OnboardingService onboardingService;
+    private final MemberRepository memberRepository;
 
 
     @Transactional
@@ -99,4 +103,24 @@ public class BusinessMemberService {
 
         return BusinessMemberResponseDTO.toSetNicknameDTO(member);
     }
+
+
+    // 비즈니스 멤버 승인 처리
+    @Transactional
+    public void approveBusinessMember(Long memberId, Long adminId) {
+        Member admin = memberService.validateAndGetMember(adminId);
+        if (!admin.isAdmin()) {
+            throw new CustomException(MemberErrorCode.NOT_ADMIN);
+        }
+
+        Member businessMember = memberService.validateAndGetMember(memberId);
+
+        if (businessMember.getRole() != Role.BUSINESS) {
+            throw new CustomException(MemberErrorCode.NOT_BUSINESS_MEMBER);
+        }
+
+        businessMember.getBusinessInfo().setApproved(true);
+        memberRepository.save(businessMember);
+    }
+
 }

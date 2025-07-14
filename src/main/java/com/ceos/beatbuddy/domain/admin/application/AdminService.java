@@ -82,7 +82,6 @@ public class AdminService {
         return member.getId();
     }
 
-
     // 관리자 권한이 있는지 확인
     public void validateAdmin(Long memberId) {
         Member member = memberRepository.findById(memberId)

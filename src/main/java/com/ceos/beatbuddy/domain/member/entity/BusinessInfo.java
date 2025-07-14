@@ -39,4 +39,8 @@ public class BusinessInfo {
     public void saveVerify() {
         this.isVerified = true;
     }
+
+    public void setApproved(boolean b) {
+        this.isApproved = b;
+    }
 }
