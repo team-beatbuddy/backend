@@ -22,8 +22,8 @@ public class EventCommentNotifier {
         if (isReplierHost && isReplyToOther) {
             Member parentAuthor = parent.getAuthor();
             if (parentAuthor.getFcmToken() != null) {
-                NotificationPayload payload = notificationPayloadFactory.createReplyCommentPayload(
-                        event.getId(), parent.getId(), replier.getNickname(), reply.getContent());
+                NotificationPayload payload = notificationPayloadFactory.createEventReplyCommentPayload(
+                        event.getId(), parent.getId(), reply.getContent());
                 notificationSender.send(parentAuthor.getFcmToken(), payload);
             }
         }
