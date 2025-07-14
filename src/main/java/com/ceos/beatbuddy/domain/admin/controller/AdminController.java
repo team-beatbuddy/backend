@@ -2,6 +2,8 @@ package com.ceos.beatbuddy.domain.admin.controller;
 
 import com.ceos.beatbuddy.domain.admin.application.AdminService;
 import com.ceos.beatbuddy.domain.admin.dto.ReportSummaryDTO;
+import com.ceos.beatbuddy.domain.member.application.MemberService;
+import com.ceos.beatbuddy.domain.member.dto.AdminMemberListDTO;
 import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
 import com.ceos.beatbuddy.domain.report.service.ReportService;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
@@ -11,6 +13,11 @@ import com.ceos.beatbuddy.domain.venue.dto.VenueUpdateDTO;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +33,7 @@ public class AdminController implements AdminApiDocs {
     private final VenueInfoService venueInfoService;
     private final AdminService adminService;
     private final ReportService reportService;
+    private final MemberService memberService;
 
     // 베뉴 등록
     @Override
@@ -115,5 +123,32 @@ public class AdminController implements AdminApiDocs {
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_PROCESS_REPORT.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_PROCESS_REPORT, "신고가 처리되었습니다."));
+    }
+
+
+    @Operation(
+            summary = "모든 멤버 정보 조회",
+            description = "관리자가 모든 멤버의 정보를 조회합니다. 이 API는 관리자 권한이 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "모든 멤버 정보 조회 성공",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = AdminMemberListDTO.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "권한이 없는 사용자: 관리자 권한이 필요합니다.",
+                            content = @Content(mediaType = "application/json")
+                    )
+            }
+    )
+    @GetMapping("/members")
+    public ResponseEntity<ResponseDTO<List<AdminMemberListDTO>>> getMemberInfo() {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        List<AdminMemberListDTO> result = memberService.getAllMembers(memberId);
+        return ResponseEntity.ok(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MEMBER_INFO, result));
     }
 }
