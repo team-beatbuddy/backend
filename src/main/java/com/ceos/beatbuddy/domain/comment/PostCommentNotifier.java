@@ -41,20 +41,18 @@ public class PostCommentNotifier {
     }
 
     public void notifyParentCommentAuthor(Comment comment, Long writerId) {
-        log.warn("🔥 notifyParentCommentAuthor 진입: commentId={}, writerId={}", comment.getId(), writerId);
-        log.warn("🔥 reply: {}", comment.getReply());
+        // Changed to debug for normal entry log
+        log.debug("notifyParentCommentAuthor 진입: commentId={}, writerId={}", comment.getId(), writerId);
 
         if (comment.getReply() == null) {
-            log.info("🔕 대댓글이 아님 (reply가 null), 알림 전송 생략");
+            // Debug is enough when there's no parent reply
+            log.debug("대댓글이 아님 (reply가 null), 알림 전송 생략");
             return;
         }
 
         Member parentWriter = comment.getReply().getMember();
-        log.debug("📨 대댓글 대상 확인: parentWriterId={}, writerId={}", parentWriter.getId(), writerId);
 
         if (!parentWriter.getId().equals(writerId)) {
-            log.info("🔔 대댓글 알림 대상: parentWriterId={} ← from writerId={}", parentWriter.getId(), writerId);
-
             NotificationPayload notificationPayload = notificationPayloadFactory.createReplyCommentPayload(
                     comment.getPost().getId(),
                     comment.getId(),
@@ -63,21 +61,18 @@ public class PostCommentNotifier {
             );
 
             if (notificationPayload != null) {
-                log.info("✅ 알림 payload 생성 완료: title={}, body={}", notificationPayload.getTitle(), notificationPayload.getBody());
-                log.debug("📦 payload data: {}", notificationPayload.getData());
-
                 Notification saved = notificationService.save(parentWriter, notificationPayload);
-                log.info("💾 알림 DB 저장 완료");
-
                 notificationPayload.getData().put("notificationId", String.valueOf(saved.getId()));
-
                 notificationSender.send(parentWriter.getFcmToken(), notificationPayload);
-                log.info("📤 FCM 전송 요청 완료: token={}", parentWriter.getFcmToken());
+                // Single info log summarizing successful send
+                log.info("대댓글 알림 전송 완료: commentId={}, receiverId={}", comment.getId(), parentWriter.getId());
             } else {
-                log.warn("⚠️ 알림 payload 생성 실패 → null 반환");
+                // Elevated to error since payload failure is exceptional
+                log.error("알림 payload 생성 실패: commentId={}", comment.getId());
             }
         } else {
-            log.info("🛑 본인이 본인 댓글에 대댓글을 달아서 알림 스킵: writerId={}", writerId);
+            // Self-replies are normal flow, so debug level
+            log.debug("본인 댓글에 대한 대댓글 알림 스킵: writerId={}", writerId);
         }
     }
 
