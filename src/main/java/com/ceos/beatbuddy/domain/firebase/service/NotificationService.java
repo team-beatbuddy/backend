@@ -33,7 +33,7 @@ public class NotificationService {
     private final MemberRepository memberRepository;
     private final NotificationSender notificationSender;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public Notification save(Member receiver, NotificationPayload payload) {
         log.info("🔔 save called with receiverId={}, payload={}",
                 receiver != null ? receiver.getId() : null,
