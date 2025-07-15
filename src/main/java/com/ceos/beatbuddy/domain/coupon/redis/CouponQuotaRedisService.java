@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.coupon.redis;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class CouponQuotaRedisService {
     private final RedisTemplate<String, String> redisTemplate;
@@ -31,6 +33,7 @@ public class CouponQuotaRedisService {
 
     public int getQuota(Long couponId, Long venueId, LocalDate date) {
         String key = CouponRedisKeyUtil.getQuotaKey(couponId, venueId, date);
+        log.debug("Redis key for quota: {}", key);
         try {
             String value = redisTemplate.opsForValue().get(key);
             return value != null ? Integer.parseInt(value) : 0;
