@@ -16,10 +16,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -137,7 +134,7 @@ public interface MemberApiDocs {
             )
     })
     ResponseEntity<ResponseDTO<MemberProfileSummaryDTO>> getProfileSummary(
-            @PathVariable Long memberId
+            @RequestParam(required = false) Long memberId
     );
 
     @Operation(summary = "닉네임 변경, 14일 이내 조건이 포함된 변경 API", description = "닉네임을 변경합니다. 14일 내 최대 2회 변경 가능")
