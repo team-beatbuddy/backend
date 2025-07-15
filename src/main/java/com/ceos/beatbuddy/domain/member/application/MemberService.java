@@ -132,7 +132,7 @@ public class MemberService {
     }
 
     @Transactional
-    public void uploadProfileImage(Long memberId, MultipartFile image) throws IOException {
+    public void uploadProfileImage(Long memberId, MultipartFile image) {
         Member member = this.validateAndGetMember(memberId);
 
         //기존 이미지 삭제
