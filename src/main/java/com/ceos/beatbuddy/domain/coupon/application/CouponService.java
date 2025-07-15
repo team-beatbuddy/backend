@@ -17,6 +17,7 @@ import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class CouponService {
 
     private final CouponLuaScriptService luaScriptService;
@@ -43,7 +45,7 @@ public class CouponService {
 
     @Transactional
     public CouponReceiveResponseDTO receiveCoupon(Long venueId, Long couponId, Long memberId) {
-        String redisKey = CouponRedisKeyUtil.getQuotaKey(venueId, couponId, LocalDate.now());
+        String redisKey = CouponRedisKeyUtil.getQuotaKey(couponId, venueId, LocalDate.now());
 
         Member member = memberService.validateAndGetMember(memberId);
         Coupon coupon = validateAndGetCoupon(couponId);
@@ -53,6 +55,7 @@ public class CouponService {
         validateCouponReceivePolicy(member, coupon, venue);
 
         // redis 에서 티켓 감소
+        log.info("👉 Redis Key 전달: {}", redisKey);
         luaScriptService.decreaseQuotaOrThrow(redisKey);
 
         // DB 저장
