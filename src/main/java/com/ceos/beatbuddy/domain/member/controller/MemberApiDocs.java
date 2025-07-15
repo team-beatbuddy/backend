@@ -79,7 +79,7 @@ public interface MemberApiDocs {
     ResponseEntity<ResponseDTO<String>> uploadProfileImage(
             @RequestPart("image") MultipartFile image) throws IOException;
 
-    @Operation(summary = "멤버 요약 프로필 조회", description = "게시판에서 프로필 클릭 시 닉네임, 프로필 이미지, 게시글 수, 팔로워/팔로잉 수 반환")
+    @Operation(summary = "멤버 요약 프로필 조회", description = "게시판에서 프로필 클릭 시 닉네임, 프로필 이미지, 게시글 수, 팔로워/팔로잉 수 반환, memberId를 넣지 않으면 본인 프로필 요약본이 조회됨.")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
