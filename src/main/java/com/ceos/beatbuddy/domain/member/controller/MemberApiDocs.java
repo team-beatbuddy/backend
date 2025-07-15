@@ -137,7 +137,7 @@ public interface MemberApiDocs {
             )
     })
     ResponseEntity<ResponseDTO<MemberProfileSummaryDTO>> getProfileSummary(
-            @PathVariable @NotNull(message = "프로필 요약을 조회할 멤버 ID 는 필수입니다.") Long memberId
+            @PathVariable Long memberId
     );
 
     @Operation(summary = "닉네임 변경, 14일 이내 조건이 포함된 변경 API", description = "닉네임을 변경합니다. 14일 내 최대 2회 변경 가능")
