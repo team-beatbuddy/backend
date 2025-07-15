@@ -211,8 +211,11 @@ public class MemberController implements MemberApiDocs{
     @Override
     @GetMapping("/profile/summary/{memberId}")
     public ResponseEntity<ResponseDTO<MemberProfileSummaryDTO>> getProfileSummary(
-        @PathVariable @NotNull(message = "프로필 요약을 조회할 멤버 ID 는 필수입니다.") Long memberId
+        @PathVariable Long memberId
     ) {
+        if (memberId == null) {
+            memberId = SecurityUtils.getCurrentMemberId(); // 현재 로그인된 사용자 ID
+        }
         MemberProfileSummaryDTO result = memberService.getProfileSummary(memberId);
 
         return ResponseEntity
