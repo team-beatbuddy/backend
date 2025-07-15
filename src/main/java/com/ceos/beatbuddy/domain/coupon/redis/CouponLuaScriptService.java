@@ -5,6 +5,7 @@ import com.ceos.beatbuddy.domain.coupon.exception.CouponErrorCode;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -13,24 +14,25 @@ import java.util.Collections;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class CouponLuaScriptService {
 
     private final RedisTemplate<String, String> redisTemplate;
 
     private static final String LUA_SCRIPT = """
-        local stock = tonumber(redis.call('GET', KEYS[1]))
-        local decrement = tonumber(ARGV[1])
-
-        if stock == nil then
-          return -1
-        end
-
-        if stock < decrement then
-          return 0
-        end
-
-        redis.call('DECRBY', KEYS[1], decrement)
-        return 1
+    local stock = tonumber(redis.call('GET', KEYS[1]))
+    local decrement = tonumber(ARGV[1])
+    
+    if stock == nil then
+      return -1
+    end
+    
+    if stock < decrement then
+      return 0
+    end
+    
+    redis.call('DECRBY', KEYS[1], decrement)
+    return 1
         """;
 
     public void decreaseQuotaOrThrow(String redisKey) {
@@ -39,6 +41,7 @@ public class CouponLuaScriptService {
         script.setResultType(Long.class);
 
         Long result = redisTemplate.execute(script, Collections.singletonList(redisKey), "1");
+        log.debug("Redis script result: {}", result);
         int code = result != null ? result.intValue() : -2;
 
         switch (code) {
