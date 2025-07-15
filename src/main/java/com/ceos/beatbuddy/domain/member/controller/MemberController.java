@@ -209,9 +209,9 @@ public class MemberController implements MemberApiDocs{
     }
 
     @Override
-    @GetMapping("/profile/summary/{memberId}")
+    @GetMapping("/profile/summary")
     public ResponseEntity<ResponseDTO<MemberProfileSummaryDTO>> getProfileSummary(
-        @PathVariable Long memberId
+        @RequestParam(required = false) Long memberId
     ) {
         if (memberId == null) {
             memberId = SecurityUtils.getCurrentMemberId(); // 현재 로그인된 사용자 ID
