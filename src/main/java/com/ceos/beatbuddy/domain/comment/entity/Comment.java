@@ -44,15 +44,6 @@ public class Comment extends BaseTimeEntity {
     private Post post;
 
     private int likes;
-
-    public void increaseLike(){
-        likes++;
-    }
-
-    public void decreaseLike(){
-        likes--;
-    }
-
     public Long getPostId() {
         return this.post.getId();
     }
