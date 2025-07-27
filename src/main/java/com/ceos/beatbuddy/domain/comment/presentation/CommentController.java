@@ -3,8 +3,10 @@ package com.ceos.beatbuddy.domain.comment.presentation;
 import com.ceos.beatbuddy.domain.comment.application.CommentService;
 import com.ceos.beatbuddy.domain.comment.dto.CommentRequestDto;
 import com.ceos.beatbuddy.domain.comment.dto.CommentResponseDto;
+import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -109,12 +111,18 @@ public class CommentController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{commentId}/like")
+    @PostMapping("/{commentId}/like")
     @Operation(summary = "댓글 좋아요", description = "댓글에 좋아요를 추가합니다")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "좋아요 성공"),
-        @ApiResponse(responseCode = "404", description = "댓글이 존재하지 않습니다"),
-        @ApiResponse(responseCode = "400", description = "차단한 사용자의 댓글입니다.")
+        @ApiResponse(responseCode = "404", description = "리소스 없음",
+                content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/json",
+                        examples = {@ExampleObject(name = "댓글 없음", value = SwaggerExamples.NOT_FOUND_COMMENT),
+                                @ExampleObject(name = "멤버 없음", value = SwaggerExamples.MEMBER_NOT_EXIST)})),
+        @ApiResponse(responseCode = "400", description = "차단한 사용자의 댓글입니다."),
+        @ApiResponse(responseCode = "409", description = "이미 좋아요를 누른 댓글입니다",
+                content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/json",
+                        examples = {@ExampleObject(name = "이미 좋아요", value = SwaggerExamples.ALREADY_LIKED)}))
     })
     public ResponseEntity<CommentResponseDto> addLike(
             @PathVariable Long postId,
@@ -126,7 +134,13 @@ public class CommentController {
     @DeleteMapping("/{commentId}/like")
     @Operation(summary = "댓글 좋아요 삭제", description = "댓글에 좋아요를 삭제합니다")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "좋아요 삭제 성공")
+            @ApiResponse(responseCode = "200", description = "좋아요 삭제 성공"),
+            @ApiResponse(responseCode = "404", description = "리소스 없음",
+                    content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/json",
+                            examples = {@ExampleObject(name = "댓글 없음", value = SwaggerExamples.NOT_FOUND_COMMENT),
+                                    @ExampleObject(name = "멤버 없음", value = SwaggerExamples.MEMBER_NOT_EXIST),
+                                    @ExampleObject(name = "좋아요 없음", value = SwaggerExamples.NOT_FOUND_LIKE)})),
+            @ApiResponse(responseCode = "400", description = "차단한 사용자의 댓글입니다.")
     })
     public ResponseEntity<CommentResponseDto> deleteLike(
             @PathVariable Long postId,

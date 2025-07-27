@@ -11,8 +11,12 @@ import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.post.application.PostService;
 import com.ceos.beatbuddy.domain.post.entity.Post;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.CommentLike;
+import com.ceos.beatbuddy.domain.scrapandlike.repository.CommentLikeRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -33,6 +37,9 @@ public class CommentService {
     private final PostService postService;
     private final FollowRepository followRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final CommentLikeRepository commentLikeRepository;
+    @PersistenceContext
+    private EntityManager em;
 
     @Transactional
     public CommentResponseDto createComment(Long memberId, Long postId, CommentRequestDto requestDto) {
@@ -214,18 +221,34 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
+        Member member = memberService.validateAndGetMember(memberId);
+
         boolean isBlockedMember = memberService.isBlocked(memberId, comment.getMember().getId());
         if (isBlockedMember) {
             throw new CustomException(ErrorCode.BLOCKED_MEMBER);
         }
 
+        // 이미 좋아요를 누른 경우 예외 처리
+        if (commentLikeRepository.existsByComment_IdAndMember_Id(commentId, memberId)) {
+            throw new CustomException(ErrorCode.ALREADY_LIKED);
+        }
+
+        // 좋아요 엔티티 생성 및 저장
+        CommentLike commentLike = CommentLike.builder()
+                .member(member)
+                .comment(comment)
+                .build();
+
+        commentLikeRepository.save(commentLike);
+
         // 좋아요 로직 구현 필요 (중복 좋아요 방지 등)
-        comment.increaseLike();
+        commentRepository.increaseLikesById(commentId); // 좋아요 수 증가
+
+        em.refresh(comment);
 
         // 팔로잉 여부
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
         // 차단 여부
-
         return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember); // 자신이 작성한 댓글인지 여부
     }
 
@@ -239,8 +262,19 @@ public class CommentService {
             throw new CustomException(ErrorCode.BLOCKED_MEMBER);
         }
 
+        // 좋아요 엔티티가 존재하는지 확인
+        if (!commentLikeRepository.existsByComment_IdAndMember_Id(commentId, memberId)) {
+            throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
+        }
+
+        // 좋아요 엔티티 삭제
+        commentLikeRepository.deleteByComment_IdAndMember_Id(commentId, memberId);
+
         // 좋아요 로직 구현 필요 (중복 좋아요 방지 등)
-        comment.decreaseLike();
+        commentRepository.decreaseLikesById(commentId); // 좋아요 수 감소
+
+        em.refresh(comment);
+
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
 
         return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember); // 자신이 작성한 댓글인지 여부
