@@ -35,5 +35,9 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
     @Query("UPDATE Venue v SET v.heartbeatNum = v.heartbeatNum - 1 WHERE v.id = :venueId")
     void decrementHeartbeatCount(@Param("venueId") Long venueId);
 
+    @Modifying
+    @Query("UPDATE Venue v SET v.latitude = :lat, v.longitude = :lng WHERE v.id = :venueId")
+    void updateLatLng(@Param("venueId") Long venueId, @Param("lat") double lat, @Param("lng") double lng);
+
 }
 

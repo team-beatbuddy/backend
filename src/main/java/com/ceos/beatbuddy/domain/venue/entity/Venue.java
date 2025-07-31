@@ -37,6 +37,12 @@ public class Venue extends BaseTimeEntity {
     private String notice;
     private boolean isFreeEntrance; // 무료 입장 여부
 
+    //@Column(nullable = false)
+    private double latitude;
+
+    //@Column(nullable = false)
+    private double longitude;
+
     @ElementCollection
     private Map<String,String> operationHours;
 
@@ -75,6 +81,11 @@ public class Venue extends BaseTimeEntity {
         } else {
             this.entranceFee = venueUpdateDTO.getVenueRequestDTO().getEntranceFee(); // 유료일 경우만 금액 반영
         }
+    }
+
+    public void updateCoordinates(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public static Venue of(VenueRequestDTO request, String  logoUrl, List<String> backgroundUrl){

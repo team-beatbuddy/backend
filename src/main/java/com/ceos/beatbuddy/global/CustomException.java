@@ -15,6 +15,7 @@ import com.ceos.beatbuddy.domain.venue.exception.VenueGenreErrorCode;
 import com.ceos.beatbuddy.domain.venue.exception.VenueMoodErrorCode;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.config.oauth.exception.OauthErrorCode;
+import org.springframework.http.HttpStatus;
 
 public class CustomException extends ResponseException {
 
@@ -80,5 +81,24 @@ public class CustomException extends ResponseException {
 
     public CustomException(ErrorCode errorCode) {
         super(errorCode);
+    }
+
+    public CustomException(String errorMessage) {
+        super(new ApiCode() {
+            @Override
+            public HttpStatus getStatus() {
+                return HttpStatus.INTERNAL_SERVER_ERROR; // 또는 원하는 기본 상태
+            }
+
+            @Override
+            public String getMessage() {
+                return errorMessage;
+            }
+
+            @Override
+            public String name() {
+                return "INTERNAL_SERVER_ERROR"; // ApiCode 인터페이스 요구사항
+            }
+        });
     }
 }
