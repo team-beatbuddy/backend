@@ -2,23 +2,16 @@ package com.ceos.beatbuddy.domain.search.application;
 
 
 import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
-import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.member.entity.MemberGenre;
-import com.ceos.beatbuddy.domain.member.entity.MemberMood;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
-import com.ceos.beatbuddy.domain.member.exception.MemberGenreErrorCode;
-import com.ceos.beatbuddy.domain.member.exception.MemberMoodErrorCode;
-import com.ceos.beatbuddy.domain.member.repository.MemberGenreRepository;
-import com.ceos.beatbuddy.domain.member.repository.MemberMoodRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.recent_search.application.RecentSearchService;
 import com.ceos.beatbuddy.domain.recent_search.entity.SearchTypeEnum;
-import com.ceos.beatbuddy.domain.search.dto.*;
+import com.ceos.beatbuddy.domain.search.dto.SearchDropDownDTO;
+import com.ceos.beatbuddy.domain.search.dto.SearchQueryResponseDTO;
+import com.ceos.beatbuddy.domain.search.dto.SearchRankResponseDTO;
 import com.ceos.beatbuddy.domain.search.exception.SearchErrorCode;
-import com.ceos.beatbuddy.domain.search.repository.SearchRepository;
 import com.ceos.beatbuddy.domain.vector.entity.Vector;
-import com.ceos.beatbuddy.domain.vector.exception.VectorErrorCode;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.application.VenueSearchService;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
@@ -50,15 +43,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SearchService {
 
-    private final SearchRepository searchRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final MemberRepository memberRepository;
     private final VenueRepository venueRepository;
     private final VenueGenreRepository venueGenreRepository;
     private final VenueMoodRepository venueMoodRepository;
     private final HeartbeatRepository heartbeatRepository;
-    private final MemberMoodRepository memberMoodRepository;
-    private final MemberGenreRepository memberGenreRepository;
     private final RecentSearchService recentSearchService;
     private final VenueInfoService venueInfoService;
     private final VenueSearchService venueSearchService;
@@ -94,7 +84,7 @@ public class SearchService {
         String rankingKey = "ranking";
         String expireKey = "expire";
         long currentTime = Instant.now().getEpochSecond();
-        Double currentTimeDouble = Double.valueOf(currentTime);
+        double currentTimeDouble = (double) currentTime;
         System.out.println("Remove expired elements.");
         Set<String> expiredWords = redisTemplate.opsForZSet().rangeByScore(expireKey, 0, currentTimeDouble);
         if (expiredWords != null) {
@@ -201,5 +191,4 @@ public class SearchService {
                 * Math.sin(dLon / 2) * Math.sin(dLon / 2);
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
-
 }
