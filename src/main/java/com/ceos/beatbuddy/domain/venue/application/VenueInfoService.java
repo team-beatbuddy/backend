@@ -288,7 +288,6 @@ public class VenueInfoService {
                 .build();
     }
 
-
     public Venue validateAndGetVenue(Long venueId) {
         return venueRepository.findById(venueId)
                 .orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));

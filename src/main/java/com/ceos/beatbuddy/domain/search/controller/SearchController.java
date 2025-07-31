@@ -25,21 +25,6 @@ import java.util.List;
 public class SearchController {
     private final SearchService searchService;
 
-    @PostMapping("")
-    @Operation(summary = "검색바 검색 기능", description = "사용자가 검색바에 입력한 검색어를 기반으로 베뉴 조회")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "검색어로 베뉴 조회 성공"
-                    , content = @Content(mediaType = "application/json"
-                    , array = @ArraySchema(schema = @Schema(implementation = SearchQueryResponseDTO.class)))),
-            @ApiResponse(responseCode = "400", description = "검색어가 입력되지 않아서 검색 실패"
-                    , content = @Content(mediaType = "application/json"
-                    , schema = @Schema(implementation = ResponseTemplate.class)))
-    })
-    public ResponseEntity<List<SearchQueryResponseDTO>> searchList(@RequestBody SearchDTO.RequestDTO searchRequestDTO) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(searchService.keywordSearch(searchRequestDTO, memberId));
-    }
-
     @GetMapping("/rank")
     @Operation(summary = "검색어 TOP10 차트 기능", description = "실시간 검색량 내림차순 검색어 조회")
     @ApiResponses(value = {
@@ -51,9 +36,8 @@ public class SearchController {
         return searchService.searchRankList();
     }
 
-
-    @PostMapping("/drop-down")
-    @Operation(summary = "검색 드롭다운 기능", description = "사용자가 검색바에 입력한 검색어로 검색한 결과에서 드롭다운으로 필터링/정렬한 베뉴 조회")
+    @PostMapping("/home/drop-down")
+    @Operation(summary = "홈 검색 드롭다운 기능", description = "사용자가 검색바에 입력한 검색어로 검색한 결과에서 드롭다운으로 필터링/정렬한 베뉴 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "드롭다운 필터링 베뉴 조회 성공"
                     , content = @Content(mediaType = "application/json"
@@ -65,27 +49,34 @@ public class SearchController {
                     , content = @Content(mediaType = "application/json"
                     , schema = @Schema(implementation = ResponseTemplate.class)))
     })
-    public ResponseEntity<List<SearchQueryResponseDTO>> searchDropDown(@RequestBody SearchDropDownDTO searchDropDownDTO) {
+    public ResponseEntity<List<SearchQueryResponseDTO>> searchDropDownHome(@RequestBody SearchDropDownDTO searchDropDownDTO,
+                                                                           @RequestParam(required = false) Double latitude,
+                                                                           @RequestParam(required = false) Double longitude,
+                                                                           @RequestParam(required = false, defaultValue = "1") int page,
+                                                                           @RequestParam(required = false, defaultValue = "10") int size) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(searchService.searchDropDown(memberId, searchDropDownDTO));
+        return ResponseEntity.ok(searchService.searchDropDown(memberId, searchDropDownDTO, latitude, longitude, "HOME", page, size));
     }
 
     @PostMapping("/map/drop-down")
-    @Operation(summary = "지도 드롭다운 기능", description = "입력받은 베뉴 리스트를 필터링/정렬하는 로직")
+    @Operation(summary = "지도 드롭다운 기능", description = "사용자가 검색바에 입력한 검색어로 검색한 결과에서 드롭다운으로 필터링/정렬한 베뉴 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "드롭다운 필터링 베뉴 조회 성공"
                     , content = @Content(mediaType = "application/json"
                     , array = @ArraySchema(schema = @Schema(implementation = SearchQueryResponseDTO.class)))),
-            @ApiResponse(responseCode = "400", description = "리스트에 없는 장르명이나 지역명 입력 시 에러 반환"
+            @ApiResponse(responseCode = "400", description = "검색어가 입력되지 않아서 검색 실패 or 리스트에 없는 장르명이나 지역명 입력 시 에러 반환"
                     , content = @Content(mediaType = "application/json"
                     , schema = @Schema(implementation = ResponseTemplate.class))),
             @ApiResponse(responseCode = "404", description = "유저가 존재하지 않습니다 or 베뉴 장르가 존재하지 않습니다"
                     , content = @Content(mediaType = "application/json"
                     , schema = @Schema(implementation = ResponseTemplate.class)))
     })
-    public ResponseEntity<List<SearchQueryResponseDTO>> mapSearchDropDown(@RequestBody SearchMapDTO searchMapDTO) {
+    public ResponseEntity<List<SearchQueryResponseDTO>> searchDropDown(@RequestBody SearchDropDownDTO searchDropDownDTO,
+                                                                       @RequestParam(required = false) Double latitude,
+                                                                       @RequestParam(required = false) Double longitude,
+                                                                       @RequestParam(required = false, defaultValue = "1") int page,
+                                                                       @RequestParam(required = false, defaultValue = "10") int size) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(searchService.mapSearchDropDown(memberId, searchMapDTO));
+        return ResponseEntity.ok(searchService.searchDropDown(memberId, searchDropDownDTO, latitude, longitude, "MAP", page, size));
     }
-
 }

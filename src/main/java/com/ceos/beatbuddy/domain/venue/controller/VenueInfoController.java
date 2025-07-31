@@ -16,8 +16,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "VenueInfo Controller", description = "베뉴에 대한 정보를 제공하는 컨트롤러")
 @RequestMapping("/venue-info")
+@Validated
 public class VenueInfoController implements VenueInfoApiDocs {
     private final VenueInfoService venueInfoService;
     private final VenueCouponService venueCouponService;
@@ -94,5 +97,18 @@ public class VenueInfoController implements VenueInfoApiDocs {
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_VENUE_EVENTS.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_VENUE_EVENTS, eventListResponseDTO));
+    }
+
+
+    @GetMapping("/nearby")
+    @Operation(summary = "현재 위치 기준 가까운 베뉴 목록")
+    public ResponseEntity<ResponseDTO<List<VenueInfoResponseDTO>>> getNearbyVenues(
+            @RequestParam @NotNull(message = "위도 ") double lat,
+            @RequestParam @NotNull double lng,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        List<VenueInfoResponseDTO> venues = venueInfoService.getNearbyVenues(lat, lng, page, size);
+        return ResponseEntity
     }
 }

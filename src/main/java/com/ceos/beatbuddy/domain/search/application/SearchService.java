@@ -19,7 +19,10 @@ import com.ceos.beatbuddy.domain.search.exception.SearchErrorCode;
 import com.ceos.beatbuddy.domain.search.repository.SearchRepository;
 import com.ceos.beatbuddy.domain.vector.entity.Vector;
 import com.ceos.beatbuddy.domain.vector.exception.VectorErrorCode;
+import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
+import com.ceos.beatbuddy.domain.venue.application.VenueSearchService;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
+import com.ceos.beatbuddy.domain.venue.entity.VenueDocument;
 import com.ceos.beatbuddy.domain.venue.entity.VenueGenre;
 import com.ceos.beatbuddy.domain.venue.entity.VenueMood;
 import com.ceos.beatbuddy.domain.venue.exception.VenueErrorCode;
@@ -29,6 +32,7 @@ import com.ceos.beatbuddy.domain.venue.repository.VenueGenreRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueMoodRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import com.ceos.beatbuddy.global.CustomException;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -56,60 +60,26 @@ public class SearchService {
     private final MemberMoodRepository memberMoodRepository;
     private final MemberGenreRepository memberGenreRepository;
     private final RecentSearchService recentSearchService;
+    private final VenueInfoService venueInfoService;
+    private final VenueSearchService venueSearchService;
 
-    @Transactional
-    public List<SearchQueryResponseDTO> keywordSearch(SearchDTO.RequestDTO searchRequestDTO, Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        // 최근 검색어로 추가
-        recentSearchService.saveRecentSearch(SearchTypeEnum.VENUE.name(), searchRequestDTO.getKeyword().get(0), memberId);
-
-        List<SearchQueryResponseDTO> venueList = searchRepository.keywordFilter(searchRequestDTO, memberId);
-
-        MemberMood latestMemberMood = memberMoodRepository.findLatestMoodByMember(member).orElseThrow(() -> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));
-        MemberGenre latestMemberGenre = memberGenreRepository.findLatestGenreByMember(member).orElseThrow(() -> new CustomException(MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST));
-        Vector memberVector = Vector.mergeVectors(latestMemberGenre.getGenreVector(), latestMemberMood.getMoodVector());
-
-        Map<Long, Vector> venueVectors = new HashMap<>();
-        for (SearchQueryResponseDTO venueDTO : venueList) {
-            Venue venue = venueRepository.findById(venueDTO.getVenueId()).orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
-            VenueGenre venueGenre = venueGenreRepository.findByVenue(venue).orElseThrow(() -> new CustomException(VenueGenreErrorCode.VENUE_GENRE_NOT_EXIST));
-            VenueMood venueMood = venueMoodRepository.findByVenue(venue).orElseThrow(() -> new CustomException(VenueMoodErrorCode.VENUE_MOOD_NOT_EXIST));
-            Vector venueVector = Vector.mergeVectors(venueGenre.getGenreVector(), venueMood.getMoodVector());
-            venueVectors.put(venueDTO.getVenueId(), venueVector);
-        }
-
-        List<SearchQueryResponseDTO> sortedVenueList = venueList.stream()
-                .sorted(Comparator.comparingDouble(venue -> {
-                    try {
-                        return -memberVector.cosineSimilarity(venueVectors.get(venue.getVenueId()));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return Double.MIN_VALUE;
-                    }
-                }))
-                .collect(Collectors.toList());
-
-        List<String> keywords = searchRequestDTO.getKeyword();
+    private void saveSearchKeywordsToRedis(List<String> keywords) {
+        if (keywords == null || keywords.isEmpty()) return;
 
         for (String keyword : keywords) {
-            Double score = 0.0;
             try {
-                // 검색을하면 해당검색어를 value에 저장하고, score를 1 준다
-                score = redisTemplate.opsForZSet().incrementScore("ranking", keyword, 1.0);
+                // 1점 증가
+                redisTemplate.opsForZSet().incrementScore("ranking", keyword, 1.0);
 
-                // 만료 시간 설정 (현재 시간 + 24시간)
+                // 만료 시간 (24시간 후)
                 long expireAt = Instant.now().getEpochSecond() + 86400;
-                Double expireAtDouble = Double.valueOf(expireAt);
-
-                // 만료 시간을 Sorted Set에 저장
-                redisTemplate.opsForZSet().add("expire", keyword, expireAtDouble);
+                redisTemplate.opsForZSet().add("expire", keyword, (double) expireAt);
             } catch (Exception e) {
-                System.out.println(e.toString());
+                System.err.println("❌ Redis 키워드 저장 실패: " + keyword + " / " + e.getMessage());
             }
         }
-
-        return sortedVenueList;
     }
+
 
     // 인기검색어 리스트 1위~10위까지
     public List<SearchRankResponseDTO> searchRankList() {
@@ -135,229 +105,101 @@ public class SearchService {
         }
     }
 
-    public List<SearchQueryResponseDTO> searchDropDown(Long memberId, SearchDropDownDTO searchDropDownDTO) {
-
-        int genreIndex;
-        Region region;
-
+    public List<SearchQueryResponseDTO> searchDropDown(Long memberId, SearchDropDownDTO searchDropDownDTO, Double latitude, Double longitude, String searchType, int page, int size) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        String genreTag = searchDropDownDTO.getGenreTag();
-        String regionTag = searchDropDownDTO.getRegionTag();
-        List<String> keyword = searchDropDownDTO.getKeyword();
+
+        if (page < 1) {
+            throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
+        }
+
+        String keyword = searchDropDownDTO.getKeyword();
+
+        // 최근 검색어로 추가
+        recentSearchService.saveRecentSearch(String.valueOf(SearchTypeEnum.valueOf(searchType)), keyword, memberId);
+
+        // Redis에 검색어 저장
+        saveSearchKeywordsToRedis(Collections.singletonList(keyword));
+
+        String regionKeyword = searchDropDownDTO.getRegionTag();
+        String genreKeyword = searchDropDownDTO.getGenreTag();
+
         String criteria = searchDropDownDTO.getSortCriteria();
 
-        if (keyword.isEmpty()) throw new CustomException(SearchErrorCode.KEYWORD_IS_EMPTY);
+        List<VenueDocument> venueList = venueSearchService.searchMapDropDown(keyword, regionKeyword, genreKeyword);
 
-        if (!genreTag.isEmpty()) {
-            int index = Vector.getGenreIndex(genreTag);
-            if (index == -1) throw new CustomException(VectorErrorCode.GENRE_INDEX_NOT_EXIST);
-            genreIndex = index;
-        } else {
-            genreIndex = -1;
-        }
+        List<SearchQueryResponseDTO> searchQueryResponseDTOS = venueList.stream()
+                .map(venueDocument -> {
+                    Venue venue = venueRepository.findById(venueDocument.getId())
+                            .orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
+                    VenueGenre venueGenre = venueGenreRepository.findByVenue(venue)
+                            .orElseThrow(() -> new CustomException(VenueGenreErrorCode.VENUE_GENRE_NOT_EXIST));
+                    VenueMood venueMood = venueMoodRepository.findByVenue(venue)
+                            .orElseThrow(() -> new CustomException(VenueMoodErrorCode.VENUE_MOOD_NOT_EXIST));
+                    boolean isHeartbeat = heartbeatRepository.findByMemberVenue(member, venue).isPresent();
 
-        if (!regionTag.isEmpty()) {
-            Region tempRegion = Region.fromText(regionTag);
-            if (tempRegion == null) throw new CustomException(MemberErrorCode.REGION_NOT_EXIST);
-            region = tempRegion;
-        } else {
-            region = null;
-        }
+                    List<String> trueGenreElements = Vector.getTrueGenreElements(venueGenre.getGenreVector());
+                    List<String> trueMoodElements = Vector.getTrueMoodElements(venueMood.getMoodVector());
 
-        SearchDTO.RequestDTO searchRequestDTO = SearchDTO.RequestDTO.builder().keyword(keyword).build();
-        List<SearchQueryResponseDTO> venueList = searchRepository.keywordFilter(searchRequestDTO, memberId);
+                    List<String> tagList = new ArrayList<>(trueGenreElements);
+                    tagList.addAll(trueMoodElements);
+                    tagList.add(venue.getRegion().getText());
 
+                    return new SearchQueryResponseDTO(
+                            LocalDateTime.now(),
+                            venue.getId(),
+                            venue.getEnglishName(),
+                            venue.getKoreanName(),
+                            tagList,
+                            venue.getHeartbeatNum(),
+                            isHeartbeat,
+                            venue.getLogoUrl(),
+                            venue.getBackgroundUrl(),
+                            venue.getAddress()
+                    );
+                })
+                .toList();
 
-        List<SearchQueryResponseDTO> filteredList = new ArrayList<>(venueList);
+        // ✅ 정렬
+        List<SearchQueryResponseDTO> sortedList = sortVenuesByCriteria(searchQueryResponseDTOS, criteria, latitude, longitude);
 
-        if (genreIndex != -1) {
-            filteredList = filteredList.stream()
-                    .map(v -> venueGenreRepository.findByVenueId(v.getVenueId())
-                            .orElseThrow(() -> new CustomException(VenueGenreErrorCode.VENUE_GENRE_NOT_EXIST)))
-                    .filter(vg -> (vg.getGenreVector().getElements().get(genreIndex) == 1.0))
-                    .map(vg -> {
-                        Venue venue = vg.getVenue();
-                        VenueMood venueMood = venueMoodRepository.findByVenue(venue).orElseThrow(() -> new CustomException(VenueMoodErrorCode.VENUE_MOOD_NOT_EXIST));
-                        boolean isHeartbeat = heartbeatRepository.findByMemberVenue(member, venue).isPresent();
-
-                        List<String> trueGenreElements = Vector.getTrueGenreElements(vg.getGenreVector());
-                        List<String> trueMoodElements = Vector.getTrueMoodElements(venueMood.getMoodVector());
-
-                        List<String> tagList = new ArrayList<>(trueGenreElements);
-                        tagList.addAll(trueMoodElements);
-                        tagList.add(venue.getRegion().getText());
-                        return new SearchQueryResponseDTO(
-                                LocalDateTime.now(),
-                                venue.getId(),
-                                venue.getEnglishName(),
-                                venue.getKoreanName(),
-                                tagList,
-                                venue.getHeartbeatNum(),
-                                isHeartbeat,
-                                venue.getLogoUrl(),
-                                venue.getBackgroundUrl(),
-                                venue.getAddress()
-                        );
-                    })
-                    .collect(Collectors.toList());
-        }
-
-        if (region != null) {
-            filteredList = filteredList.stream()
-                    .filter(v -> {
-                        Venue venue = venueRepository.findById(v.getVenueId())
-                                .orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
-                        return venue.getRegion() == region;
-                    })
-                    .collect(Collectors.toList());
-        }
-
-        List<SearchQueryResponseDTO> sortedVenueList = new ArrayList<>(filteredList);
-
-        MemberMood latestMemberMood = memberMoodRepository.findLatestMoodByMember(member).orElseThrow(() -> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));
-        MemberGenre latestMemberGenre = memberGenreRepository.findLatestGenreByMember(member).orElseThrow(() -> new CustomException(MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST));
-        Vector memberVector = Vector.mergeVectors(latestMemberGenre.getGenreVector(), latestMemberMood.getMoodVector());
-
-        Map<Long, Vector> venueVectors = new HashMap<>();
-        for (SearchQueryResponseDTO venueDTO : filteredList) {
-            Venue venue = venueRepository.findById(venueDTO.getVenueId()).orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
-            VenueGenre venueGenre = venueGenreRepository.findByVenue(venue).orElseThrow(() -> new CustomException(VenueGenreErrorCode.VENUE_GENRE_NOT_EXIST));
-            VenueMood venueMood = venueMoodRepository.findByVenue(venue).orElseThrow(() -> new CustomException(VenueMoodErrorCode.VENUE_MOOD_NOT_EXIST));
-            Vector venueVector = Vector.mergeVectors(venueGenre.getGenreVector(), venueMood.getMoodVector());
-            venueVectors.put(venueDTO.getVenueId(), venueVector);
-        }
-
-        sortedVenueList = filteredList.stream()
-                .sorted(Comparator.comparingDouble(venue -> {
-                    try {
-                        return -memberVector.cosineSimilarity(venueVectors.get(venue.getVenueId()));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return Double.MIN_VALUE;
-                    }
-                }))
-                .collect(Collectors.toList());
-        if(criteria.isBlank() || criteria.equals("관련도순")) return sortedVenueList;
-        else if (criteria.equals("인기순")) {
-            sortedVenueList = filteredList.stream()
-                    .sorted(Comparator.comparingLong(SearchQueryResponseDTO::getHeartbeatNum).reversed())
-                    .collect(Collectors.toList());
-        }
-        else throw new CustomException(SearchErrorCode.UNAVAILABLE_SORT_CRITERIA);
-
-        return sortedVenueList;
+        // ✅ 페이지네이션 적용
+        return applyPaginationIfNeeded(sortedList, criteria, page, size);
     }
 
-    public List<SearchQueryResponseDTO> mapSearchDropDown(Long memberId, SearchMapDTO searchMapDTO) {
-
-        int genreIndex;
-        Region region;
-
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
-        String genreTag = searchMapDTO.getGenreTag();
-        String regionTag = searchMapDTO.getRegionTag();
-        String criteria = searchMapDTO.getSortCriteria();
-        List<SearchQueryResponseDTO> venueList = searchMapDTO.getVenueList();
-
-        if (!genreTag.isEmpty()) {
-            int index = Vector.getGenreIndex(genreTag);
-            if (index == -1) throw new CustomException(VectorErrorCode.GENRE_INDEX_NOT_EXIST);
-            genreIndex = index;
-        } else {
-            genreIndex = -1;
-        }
-
-        if (!regionTag.isEmpty()) {
-            Region tempRegion = Region.fromText(regionTag);
-            if (tempRegion == null) throw new CustomException(MemberErrorCode.REGION_NOT_EXIST);
-            region = tempRegion;
-        } else {
-            region = null;
-        }
-
-        List<SearchQueryResponseDTO> filteredList = new ArrayList<>(venueList);
-
-        if (genreIndex != -1) {
-            filteredList = filteredList.stream()
-                    .map(v -> venueGenreRepository.findByVenueId(v.getVenueId())
-                            .orElseThrow(() -> new CustomException(VenueGenreErrorCode.VENUE_GENRE_NOT_EXIST)))
-                    .filter(vg -> (vg.getGenreVector().getElements().get(genreIndex) == 1.0))
-                    .map(vg -> {
-                        Venue venue = vg.getVenue();
-                        VenueMood venueMood = venueMoodRepository.findByVenue(venue).orElseThrow(() -> new CustomException(VenueMoodErrorCode.VENUE_MOOD_NOT_EXIST));
-                        boolean isHeartbeat = heartbeatRepository.findByMemberVenue(member, venue).isPresent();
-
-                        List<String> trueGenreElements = Vector.getTrueGenreElements(vg.getGenreVector());
-                        List<String> trueMoodElements = Vector.getTrueMoodElements(venueMood.getMoodVector());
-
-                        List<String> tagList = new ArrayList<>(trueGenreElements);
-                        tagList.addAll(trueMoodElements);
-                        tagList.add(venue.getRegion().getText());
-                        return new SearchQueryResponseDTO(
-                                LocalDateTime.now(),
-                                venue.getId(),
-                                venue.getEnglishName(),
-                                venue.getKoreanName(),
-                                tagList,
-                                venue.getHeartbeatNum(),
-                                isHeartbeat,
-                                venue.getLogoUrl(),
-                                venue.getBackgroundUrl(),
-                                venue.getAddress()
-                        );
-                    })
-                    .collect(Collectors.toList());
-        }
-
-        if (region != null) {
-            filteredList = filteredList.stream()
-                    .filter(v -> {
-                        Venue venue = venueRepository.findById(v.getVenueId())
-                                .orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
-                        return venue.getRegion() == region;
-                    })
-                    .collect(Collectors.toList());
-        }
-
-        List<SearchQueryResponseDTO> sortedVenueList = new ArrayList<>(filteredList);
-
-        MemberMood latestMemberMood = memberMoodRepository.findLatestMoodByMember(member).orElseThrow(() -> new CustomException(MemberMoodErrorCode.MEMBER_MOOD_NOT_EXIST));
-        MemberGenre latestMemberGenre = memberGenreRepository.findLatestGenreByMember(member).orElseThrow(() -> new CustomException(MemberGenreErrorCode.MEMBER_GENRE_NOT_EXIST));
-        Vector memberVector = Vector.mergeVectors(latestMemberGenre.getGenreVector(), latestMemberMood.getMoodVector());
-
-        Map<Long, Vector> venueVectors = new HashMap<>();
-        for (SearchQueryResponseDTO venueDTO : filteredList) {
-            Venue venue = venueRepository.findById(venueDTO.getVenueId()).orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
-            VenueGenre venueGenre = venueGenreRepository.findByVenue(venue).orElseThrow(() -> new CustomException(VenueGenreErrorCode.VENUE_GENRE_NOT_EXIST));
-            VenueMood venueMood = venueMoodRepository.findByVenue(venue).orElseThrow(() -> new CustomException(VenueMoodErrorCode.VENUE_MOOD_NOT_EXIST));
-            Vector venueVector = Vector.mergeVectors(venueGenre.getGenreVector(), venueMood.getMoodVector());
-            venueVectors.put(venueDTO.getVenueId(), venueVector);
-        }
-
-        sortedVenueList = filteredList.stream()
-                .sorted(Comparator.comparingDouble(venue -> {
-                    try {
-                        return -memberVector.cosineSimilarity(venueVectors.get(venue.getVenueId()));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return Double.MIN_VALUE;
-                    }
-                }))
-                .collect(Collectors.toList());
-        if(criteria.isBlank() || criteria.equals("관련도순")) return sortedVenueList;
-        else if (criteria.equals("인기순")) {
-            sortedVenueList = filteredList.stream()
+    private List<SearchQueryResponseDTO> sortVenuesByCriteria(List<SearchQueryResponseDTO> list, String criteria, double lat, double lng) {
+        if (criteria.equals("인기순")) {
+            return list.stream()
                     .sorted(Comparator.comparingLong(SearchQueryResponseDTO::getHeartbeatNum).reversed())
-                    .collect(Collectors.toList());
-        }
-        else throw new CustomException(SearchErrorCode.UNAVAILABLE_SORT_CRITERIA);
-
-        return sortedVenueList;
-
+                    .toList();
+        } else if (criteria.equals("거리순")) {
+            return list.stream()
+                    .sorted(Comparator.comparingDouble(dto -> {
+                        Venue v = venueInfoService.validateAndGetVenue(dto.getVenueId());
+                        return haversine(lat, lng, v.getLatitude(), v.getLongitude());
+                    }))
+                    .toList();
+        } else throw new CustomException(SearchErrorCode.UNAVAILABLE_SORT_CRITERIA);
     }
 
+    private List<SearchQueryResponseDTO> applyPaginationIfNeeded(List<SearchQueryResponseDTO> list, String criteria, int page, int size) {
+        if (criteria.equals("거리순")) {
+            return list.stream()
+                    .skip((long) page * size)
+                    .limit(size)
+                    .toList();
+        }
+        return list;
+    }
 
+    public static double haversine(double lat1, double lon1, double lat2, double lon2) {
+        double R = 6371; // 지구 반지름 (단위: km)
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
 
 }
