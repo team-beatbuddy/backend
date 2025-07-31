@@ -29,7 +29,7 @@ public class VenueSearchController implements VenueSearchApiDocs {
     @Override
     @GetMapping("/search")
     public ResponseEntity<ResponseDTO<List<VenueSearchResponseDTO>>> search(@RequestParam (required = false) @NotBlank(message = "검색 시, 키워드는 필수입니다.") String keyword) throws IOException {
-        List<VenueSearchResponseDTO> results = venueSearchService.searchByKeyword(keyword);
+        List<VenueSearchResponseDTO> results = venueSearchService.searchByKeywordForAddress(keyword);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_VENUE_SEARCH.getStatus().value())

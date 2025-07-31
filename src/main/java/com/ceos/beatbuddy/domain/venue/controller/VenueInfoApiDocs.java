@@ -2,11 +2,13 @@ package com.ceos.beatbuddy.domain.venue.controller;
 
 import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueCouponResponseDTO;
+import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -225,4 +227,49 @@ public interface VenueInfoApiDocs {
                                                                               @RequestParam(defaultValue = "1") int page,
                                                                               @RequestParam(defaultValue = "10") int size);
 
+
+    @Operation(summary = "근처 베뉴 조회",
+            description = "현재 위치를 기준으로 근처에 있는 베뉴를 조회합니다. " +
+                    "위도(lat)와 경도(lng)를 파라미터로 받아 해당 위치에서 가까운 베뉴들을 반환합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "근처 베뉴 조회 성공",
+                    content = @io.swagger.v3.oas.annotations.media.Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = Venue.class),
+                            examples = @ExampleObject(name = "조회 성공", value = """
+                            [
+                              {
+                                "id": 1,
+                                "englishName": "Venue One",
+                                "koreanName": "베뉴 원",
+                                "region": "강남",
+                                "isSmokingAllowed": true,
+                                "description": "A popular venue in Gangnam.",
+                                "address": "서울특별시 강남구 역삼동 123-45",
+                                "instaId": "@venueone",
+                                "instaUrl": "https://instagram.com/venueone",
+                                "phoneNum": "02-1234-5678",
+                                "entranceFee": 10000,
+                                "entranceNotice": "No entrance fee on weekends.",
+                                "notice": "",
+                                "isFreeEntrance": false,
+                                "latitude": 37.5555,
+                                "longitude": 126.9255,
+                                "operationHours": {"Mon-Fri": "10:00-22:00", "Sat-Sun": "12:00-24:00"},
+                                "logoUrl": "https://example.com/logo.jpg",
+                                "backgroundUrl": ["https://example.com/bg1.jpg", "https://example.com/bg2.jpg"],
+                                "heartbeatNum": 150
+                              }
+                            ]
+                            """))
+            ),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "404", description = "근처에 베뉴가 없습니다.")
+    })
+    ResponseEntity<List<Venue>> getNearbyVenues(
+            @RequestParam double lat,
+            @RequestParam double lng,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    );
 }

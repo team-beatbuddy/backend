@@ -36,6 +36,4 @@ public class SearchQueryResponseDTO {
         this.backgroundUrl = backgroundUrl;
         this.address = address;
     }
-
-
 }
