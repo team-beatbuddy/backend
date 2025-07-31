@@ -98,17 +98,4 @@ public class VenueInfoController implements VenueInfoApiDocs {
                 .status(SuccessCode.SUCCESS_GET_VENUE_EVENTS.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_VENUE_EVENTS, eventListResponseDTO));
     }
-
-
-    @GetMapping("/nearby")
-    @Operation(summary = "현재 위치 기준 가까운 베뉴 목록")
-    public ResponseEntity<ResponseDTO<List<VenueInfoResponseDTO>>> getNearbyVenues(
-            @RequestParam @NotNull(message = "위도 ") double lat,
-            @RequestParam @NotNull double lng,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        List<VenueInfoResponseDTO> venues = venueInfoService.getNearbyVenues(lat, lng, page, size);
-        return ResponseEntity
-    }
 }
