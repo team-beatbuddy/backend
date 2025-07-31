@@ -1,9 +1,7 @@
 package com.ceos.beatbuddy.domain.search.controller;
 
-import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.search.application.SearchService;
 import com.ceos.beatbuddy.domain.search.dto.*;
-import com.ceos.beatbuddy.domain.venue.dto.VenueResponseDTO;
 import com.ceos.beatbuddy.global.ResponseTemplate;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,8 +12,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +23,6 @@ import java.util.List;
 @Tag(name = "Search Controller", description = "검색 컨트롤러\n"
         + "사용자가 검색바에 검색하는 기능, 실시간 검색어 차트 조회 기능이 있습니다.")
 public class SearchController {
-    private final RedisTemplate<String, String> redisTemplate;
     private final SearchService searchService;
 
     @PostMapping("")
