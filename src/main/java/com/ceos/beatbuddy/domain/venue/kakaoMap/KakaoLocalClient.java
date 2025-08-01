@@ -50,9 +50,13 @@ public class KakaoLocalClient {
                         return Mono.error(new CustomException("좌표를 찾을 수 없습니다."));
                     }
                     KakaoApiResponse.Document doc = response.getDocuments().get(0);
-                    double x = Double.parseDouble(doc.getX());
-                    double y = Double.parseDouble(doc.getY());
-                    return Mono.just(new CoordinateResponse(x, y));
+                    try {
+                        double x = Double.parseDouble(doc.getX());
+                        double y = Double.parseDouble(doc.getY());
+                        return Mono.just(new CoordinateResponse(x, y));
+                    } catch (NumberFormatException e) {
+                        return Mono.error(new CustomException("좌표 형식이 올바르지 않습니다: " + e.getMessage()));
+                    }
                 });
     }
 
