@@ -176,15 +176,13 @@ public class SearchService {
     }
 
     private List<SearchQueryResponseDTO> applyPaginationIfNeeded(List<SearchQueryResponseDTO> list, String criteria, int page, int size) {
-        if (criteria.equals("거리순")) {
-            // 1-based를 0-based로 변환
-            int zeroBasedPage = page - 1;
-            return list.stream()
-                    .skip((long) zeroBasedPage * size)
-                    .limit(size)
-                    .toList();
-        }
-        return list;
+        // 모든 정렬 기준에 페이지네이션 적용
+        // 1-based를 0-based로 변환
+        int zeroBasedPage = page - 1;
+        return list.stream()
+                .skip((long) zeroBasedPage * size)
+                .limit(size)
+                .toList();
     }
 
     public static double haversine(double lat1, double lon1, double lat2, double lon2) {
