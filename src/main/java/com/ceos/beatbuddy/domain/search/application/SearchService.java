@@ -174,8 +174,10 @@ public class SearchService {
 
     private List<SearchQueryResponseDTO> applyPaginationIfNeeded(List<SearchQueryResponseDTO> list, String criteria, int page, int size) {
         if (criteria.equals("거리순")) {
+            // 1-based를 0-based로 변환
+            int zeroBasedPage = page - 1;
             return list.stream()
-                    .skip((long) page * size)
+                    .skip((long) zeroBasedPage * size)
                     .limit(size)
                     .toList();
         }
