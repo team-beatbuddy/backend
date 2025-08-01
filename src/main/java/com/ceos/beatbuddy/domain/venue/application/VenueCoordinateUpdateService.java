@@ -52,23 +52,21 @@ public class VenueCoordinateUpdateService {
                     continue;
                 }
                 
-                // 카카오 API로 좌표 조회
-                CoordinateResponse coordinate = kakaoLocalClient
+                // 카카오 API로 좌표 조회 (비동기 처리)
+                kakaoLocalClient
                     .getCoordinateFromAddress(venue.getAddress())
-                    .block();
-                
-                if (coordinate != null) {
-                    // 좌표 업데이트 (x는 경도, y는 위도)
-                    venueRepository.updateLatLng(venue.getId(), coordinate.getY(), coordinate.getX());
-                    successCount++;
-                    
-                    log.info("✅ [{}/%{}] 좌표 업데이트 완료: {} (위도: {}, 경도: {})", 
-                        i + 1, totalCount, venue.getKoreanName(), coordinate.getY(), coordinate.getX());
-                } else {
-                    failCount++;
-                    log.warn("❌ [{}/%{}] 좌표 조회 실패: {} (주소: {})", 
-                        i + 1, totalCount, venue.getKoreanName(), venue.getAddress());
-                }
+                    .subscribe(
+                        coordinate -> {
+                            // 좌표 업데이트 (x는 경도, y는 위도)
+                            venueRepository.updateLatLng(venue.getId(), coordinate.getY(), coordinate.getX());
+                            log.info("✅ [{}/%{}] 좌표 업데이트 완료: {} (위도: {}, 경도: {})", 
+                                i + 1, totalCount, venue.getKoreanName(), coordinate.getY(), coordinate.getX());
+                        },
+                        error -> {
+                            log.warn("❌ [{}/%{}] 좌표 조회 실패: {} (주소: {}) - {}", 
+                                i + 1, totalCount, venue.getKoreanName(), venue.getAddress(), error.getMessage());
+                        }
+                    );
                 
                 // API 호출 제한을 위한 딜레이 (카카오 API는 초당 10건 제한)
                 if (i % 10 == 9) {
