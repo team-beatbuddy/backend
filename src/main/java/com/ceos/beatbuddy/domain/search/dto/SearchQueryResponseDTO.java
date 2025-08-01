@@ -22,9 +22,11 @@ public class SearchQueryResponseDTO {
     private String logoUrl;
     private List<String> backgroundUrl;
     private String address;
+    private Double latitude;
+    private Double longitude;
 
     @QueryProjection
-    public SearchQueryResponseDTO(LocalDateTime currentDate, Long venueId, String englishName, String koreanName, List<String> tagList, Long heartbeatNum, boolean isHeartbeat, String logoUrl, List<String> backgroundUrl, String address) {
+    public SearchQueryResponseDTO(LocalDateTime currentDate, Long venueId, String englishName, String koreanName, List<String> tagList, Long heartbeatNum, boolean isHeartbeat, String logoUrl, List<String> backgroundUrl, String address, Double latitude, Double longitude) {
         this.currentDate = currentDate;
         this.venueId = venueId;
         this.englishName = englishName;
@@ -35,7 +37,7 @@ public class SearchQueryResponseDTO {
         this.logoUrl = logoUrl;
         this.backgroundUrl = backgroundUrl;
         this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
-
-
 }

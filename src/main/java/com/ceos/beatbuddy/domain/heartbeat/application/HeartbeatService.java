@@ -108,6 +108,11 @@ public class HeartbeatService {
                             .backgroundUrl(venue.getBackgroundUrl())
                             .tagList(tagList)
                             .heartbeatNum(heartBeat.getVenue().getHeartbeatNum())
+                            .isSmokingAllowed(heartBeat.getVenue().isSmokingAllowed())
+                            .isFreeEntrance(heartBeat.getVenue().isFreeEntrance())
+                            .address(heartBeat.getVenue().getAddress())
+                            .latitude(heartBeat.getVenue().getLatitude())
+                            .longitude(heartBeat.getVenue().getLongitude())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -152,6 +157,11 @@ public class HeartbeatService {
                             .logoUrl(venue.getLogoUrl())
                             .backgroundUrl(venue.getBackgroundUrl())
                             .isHeartbeat(heartbeatRepository.findByMemberVenue(member, venue).isPresent())
+                            .isSmokingAllowed(venue.isSmokingAllowed())
+                            .isFreeEntrance(venue.isFreeEntrance())
+                            .address(venue.getAddress())
+                            .latitude(venue.getLatitude())
+                            .longitude(venue.getLongitude())
                             .build();
                 })
                 .collect(Collectors.toList());

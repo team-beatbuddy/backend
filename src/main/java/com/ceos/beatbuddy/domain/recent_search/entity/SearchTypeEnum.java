@@ -6,7 +6,7 @@ import com.ceos.beatbuddy.global.code.ErrorCode;
 import java.util.Arrays;
 
 public enum SearchTypeEnum {
-    EVENT, VENUE, FREE_POST;
+    EVENT, HOME, MAP, FREE_POST;
 
     public static SearchTypeEnum from(String type) {
         return Arrays.stream(values())

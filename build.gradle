@@ -57,10 +57,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
 
-    //spring security
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    testImplementation 'org.springframework.security:spring-security-test'
-
     //lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -120,6 +116,9 @@ dependencies {
 
     // 날짜 직렬화
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    // 비동기 (위도 경도)
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 
 test {

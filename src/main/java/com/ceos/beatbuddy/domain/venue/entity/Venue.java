@@ -27,6 +27,7 @@ public class Venue extends BaseTimeEntity {
     private Region region;
     private boolean isSmokingAllowed;
     private String description;
+    @Column(nullable = false)
     private String address;
     private String instaId;
     private String instaUrl;
@@ -36,6 +37,10 @@ public class Venue extends BaseTimeEntity {
     private String entranceNotice; // 입장료 공지
     private String notice;
     private boolean isFreeEntrance; // 무료 입장 여부
+
+    private double latitude;
+
+    private double longitude;
 
     @ElementCollection
     private Map<String,String> operationHours;

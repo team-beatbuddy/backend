@@ -96,6 +96,14 @@ public class RecommendService {
                             .koreanName(venue.getKoreanName())
                             .englishName(venue.getEnglishName())
                             .heartbeatNum(venue.getHeartbeatNum())
+                            .logoUrl(venue.getLogoUrl())
+                            .backgroundUrl(venue.getBackgroundUrl())
+                            .isHeartbeat(heartbeatRepository.findByMemberVenue(member, venue).isPresent())
+                            .isSmokingAllowed(venue.isSmokingAllowed())
+                            .isFreeEntrance(venue.isFreeEntrance())
+                            .address(venue.getAddress())
+                            .latitude(venue.getLatitude())
+                            .longitude(venue.getLongitude())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -144,6 +152,14 @@ public class RecommendService {
                             .koreanName(venue.getKoreanName())
                             .englishName(venue.getEnglishName())
                             .heartbeatNum(venue.getHeartbeatNum())
+                            .logoUrl(venue.getLogoUrl())
+                            .backgroundUrl(venue.getBackgroundUrl())
+                            .isHeartbeat(heartbeatRepository.findByMemberVenue(member, venue).isPresent())
+                            .isSmokingAllowed(venue.isSmokingAllowed())
+                            .isFreeEntrance(venue.isFreeEntrance())
+                            .address(venue.getAddress())
+                            .latitude(venue.getLatitude())
+                            .longitude(venue.getLongitude())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -228,6 +244,11 @@ public class RecommendService {
                             .logoUrl(venue.getLogoUrl())
                             .isHeartbeat(heartbeatRepository.findByMemberVenue(member,venue).isPresent())
                             .heartbeatNum(venue.getHeartbeatNum())
+                            .isSmokingAllowed(venue.isSmokingAllowed())
+                            .isFreeEntrance(venue.isFreeEntrance())
+                            .address(venue.getAddress())
+                            .latitude(venue.getLatitude())
+                            .longitude(venue.getLongitude())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -341,6 +362,11 @@ public class RecommendService {
                             .logoUrl(venue.getLogoUrl())
                             .isHeartbeat(heartbeatRepository.findByMemberVenue(member,venue).isPresent())
                             .heartbeatNum(venue.getHeartbeatNum())
+                            .isSmokingAllowed(venue.isSmokingAllowed())
+                            .isFreeEntrance(venue.isFreeEntrance())
+                            .address(venue.getAddress())
+                            .latitude(venue.getLatitude())
+                            .longitude(venue.getLongitude())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -407,6 +433,11 @@ public class RecommendService {
                             .logoUrl(venue.getLogoUrl())
                             .isHeartbeat(heartbeatRepository.findByMemberVenue(member,venue).isPresent())
                             .heartbeatNum(venue.getHeartbeatNum())
+                            .isSmokingAllowed(venue.isSmokingAllowed())
+                            .isFreeEntrance(venue.isFreeEntrance())
+                            .address(venue.getAddress())
+                            .latitude(venue.getLatitude())
+                            .longitude(venue.getLongitude())
                             .build();
                 })
                 .collect(Collectors.toList());

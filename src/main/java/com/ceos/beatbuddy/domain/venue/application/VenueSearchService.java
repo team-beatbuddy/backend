@@ -1,11 +1,17 @@
 package com.ceos.beatbuddy.domain.venue.application;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.ceos.beatbuddy.domain.venue.dto.VenueSearchResponseDTO;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.entity.VenueDocument;
+import com.ceos.beatbuddy.domain.venue.entity.VenueGenre;
+import com.ceos.beatbuddy.domain.venue.entity.VenueMood;
+import com.ceos.beatbuddy.domain.venue.repository.VenueGenreRepository;
+import com.ceos.beatbuddy.domain.venue.repository.VenueMoodRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
@@ -26,6 +32,8 @@ public class VenueSearchService {
     private final VenueRepository venueRepository;
 
     private final ElasticsearchClient elasticsearchClient;
+    private final VenueGenreRepository venueGenreRepository;
+    private final VenueMoodRepository venueMoodRepository;
 
     public void indexVenue(VenueDocument venue) throws IOException {
         elasticsearchClient.index(i -> i
@@ -35,7 +43,7 @@ public class VenueSearchService {
         );
     }
 
-    public List<VenueSearchResponseDTO> searchByKeyword(String keyword) throws IOException {
+    public List<VenueSearchResponseDTO> searchByKeywordForAddress(String keyword) throws IOException {
         SearchResponse<VenueDocument> response = elasticsearchClient.search(s -> s
                         .index("venue")
                         .query(q -> q
@@ -58,9 +66,9 @@ public class VenueSearchService {
                 .collect(Collectors.toList());
     }
 
-    public void save(Venue venue) {
+    public void save(Venue venue, VenueGenre venueGenre, VenueMood venueMood) {
         try {
-            VenueDocument doc = VenueDocument.from(venue);
+            VenueDocument doc = VenueDocument.from(venue, venueGenre, venueMood);
             elasticsearchClient.index(i -> i
                     .index("venue")
                     .id(doc.getId().toString())
@@ -89,13 +97,61 @@ public class VenueSearchService {
         List<Venue> venues = venueRepository.findAll(); // SQL DB에서 가져옴
 
         for (Venue venue : venues) {
-            VenueDocument doc = VenueDocument.from(venue);
+            VenueDocument doc = VenueDocument.from(venue,
+                    venueGenreRepository.findByVenue(venue).orElse(null),
+                    venueMoodRepository.findByVenue(venue).orElse(null)
+            );
 
             elasticsearchClient.index(i -> i
                     .index("venue")
                     .id(doc.getId().toString())
                     .document(doc)
             );
+        }
+    }
+
+
+    public List<VenueDocument> searchMapDropDown(String keyword, String genreTag, String regionTag) {
+        try {
+            SearchResponse<VenueDocument> response = elasticsearchClient.search(s -> s
+                            .index("venue")
+                            .query(q -> q
+                                    .multiMatch(mm -> mm
+                                            .query(keyword)
+                                            .fields("koreanName", "englishName", "address", "genre", "mood", "region")
+                                            .fuzziness("AUTO")
+                                    )
+                            )
+                            .postFilter(pf -> pf.bool(b -> {
+                                if (genreTag != null && !genreTag.isBlank()) {
+                                    b.must(m -> m.terms(t -> t.field("genre.keyword").terms(tv -> tv.value(genreTag))));
+                                }
+                                if (regionTag != null && !regionTag.isBlank()) {
+                                    b.must(m -> m.terms(t -> t.field("region.keyword").terms(tv -> tv.value(regionTag))));
+                                }
+                                return b;
+                            }))
+                    , VenueDocument.class
+            );
+
+            List<Hit<VenueDocument>> hits = response.hits().hits();
+
+            // 결과 로그 출력
+            log.info("Elasticsearch 검색 결과 개수: {}", hits.size());
+            if (!hits.isEmpty()) {
+                log.info("첫 번째 검색 결과: {}", hits.get(0).source());
+            } else {
+                log.info("검색 결과가 없습니다.");
+            }
+
+            return hits.stream()
+                    .map(Hit::source)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+        } catch (IOException e) {
+            log.error("Venue 검색 실패: keyword={}, genreTag={}, regionTag={}, error={}", keyword, genreTag, regionTag, e.getMessage(), e);
+            throw new CustomException(ErrorCode.ELASTICSEARCH_SEARCH_FAILED);
         }
     }
 

@@ -40,7 +40,12 @@ public interface RecommendApiDocs {
                                   "heartbeatNum": 1,
                                   "logoUrl": "https://example.com/logo.jpg",
                                   "backgroundUrl": ["https://example.com/bg.mp4"],
-                                  "isHeartbeat": false
+                                  "isHeartbeat": false,
+                                  "isSmokingAllowed": true,
+                                  "isFreeEntrance": false,
+                                  "address": "서울특별시 마포구 서교동 358-1",
+                                  "latitude": 37.5555,
+                                  "longitude": 126.9255
                                 }
                               ]
                             }
@@ -134,7 +139,12 @@ public interface RecommendApiDocs {
                                                   "backgroundUrl": [
                                                     "https://example.com/bg.mp4"
                                                   ],
-                                                  "isHeartbeat": false
+                                                  "isHeartbeat": false,
+                                                  "isSmokingAllowed": true,
+                                                  "isFreeEntrance": false,
+                                                  "address": "서울특별시 마포구 서교동 358-1",
+                                                  "latitude": 37.5555,
+                                                  "longitude": 126.9255
                                                 }
                                              ]
                                         }
