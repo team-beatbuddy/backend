@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.venue.application;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.ceos.beatbuddy.domain.venue.dto.VenueSearchResponseDTO;
@@ -111,40 +112,39 @@ public class VenueSearchService {
 
 
     public List<VenueDocument> searchMapDropDown(String keyword, String genreTag, String regionTag) {
-        // bool query 내부 구성
-        Query query = Query.of(q -> q.bool(b -> {
-            // 검색어 OR 조건
-            if (keyword != null && !keyword.isBlank()) {
-                b.should(s -> s.match(m -> m.field("koreanName").query(keyword)))
-                        .should(s -> s.match(m -> m.field("englishName").query(keyword)))
-                        .should(s -> s.match(m -> m.field("address").query(keyword)))
-                        .should(s -> s.match(m -> m.field("genre").query(keyword)))
-                        .should(s -> s.match(m -> m.field("mood").query(keyword)))
-                        .should(s -> s.match(m -> m.field("region").query(keyword)))
-                        .minimumShouldMatch("1");
-            }
-
-            // genreTag 필터 (정확 일치)
-            if (genreTag != null && !genreTag.isBlank()) {
-                b.filter(f -> f.term(t -> t.field("genre.keyword").value(genreTag)));
-            }
-
-            // regionTag 필터 (정확 일치)
-            if (regionTag != null && !regionTag.isBlank()) {
-                b.filter(f -> f.term(t -> t.field("region.keyword").value(regionTag)));
-            }
-
-            return b;
-        }));
-
-        // 검색 요청
         try {
             SearchResponse<VenueDocument> response = elasticsearchClient.search(s -> s
                             .index("venue")
-                            .query(query),
-                    VenueDocument.class);
+                            .query(q -> q
+                                    .multiMatch(mm -> mm
+                                            .query(keyword)
+                                            .fields("koreanName", "englishName", "address", "genre", "mood", "region")
+                                            .fuzziness("AUTO")
+                                    )
+                            )
+                            .postFilter(pf -> pf.bool(b -> {
+                                if (genreTag != null && !genreTag.isBlank()) {
+                                    b.must(m -> m.terms(t -> t.field("genre.keyword").terms(tv -> tv.value(genreTag))));
+                                }
+                                if (regionTag != null && !regionTag.isBlank()) {
+                                    b.must(m -> m.terms(t -> t.field("region.keyword").terms(tv -> tv.value(regionTag))));
+                                }
+                                return b;
+                            }))
+                    , VenueDocument.class
+            );
 
-            return response.hits().hits().stream()
+            List<Hit<VenueDocument>> hits = response.hits().hits();
+
+            // 결과 로그 출력
+            log.info("Elasticsearch 검색 결과 개수: {}", hits.size());
+            if (!hits.isEmpty()) {
+                log.info("첫 번째 검색 결과: {}", hits.get(0).source());
+            } else {
+                log.info("검색 결과가 없습니다.");
+            }
+
+            return hits.stream()
                     .map(Hit::source)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
