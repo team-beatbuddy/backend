@@ -2,7 +2,9 @@ package com.ceos.beatbuddy.domain.search.controller;
 
 import com.ceos.beatbuddy.domain.search.application.SearchService;
 import com.ceos.beatbuddy.domain.search.dto.*;
+import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.ResponseTemplate;
+import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -54,6 +56,15 @@ public class SearchController {
                                                                            @RequestParam(required = false) Double longitude,
                                                                            @RequestParam(required = false, defaultValue = "1") int page,
                                                                            @RequestParam(required = false, defaultValue = "10") int size) {
+        if (latitude != null && (latitude < -90 || latitude > 90)) {
+            throw new CustomException(ErrorCode.INVALID_PARAMETER, "위도는 -90에서 90 사이여야 합니다.");
+        }
+        if (longitude != null && (longitude < -180 || longitude > 180)) {
+            throw new CustomException(ErrorCode.INVALID_PARAMETER, "경도는 -180에서 180 사이여야 합니다.");
+        }
+        if (size > 100) {
+            throw new CustomException(ErrorCode.INVALID_PARAMETER, "페이지 크기는 100을 초과할 수 없습니다.");
+        }
         Long memberId = SecurityUtils.getCurrentMemberId();
         return ResponseEntity.ok(searchService.searchDropDown(memberId, searchDropDownDTO, latitude, longitude, "HOME", page, size));
     }
@@ -76,6 +87,15 @@ public class SearchController {
                                                                        @RequestParam(required = false) Double longitude,
                                                                        @RequestParam(required = false, defaultValue = "1") int page,
                                                                        @RequestParam(required = false, defaultValue = "10") int size) {
+        if (latitude != null && (latitude < -90 || latitude > 90)) {
+            throw new CustomException(ErrorCode.INVALID_PARAMETER, "위도는 -90에서 90 사이여야 합니다.");
+        }
+        if (longitude != null && (longitude < -180 || longitude > 180)) {
+            throw new CustomException(ErrorCode.INVALID_PARAMETER, "경도는 -180에서 180 사이여야 합니다.");
+        }
+        if (size > 100) {
+            throw new CustomException(ErrorCode.INVALID_PARAMETER, "페이지 크기는 100을 초과할 수 없습니다.");
+        }
         Long memberId = SecurityUtils.getCurrentMemberId();
         return ResponseEntity.ok(searchService.searchDropDown(memberId, searchDropDownDTO, latitude, longitude, "MAP", page, size));
     }
