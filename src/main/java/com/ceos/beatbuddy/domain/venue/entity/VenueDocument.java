@@ -51,7 +51,7 @@ public class VenueDocument implements java.io.Serializable {
                 .genre(genres) // ✅ 리스트로 변환된 장르
                 .mood(moods)   // ✅ 리스트로 변환된 무드
                 .smoking(venue.isSmokingAllowed())
-                .region(venue.getRegion().getKorText())
+                .region(venue.getRegion() != null ? venue.getRegion().getKorText() : null)
                 .build();
     }
 }

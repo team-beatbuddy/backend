@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -186,7 +187,7 @@ public class VenueInfoService {
                         venueRepository.updateLatLng(venueId, coord.getY(), coord.getX());
                         return Mono.empty();
                     })
-                    .block(); // 블록킹 호출로 위도 경도 업데이트를 기다림
+                    .block(Duration.ofSeconds(10)); // 10초 타임아웃 설정
         }
 
         // 로고 이미지 변경
