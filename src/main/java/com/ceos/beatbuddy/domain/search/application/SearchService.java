@@ -27,6 +27,7 @@ import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -41,6 +42,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class SearchService {
 
     private final RedisTemplate<String, String> redisTemplate;
@@ -65,7 +67,7 @@ public class SearchService {
                 long expireAt = Instant.now().getEpochSecond() + 86400;
                 redisTemplate.opsForZSet().add("expire", keyword, (double) expireAt);
             } catch (Exception e) {
-                System.err.println("❌ Redis 키워드 저장 실패: " + keyword + " / " + e.getMessage());
+                log.error("Redis 키워드 저장 실패: keyword={}, error={}", keyword, e.getMessage(), e);
             }
         }
     }
@@ -145,7 +147,9 @@ public class SearchService {
                             isHeartbeat,
                             venue.getLogoUrl(),
                             venue.getBackgroundUrl(),
-                            venue.getAddress()
+                            venue.getAddress(),
+                            venue.getLatitude(),
+                            venue.getLongitude()
                     );
                 })
                 .toList();
@@ -164,10 +168,9 @@ public class SearchService {
                     .toList();
         } else if (criteria.equals("거리순")) {
             return list.stream()
-                    .sorted(Comparator.comparingDouble(dto -> {
-                        Venue v = venueInfoService.validateAndGetVenue(dto.getVenueId());
-                        return haversine(lat, lng, v.getLatitude(), v.getLongitude());
-                    }))
+                    .sorted(Comparator.comparingDouble(dto -> 
+                        haversine(lat, lng, dto.getLatitude(), dto.getLongitude())
+                    ))
                     .toList();
         } else throw new CustomException(SearchErrorCode.UNAVAILABLE_SORT_CRITERIA);
     }
