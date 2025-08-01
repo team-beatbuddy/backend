@@ -112,23 +112,49 @@ public class VenueSearchService {
 
 
     public List<VenueDocument> searchMapDropDown(String keyword, String genreTag, String regionTag) {
+        log.info("검색 파라미터 - keyword: {}, genreTag: {}, regionTag: {}", keyword, genreTag, regionTag);
+        
         try {
+            // 먼저 필터 없이 키워드만으로 검색해보기
+            SearchResponse<VenueDocument> testResponse = elasticsearchClient.search(s -> s
+                            .index("venue")
+                            .query(q -> q.multiMatch(mm -> mm
+                                    .query(keyword)
+                                    .fields("koreanName", "englishName", "address", "genre", "mood", "region")
+                                    .fuzziness("AUTO")
+                            ))
+                    , VenueDocument.class
+            );
+            log.info("필터 없는 검색 결과: {} 개", testResponse.hits().total().value());
+            
+            // 이제 실제 검색
             SearchResponse<VenueDocument> response = elasticsearchClient.search(s -> s
                             .index("venue")
-                            .query(q -> q
-                                    .multiMatch(mm -> mm
+                            .query(q -> q.bool(b -> {
+                                // 키워드 검색 (필수)
+                                if (keyword != null && !keyword.isBlank()) {
+                                    b.must(m -> m.multiMatch(mm -> mm
                                             .query(keyword)
                                             .fields("koreanName", "englishName", "address", "genre", "mood", "region")
                                             .fuzziness("AUTO")
-                                    )
-                            )
-                            .postFilter(pf -> pf.bool(b -> {
+                                    ));
+                                } else {
+                                    // 키워드가 없으면 모든 문서 매치
+                                    b.must(m -> m.matchAll(ma -> ma));
+                                }
+                                
+                                // 장르 필터
                                 if (genreTag != null && !genreTag.isBlank()) {
-                                    b.must(m -> m.terms(t -> t.field("genre.keyword").terms(tv -> tv.value(genreTag))));
+                                    log.info("장르 필터 적용: {}", genreTag);
+                                    b.filter(f -> f.term(t -> t.field("genre").value(genreTag)));
                                 }
+                                
+                                // 지역 필터
                                 if (regionTag != null && !regionTag.isBlank()) {
-                                    b.must(m -> m.terms(t -> t.field("region.keyword").terms(tv -> tv.value(regionTag))));
+                                    log.info("지역 필터 적용: {}", regionTag);
+                                    b.filter(f -> f.term(t -> t.field("region").value(regionTag)));
                                 }
+                                
                                 return b;
                             }))
                     , VenueDocument.class
@@ -138,10 +164,19 @@ public class VenueSearchService {
 
             // 결과 로그 출력
             log.info("Elasticsearch 검색 결과 개수: {}", hits.size());
+            log.info("전체 매치 수: {}, 최대 스코어: {}", response.hits().total().value(), response.hits().maxScore());
+            
             if (!hits.isEmpty()) {
                 log.info("첫 번째 검색 결과: {}", hits.get(0).source());
+                // 모든 결과의 region 필드 확인
+                for (int i = 0; i < Math.min(hits.size(), 5); i++) {
+                    VenueDocument doc = hits.get(i).source();
+                    if (doc != null) {
+                        log.info("결과 {}: 이름={}, 지역={}, 장르={}", i+1, doc.getKoreanName(), doc.getRegion(), doc.getGenre());
+                    }
+                }
             } else {
-                log.info("검색 결과가 없습니다.");
+                log.warn("검색 결과가 없습니다. 필터 조건을 확인해주세요.");
             }
 
             return hits.stream()
