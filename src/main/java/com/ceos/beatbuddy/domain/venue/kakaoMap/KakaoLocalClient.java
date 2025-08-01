@@ -4,10 +4,14 @@ import com.ceos.beatbuddy.global.CustomException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
+
+import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
@@ -20,9 +24,16 @@ public class KakaoLocalClient {
         this.webClient = WebClient.builder()
                 .baseUrl("https://dapi.kakao.com")
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "KakaoAK " + kakaoConfig.getClientId())
+                .clientConnector(new ReactorClientHttpConnector(
+                    HttpClient.create()
+                        .responseTimeout(Duration.ofSeconds(5))
+                ))
                 .build();
     }
     public Mono<CoordinateResponse> getCoordinateFromAddress(String address) {
+        if (address == null || address.trim().isEmpty()) {
+            return Mono.error(new CustomException("주소가 비어있습니다."));
+        }
         String realAddress = cleanAddress(address);
         String uri = UriComponentsBuilder
                 .fromPath("/v2/local/search/address.json")
