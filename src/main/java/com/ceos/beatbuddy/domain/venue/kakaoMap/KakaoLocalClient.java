@@ -19,7 +19,7 @@ public class KakaoLocalClient {
     public void init() {
         this.webClient = WebClient.builder()
                 .baseUrl("https://dapi.kakao.com")
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "KakaoAK " + kakaoConfig.getRestApiKey())
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "KakaoAK " + kakaoConfig.getClientId())
                 .build();
     }
     public Mono<CoordinateResponse> getCoordinateFromAddress(String address) {
