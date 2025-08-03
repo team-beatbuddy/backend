@@ -84,19 +84,19 @@ public class UploadUtil {
         String s3FileName = folder + "/thumbnail/" + fileName;
 
         ObjectMetadata metadata = new ObjectMetadata();
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-        try {
+        byte[] bytes;
+        
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             Thumbnails.of(image.getInputStream())
                     .scale(1.0)
                     .outputFormat("jpg")
                     .outputQuality(0.3) // 30% 품질
                     .toOutputStream(os);
+            bytes = os.toByteArray();
         } catch (IOException e) {
-            throw new CustomException("썸네일 생성 실패");
+            throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
         }
 
-        byte[] bytes = os.toByteArray();
         metadata.setContentLength(bytes.length);
         metadata.setContentType("image/jpeg");
 

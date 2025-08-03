@@ -14,6 +14,9 @@ public class StringListConverter implements AttributeConverter<List<String>, Str
 
     @Override
     public String convertToDatabaseColumn(List<String> attribute) {
+        if (attribute == null) {
+            return null;
+        }
         try {
             return objectMapper.writeValueAsString(attribute);
         } catch (Exception e) {
@@ -23,6 +26,9 @@ public class StringListConverter implements AttributeConverter<List<String>, Str
 
     @Override
     public List<String> convertToEntityAttribute(String dbData) {
+        if (dbData == null || dbData.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
         try {
             return objectMapper.readValue(dbData, new TypeReference<List<String>>() {});
         } catch (Exception e) {

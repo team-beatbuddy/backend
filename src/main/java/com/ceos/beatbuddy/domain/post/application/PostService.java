@@ -19,6 +19,10 @@ import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.service.ImageUploadService;
 import com.ceos.beatbuddy.global.util.UploadUtil;
 import com.ceos.beatbuddy.global.util.UploadUtilAsyncWrapper;
+import com.ceos.beatbuddy.global.util.FileNameUtil;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.data.domain.Page;
@@ -35,7 +39,6 @@ import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
-@RequiredArgsConstructor
 public class PostService {
     private final MemberService memberService;
     private final PostLikeRepository postLikeRepository;
@@ -49,8 +52,31 @@ public class PostService {
     private final PostInteractionService postInteractionService;
     private final FollowRepository followRepository;
     private final UploadUtil uploadUtil;
+    private final Executor uploadExecutor;
 
     private static final List<String> VALID_POST_TYPES = List.of("free", "piece");
+
+    public PostService(MemberService memberService, PostLikeRepository postLikeRepository,
+                       PostScrapRepository postScrapRepository, PostQueryRepository postQueryRepository,
+                       CommentRepository commentRepository, PostTypeHandlerFactory postTypeHandlerFactory,
+                       ImageUploadService imageUploadService, UploadUtilAsyncWrapper uploadUtilAsyncWrapper,
+                       PostRepository postRepository, PostInteractionService postInteractionService,
+                       FollowRepository followRepository, UploadUtil uploadUtil,
+                       @Qualifier("uploadExecutor") Executor uploadExecutor) {
+        this.memberService = memberService;
+        this.postLikeRepository = postLikeRepository;
+        this.postScrapRepository = postScrapRepository;
+        this.postQueryRepository = postQueryRepository;
+        this.commentRepository = commentRepository;
+        this.postTypeHandlerFactory = postTypeHandlerFactory;
+        this.imageUploadService = imageUploadService;
+        this.uploadUtilAsyncWrapper = uploadUtilAsyncWrapper;
+        this.postRepository = postRepository;
+        this.postInteractionService = postInteractionService;
+        this.followRepository = followRepository;
+        this.uploadUtil = uploadUtil;
+        this.uploadExecutor = uploadExecutor;
+    }
 
     @Transactional
     public ResponsePostDto addNewPost(String type, PostCreateRequestDTO dto, Long memberId, List<MultipartFile> images) {
@@ -68,18 +94,23 @@ public class PostService {
             // 1. 이미지 병렬 업로드
             imageUrls = imageUploadService.uploadImagesParallel(images, UploadUtil.BucketType.MEDIA, "post");
 
-            // 2. 썸네일은 post 타입일 때만 생성
+            // 2. 썸네일은 post 타입일 때만 생성 (병렬 처리)
             if ("post".equalsIgnoreCase(type)) {
-                thumbnailUrls = new ArrayList<>();
+                List<CompletableFuture<String>> thumbnailFutures = new ArrayList<>();
                 for (int i = 0; i < images.size(); i++) {
                     MultipartFile image = images.get(i);
                     String imageUrl = imageUrls.get(i);
-                    String fileName = extractFileNameFromUrl(imageUrl); // S3 URL에서 파일명만 추출
-
-                    // 3. 썸네일 생성 (동일한 파일명 사용)
-                    String thumbnailUrl = uploadUtil.uploadThumbnail(image, UploadUtil.BucketType.MEDIA, "post", fileName);
-                    thumbnailUrls.add(thumbnailUrl);
+                    String fileName = FileNameUtil.extractFileNameFromUrl(imageUrl);
+                    
+                    CompletableFuture<String> future = CompletableFuture.supplyAsync(() ->
+                        uploadUtil.uploadThumbnail(image, UploadUtil.BucketType.MEDIA, "post", fileName),
+                        uploadExecutor
+                    );
+                    thumbnailFutures.add(future);
                 }
+                thumbnailUrls = thumbnailFutures.stream()
+                    .map(CompletableFuture::join)
+                    .toList();
             }
         }
 
@@ -91,9 +122,6 @@ public class PostService {
     }
 
 
-    private String extractFileNameFromUrl(String url) {
-        return url.substring(url.lastIndexOf('/') + 1);
-    }
 
 
 
@@ -429,6 +457,26 @@ public class PostService {
         if (files != null && !files.isEmpty()) {
             List<String> imageUrls = imageUploadService.uploadImagesParallel(files, UploadUtil.BucketType.MEDIA, "post");
             post.getImageUrls().addAll(imageUrls);
+            
+            // post 타입인 경우 썸네일 생성 (병렬 처리)
+            if ("post".equalsIgnoreCase(type) && post.getThumbnailUrls() != null) {
+                List<CompletableFuture<String>> thumbnailFutures = new ArrayList<>();
+                for (int i = 0; i < files.size(); i++) {
+                    MultipartFile file = files.get(i);
+                    String imageUrl = imageUrls.get(i);
+                    String fileName = FileNameUtil.extractFileNameFromUrl(imageUrl);
+                    
+                    CompletableFuture<String> future = CompletableFuture.supplyAsync(() ->
+                        uploadUtil.uploadThumbnail(file, UploadUtil.BucketType.MEDIA, "post", fileName),
+                        uploadExecutor
+                    );
+                    thumbnailFutures.add(future);
+                }
+                List<String> newThumbnailUrls = thumbnailFutures.stream()
+                    .map(CompletableFuture::join)
+                    .toList();
+                post.getThumbnailUrls().addAll(newThumbnailUrls);
+            }
         }
 
         // 유저 상호작용 상태
