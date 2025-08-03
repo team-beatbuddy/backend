@@ -94,8 +94,8 @@ public class PostService {
             // 1. 이미지 병렬 업로드
             imageUrls = imageUploadService.uploadImagesParallel(images, UploadUtil.BucketType.MEDIA, "post");
 
-            // 2. 썸네일은 post 타입일 때만 생성 (병렬 처리)
-            if ("post".equalsIgnoreCase(type)) {
+            // 2. 썸네일은 free 타입에만 생성 (병렬 처리)
+            if ("free".equalsIgnoreCase(type)) {
                 List<CompletableFuture<String>> thumbnailFutures = new ArrayList<>();
                 for (int i = 0; i < images.size(); i++) {
                     MultipartFile image = images.get(i);
@@ -458,8 +458,11 @@ public class PostService {
             List<String> imageUrls = imageUploadService.uploadImagesParallel(files, UploadUtil.BucketType.MEDIA, "post");
             post.getImageUrls().addAll(imageUrls);
             
-            // post 타입인 경우 썸네일 생성 (병렬 처리)
-            if ("post".equalsIgnoreCase(type) && post.getThumbnailUrls() != null) {
+            // free 타입인 경우 썸네일 생성 (병렬 처리)
+            if ("free".equalsIgnoreCase(type)) {
+                if (post.getThumbnailUrls() == null) {
+                    post.setThumbnailUrls(new ArrayList<>());
+                }
                 List<CompletableFuture<String>> thumbnailFutures = new ArrayList<>();
                 for (int i = 0; i < files.size(); i++) {
                     MultipartFile file = files.get(i);
