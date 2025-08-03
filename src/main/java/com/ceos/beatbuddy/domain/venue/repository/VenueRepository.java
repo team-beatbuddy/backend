@@ -39,22 +39,6 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
     @Query("UPDATE Venue v SET v.latitude = :lat, v.longitude = :lng WHERE v.id = :venueId")
     void updateLatLng(@Param("venueId") Long venueId, @Param("lat") double lat, @Param("lng") double lng);
 
-    @Query(
-            value = """
-            SELECT *,
-                   ST_Distance_Sphere(point(:lng, :lat), point(v.longitude, v.latitude)) AS distance
-            FROM venue v
-            WHERE v.latitude IS NOT NULL AND v.longitude IS NOT NULL
-            ORDER BY distance
-            LIMIT :limit OFFSET :offset
-        """, nativeQuery = true)
-    List<Venue> findNearbyVenuesWithPagination(
-            @Param("lat") double lat,
-            @Param("lng") double lng,
-            @Param("limit") int limit,
-            @Param("offset") int offset
-    );
-
     @Query("SELECT v FROM Venue v WHERE v.id IN :ids")
     List<Venue> findByIdIn(@Param("ids") List<Long> ids);
 }
