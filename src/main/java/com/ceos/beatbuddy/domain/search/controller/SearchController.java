@@ -39,7 +39,15 @@ public class SearchController {
     }
 
     @PostMapping("/home/drop-down")
-    @Operation(summary = "홈 검색 드롭다운 기능", description = "사용자가 검색바에 입력한 검색어로 검색한 결과에서 드롭다운으로 필터링/정렬한 베뉴 조회")
+    @Operation(summary = "홈 검색 드롭다운 기능", description = """
+            사용자가 검색바에 입력한 검색어로 검색한 결과에서 드롭다운으로 필터링/정렬한 베뉴 조회
+            - keyword, regionTag, genreTag는 필수가 아닙니다.
+            - sortCriteria는 필수입니다. (인기순, 거리순)
+            - 가까운 순으로 정렬하고 싶다면 latitude, longitude를 보내주셔야 합니다.
+            - keyword는 그대로 보내주면 됩니다.
+            - regionTag는 (홍대, 압구정, 강남/신사, 이태원, 기타)로 정확하게 보내주셔야 합니다.
+            - genreTag는 (HIPHOP,R&B,EDM,HOUSE,TECHNO,SOUL&FUNK,ROCK,LATIN,K-POP,POP)로 정확하게 보내주셔야 합니다.
+            """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "드롭다운 필터링 베뉴 조회 성공"
                     , content = @Content(mediaType = "application/json"
@@ -61,7 +69,15 @@ public class SearchController {
     }
 
     @PostMapping("/map/drop-down")
-    @Operation(summary = "지도 드롭다운 기능", description = "사용자가 검색바에 입력한 검색어로 검색한 결과에서 드롭다운으로 필터링/정렬한 베뉴 조회")
+    @Operation(summary = "지도 드롭다운 기능", description = """
+            사용자가 검색바에 입력한 검색어로 검색한 결과에서 드롭다운으로 필터링/정렬한 베뉴 조회
+            - keyword, regionTag, genreTag는 필수가 아닙니다.
+            - sortCriteria는 필수입니다. (인기순, 거리순)
+            - 가까운 순으로 정렬하고 싶다면 latitude, longitude를 보내주셔야 합니다.
+            - keyword는 그대로 보내주면 됩니다.
+            - regionTag는 (홍대, 압구정, 강남/신사, 이태원, 기타)로 정확하게 보내주셔야 합니다.
+            - genreTag는 (HIPHOP,R&B,EDM,HOUSE,TECHNO,SOUL&FUNK,ROCK,LATIN,K-POP,POP)로 정확하게 보내주셔야 합니다.
+    """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "드롭다운 필터링 베뉴 조회 성공"
                     , content = @Content(mediaType = "application/json"
