@@ -17,34 +17,76 @@ public class UploadUtilAsyncWrapper {
     private final UploadUtil uploadUtil;
 
     @Async("uploadExecutor")
-    public CompletableFuture<String> uploadAsync(MultipartFile image, UploadUtil.BucketType type, String folder) {
+    public CompletableFuture<UploadResult> uploadAsync(MultipartFile image, UploadUtil.BucketType type, String folder) {
         String name = image.getOriginalFilename();
         long start = System.currentTimeMillis();
         log.info("▶ START Upload: {}", name);
 
-        // 원본 업로드
-        String originalUrl = uploadUtil.upload(image, type, folder);
-
-        // post인 경우만 썸네일 생성
         if ("post".equals(folder)) {
-            try {
-                String originalFileName = extractFileNameFromUrl(originalUrl);
-                uploadUtil.uploadThumbnail(image, type, folder, originalFileName);
-            } catch (Exception e) {
-                log.error("Failed to upload thumbnail for {}: {}", name, e.getMessage());
-                // 원본 이미지 삭제 또는 재시도 로직 고려
-                throw new RuntimeException("Thumbnail upload failed", e);
-            }
+            // post 폴더인 경우: 원본과 썸네일을 진짜 병렬로 업로드
+            CompletableFuture<String> originalFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return uploadUtil.upload(image, type, folder);
+                } catch (Exception e) {
+                    log.error("Failed to upload original for {}: {}", name, e.getMessage());
+                    throw new RuntimeException("Original upload failed", e);
+                }
+            });
+            
+            // 파일명을 미리 생성 (시간 기반)
+            String fileName = generateFileName(image.getOriginalFilename());
+            
+            CompletableFuture<String> thumbnailFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return uploadUtil.uploadThumbnail(image, type, folder, fileName);
+                } catch (Exception e) {
+                    log.error("Failed to upload thumbnail for {}: {}", name, e.getMessage());
+                    throw new RuntimeException("Thumbnail upload failed", e);
+                }
+            });
+            
+            // 두 작업 모두 완료 대기
+            String originalUrl = originalFuture.join();
+            String thumbnailUrl = thumbnailFuture.join();
+            
+            log.info("✅ Both uploads completed for: {}", name);
+            
+            UploadResult result = UploadResult.builder()
+                    .originalUrl(originalUrl)
+                    .thumbnailUrl(thumbnailUrl)
+                    .build();
+            
+            long end = System.currentTimeMillis();
+            log.info("✅ END Upload: {} ({} ms)", name, end - start);
+            
+            return CompletableFuture.completedFuture(result);
+        } else {
+            // post가 아닌 경우: 원본만 업로드
+            String originalUrl = uploadUtil.upload(image, type, folder);
+            
+            UploadResult result = UploadResult.builder()
+                    .originalUrl(originalUrl)
+                    .thumbnailUrl(null)
+                    .build();
+            
+            long end = System.currentTimeMillis();
+            log.info("✅ END Upload: {} ({} ms)", name, end - start);
+            
+            return CompletableFuture.completedFuture(result);
         }
-
-        long end = System.currentTimeMillis();
-        log.info("✅ END Upload: {} ({} ms)", name, end - start);
-
-        return CompletableFuture.completedFuture(originalUrl);
     }
 
     private String extractFileNameFromUrl(String url) {
         return FileNameUtil.extractFileNameFromUrl(url);
+    }
+    
+    private String generateFileName(String originalFilename) {
+        String extension = "";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+        return java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + 
+               "_" + java.util.UUID.randomUUID().toString() + extension;
     }
 
     @Async("uploadExecutor")

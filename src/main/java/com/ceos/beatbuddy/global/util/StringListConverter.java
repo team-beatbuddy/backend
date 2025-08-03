@@ -1,10 +1,13 @@
 package com.ceos.beatbuddy.global.util;
 
+import com.ceos.beatbuddy.global.CustomException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Converter
@@ -20,7 +23,7 @@ public class StringListConverter implements AttributeConverter<List<String>, Str
         try {
             return objectMapper.writeValueAsString(attribute);
         } catch (Exception e) {
-            throw new IllegalArgumentException("List<String> → JSON 변환 실패", e);
+            throw new CustomException(e.getMessage() + "List<String> → JSON 변환 실패");
         }
     }
 
