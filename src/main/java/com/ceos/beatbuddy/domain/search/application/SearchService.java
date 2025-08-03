@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.search.application;
 
 
 import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
+import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
@@ -37,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -107,11 +109,13 @@ public class SearchService {
 
         String keyword = searchDropDownDTO.getKeyword();
 
-        // 최근 검색어로 추가
-        recentSearchService.saveRecentSearch(String.valueOf(SearchTypeEnum.valueOf(searchType)), keyword, memberId);
+        if (searchDropDownDTO.getKeyword() != null && !searchDropDownDTO.getKeyword().isBlank()) {
+            // 최근 검색어로 추가
+            recentSearchService.saveRecentSearch(String.valueOf(SearchTypeEnum.valueOf(searchType)), keyword, memberId);
 
-        // Redis에 검색어 저장
-        saveSearchKeywordsToRedis(Collections.singletonList(keyword));
+            // Redis에 검색어 저장
+            saveSearchKeywordsToRedis(Collections.singletonList(keyword));
+        }
 
         String regionKeyword = searchDropDownDTO.getRegionTag();
         String genreKeyword = searchDropDownDTO.getGenreTag();
@@ -120,34 +124,37 @@ public class SearchService {
 
         List<VenueDocument> venueList = venueSearchService.searchMapDropDown(keyword, regionKeyword, genreKeyword);
 
+        List<Long> venueIds = venueList.stream()
+                .map(VenueDocument::getId)
+                .toList();
+
+        // venueId → Venue 매핑
+        List<Venue> venues = venueRepository.findByIdIn(venueIds);
+        Map<Long, Venue> venueMap = venues.stream()
+                .collect(Collectors.toMap(Venue::getId, Function.identity()));
+
         List<SearchQueryResponseDTO> searchQueryResponseDTOS = venueList.stream()
                 .map(venueDocument -> {
-                    Venue venue = venueRepository.findById(venueDocument.getId())
-                            .orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
-                    VenueGenre venueGenre = venueGenreRepository.findByVenue(venue)
-                            .orElseThrow(() -> new CustomException(VenueGenreErrorCode.VENUE_GENRE_NOT_EXIST));
-                    VenueMood venueMood = venueMoodRepository.findByVenue(venue)
-                            .orElseThrow(() -> new CustomException(VenueMoodErrorCode.VENUE_MOOD_NOT_EXIST));
-                    boolean isHeartbeat = heartbeatRepository.findByMemberVenue(member, venue).isPresent();
+                    Venue venue = venueMap.get(venueDocument.getId());
+                    if (venue == null) return null; // 예외 처리 필요 시 추가
 
-                    List<String> trueGenreElements = Vector.getTrueGenreElements(venueGenre.getGenreVector());
-                    List<String> trueMoodElements = Vector.getTrueMoodElements(venueMood.getMoodVector());
+                    boolean isHeartbeat = heartbeatRepository.findByMemberVenueId(member, venueDocument.getId()).isPresent();
 
-                    List<String> tagList = new ArrayList<>(trueGenreElements);
-                    tagList.addAll(trueMoodElements);
-                    tagList.add(venue.getRegion().getText());
+                    List<String> tagList = new ArrayList<>(venueDocument.getGenre());
+                    tagList.addAll(venueDocument.getMood());
+                    tagList.add(venueDocument.getRegion());
 
                     return new SearchQueryResponseDTO(
                             LocalDateTime.now(),
-                            venue.getId(),
-                            venue.getEnglishName(),
-                            venue.getKoreanName(),
+                            venueDocument.getId(),
+                            venueDocument.getEnglishName(),
+                            venueDocument.getKoreanName(),
                             tagList,
                             venue.getHeartbeatNum(),
                             isHeartbeat,
                             venue.getLogoUrl(),
                             venue.getBackgroundUrl(),
-                            venue.getAddress(),
+                            venueDocument.getAddress(),
                             venue.getLatitude(),
                             venue.getLongitude()
                     );
@@ -161,7 +168,7 @@ public class SearchService {
         return applyPaginationIfNeeded(sortedList, criteria, page, size);
     }
 
-    private List<SearchQueryResponseDTO> sortVenuesByCriteria(List<SearchQueryResponseDTO> list, String criteria, double lat, double lng) {
+    private List<SearchQueryResponseDTO> sortVenuesByCriteria(List<SearchQueryResponseDTO> list, String criteria, Double lat, Double lng) {
         if (criteria.equals("인기순")) {
             return list.stream()
                     .sorted(Comparator.comparingLong(SearchQueryResponseDTO::getHeartbeatNum).reversed())

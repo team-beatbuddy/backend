@@ -1,0 +1,106 @@
+{
+  "settings": {
+    "analysis": {
+      "tokenizer": {
+        "ngram_tokenizer": {
+          "type": "edge_ngram",
+          "min_gram": 1,
+          "max_gram": 20,
+          "token_chars": ["letter", "digit"]
+        }
+      },
+      "analyzer": {
+        "edge_ngram_analyzer": {
+          "type": "custom",
+          "tokenizer": "ngram_tokenizer",
+          "filter": ["lowercase"]
+        },
+        "synonym_analyzer": {
+          "tokenizer": "standard",
+          "filter": ["lowercase", "synonym_filter"]
+        },
+        "synonym_edge_ngram_analyzer": {
+          "type": "custom",
+          "tokenizer": "ngram_tokenizer",
+          "filter": ["lowercase", "synonym_filter"]
+        }
+      },
+
+      "filter": {
+        "synonym_filter": {
+          "type": "synonym",
+          "synonyms": [
+            "홍대, HONGDAE",
+            "이태원, ITAEWON",
+            "압구정, APGUJEONG",
+            "강남_신사, 강남/신사, GANGNAM/SINSA",
+            "기타, OTHERS",
+            "이디엠, EDM",
+            "힙합, HIPHOP",
+            "알앤비, R&B",
+            "하우스, HOUSE",
+            "소울, 펑크, 소울앤펑크, SOUL&FUNK",
+            "테크노, TECHNO",
+            "케이팝, K-POP",
+            "팝, POP",
+            "라틴, LATIN",
+            "락, ROCK"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": { "type": "long" },
+      "englishName": {
+        "type": "text",
+        "analyzer": "edge_ngram_analyzer",
+        "search_analyzer": "standard",
+        "fields": {
+          "keyword": { "type": "keyword" }}
+      },
+      "koreanName": {
+        "type": "text",
+        "analyzer": "edge_ngram_analyzer",
+        "search_analyzer": "standard",
+        "fields": {
+          "keyword": { "type": "keyword" }}
+      },
+      "address": {
+        "type": "text",
+        "analyzer": "edge_ngram_analyzer",
+        "search_analyzer": "standard",
+        "fields": {
+          "keyword": { "type": "keyword" }
+        }
+      },
+      "genre": {
+        "type": "text",
+        "analyzer": "synonym_edge_ngram_analyzer",
+        "search_analyzer": "synonym_analyzer",
+        "fields": {
+          "keyword": { "type": "keyword" }
+        }
+      },
+      "mood": {
+        "type": "text",
+        "analyzer": "synonym_edge_ngram_analyzer",
+        "search_analyzer": "synonym_analyzer",
+        "fields": {
+          "keyword": { "type": "keyword" }
+        }
+      },
+      "region": {
+        "type": "text",
+        "analyzer": "synonym_edge_ngram_analyzer",
+        "search_analyzer": "synonym_analyzer",
+        "fields": {
+          "keyword": { "type": "keyword" }
+        }
+      },
+
+      "smoking": { "type": "boolean" }
+    }
+  }
+}

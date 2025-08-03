@@ -53,6 +53,8 @@ public class VenueCoordinateUpdateService {
                 }
                 
                 // 카카오 API로 좌표 조회 (비동기 처리)
+                int finalI = i;
+                int finalI1 = i;
                 kakaoLocalClient
                     .getCoordinateFromAddress(venue.getAddress())
                     .subscribe(
@@ -60,11 +62,11 @@ public class VenueCoordinateUpdateService {
                             // 좌표 업데이트 (x는 경도, y는 위도)
                             venueRepository.updateLatLng(venue.getId(), coordinate.getY(), coordinate.getX());
                             log.info("✅ [{}/%{}] 좌표 업데이트 완료: {} (위도: {}, 경도: {})", 
-                                i + 1, totalCount, venue.getKoreanName(), coordinate.getY(), coordinate.getX());
+                                finalI + 1, totalCount, venue.getKoreanName(), coordinate.getY(), coordinate.getX());
                         },
                         error -> {
                             log.warn("❌ [{}/%{}] 좌표 조회 실패: {} (주소: {}) - {}", 
-                                i + 1, totalCount, venue.getKoreanName(), venue.getAddress(), error.getMessage());
+                                finalI1 + 1, totalCount, venue.getKoreanName(), venue.getAddress(), error.getMessage());
                         }
                     );
                 
