@@ -19,6 +19,7 @@ import java.util.Map;
 public class VenueGenreService {
     private final VenueInfoService venueInfoService;
     private final VenueGenreRepository venueGenreRepository;
+    private final VenueSearchService venueSearchService;
 
     /**
      * Adds a new genre vector for the specified venue and returns the resulting vector information.
@@ -38,6 +39,13 @@ public class VenueGenreService {
                 .build();
 
         venueGenreRepository.save(venueGenre);
+
+        venueSearchService.save(
+                venue,
+                venueGenre,
+                null
+        );
+
         return VenueVectorResponseDTO.builder()
                 .vectorString(venueGenre.getGenreVectorString())
                 .venueId(venue.getId())
@@ -66,6 +74,12 @@ public class VenueGenreService {
         venueGenre.updateGenreVector(Vector.fromGenres(genres));
 
         venueGenreRepository.save(venueGenre);
+
+        venueSearchService.save(
+                venue,
+                venueGenre,
+                null
+        );
         return VenueVectorResponseDTO.builder()
                 .vectorString(venueGenre.getGenreVectorString())
                 .venueId(venue.getId())

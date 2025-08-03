@@ -180,7 +180,9 @@ public class SearchRepository {
                             isHeartbeat,
                             logoUrl,
                             backgroundUrl,
-                            address);
+                            address,
+                            componentVenue.getLatitude(),
+                            componentVenue.getLongitude());
                 })
                 .collect(Collectors.toList());
 

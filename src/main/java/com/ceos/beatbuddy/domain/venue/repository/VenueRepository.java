@@ -55,5 +55,7 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
             @Param("offset") int offset
     );
 
+    @Query("SELECT v FROM Venue v WHERE v.id IN :ids")
+    List<Venue> findByIdIn(@Param("ids") List<Long> ids);
 }
 

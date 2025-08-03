@@ -142,7 +142,7 @@ public class VenueInfoService {
                     venueRepository.updateLatLng(venue.getId(), coord.getY(), coord.getX());
                 });
 
-        venueSearchService.save(venue); // Venue 정보를 Elasticsearch에 저장
+        venueSearchService.save(venue, null, null); // Venue 정보를 Elasticsearch에 저장
 
         return venue.getId();
     }
@@ -207,7 +207,7 @@ public class VenueInfoService {
         venue.updateBackgroundUrl(existingImages);
 
         venue.update(dto);
-        venueSearchService.save(venue); // Venue 정보를 Elasticsearch에 저장
+        venueSearchService.save(venue, null, null); // Venue 정보를 Elasticsearch에 저장
     }
 
     public EventListResponseDTO getVenueEventsLatest(Long venueId, Long memberId, int page, int size, boolean isPast) {
