@@ -44,6 +44,11 @@ public abstract class Post extends BaseTimeEntity {
     @Column(length = 3000)
     private List<String> imageUrls;
 
+    @Setter
+    @Convert(converter = StringListConverter.class)
+    @Column(length = 4000)
+    private List<String> thumbnailUrls;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberId")
     @Setter(PROTECTED)
