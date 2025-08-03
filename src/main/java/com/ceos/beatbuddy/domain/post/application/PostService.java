@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -47,6 +48,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostInteractionService postInteractionService;
     private final FollowRepository followRepository;
+    private final UploadUtil uploadUtil;
 
     private static final List<String> VALID_POST_TYPES = List.of("free", "piece");
 
@@ -54,25 +56,45 @@ public class PostService {
     public ResponsePostDto addNewPost(String type, PostCreateRequestDTO dto, Long memberId, List<MultipartFile> images) {
         validatePostType(type);
         Member member = memberService.validateAndGetMember(memberId);
-        // 이미지 개수 검사
+
         if (images != null && images.stream().filter(file -> file != null && !file.isEmpty()).count() > 20) {
             throw new CustomException(ErrorCode.TOO_MANY_IMAGES_20);
         }
 
-        // 이미지 s3 올리기
         List<String> imageUrls = null;
+        List<String> thumbnailUrls = null;
 
         if (images != null && !images.isEmpty()) {
+            // 1. 이미지 병렬 업로드
             imageUrls = imageUploadService.uploadImagesParallel(images, UploadUtil.BucketType.MEDIA, "post");
+
+            // 2. 썸네일은 post 타입일 때만 생성
+            if ("post".equalsIgnoreCase(type)) {
+                thumbnailUrls = new ArrayList<>();
+                for (int i = 0; i < images.size(); i++) {
+                    MultipartFile image = images.get(i);
+                    String imageUrl = imageUrls.get(i);
+                    String fileName = extractFileNameFromUrl(imageUrl); // S3 URL에서 파일명만 추출
+
+                    // 3. 썸네일 생성 (동일한 파일명 사용)
+                    String thumbnailUrl = uploadUtil.uploadThumbnail(image, UploadUtil.BucketType.MEDIA, "post", fileName);
+                    thumbnailUrls.add(thumbnailUrl);
+                }
+            }
         }
 
-        // 내부에서 공장 선택
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
-        // 선택된 공장은 모르지만, createPost 하도록 인터페이스만 제공
         Post post = handler.createPost(dto, member, imageUrls);
-        
+        post.setThumbnailUrls(thumbnailUrls); // null or list
+
         return ResponsePostDto.of(post);
     }
+
+
+    private String extractFileNameFromUrl(String url) {
+        return url.substring(url.lastIndexOf('/') + 1);
+    }
+
 
 
     @Transactional
