@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.search.application;
 
 
+import com.ceos.beatbuddy.domain.heartbeat.entity.Heartbeat;
 import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.entity.Member;
@@ -133,12 +134,18 @@ public class SearchService {
         Map<Long, Venue> venueMap = venues.stream()
                 .collect(Collectors.toMap(Venue::getId, Function.identity()));
 
+        // 하트비트 정보를 한 번에 조회하여 Map으로 만들기
+        List<Heartbeat> heartbeats = heartbeatRepository.findByMemberAndVenueIdIn(member, venueIds);
+        Set<Long> heartbeatVenueIds = heartbeats.stream()
+                .map(hb -> hb.getVenue().getId())
+                .collect(Collectors.toSet());
+
         List<SearchQueryResponseDTO> searchQueryResponseDTOS = venueList.stream()
                 .map(venueDocument -> {
                     Venue venue = venueMap.get(venueDocument.getId());
                     if (venue == null) return null; // 예외 처리 필요 시 추가
 
-                    boolean isHeartbeat = heartbeatRepository.findByMemberVenueId(member, venueDocument.getId()).isPresent();
+                    boolean isHeartbeat = heartbeatVenueIds.contains(venueDocument.getId());
 
                     List<String> tagList = new ArrayList<>(venueDocument.getGenre());
                     tagList.addAll(venueDocument.getMood());
