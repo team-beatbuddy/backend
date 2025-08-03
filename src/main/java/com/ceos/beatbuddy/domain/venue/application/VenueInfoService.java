@@ -26,7 +26,7 @@ import com.ceos.beatbuddy.domain.venue.repository.VenueGenreRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueMoodRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import com.ceos.beatbuddy.global.CustomException;
-import com.ceos.beatbuddy.global.UploadUtil;
+import com.ceos.beatbuddy.global.util.UploadUtil;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

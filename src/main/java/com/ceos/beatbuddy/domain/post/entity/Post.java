@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.post.entity;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostScrap;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
+import com.ceos.beatbuddy.global.util.StringListConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,8 +39,9 @@ public abstract class Post extends BaseTimeEntity {
 
     private int comments;
 
-    @ElementCollection
     @Setter
+    @Convert(converter = StringListConverter.class)
+    @Column(length = 3000)
     private List<String> imageUrls;
 
     @ManyToOne(fetch = FetchType.LAZY)

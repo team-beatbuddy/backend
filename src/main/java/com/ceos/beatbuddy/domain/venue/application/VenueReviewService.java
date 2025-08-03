@@ -15,7 +15,7 @@ import com.ceos.beatbuddy.domain.venue.exception.VenueReviewErrorCode;
 import com.ceos.beatbuddy.domain.venue.repository.VenueReviewQueryRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueReviewRepository;
 import com.ceos.beatbuddy.global.CustomException;
-import com.ceos.beatbuddy.global.UploadUtil;
+import com.ceos.beatbuddy.global.util.UploadUtil;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
