@@ -38,24 +38,20 @@ public class JwtFilter extends OncePerRequestFilter {
             tokenProvider.isExpired(accessToken);
         }
         catch (ExpiredJwtException e) {
-            PrintWriter writer = response.getWriter();
-            writer.print("access token expired");
-
-            //response status code
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            PrintWriter writer = response.getWriter();
+            writer.write("{\"error\":\"UNAUTHORIZED\",\"message\":\"만료된 토큰입니다.\"}");
             return;
         }
 
         String category = tokenProvider.getCategory(accessToken);
 
         if (!category.equals("access")) {
-
-            //response body
-            PrintWriter writer = response.getWriter();
-            writer.print("invalid access token");
-
-            //response status code
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            PrintWriter writer = response.getWriter();
+            writer.write("{\"error\":\"UNAUTHORIZED\",\"message\":\"유효하지 않은 토큰입니다.\"}");
             return;
         }
 

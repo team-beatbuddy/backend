@@ -20,4 +20,7 @@ public class VenueResponseDTO {
     private Boolean isHeartbeat;
     private Boolean isSmokingAllowed;
     private Boolean isFreeEntrance;
+    private String address;
+    private Double latitude;
+    private Double longitude;
 }

@@ -1,15 +1,11 @@
 package com.ceos.beatbuddy.domain.archive.application;
 
 import com.ceos.beatbuddy.domain.archive.dto.ArchiveDTO;
-import com.ceos.beatbuddy.domain.archive.dto.ArchiveRequestDTO;
 import com.ceos.beatbuddy.domain.archive.dto.ArchiveResponseDTO;
 import com.ceos.beatbuddy.domain.archive.dto.ArchiveUpdateDTO;
 import com.ceos.beatbuddy.domain.archive.entity.Archive;
 import com.ceos.beatbuddy.domain.archive.exception.ArchiveErrorCode;
 import com.ceos.beatbuddy.domain.archive.repository.ArchiveRepository;
-import com.ceos.beatbuddy.domain.heartbeat.dto.HeartbeatResponseDTO;
-import com.ceos.beatbuddy.domain.heartbeat.entity.Heartbeat;
-import com.ceos.beatbuddy.domain.member.application.RecommendService;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.entity.MemberGenre;
@@ -21,7 +17,6 @@ import com.ceos.beatbuddy.domain.member.repository.MemberGenreRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberMoodRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.vector.entity.Vector;
-import com.ceos.beatbuddy.domain.venue.dto.VenueResponseDTO;
 import com.ceos.beatbuddy.global.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,7 +36,6 @@ public class ArchiveService {
     private final MemberRepository memberRepository;
     private final MemberMoodRepository memberMoodRepository;
     private final MemberGenreRepository memberGenreRepository;
-    private final RecommendService recommendService;
 
     @Transactional
     public ArchiveDTO addPreferenceInArchive(Long memberId, Long memberMoodId, Long memberGenreId) {

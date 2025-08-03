@@ -19,6 +19,7 @@ import java.util.Map;
 public class VenueMoodService {
     private final VenueInfoService venueInfoService;
     private final VenueMoodRepository venueMoodRepository;
+    private final VenueSearchService venueSearchService;
 
     /**
      * Adds a new mood vector for the specified venue and returns the resulting vector details.
@@ -40,6 +41,12 @@ public class VenueMoodService {
                 .build();
 
         venueMoodRepository.save(venueMood);
+
+        venueSearchService.save(
+                venue,
+                null,
+                venueMood
+        );
         return VenueVectorResponseDTO.builder()
                 .vectorString(venueMood.getMoodVectorString())
                 .venueId(venue.getId())
@@ -68,6 +75,12 @@ public class VenueMoodService {
         venueMood.updateMoodVector(Vector.fromMoods(moods));
 
         venueMoodRepository.save(venueMood);
+
+        venueSearchService.save(
+                venue,
+                null,
+                venueMood
+        );
         return VenueVectorResponseDTO.builder()
                 .vectorString(venueMood.getMoodVectorString())
                 .venueId(venue.getId())

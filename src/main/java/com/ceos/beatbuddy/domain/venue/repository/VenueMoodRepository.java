@@ -18,4 +18,7 @@ public interface VenueMoodRepository extends JpaRepository<VenueMood, Long> {
 
     @Query("SELECT vm FROM VenueMood vm JOIN vm.venue v WHERE vm.venue = :venue")
     Optional<VenueMood> findByVenue(@Param("venue") Venue venue);
+
+    @Query("SELECT vm FROM VenueMood vm WHERE vm.venue.id IN :venueIds")
+    List<VenueMood> findByVenueIdIn(@Param("venueIds") List<Long> venueIds);
 }

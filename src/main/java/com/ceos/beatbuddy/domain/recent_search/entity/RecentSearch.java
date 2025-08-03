@@ -23,7 +23,7 @@ public class RecentSearch extends BaseTimeEntity {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "searchType", nullable = false)
+    @Column(name = "searchType", length = 30, nullable = false)
     private SearchTypeEnum searchType;
 
     @ManyToOne

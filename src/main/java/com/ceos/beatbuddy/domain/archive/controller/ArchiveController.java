@@ -6,7 +6,6 @@ import com.ceos.beatbuddy.domain.archive.dto.ArchiveDTO;
 import com.ceos.beatbuddy.domain.archive.dto.ArchiveRequestDTO;
 import com.ceos.beatbuddy.domain.archive.dto.ArchiveResponseDTO;
 import com.ceos.beatbuddy.domain.archive.dto.ArchiveUpdateDTO;
-import com.ceos.beatbuddy.domain.venue.dto.VenueResponseDTO;
 import com.ceos.beatbuddy.global.ResponseTemplate;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
