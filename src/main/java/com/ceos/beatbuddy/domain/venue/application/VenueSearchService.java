@@ -123,91 +123,98 @@ public class VenueSearchService {
     }
 
 
-    public List<VenueDocument> searchMapDropDown(String keyword, String regionTag, String genreTag){
+    public List<VenueDocument> searchMapDropDown(String keyword, String regionTag, String genreTag) {
         log.info("검색 파라미터 - keyword: {}, genreTag: {}, regionTag: {}", keyword, genreTag, regionTag);
-
+        
         try {
-            List<Query> innerMostBoolMustClauses = new ArrayList<>();
-
-            // 1. 키워드 검색 조건: keyword가 있으면 multi_match, 없으면 matchAll을 must에 추가
-            if (keyword != null && !keyword.isBlank()) {
-                innerMostBoolMustClauses.add(Query.of(q -> q.multiMatch(mm -> mm
-                        .query(keyword)
-                        .fields("koreanName", "englishName", "address", "genre", "mood", "region")
-                        .fuzziness("AUTO")
-                )));
-            } else {
-                innerMostBoolMustClauses.add(Query.of(q -> q.matchAll(ma -> ma)));
-            }
-
-            // genreTag 필터링 (genre.keyword, 대문자 변환)
-            if (genreTag != null && !genreTag.isBlank()) {
-                // TermQuery 대신 Query 타입으로 받습니다.
-                Query genreTermQuery = QueryBuilders.term(t -> t.field("genre.keyword").value(genreTag.toUpperCase()));
-                innerMostBoolMustClauses.add(Query.of(q -> q.bool(b -> b
-                        .should(genreTermQuery) // 직접 Query 객체를 전달
-                        .minimumShouldMatch("1")
-                )));
-            }
-
-            // regionTag 필터링 (region.keyword, 한글이므로 변환 없음)
-            if (regionTag != null && !regionTag.isBlank()) {
-                // TermQuery 대신 Query 타입으로 받습니다.
-                Query regionTermQuery = QueryBuilders.term(t -> t.field("region.keyword").value(regionTag));
-                innerMostBoolMustClauses.add(Query.of(q -> q.bool(b -> b
-                        .should(regionTermQuery) // 직접 Query 객체를 전달
-                        .minimumShouldMatch("1")
-                )));
-            }
-            // 최종 쿼리 생성: 복잡한 중첩 구조
-            Query finalQuery = Query.of(q -> q.bool(b -> b
-                    .must(Query.of(mq -> mq.bool(innerMostBoolBuilder -> innerMostBoolBuilder
-                            .must(innerMostBoolMustClauses)
-                    )))
-            ));
-
-            // --- Debugging ---
-            // ElasticsearchClient가 생성하는 최종 JSON 쿼리를 로그로 출력
-            // 이 로그를 Kibana Dev Tools에서 성공했던 JSON과 비교하는 것이 가장 중요합니다.
-            log.info("Generated Elasticsearch Query JSON: {}", finalQuery.toString());
-            // --- End Debugging ---
-
-
-            // 실제 검색 요청
-            SearchResponse<VenueDocument> response = elasticsearchClient.search(s -> s
-                            .index("venue")
-                            .query(finalQuery) // 새로 구성한 finalQuery 사용
-                    // runtime_mappings, script_fields는 필요하다면 추가
-                    ,
-                    VenueDocument.class
-            );
-
-            List<Hit<VenueDocument>> hits = response.hits().hits();
-
-            // 결과 로그
-            log.info("Elasticsearch 검색 결과 개수: {}", hits.size());
-            log.info("전체 매치 수: {}, 최대 스코어: {}", Objects.requireNonNull(response.hits().total()).value(), response.hits().maxScore());
-
-            if (!hits.isEmpty()) {
-                log.info("첫 번째 검색 결과: {}", hits.get(0).source());
-                for (int i = 0; i < Math.min(hits.size(), 5); i++) {
-                    VenueDocument doc = hits.get(i).source();
-                    if (doc != null) {
-                        log.info("결과 {}: 이름={}, 지역={}, 장르={}", i + 1, doc.getKoreanName(), doc.getRegion(), doc.getGenre());
-                    }
-                }
-            } else {
-                log.warn("검색 결과가 없습니다. 필터 조건을 확인해주세요.");
-            }
-
-            return hits.stream()
-                    .map(Hit::source)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-
+            Query searchQuery = buildSearchQuery(keyword, regionTag, genreTag);
+            SearchResponse<VenueDocument> response = executeSearch(searchQuery);
+            return processSearchResults(response);
         } catch (IOException e) {
             log.error("Venue 검색 실패: keyword={}, genreTag={}, regionTag={}, error={}", keyword, genreTag, regionTag, e.getMessage(), e);
             throw new CustomException(ErrorCode.ELASTICSEARCH_SEARCH_FAILED);
+        }
+    }
+
+    private Query buildSearchQuery(String keyword, String regionTag, String genreTag) {
+        List<Query> mustClauses = new ArrayList<>();
+        
+        // 키워드 조건 추가
+        addKeywordCondition(mustClauses, keyword);
+        
+        // 필터 조건 추가
+        addGenreFilter(mustClauses, genreTag);
+        addRegionFilter(mustClauses, regionTag);
+        
+        return Query.of(q -> q.bool(b -> b
+                .must(Query.of(mq -> mq.bool(ib -> ib.must(mustClauses))))
+        ));
+    }
+
+    private void addKeywordCondition(List<Query> mustClauses, String keyword) {
+        if (keyword != null && !keyword.isBlank()) {
+            mustClauses.add(Query.of(q -> q.multiMatch(mm -> mm
+                    .query(keyword)
+                    .fields("koreanName", "englishName", "address", "genre", "mood", "region")
+                    .fuzziness("AUTO")
+            )));
+        } else {
+            mustClauses.add(Query.of(q -> q.matchAll(ma -> ma)));
+        }
+    }
+
+    private void addGenreFilter(List<Query> mustClauses, String genreTag) {
+        if (genreTag != null && !genreTag.isBlank()) {
+            Query genreTermQuery = QueryBuilders.term(t -> t.field("genre.keyword").value(genreTag.toUpperCase()));
+            mustClauses.add(Query.of(q -> q.bool(b -> b
+                    .should(genreTermQuery)
+                    .minimumShouldMatch("1")
+            )));
+        }
+    }
+
+    private void addRegionFilter(List<Query> mustClauses, String regionTag) {
+        if (regionTag != null && !regionTag.isBlank()) {
+            Query regionTermQuery = QueryBuilders.term(t -> t.field("region.keyword").value(regionTag));
+            mustClauses.add(Query.of(q -> q.bool(b -> b
+                    .should(regionTermQuery)
+                    .minimumShouldMatch("1")
+            )));
+        }
+    }
+
+    private SearchResponse<VenueDocument> executeSearch(Query query) throws IOException {
+        log.info("Generated Elasticsearch Query: {}", query.toString());
+        return elasticsearchClient.search(s -> s
+                .index("venue")
+                .query(query), VenueDocument.class);
+    }
+
+    private List<VenueDocument> processSearchResults(SearchResponse<VenueDocument> response) {
+        List<Hit<VenueDocument>> hits = response.hits().hits();
+        logSearchResults(response, hits);
+        
+        return hits.stream()
+                .map(Hit::source)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    private void logSearchResults(SearchResponse<VenueDocument> response, List<Hit<VenueDocument>> hits) {
+        log.info("Elasticsearch 검색 결과 개수: {}", hits.size());
+        log.info("전체 매치 수: {}, 최대 스코어: {}", 
+                Objects.requireNonNull(response.hits().total()).value(), response.hits().maxScore());
+
+        if (!hits.isEmpty()) {
+            log.info("첫 번째 검색 결과: {}", hits.get(0).source());
+            for (int i = 0; i < Math.min(hits.size(), 5); i++) {
+                VenueDocument doc = hits.get(i).source();
+                if (doc != null) {
+                    log.info("결과 {}: 이름={}, 지역={}, 장르={}", i + 1, doc.getKoreanName(), doc.getRegion(), doc.getGenre());
+                }
+            }
+        } else {
+            log.warn("검색 결과가 없습니다. 필터 조건을 확인해주세요.");
         }
     }
 }
