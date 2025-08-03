@@ -21,6 +21,7 @@ import com.ceos.beatbuddy.domain.venue.entity.VenueMood;
 import com.ceos.beatbuddy.domain.venue.exception.VenueErrorCode;
 import com.ceos.beatbuddy.domain.venue.exception.VenueGenreErrorCode;
 import com.ceos.beatbuddy.domain.venue.exception.VenueMoodErrorCode;
+import com.ceos.beatbuddy.domain.venue.kakaoMap.KakaoLocalClient;
 import com.ceos.beatbuddy.domain.venue.repository.VenueGenreRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueMoodRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
@@ -34,7 +35,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -62,6 +65,7 @@ public class VenueInfoService {
     private final EventLikeRepository eventLikeRepository;
     private final EventAttendanceRepository eventAttendanceRepository;
     private final EventRepository eventRepository;
+    private final KakaoLocalClient kakaoLocalClient;
 
     private final UploadUtil uploadUtil;
     public List<Venue> getVenueInfoList() {
@@ -133,7 +137,12 @@ public class VenueInfoService {
 
         Venue venue = venueRepository.save(Venue.of(request, logoImageUrl, backgroundImageUrls));
 
-        venueSearchService.save(venue); // Venue 정보를 Elasticsearch에 저장
+        kakaoLocalClient.getCoordinateFromAddress(request.getAddress())
+                .subscribe(coord -> {
+                    venueRepository.updateLatLng(venue.getId(), coord.getY(), coord.getX());
+                });
+
+        venueSearchService.save(venue, null, null); // Venue 정보를 Elasticsearch에 저장
 
         return venue.getId();
     }
@@ -171,6 +180,16 @@ public class VenueInfoService {
             existingImages.removeAll(deleteImageUrls);
         }
 
+        // 주소가 변경되었다면, 위도 경도 업데이트
+        if (!venue.getAddress().equals(dto.getVenueRequestDTO().getAddress())) {
+            kakaoLocalClient.getCoordinateFromAddress(dto.getVenueRequestDTO().getAddress())
+                    .flatMap(coord -> {
+                        venueRepository.updateLatLng(venueId, coord.getY(), coord.getX());
+                        return Mono.empty();
+                    })
+                    .block(Duration.ofSeconds(10)); // 10초 타임아웃 설정
+        }
+
         // 로고 이미지 변경
         if (logoImage != null) {
             uploadUtil.deleteImage(logoImageUrl, UploadUtil.BucketType.VENUE);
@@ -188,7 +207,7 @@ public class VenueInfoService {
         venue.updateBackgroundUrl(existingImages);
 
         venue.update(dto);
-        venueSearchService.save(venue); // Venue 정보를 Elasticsearch에 저장
+        venueSearchService.save(venue, null, null); // Venue 정보를 Elasticsearch에 저장
     }
 
     public EventListResponseDTO getVenueEventsLatest(Long venueId, Long memberId, int page, int size, boolean isPast) {
@@ -269,7 +288,6 @@ public class VenueInfoService {
                 .eventResponseDTOS(events)
                 .build();
     }
-
 
     public Venue validateAndGetVenue(Long venueId) {
         return venueRepository.findById(venueId)

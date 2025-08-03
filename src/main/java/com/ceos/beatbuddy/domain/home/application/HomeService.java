@@ -4,32 +4,21 @@ import com.ceos.beatbuddy.domain.archive.application.ArchiveService;
 import com.ceos.beatbuddy.domain.archive.entity.Archive;
 import com.ceos.beatbuddy.domain.archive.exception.ArchiveErrorCode;
 import com.ceos.beatbuddy.domain.archive.repository.ArchiveRepository;
-import com.ceos.beatbuddy.domain.home.dto.KeywordResponseDTO;
 import com.ceos.beatbuddy.domain.member.application.RecommendService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.member.entity.MemberGenre;
-import com.ceos.beatbuddy.domain.member.entity.MemberMood;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.exception.MemberGenreErrorCode;
 import com.ceos.beatbuddy.domain.member.exception.MemberMoodErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberGenreRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberMoodRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
-import com.ceos.beatbuddy.domain.vector.util.VectorUtils;
 import com.ceos.beatbuddy.domain.venue.dto.VenueResponseDTO;
 import com.ceos.beatbuddy.global.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static com.ceos.beatbuddy.domain.member.exception.MemberErrorCode.MEMBER_NOT_EXIST;
 
 @Service
 @RequiredArgsConstructor
