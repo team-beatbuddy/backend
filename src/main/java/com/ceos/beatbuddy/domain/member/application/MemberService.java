@@ -22,14 +22,13 @@ import com.ceos.beatbuddy.domain.member.repository.MemberQueryRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.vector.entity.Vector;
 import com.ceos.beatbuddy.global.CustomException;
-import com.ceos.beatbuddy.global.UploadUtil;
+import com.ceos.beatbuddy.global.util.UploadUtil;
 import com.ceos.beatbuddy.global.config.oauth.dto.Oauth2MemberDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

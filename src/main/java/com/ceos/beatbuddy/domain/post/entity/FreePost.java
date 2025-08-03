@@ -20,8 +20,8 @@ import org.springframework.lang.Nullable;
 @SuperBuilder
 @AllArgsConstructor
 public class FreePost extends Post{
-    @ElementCollection
     @Getter
+    @ElementCollection
     @Enumerated(EnumType.STRING)
     private List<FixedHashtag> hashtag;
 

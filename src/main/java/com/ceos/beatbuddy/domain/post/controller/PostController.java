@@ -29,22 +29,6 @@ import java.util.List;
 
 public class PostController implements PostApiDocs {
     private final PostService postService;
-
-    @PostMapping("/{type}")
-    @Operation(summary = "게시물 생성 XXXXXXX 사용 안 함", description = "게시물을 생성합니다 (type: free/piece), 밑의 Post 관련 RequestDto들을 참고해"
-            + "타입에 맞는 request를 채워주세요.")
-    @Parameter()
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "게시물 생성 성공"),
-            @ApiResponse(responseCode = "400", description = "게시물 생성 실패")
-    })
-    public ResponseEntity<Post> addPost(
-            @PathVariable String type,
-            @RequestBody PostRequestDto requestDto) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        return ResponseEntity.ok(postService.addPost(memberId, type, requestDto));
-    }
-
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/new/{type}")
     public ResponseEntity<ResponseDTO<ResponsePostDto>> addNewPost(
             @PathVariable String type,
@@ -60,18 +44,6 @@ public class PostController implements PostApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_CREATE_POST, result));
     }
 
-    @GetMapping("/{type}/{postId}")
-    @Operation(summary = "게시물 조회 XXXXXXXXXXXXXX 사용 안 함", description = "게시물을 조회합니다 (type: free/piece)")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "게시물 조회 성공"),
-            @ApiResponse(responseCode = "404", description = "게시물이 존재하지 않습니다.")
-    })
-    public ResponseEntity<Post> readPost(
-            @PathVariable String type,
-            @PathVariable Long postId) {
-        return ResponseEntity.ok(postService.readPost(type, postId));
-    }
-
     @GetMapping("/{type}/{postId}/new")
     public ResponseEntity<ResponseDTO<PostReadDetailDTO>> newReadPost(
             @PathVariable String type,
@@ -82,21 +54,6 @@ public class PostController implements PostApiDocs {
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_POST.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_POST, result));
-    }
-
-    @GetMapping("/{type}")
-    @Operation(summary = "전체 게시물 조회 XXXXXXXXXXXXx 사용 안 함)", description = "전체 게시물을 조회합니다 (type: free/piece)")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "전체 게시물 조회 성공"),
-            @ApiResponse(responseCode = "404", description = "게시물이 존재하지 않습니다.")
-    })
-    public ResponseEntity<Page<ResponsePostDto>> readAllPosts(
-            @PathVariable String type,
-            @Parameter(description = "페이지 번호")
-            @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "페이지 당 요청할 게시물 개수")
-            @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(postService.readAllPosts(type, page, size));
     }
 
 
@@ -125,22 +82,6 @@ public class PostController implements PostApiDocs {
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_HOT_POSTS.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_HOT_POSTS, result));
-    }
-
-    
-    // 삭제 예정
-    @DeleteMapping("/{type}/{postId}")
-    @Operation(summary = "게시물 삭제", description = "게시물을 삭제합니다 (type: free/piece)")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "게시물 삭제 성공"),
-            @ApiResponse(responseCode = "404", description = "게시물이 존재하지 않습니다.")
-    })
-    public ResponseEntity<Void> deletePost(
-            @PathVariable String type,
-            @PathVariable Long postId) {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        postService.deletePost(type, postId, memberId);
-        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{type}/{postId}/new")

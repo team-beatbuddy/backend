@@ -1,4 +1,4 @@
-package com.ceos.beatbuddy.global;
+package com.ceos.beatbuddy.global.util;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -7,20 +7,22 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.ceos.beatbuddy.domain.venue.exception.VenueErrorCode;
+import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import jakarta.annotation.PostConstruct;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+
+import static org.apache.commons.compress.utils.FileNameUtils.getExtension;
 
 @Component
 public class UploadUtil {
@@ -77,9 +79,42 @@ public class UploadUtil {
         return uploadImageS3(image, getBucketName(type), folder);
     }
 
+    public String uploadThumbnail(MultipartFile image, BucketType type, String folder, String fileName) {
+        String bucketName = getBucketName(type);
+        String s3FileName = folder + "/thumbnail/" + fileName;
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        byte[] bytes;
+        
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            Thumbnails.of(image.getInputStream())
+                    .scale(1.0)
+                    .outputFormat("jpg")
+                    .outputQuality(0.3) // 30% 품질
+                    .toOutputStream(os);
+            bytes = os.toByteArray();
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
+        }
+
+        metadata.setContentLength(bytes.length);
+        metadata.setContentType("image/jpeg");
+
+        try (InputStream is = new ByteArrayInputStream(bytes)) {
+            PutObjectRequest putRequest = new PutObjectRequest(bucketName, s3FileName, is, metadata);
+            amazonS3.putObject(putRequest);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+        return amazonS3.getUrl(bucketName, s3FileName).toString();
+    }
+
+
     public List<String> uploadImages(List<MultipartFile> images, BucketType type, String folder) {
         return images.stream().map(image -> upload(image, type, folder)).toList();
     }
+
 
     private String uploadImageS3(MultipartFile image, String bucketName, String folder) throws UncheckedIOException {
         String fileName = generateFileName(Objects.requireNonNull(image.getOriginalFilename()));

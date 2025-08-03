@@ -119,6 +119,9 @@ dependencies {
 
     // 비동기 (위도 경도)
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // 썸네일 제작
+    implementation 'net.coobird:thumbnailator:0.4.20'
 }
 
 test {

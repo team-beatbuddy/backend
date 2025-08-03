@@ -15,6 +15,8 @@ import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
+import com.ceos.beatbuddy.global.util.UploadUtil;
+import com.ceos.beatbuddy.global.util.UploadUtilAsyncWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +35,7 @@ public class FreePostHandler implements PostTypeHandler{
     private final PostQueryRepository postQueryRepository;
     private final FollowRepository followRepository;
     private final PostRepository postRepository;
+    private final UploadUtilAsyncWrapper uploadUtilAsyncWrapper;
 
     @Override
     public boolean supports(Post post) {
@@ -76,7 +79,14 @@ public class FreePostHandler implements PostTypeHandler{
         Post post = validateAndGetPost(postId);
         validateWriter(post, member);
         freePostRepository.deleteById(post.getId());
-        freePostSearchService.delete(postId); // 게시글 삭제 시 검색 인덱스에서 제거
+        freePostSearchService.delete(postId); // 게시// 글 삭제 시 검색 인덱스에서 제거
+
+        List<String> imageUrls = post.getImageUrls();
+
+        // 이미지와 썸네일 s3에서 삭제
+        if (imageUrls != null && !imageUrls.isEmpty()) {
+            uploadUtilAsyncWrapper.deleteImagesAsync(imageUrls, UploadUtil.BucketType.MEDIA);
+        }
     }
 
     @Override
