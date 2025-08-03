@@ -27,8 +27,14 @@ public class UploadUtilAsyncWrapper {
 
         // post인 경우만 썸네일 생성
         if ("post".equals(folder)) {
-            String originalFileName = extractFileNameFromUrl(originalUrl);
-            uploadUtil.uploadThumbnail(image, type, folder, originalFileName);
+            try {
+                String originalFileName = extractFileNameFromUrl(originalUrl);
+                uploadUtil.uploadThumbnail(image, type, folder, originalFileName);
+            } catch (Exception e) {
+                log.error("Failed to upload thumbnail for {}: {}", name, e.getMessage());
+                // 원본 이미지 삭제 또는 재시도 로직 고려
+                throw new RuntimeException("Thumbnail upload failed", e);
+            }
         }
 
         long end = System.currentTimeMillis();
@@ -38,7 +44,7 @@ public class UploadUtilAsyncWrapper {
     }
 
     private String extractFileNameFromUrl(String url) {
-        return url.substring(url.lastIndexOf('/') + 1);
+        return FileNameUtil.extractFileNameFromUrl(url);
     }
 
     @Async("uploadExecutor")
