@@ -5,20 +5,23 @@ import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.post.dto.*;
-import com.ceos.beatbuddy.domain.post.dto.PostRequestDto.PiecePostRequestDto;
-import com.ceos.beatbuddy.domain.post.entity.*;
+import com.ceos.beatbuddy.domain.post.entity.FixedHashtag;
+import com.ceos.beatbuddy.domain.post.entity.FreePost;
+import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
-import com.ceos.beatbuddy.domain.post.repository.FreePostRepository;
-import com.ceos.beatbuddy.domain.post.repository.PiecePostRepository;
 import com.ceos.beatbuddy.domain.post.repository.PostQueryRepository;
 import com.ceos.beatbuddy.domain.post.repository.PostRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostInteractionId;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostLikeRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostScrapRepository;
 import com.ceos.beatbuddy.global.CustomException;
-import com.ceos.beatbuddy.global.UploadUtil;
 import com.ceos.beatbuddy.global.code.ErrorCode;
+import com.ceos.beatbuddy.global.service.ImageUploadService;
+import com.ceos.beatbuddy.global.util.UploadUtil;
+import com.ceos.beatbuddy.global.util.UploadUtilAsyncWrapper;
+import com.ceos.beatbuddy.global.util.UploadResult;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,58 +31,87 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
-@RequiredArgsConstructor
 public class PostService {
-    private final FreePostRepository freePostRepository;
-    private final PiecePostRepository piecePostRepository;
     private final MemberService memberService;
-    private final PieceService pieceService;
     private final PostLikeRepository postLikeRepository;
     private final PostScrapRepository postScrapRepository;
     private final PostQueryRepository postQueryRepository;
     private final CommentRepository commentRepository;
     private final PostTypeHandlerFactory postTypeHandlerFactory;
-    private final UploadUtil uploadUtil;
+    private final ImageUploadService imageUploadService;
+    private final UploadUtilAsyncWrapper uploadUtilAsyncWrapper;
     private final PostRepository postRepository;
     private final PostInteractionService postInteractionService;
     private final FollowRepository followRepository;
+    private final UploadUtil uploadUtil;
 
     private static final List<String> VALID_POST_TYPES = List.of("free", "piece");
+
+    public PostService(MemberService memberService, PostLikeRepository postLikeRepository,
+                       PostScrapRepository postScrapRepository, PostQueryRepository postQueryRepository,
+                       CommentRepository commentRepository, PostTypeHandlerFactory postTypeHandlerFactory,
+                       ImageUploadService imageUploadService, UploadUtilAsyncWrapper uploadUtilAsyncWrapper,
+                       PostRepository postRepository, PostInteractionService postInteractionService,
+                       FollowRepository followRepository, UploadUtil uploadUtil) {
+        this.memberService = memberService;
+        this.postLikeRepository = postLikeRepository;
+        this.postScrapRepository = postScrapRepository;
+        this.postQueryRepository = postQueryRepository;
+        this.commentRepository = commentRepository;
+        this.postTypeHandlerFactory = postTypeHandlerFactory;
+        this.imageUploadService = imageUploadService;
+        this.uploadUtilAsyncWrapper = uploadUtilAsyncWrapper;
+        this.postRepository = postRepository;
+        this.postInteractionService = postInteractionService;
+        this.followRepository = followRepository;
+        this.uploadUtil = uploadUtil;
+    }
 
     @Transactional
     public ResponsePostDto addNewPost(String type, PostCreateRequestDTO dto, Long memberId, List<MultipartFile> images) {
         validatePostType(type);
         Member member = memberService.validateAndGetMember(memberId);
-        // 이미지 개수 검사
+
         if (images != null && images.stream().filter(file -> file != null && !file.isEmpty()).count() > 20) {
             throw new CustomException(ErrorCode.TOO_MANY_IMAGES_20);
         }
 
-        // 이미지 s3 올리기
         List<String> imageUrls = null;
+        List<String> thumbnailUrls = null;
 
         if (images != null && !images.isEmpty()) {
-            imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "post");
+            if ("free".equalsIgnoreCase(type)) {
+                // free 타입: 원본 + 썸네일 동시 업로드 (성능 최적화)
+                List<UploadResult> uploadResults = imageUploadService.uploadImagesWithThumbnails(images, UploadUtil.BucketType.MEDIA, "post");
+                imageUrls = uploadResults.stream().map(UploadResult::getOriginalUrl).toList();
+                thumbnailUrls = uploadResults.stream().map(UploadResult::getThumbnailUrl).toList();
+            } else {
+                // piece 타입: 원본만 업로드
+                imageUrls = imageUploadService.uploadImagesParallel(images, UploadUtil.BucketType.MEDIA, "post");
+            }
         }
 
-        // 내부에서 공장 선택
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
-        // 선택된 공장은 모르지만, createPost 하도록 인터페이스만 제공
         Post post = handler.createPost(dto, member, imageUrls);
-        
+        post.setThumbnailUrls(thumbnailUrls); // null or list
+
         return ResponsePostDto.of(post);
     }
+
+
+
 
 
     @Transactional
     public PostReadDetailDTO newReadPost(String type, Long postId, Long memberId) {
         // 회원 유효성 검사
-        Member member = memberService.validateAndGetMember(memberId);
+        memberService.validateAndGetMember(memberId);
 
         // 게시글 조회 및 조회수 증가
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
@@ -115,7 +147,7 @@ public class PostService {
 
         Pageable pageable = PageRequest.of(page-1, size, sortOption);
 
-        Member member = memberService.validateAndGetMember(memberId);
+        memberService.validateAndGetMember(memberId);
 
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
         Page<? extends Post> postPage = handler.readAllPosts(pageable);
@@ -180,7 +212,7 @@ public class PostService {
     public void deletePost(String type, Long postId, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
 
-        Post post = readPost(type, postId);
+        Post post = postTypeHandlerFactory.getHandler(type).validateAndGetPost(postId);
 
         if (!post.getMember().getId().equals(member.getId())) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
@@ -356,7 +388,7 @@ public class PostService {
         }
 
         // 3. S3 삭제
-        uploadUtil.deleteImages(deleteFiles, UploadUtil.BucketType.MEDIA);
+        uploadUtilAsyncWrapper.deleteImagesAsync(deleteFiles, UploadUtil.BucketType.MEDIA);
 
         // 4. 연관관계 해제
         existing.removeAll(matched);
@@ -406,8 +438,22 @@ public class PostService {
 
         // 새 이미지 업로드 및 저장
         if (files != null && !files.isEmpty()) {
-            List<String> imageUrls = uploadUtil.uploadImages(files, UploadUtil.BucketType.MEDIA, "post");
-            post.getImageUrls().addAll(imageUrls);
+            if ("free".equalsIgnoreCase(type)) {
+                // free 타입: 원본 + 썸네일 동시 업로드 (성능 최적화)
+                List<UploadResult> uploadResults = imageUploadService.uploadImagesWithThumbnails(files, UploadUtil.BucketType.MEDIA, "post");
+                List<String> imageUrls = uploadResults.stream().map(UploadResult::getOriginalUrl).toList();
+                List<String> newThumbnailUrls = uploadResults.stream().map(UploadResult::getThumbnailUrl).toList();
+                
+                post.getImageUrls().addAll(imageUrls);
+                if (post.getThumbnailUrls() == null) {
+                    post.setThumbnailUrls(new ArrayList<>());
+                }
+                post.getThumbnailUrls().addAll(newThumbnailUrls);
+            } else {
+                // piece 타입: 원본만 업로드
+                List<String> imageUrls = imageUploadService.uploadImagesParallel(files, UploadUtil.BucketType.MEDIA, "post");
+                post.getImageUrls().addAll(imageUrls);
+            }
         }
 
         // 유저 상호작용 상태
@@ -423,76 +469,5 @@ public class PostService {
 
         // 응답 생성
         return PostReadDetailDTO.toDTO(post, status.getLeft(), status.getMiddle(), status.getRight(), hashtags, post.getMember().getId().equals(memberId), isFollowing);
-    }
-
-
-
-    // 이후 삭제할 예정
-    private FreePost createFreePost(Member member, PostRequestDto requestDto, List<String> imageUrls) {
-        FreePost post = FreePost.builder()
-                .title(requestDto.title())
-                .content(requestDto.content())
-                .imageUrls(imageUrls)
-                .member(member)
-                .anonymous(requestDto.anonymous())
-                .build();
-        return freePostRepository.save(post);
-    }
-
-    // 삭제 예정
-    private PiecePost createPiecePost(Member member, PostRequestDto requestDto, List<String> imageUrls) {
-        Piece piece = pieceService.createPiece(member, requestDto.venueId(), (PiecePostRequestDto) requestDto);
-
-        PiecePost post = PiecePost.builder()
-                .title(requestDto.title())
-                .content(requestDto.content())
-                .imageUrls(imageUrls)
-                .member(member)
-                .anonymous(requestDto.anonymous())
-                .piece(piece)
-                .build();
-        return piecePostRepository.save(post);
-    }
-
-    // 프론트 개발 완료 후 삭제 예정
-    @Transactional
-    public Post addPost(Long memberId, String type, PostRequestDto requestDto) {
-        Member member = memberService.validateAndGetMember(memberId);
-        List<String> imageUrls = uploadUtil.uploadImages(requestDto.images(), UploadUtil.BucketType.MEDIA, "post");
-
-        return switch (type) {
-            case "free" -> createFreePost(member, requestDto, imageUrls);
-            case "piece" -> createPiecePost(member, requestDto, imageUrls);
-            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
-        };
-    }
-
-    // 삭제 예정
-    public Page<ResponsePostDto> readAllPosts(String type, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return switch (type) {
-            case "free" -> freePostRepository.findAll(pageable).map(ResponsePostDto::of);
-            case "piece" -> piecePostRepository.findAll(pageable).map(ResponsePostDto::of);
-            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
-        };
-    }
-
-    // 추후 삭제 예정
-    public Post readPost(String type, Long postId) {
-        switch (type) {
-            case "free" -> {
-                FreePost post = freePostRepository.findById(postId)
-                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
-                postRepository.increaseViews(postId);  // 예: 조회수 증가
-                return post;
-            }
-            case "piece" -> {
-                PiecePost post = piecePostRepository.findById(postId)
-                        .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
-                postRepository.increaseViews(postId);  // 예: 조회수 증가
-                return post;
-            }
-            default -> throw new CustomException(PostErrorCode.INVALID_POST_TYPE);
-        }
     }
 }

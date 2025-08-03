@@ -21,7 +21,7 @@ public class PostPageResponseDTO {
     private Long id;
     private String title;
     private String content;
-    private String thumbImage;
+    private List<String> thumbImage;
     private String role;
     private int likes;
     private int scraps;
@@ -57,7 +57,7 @@ public class PostPageResponseDTO {
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .thumbImage(post.getImageUrls().isEmpty() || post.getImageUrls().get(0) == null ? "" : post.getImageUrls().get(0))
+                .thumbImage(post.getThumbnailUrls() != null? post.getThumbnailUrls() : List.of())
                 .nickname(post.getMember().getNickname())
                 .createAt(post.getCreatedAt())
                 .likes(post.getLikes())
