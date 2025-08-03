@@ -25,7 +25,9 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -98,11 +100,18 @@ public class VenueSearchService {
 
     public void syncVenueFromDBToES() throws IOException {
         List<Venue> venues = venueRepository.findAll(); // SQL DB에서 가져옴
+        
+        // 배치로 모든 장르/무드 정보 조회
+        List<Long> venueIds = venues.stream().map(Venue::getId).toList();
+        Map<Long, VenueGenre> genreMap = venueGenreRepository.findByVenueIdIn(venueIds)
+                .stream().collect(Collectors.toMap(vg -> vg.getVenue().getId(), Function.identity()));
+        Map<Long, VenueMood> moodMap = venueMoodRepository.findByVenueIdIn(venueIds)
+                .stream().collect(Collectors.toMap(vm -> vm.getVenue().getId(), Function.identity()));
 
         for (Venue venue : venues) {
             VenueDocument doc = VenueDocument.from(venue,
-                    venueGenreRepository.findByVenue(venue).orElse(null),
-                    venueMoodRepository.findByVenue(venue).orElse(null)
+                    genreMap.get(venue.getId()),
+                    moodMap.get(venue.getId())
             );
 
             elasticsearchClient.index(i -> i
