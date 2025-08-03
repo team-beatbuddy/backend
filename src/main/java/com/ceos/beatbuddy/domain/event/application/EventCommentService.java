@@ -127,24 +127,46 @@ public class EventCommentService {
                     List<EventCommentResponseDTO> replies = group.stream()
                             .filter(c -> c.getParentId() != null)
                             .sorted(Comparator.comparing(EventComment::getCreatedAt))
-                            .map(c -> EventCommentResponseDTO.toDTO(
-                                    c,
-                                    c.getAuthor().getId().equals(memberId),
-                                    followingIds.contains(c.getAuthor().getId()),
-                                    isAdmin || c.getAuthor().getId().equals(event.getHost().getId()),
-                                    blockedMemberIds.contains(c.getAuthor().getId()),
-                                    c.isAnonymous() ? anonymousNameMap.get(c.getAuthor().getId()) : c.getAuthor().getNickname()
-                            ))
+                            .map(c -> {
+                                boolean isEventHost = c.getAuthor().getId().equals(event.getHost().getId());
+                                String displayName;
+                                if (isEventHost) {
+                                    displayName = "담당자";
+                                } else if (c.isAnonymous()) {
+                                    displayName = anonymousNameMap.get(c.getAuthor().getId());
+                                } else {
+                                    displayName = c.getAuthor().getNickname();
+                                }
+                                
+                                return EventCommentResponseDTO.toDTO(
+                                        c,
+                                        c.getAuthor().getId().equals(memberId),
+                                        followingIds.contains(c.getAuthor().getId()),
+                                        isAdmin || isEventHost,
+                                        blockedMemberIds.contains(c.getAuthor().getId()),
+                                        displayName
+                                );
+                            })
                             .toList();
 
+                    boolean isParentEventHost = parent.getAuthor().getId().equals(event.getHost().getId());
+                    String parentDisplayName;
+                    if (isParentEventHost) {
+                        parentDisplayName = "담당자";
+                    } else if (parent.isAnonymous()) {
+                        parentDisplayName = anonymousNameMap.get(parent.getAuthor().getId());
+                    } else {
+                        parentDisplayName = parent.getAuthor().getNickname();
+                    }
+                    
                     return EventCommentTreeResponseDTO.toDTO(
                             parent,
                             replies,
                             parent.getAuthor().getId().equals(memberId),
                             followingIds.contains(parent.getAuthor().getId()),
-                            isAdmin || parent.getAuthor().getId().equals(event.getHost().getId()),
+                            isAdmin || isParentEventHost,
                             blockedMemberIds.contains(parent.getAuthor().getId()),
-                            parent.isAnonymous() ? anonymousNameMap.get(parent.getAuthor().getId()) : parent.getAuthor().getNickname()
+                            parentDisplayName
                     );
                 })
                 .sorted(Comparator.comparing(EventCommentTreeResponseDTO::getCreatedAt).reversed())
