@@ -19,11 +19,9 @@ import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.service.ImageUploadService;
 import com.ceos.beatbuddy.global.util.UploadUtil;
 import com.ceos.beatbuddy.global.util.UploadUtilAsyncWrapper;
-import com.ceos.beatbuddy.global.util.FileNameUtil;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.ceos.beatbuddy.global.util.UploadResult;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -52,7 +50,6 @@ public class PostService {
     private final PostInteractionService postInteractionService;
     private final FollowRepository followRepository;
     private final UploadUtil uploadUtil;
-    private final Executor uploadExecutor;
 
     private static final List<String> VALID_POST_TYPES = List.of("free", "piece");
 
@@ -61,8 +58,7 @@ public class PostService {
                        CommentRepository commentRepository, PostTypeHandlerFactory postTypeHandlerFactory,
                        ImageUploadService imageUploadService, UploadUtilAsyncWrapper uploadUtilAsyncWrapper,
                        PostRepository postRepository, PostInteractionService postInteractionService,
-                       FollowRepository followRepository, UploadUtil uploadUtil,
-                       @Qualifier("uploadExecutor") Executor uploadExecutor) {
+                       FollowRepository followRepository, UploadUtil uploadUtil) {
         this.memberService = memberService;
         this.postLikeRepository = postLikeRepository;
         this.postScrapRepository = postScrapRepository;
@@ -75,7 +71,6 @@ public class PostService {
         this.postInteractionService = postInteractionService;
         this.followRepository = followRepository;
         this.uploadUtil = uploadUtil;
-        this.uploadExecutor = uploadExecutor;
     }
 
     @Transactional
@@ -91,26 +86,14 @@ public class PostService {
         List<String> thumbnailUrls = null;
 
         if (images != null && !images.isEmpty()) {
-            // 1. 이미지 병렬 업로드
-            imageUrls = imageUploadService.uploadImagesParallel(images, UploadUtil.BucketType.MEDIA, "post");
-
-            // 2. 썸네일은 free 타입에만 생성 (병렬 처리)
             if ("free".equalsIgnoreCase(type)) {
-                List<CompletableFuture<String>> thumbnailFutures = new ArrayList<>();
-                for (int i = 0; i < images.size(); i++) {
-                    MultipartFile image = images.get(i);
-                    String imageUrl = imageUrls.get(i);
-                    String fileName = FileNameUtil.extractFileNameFromUrl(imageUrl);
-                    
-                    CompletableFuture<String> future = CompletableFuture.supplyAsync(() ->
-                        uploadUtil.uploadThumbnail(image, UploadUtil.BucketType.MEDIA, "post", fileName),
-                        uploadExecutor
-                    );
-                    thumbnailFutures.add(future);
-                }
-                thumbnailUrls = thumbnailFutures.stream()
-                    .map(CompletableFuture::join)
-                    .toList();
+                // free 타입: 원본 + 썸네일 동시 업로드 (성능 최적화)
+                List<UploadResult> uploadResults = imageUploadService.uploadImagesWithThumbnails(images, UploadUtil.BucketType.MEDIA, "post");
+                imageUrls = uploadResults.stream().map(UploadResult::getOriginalUrl).toList();
+                thumbnailUrls = uploadResults.stream().map(UploadResult::getThumbnailUrl).toList();
+            } else {
+                // piece 타입: 원본만 업로드
+                imageUrls = imageUploadService.uploadImagesParallel(images, UploadUtil.BucketType.MEDIA, "post");
             }
         }
 
@@ -455,30 +438,21 @@ public class PostService {
 
         // 새 이미지 업로드 및 저장
         if (files != null && !files.isEmpty()) {
-            List<String> imageUrls = imageUploadService.uploadImagesParallel(files, UploadUtil.BucketType.MEDIA, "post");
-            post.getImageUrls().addAll(imageUrls);
-            
-            // free 타입인 경우 썸네일 생성 (병렬 처리)
             if ("free".equalsIgnoreCase(type)) {
+                // free 타입: 원본 + 썸네일 동시 업로드 (성능 최적화)
+                List<UploadResult> uploadResults = imageUploadService.uploadImagesWithThumbnails(files, UploadUtil.BucketType.MEDIA, "post");
+                List<String> imageUrls = uploadResults.stream().map(UploadResult::getOriginalUrl).toList();
+                List<String> newThumbnailUrls = uploadResults.stream().map(UploadResult::getThumbnailUrl).toList();
+                
+                post.getImageUrls().addAll(imageUrls);
                 if (post.getThumbnailUrls() == null) {
                     post.setThumbnailUrls(new ArrayList<>());
                 }
-                List<CompletableFuture<String>> thumbnailFutures = new ArrayList<>();
-                for (int i = 0; i < files.size(); i++) {
-                    MultipartFile file = files.get(i);
-                    String imageUrl = imageUrls.get(i);
-                    String fileName = FileNameUtil.extractFileNameFromUrl(imageUrl);
-                    
-                    CompletableFuture<String> future = CompletableFuture.supplyAsync(() ->
-                        uploadUtil.uploadThumbnail(file, UploadUtil.BucketType.MEDIA, "post", fileName),
-                        uploadExecutor
-                    );
-                    thumbnailFutures.add(future);
-                }
-                List<String> newThumbnailUrls = thumbnailFutures.stream()
-                    .map(CompletableFuture::join)
-                    .toList();
                 post.getThumbnailUrls().addAll(newThumbnailUrls);
+            } else {
+                // piece 타입: 원본만 업로드
+                List<String> imageUrls = imageUploadService.uploadImagesParallel(files, UploadUtil.BucketType.MEDIA, "post");
+                post.getImageUrls().addAll(imageUrls);
             }
         }
 

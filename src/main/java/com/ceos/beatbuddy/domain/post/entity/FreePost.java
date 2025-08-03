@@ -4,7 +4,6 @@ import static lombok.AccessLevel.PROTECTED;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
-import com.ceos.beatbuddy.global.util.FixedHashtagListConverter;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -22,7 +21,8 @@ import org.springframework.lang.Nullable;
 @AllArgsConstructor
 public class FreePost extends Post{
     @Getter
-    @Convert(converter = FixedHashtagListConverter.class)
+    @ElementCollection
+    @Enumerated(EnumType.STRING)
     private List<FixedHashtag> hashtag;
 
     public void updateHashtags(List<FixedHashtag> hashtags) {
