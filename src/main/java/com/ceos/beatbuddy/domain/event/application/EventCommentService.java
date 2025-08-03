@@ -75,7 +75,9 @@ public class EventCommentService {
         EventComment target = eventCommentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMENT));
 
-        if (!target.getAuthor().getId().equals(memberId)) {
+        // 작성자 검증 - 더 자세한 로깅 추가
+        Long authorId = target.getAuthor().getId();
+        if (!authorId.equals(memberId)) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
 
