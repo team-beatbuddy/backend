@@ -122,6 +122,9 @@ dependencies {
 
     // 썸네일 제작
     implementation 'net.coobird:thumbnailator:0.4.20'
+    
+    // 비디오 처리를 위한 FFmpeg Java wrapper
+    implementation 'net.bramp.ffmpeg:ffmpeg:0.8.0'
 }
 
 test {
