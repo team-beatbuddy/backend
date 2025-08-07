@@ -187,7 +187,8 @@ public class VenueSearchService {
         log.info("Generated Elasticsearch Query: {}", query.toString());
         return elasticsearchClient.search(s -> s
                 .index("venue")
-                .query(query), VenueDocument.class);
+                .query(query)
+                .size(10000), VenueDocument.class); // 모든 결과를 가져오도록 설정
     }
 
     private List<VenueDocument> processSearchResults(SearchResponse<VenueDocument> response) {
