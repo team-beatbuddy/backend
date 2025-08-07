@@ -3,12 +3,7 @@ package com.ceos.beatbuddy.domain.comment.entity;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,8 +38,14 @@ public class Comment extends BaseTimeEntity {
     @JoinColumn(name = "postId")
     private Post post;
 
+    private boolean isDeleted;
+
     private int likes;
     public Long getPostId() {
         return this.post.getId();
+    }
+
+    public void setDeleted(boolean b) {
+        this.isDeleted = b;
     }
 }
