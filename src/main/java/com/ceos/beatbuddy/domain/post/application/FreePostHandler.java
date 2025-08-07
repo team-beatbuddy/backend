@@ -59,6 +59,7 @@ public class FreePostHandler implements PostTypeHandler{
         return freePost;
     }
 
+
     @Override
     public Page<? extends Post> readAllPosts(Pageable pageable) {
         return freePostRepository.findAll(pageable);

@@ -17,6 +17,7 @@ public class FixedHashtagListConverter implements AttributeConverter<List<FixedH
     @Override
     public String convertToDatabaseColumn(List<FixedHashtag> attribute) {
         if (attribute == null) {
+            System.out.println("🔧 해시태그 DB 저장: null");
             return null;
         }
         try {
@@ -24,8 +25,11 @@ public class FixedHashtagListConverter implements AttributeConverter<List<FixedH
             List<String> hashtagNames = attribute.stream()
                     .map(FixedHashtag::name)
                     .toList();
-            return objectMapper.writeValueAsString(hashtagNames);
+            String json = objectMapper.writeValueAsString(hashtagNames);
+            System.out.println("🔧 해시태그 DB 저장: " + attribute + " → " + json);
+            return json;
         } catch (Exception e) {
+            System.err.println("❌ List<FixedHashtag> → JSON 변환 실패: " + e.getMessage());
             throw new IllegalArgumentException("List<FixedHashtag> → JSON 변환 실패", e);
         }
     }

@@ -130,11 +130,11 @@ public class PostService {
 
         // 응답 생성
         return PostReadDetailDTO.toDTO(post, status.getLeft(),
-                                    status.getMiddle(),
-                                    status.getRight(),
-                                    hashtags,
-                                    post.getMember().getId().equals(memberId),
-                                    isFollowing);
+                status.getMiddle(),
+                status.getRight(),
+                hashtags,
+                post.getMember().getId().equals(memberId),
+                isFollowing);
     }
 
     public PostListResponseDTO readAllPostsSort(Long memberId, String type, int page, int size) {
@@ -407,8 +407,8 @@ public class PostService {
 
     @Transactional
     public PostReadDetailDTO updatePost(String type, Long postId, Long memberId,
-                                            UpdatePostRequestDTO requestDTO, List<MultipartFile> files,
-                                            List<String> deleteFiles) {
+                                        UpdatePostRequestDTO requestDTO, List<MultipartFile> files,
+                                        List<String> deleteFiles) {
 
         // 게시글 조회 및 작성자 검증
         Post post = this.validateAndGetPost(postId);
@@ -443,7 +443,7 @@ public class PostService {
                 List<UploadResult> uploadResults = imageUploadService.uploadImagesWithThumbnails(files, UploadUtil.BucketType.MEDIA, "post");
                 List<String> imageUrls = uploadResults.stream().map(UploadResult::getOriginalUrl).toList();
                 List<String> newThumbnailUrls = uploadResults.stream().map(UploadResult::getThumbnailUrl).toList();
-                
+
                 post.getImageUrls().addAll(imageUrls);
                 if (post.getThumbnailUrls() == null) {
                     post.setThumbnailUrls(new ArrayList<>());
