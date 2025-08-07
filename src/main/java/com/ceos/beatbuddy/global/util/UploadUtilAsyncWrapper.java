@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 public class UploadUtilAsyncWrapper {
 
     private final UploadUtil uploadUtil;
+    private final VideoThumbnailService videoThumbnailService;
 
     @Async("uploadExecutor")
     public CompletableFuture<UploadResult> uploadAsync(MultipartFile image, UploadUtil.BucketType type, String folder) {
@@ -26,19 +27,25 @@ public class UploadUtilAsyncWrapper {
             // post 폴더인 경우: 원본과 썸네일을 진짜 병렬로 업로드
             CompletableFuture<String> originalFuture = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return uploadUtil.upload(image, type, folder);
+                    // 비디오 썸네일 생성을 제외한 원본 업로드만 수행
+                    return uploadOriginalOnly(image, type, folder);
                 } catch (Exception e) {
                     log.error("Failed to upload original for {}: {}", name, e.getMessage());
                     throw new RuntimeException("Original upload failed", e);
                 }
             });
             
-            // 파일명을 미리 생성 (시간 기반)
-            String fileName = generateFileName(image.getOriginalFilename());
-            
             CompletableFuture<String> thumbnailFuture = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return uploadUtil.uploadThumbnail(image, type, folder, fileName);
+                    // 비디오 파일인지 확인
+                    if (UploadUtil.isVideoFile(image.getOriginalFilename())) {
+                        // 비디오 파일인 경우 VideoThumbnailService 사용
+                        return videoThumbnailService.generateAndUploadThumbnail(image, folder);
+                    } else {
+                        // 이미지 파일인 경우 기존 uploadThumbnail 사용
+                        String fileName = generateFileName(image.getOriginalFilename());
+                        return uploadUtil.uploadThumbnail(image, type, folder, fileName);
+                    }
                 } catch (Exception e) {
                     log.error("Failed to upload thumbnail for {}: {}", name, e.getMessage());
                     throw new RuntimeException("Thumbnail upload failed", e);
@@ -78,6 +85,11 @@ public class UploadUtilAsyncWrapper {
 
     private String extractFileNameFromUrl(String url) {
         return FileNameUtil.extractFileNameFromUrl(url);
+    }
+    
+    private String uploadOriginalOnly(MultipartFile image, UploadUtil.BucketType type, String folder) {
+        // UploadUtil의 uploadOriginalOnly 메소드 사용
+        return uploadUtil.uploadOriginalOnly(image, type, folder);
     }
     
     private String generateFileName(String originalFilename) {

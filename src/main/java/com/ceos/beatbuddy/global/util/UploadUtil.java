@@ -23,9 +23,21 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static org.apache.commons.compress.utils.FileNameUtils.getExtension;
+import java.util.Arrays;
+import java.util.Set;
 
 @Component
 public class UploadUtil {
+    private final VideoThumbnailService videoThumbnailService;
+    
+    public UploadUtil(VideoThumbnailService videoThumbnailService) {
+        this.videoThumbnailService = videoThumbnailService;
+    }
+    // 지원되는 영상 파일 확장자
+    private static final Set<String> VIDEO_EXTENSIONS = Set.of(
+            "mp4", "mov", "avi", "mkv", "wmv", "flv", "webm", "m4v"
+    );
+    
     private static String bucketName;
     private static String beatbuddyBucketName;
     private static String accessKey;
@@ -76,6 +88,30 @@ public class UploadUtil {
         // 확장자 및 파일명 검증
         validationImage(image.getOriginalFilename());
 
+        String fileUrl = uploadImageS3(image, getBucketName(type), folder);
+        
+        // 비디오 파일인 경우 썸네일 생성
+        if (isVideoFile(image.getOriginalFilename())) {
+            try {
+                videoThumbnailService.generateAndUploadThumbnail(image, folder);
+            } catch (Exception e) {
+                // 썸네일 생성 실패해도 원본 업로드는 성공으로 처리
+                System.err.println("썸네일 생성 실패: " + e.getMessage());
+            }
+        }
+        
+        return fileUrl;
+    }
+
+    public String uploadOriginalOnly(MultipartFile image, BucketType type, String folder) {
+        if (image.isEmpty() || Objects.isNull(image.getOriginalFilename())) {
+            throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
+        }
+
+        // 확장자 및 파일명 검증
+        validationImage(image.getOriginalFilename());
+
+        // 썸네일 생성 없이 원본만 업로드
         return uploadImageS3(image, getBucketName(type), folder);
     }
 
@@ -112,7 +148,14 @@ public class UploadUtil {
 
 
     public List<String> uploadImages(List<MultipartFile> images, BucketType type, String folder) {
-        return images.stream().map(image -> upload(image, type, folder)).toList();
+        return images.stream().map(image -> {
+            String fileUrl = upload(image, type, folder);
+            
+            // 비디오 파일인 경우 썸네일 생성 (이미 upload 메소드에서 처리되므로 중복 제거)
+            // upload 메소드에서 이미 비디오 썸네일 처리를 하므로 여기서는 별도 처리 불필요
+            
+            return fileUrl;
+        }).toList();
     }
 
 
@@ -155,7 +198,7 @@ public class UploadUtil {
     }
 
 
-    private String getBucketName(BucketType type) {
+    public String getBucketName(BucketType type) {
         return switch (type) {
             case VENUE -> bucketName;
             case MEDIA -> beatbuddyBucketName;
@@ -172,6 +215,35 @@ public class UploadUtil {
         metadata.setContentType(image.getContentType());
         metadata.setContentLength(image.getSize());
         return metadata;
+    }
+
+    /**
+     * 파일이 영상 파일인지 확인합니다.
+     *
+     * @param fileName 파일명
+     * @return 영상 파일이면 true, 아니면 false
+     */
+    public static boolean isVideoFile(String fileName) {
+        if (fileName == null || fileName.isEmpty()) {
+            return false;
+        }
+        
+        String extension = getFileExtension(fileName);
+        return VIDEO_EXTENSIONS.contains(extension.toLowerCase());
+    }
+    
+    /**
+     * 파일 확장자를 추출합니다.
+     *
+     * @param fileName 파일명
+     * @return 확장자 (점 없이)
+     */
+    private static String getFileExtension(String fileName) {
+        int lastDotIndex = fileName.lastIndexOf(".");
+        if (lastDotIndex == -1 || lastDotIndex == fileName.length() - 1) {
+            return "";
+        }
+        return fileName.substring(lastDotIndex + 1);
     }
 
     /**
