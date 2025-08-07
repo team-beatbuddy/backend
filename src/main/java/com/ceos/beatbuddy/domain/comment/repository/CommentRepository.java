@@ -31,4 +31,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     void increaseLikesById(Long commentId);
 
     List<Comment> findAllByReplyId(Long commentId);
+
+    boolean existsByReply_Id(Long parentCommentId);
 }
