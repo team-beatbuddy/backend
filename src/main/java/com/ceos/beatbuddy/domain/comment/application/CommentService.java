@@ -53,6 +53,7 @@ public class CommentService {
                 .member(member)
                 .post(post)
                 .likes(0)
+                .isDeleted(false)
                 .build();
 
         Comment savedComment = commentRepository.save(comment);
@@ -63,7 +64,7 @@ public class CommentService {
         // ========  알림 전송
         eventPublisher.publishEvent(new PostCommentCreatedEvent(post, savedComment, member));
 
-        return CommentResponseDto.from(savedComment, true, isFollowing, false); // 자신이 작성, 스스로는 차단할 수 없음
+        return CommentResponseDto.from(savedComment, true, isFollowing, false, false); // 자신이 작성, 스스로는 차단할 수 없음
     }
 
     @Transactional
@@ -82,6 +83,7 @@ public class CommentService {
                 .post(post)
                 .reply(parentComment)
                 .likes(0)
+                .isDeleted(false) // 기본값 false로 설정
                 .build();
 
         Comment savedReply = commentRepository.save(reply);
@@ -92,7 +94,7 @@ public class CommentService {
         // ========  알림 전송
         eventPublisher.publishEvent(new PostCommentCreatedEvent(post, savedReply, member));
 
-        return CommentResponseDto.from(savedReply, true, isFollowing, false); // 자신이 작성, 스스로는 차단할 수 없음
+        return CommentResponseDto.from(savedReply, true, isFollowing, false, false); // 자신이 작성, 스스로는 차단할 수 없음
     }
 
     public CommentResponseDto getComment(Long commentId, Long memberId) {
@@ -102,7 +104,7 @@ public class CommentService {
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
         boolean isBlockedMember = memberService.isBlocked(memberId, comment.getMember().getId());
 
-        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember); // 자신이 작성한 댓글인지 여부
+        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember, comment.isDeleted()); // 자신이 작성한 댓글인지 여부
     }
 
     public Page<CommentResponseDto> getAllComments(Long postId, int page, int size, Long memberId) {
@@ -170,7 +172,8 @@ public class CommentService {
                     isAuthor,
                     writerId,
                     isFollowing,
-                    isBlocked
+                    isBlocked,
+                    comment.isDeleted() // 삭제 여부 추가
             );
         }).toList();
 
@@ -200,7 +203,7 @@ public class CommentService {
 
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
 
-        return CommentResponseDto.from(commentRepository.save(updatedComment), true, isFollowing, false); // 자신이 작성한 댓글이므로 true, 자신을 차단할 수 없음.
+        return CommentResponseDto.from(commentRepository.save(updatedComment), true, isFollowing, false, false); // 자신이 작성한 댓글이므로 true, 자신을 차단할 수 없음.
     }
 
     @Transactional
@@ -215,12 +218,17 @@ public class CommentService {
         // 1. 댓글에 달린 모든 좋아요 먼저 삭제
         commentLikeRepository.deleteByComment_Id(commentId);
 
-        List<Comment> childReplies = commentRepository.findAllByReplyId(commentId);
-        commentRepository.deleteAll(childReplies); // 또는 soft delete
-        
         // 2. 댓글 개수 감소
         comment.getPost().decreaseComments();
-        
+
+
+        boolean hasChildReplies = commentRepository.existsByReply_Id(commentId);
+        if (hasChildReplies) {
+            comment.setDeleted(true);
+            commentRepository.save(comment);
+            return;Coupon
+        }
+
         // 3. 댓글 삭제
         commentRepository.delete(comment);
     }
@@ -258,7 +266,7 @@ public class CommentService {
         // 팔로잉 여부
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
         // 차단 여부
-        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember); // 자신이 작성한 댓글인지 여부
+        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember, false); // 자신이 작성한 댓글인지 여부
     }
 
     @Transactional
@@ -286,6 +294,6 @@ public class CommentService {
 
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
 
-        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember); // 자신이 작성한 댓글인지 여부
+        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember, false); // 자신이 작성한 댓글인지 여부
     }
 }

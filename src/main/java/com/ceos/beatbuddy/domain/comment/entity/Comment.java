@@ -38,8 +38,14 @@ public class Comment extends BaseTimeEntity {
     @JoinColumn(name = "postId")
     private Post post;
 
+    private boolean isDeleted;
+
     private int likes;
     public Long getPostId() {
         return this.post.getId();
+    }
+
+    public void setDeleted(boolean b) {
+        this.isDeleted = b;
     }
 }

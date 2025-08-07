@@ -14,10 +14,11 @@ public record CommentResponseDto(
         Boolean isAuthor,
         Long writerId,
         Boolean isFollowing,
-        Boolean isBlocked
+        Boolean isBlocked,
+        Boolean isDeleted
 
         ) {
-    public static CommentResponseDto from(Comment comment, Boolean isAuthor, Boolean isFollowing, Boolean isBlockedMember) {
+    public static CommentResponseDto from(Comment comment, Boolean isAuthor, Boolean isFollowing, Boolean isBlockedMember, Boolean isDeleted) {
         return new CommentResponseDto(
                 comment.getId(),
                 isBlockedMember ? "차단한 멤버의 댓글입니다." : comment.getContent(),
@@ -29,7 +30,9 @@ public record CommentResponseDto(
                 isAuthor,
                 comment.getMember().getId(),
                 isFollowing,
-                isBlockedMember
+                isBlockedMember,
+                isDeleted
+
         );
     }
 }
