@@ -214,6 +214,9 @@ public class CommentService {
 
         // 1. 댓글에 달린 모든 좋아요 먼저 삭제
         commentLikeRepository.deleteByComment_Id(commentId);
+
+        List<Comment> childReplies = commentRepository.findAllByReplyId(commentId);
+        commentRepository.deleteAll(childReplies); // 또는 soft delete
         
         // 2. 댓글 개수 감소
         comment.getPost().decreaseComments();
