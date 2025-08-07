@@ -169,7 +169,7 @@ public class OnboardingService {
 
         String postProfileNickname = postProfileRequestDTO.getPostProfileNickname();
         if (postProfileNickname == null || postProfileNickname.isEmpty()) {
-            throw new CustomException("게시글 작성자의 닉네임은 필수입니다.");
+            throw new CustomException(MemberErrorCode.POST_PROFILE_NICKNAME_REQUIRED);
         }
 
         // 프로필 사진 있으면 업로드
