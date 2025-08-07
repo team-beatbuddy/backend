@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.member.controller;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.application.OnboardingService;
 import com.ceos.beatbuddy.domain.member.dto.*;
+import com.ceos.beatbuddy.domain.member.dto.api.ResponseApi;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.ResponseTemplate;
@@ -265,6 +266,28 @@ public class MemberController implements MemberApiDocs{
         memberService.updateFcmToken(memberId, dto.getToken());
 
         return ResponseEntity.ok().build();
+    }
+
+
+    // ============ Member Post Profile Endpoints ============
+    @PostMapping(value = "/post-profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "사용자 게시물 프로필 정보 저장", description = "사용자의 게시물 프로필 정보를 저장합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "게시물 프로필 정보 저장 성공",
+                    content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = ResponseApi.class))),
+            @ApiResponse(responseCode = "404", description = "요청한 유저가 존재하지 않습니다",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseTemplate.class)))
+    })
+    public ResponseEntity<ResponseDTO<String>> savePostProfile(@Valid @RequestBody PostProfileRequestDTO postProfileRequestDTO,
+                                                             @RequestPart(value = "postProfileImage", required = false) MultipartFile postProfileImage) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        onboardingService.savePostProfile(memberId, postProfileRequestDTO, postProfileImage);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_SAVE_POST_PROFILE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_SAVE_POST_PROFILE, "게시물 프로필 정보 저장 성공"));
     }
 
     // ============= Member Blocking Endpoints =============

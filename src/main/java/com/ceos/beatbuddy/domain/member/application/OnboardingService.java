@@ -3,16 +3,19 @@ package com.ceos.beatbuddy.domain.member.application;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.dto.*;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.member.entity.PostProfileInfo;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberGenreRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberMoodRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.global.CustomException;
+import com.ceos.beatbuddy.global.util.UploadUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +29,7 @@ public class OnboardingService {
     private final MemberGenreRepository memberGenreRepository;
     private final MemberMoodRepository memberMoodRepository;
     private final MemberRepository memberRepository;
+    private final UploadUtil uploadUtil;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -158,5 +162,27 @@ public class OnboardingService {
     }
 
 
+    // ============================ Member PostProfile ============================
+    public void savePostProfile(Long memberId, PostProfileRequestDTO postProfileRequestDTO, MultipartFile postProfileImage) {
+        Member member = memberService.validateAndGetMember(memberId);
 
+        String postProfileNickname = postProfileRequestDTO.getPostProfileNickname();
+        if (postProfileNickname == null || postProfileNickname.isEmpty()) {
+            throw new CustomException("게시글 작성자의 닉네임은 필수입니다.");
+        }
+
+        // 프로필 사진 있으면 업로드
+        if (postProfileImage != null && !postProfileImage.isEmpty()) {
+            // s3 업로드
+            String postProfileImageUrl = uploadUtil.upload(postProfileImage, UploadUtil.BucketType.MEDIA,"post-profile");
+            member.setPostProfileInfo(
+                    PostProfileInfo.from(postProfileNickname, postProfileImageUrl)
+            );
+        } else {
+            // 프로필 사진이 없으면 기본값 설정
+            member.setPostProfileInfo(
+                    PostProfileInfo.from(postProfileNickname, "")
+            );
+        }
+    }
 }
