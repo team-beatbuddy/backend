@@ -4,6 +4,7 @@ import com.ceos.beatbuddy.domain.member.constant.Gender;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.constant.Role;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -66,6 +67,12 @@ public class Member extends BaseTimeEntity {
     @Builder.Default
     private BusinessInfo businessInfo = new BusinessInfo(
             null, false, null, null, false
+    );
+
+    @Embedded
+    @Builder.Default
+    private PostProfileInfo postProfileInfo = new PostProfileInfo(
+            null, null
     );
 
 
@@ -144,5 +151,12 @@ public class Member extends BaseTimeEntity {
             throw new IllegalArgumentException("Role cannot be null");
         }
         this.role = role;
+    }
+
+    public void setPostProfileInfo(PostProfileInfo from) {
+        if (from == null) {
+            throw new IllegalArgumentException("PostProfileInfo cannot be null");
+        }
+        this.postProfileInfo = from;
     }
 }

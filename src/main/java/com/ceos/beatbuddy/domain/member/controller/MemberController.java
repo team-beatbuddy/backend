@@ -3,6 +3,8 @@ package com.ceos.beatbuddy.domain.member.controller;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.application.OnboardingService;
 import com.ceos.beatbuddy.domain.member.dto.*;
+import com.ceos.beatbuddy.domain.member.dto.api.MemberProfileSummaryApi;
+import com.ceos.beatbuddy.domain.member.dto.api.ResponseApi;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.ResponseTemplate;
@@ -208,8 +210,19 @@ public class MemberController implements MemberApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPLOAD_PROFILE_IMAGE, "프로필 사진 업로드 완료"));
     }
 
-    @Override
     @GetMapping("/profile/summary")
+    @Operation(summary = "회원 프로필 요약 정보 조회", description = "회원의 프로필 요약 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "프로필 요약 정보 조회 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MemberProfileSummaryApi.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청: memberId를 입력하지 않음",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseTemplate.class))),
+            @ApiResponse(responseCode = "404", description = "요청한 유저가 존재하지 않습니다",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseTemplate.class)))
+    })
     public ResponseEntity<ResponseDTO<MemberProfileSummaryDTO>> getProfileSummary(
         @RequestParam(required = false) Long memberId
     ) {
@@ -265,6 +278,47 @@ public class MemberController implements MemberApiDocs{
         memberService.updateFcmToken(memberId, dto.getToken());
 
         return ResponseEntity.ok().build();
+    }
+
+
+    // ============ Member Post Profile Endpoints ============
+    @PostMapping(value = "/post-profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "사용자 게시물 프로필 정보 저장", description = "사용자의 게시물 프로필 정보를 저장합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "게시물 프로필 정보 저장 성공",
+                    content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = ResponseApi.class))),
+            @ApiResponse(responseCode = "404", description = "요청한 유저가 존재하지 않습니다",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseTemplate.class)))
+    })
+    public ResponseEntity<ResponseDTO<String>> savePostProfile(@Valid @RequestPart("postProfileRequestDTO") PostProfileRequestDTO postProfileRequestDTO,
+                                                             @RequestPart(value = "postProfileImage", required = false) MultipartFile postProfileImage) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        onboardingService.savePostProfile(memberId, postProfileRequestDTO, postProfileImage);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_SAVE_POST_PROFILE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_SAVE_POST_PROFILE, "게시물 프로필 정보 저장 성공"));
+    }
+
+    @PatchMapping(value = "/post-profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "게시물 프로필 수정", description = "사용자의 게시물 프로필 닉네임 및 이미지를 수정합니다. 각 필드는 null이 아니고 비어있지 않을 때만 수정됩니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "게시물 프로필 수정 성공",
+                    content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = ResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "요청한 유저가 존재하지 않습니다",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseTemplate.class)))
+    })
+    public ResponseEntity<ResponseDTO<String>> updatePostProfile(
+            @RequestPart(value = "postProfileRequestDTO", required = false) PostProfileRequestDTO postProfileRequestDTO,
+            @RequestPart(value = "postProfileImage", required = false) MultipartFile postProfileImage) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        onboardingService.updatePostProfile(memberId, postProfileRequestDTO, postProfileImage);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_UPDATE_POST_PROFILE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_POST_PROFILE, "게시물 프로필 수정 성공"));
     }
 
     // ============= Member Blocking Endpoints =============

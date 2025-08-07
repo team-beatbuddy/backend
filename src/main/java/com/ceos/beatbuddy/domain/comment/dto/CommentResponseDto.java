@@ -24,7 +24,10 @@ public record CommentResponseDto(
                 isBlockedMember ? "차단한 멤버의 댓글입니다." : comment.getContent(),
                 comment.isAnonymous(),
                 comment.getReply() != null ? comment.getReply().getId() : null,
-                comment.isAnonymous() ? "익명" : comment.getMember().getNickname(),
+                comment.isAnonymous() ? "익명" : 
+                    (comment.getMember().getPostProfileInfo() != null && comment.getMember().getPostProfileInfo().getPostProfileNickname() != null
+                        ? comment.getMember().getPostProfileInfo().getPostProfileNickname()
+                        : comment.getMember().getNickname()),
                 comment.getLikes(),
                 comment.getCreatedAt(),
                 isAuthor,
