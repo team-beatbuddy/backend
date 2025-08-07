@@ -289,6 +289,26 @@ public class MemberController implements MemberApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_SAVE_POST_PROFILE, "게시물 프로필 정보 저장 성공"));
     }
 
+    @PatchMapping(value = "/post-profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "게시물 프로필 수정", description = "사용자의 게시물 프로필 닉네임 및 이미지를 수정합니다. 각 필드는 null이 아니고 비어있지 않을 때만 수정됩니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "게시물 프로필 수정 성공",
+                    content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = ResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "요청한 유저가 존재하지 않습니다",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseTemplate.class)))
+    })
+    public ResponseEntity<ResponseDTO<String>> updatePostProfile(
+            @RequestPart(value = "postProfileRequestDTO", required = false) PostProfileRequestDTO postProfileRequestDTO,
+            @RequestPart(value = "postProfileImage", required = false) MultipartFile postProfileImage) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        onboardingService.updatePostProfile(memberId, postProfileRequestDTO, postProfileImage);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_UPDATE_POST_PROFILE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_POST_PROFILE, "게시물 프로필 수정 성공"));
+    }
+
     // ============= Member Blocking Endpoints =============
 
     @Override

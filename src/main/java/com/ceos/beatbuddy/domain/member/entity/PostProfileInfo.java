@@ -13,12 +13,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PostProfileInfo {
     private String postProfileNickname;
-    private String postProfileImage;
+    private String postProfileImageUrl;
 
     public static PostProfileInfo from(String postProfileNickname, String postProfileImage) {
         return PostProfileInfo.builder()
                 .postProfileNickname(postProfileNickname)
-                .postProfileImage(postProfileImage)
+                .postProfileImageUrl(postProfileImage)
                 .build();
     }
 }
