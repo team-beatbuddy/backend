@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.member.controller;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.application.OnboardingService;
 import com.ceos.beatbuddy.domain.member.dto.*;
+import com.ceos.beatbuddy.domain.member.dto.api.MemberProfileSummaryApi;
 import com.ceos.beatbuddy.domain.member.dto.api.ResponseApi;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.global.CustomException;
@@ -209,8 +210,19 @@ public class MemberController implements MemberApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPLOAD_PROFILE_IMAGE, "프로필 사진 업로드 완료"));
     }
 
-    @Override
     @GetMapping("/profile/summary")
+    @Operation(summary = "회원 프로필 요약 정보 조회", description = "회원의 프로필 요약 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "프로필 요약 정보 조회 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MemberProfileSummaryApi.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청: memberId를 입력하지 않음",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseTemplate.class))),
+            @ApiResponse(responseCode = "404", description = "요청한 유저가 존재하지 않습니다",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseTemplate.class)))
+    })
     public ResponseEntity<ResponseDTO<MemberProfileSummaryDTO>> getProfileSummary(
         @RequestParam(required = false) Long memberId
     ) {
