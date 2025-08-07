@@ -4,6 +4,7 @@ import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.ceos.beatbuddy.domain.firebase.entity.FirebaseMessageType.*;
@@ -17,7 +18,7 @@ public class NotificationPayloadFactory {
                 .title(followerName + "님이 나를 팔로우했어요!")
                 .data(Map.of(
                         "type", FOLLOW.getType(),
-                        "followerId", String.valueOf(followerId),
+                        "contentId", String.valueOf(followerId),
                         "url", "/profile/" + followerId
                 ))
                 .build();
@@ -28,12 +29,12 @@ public class NotificationPayloadFactory {
         return NotificationPayload.builder()
                 .title(commenterName + "님이 내 게시글에 댓글을 남겼어요.")
                 .body(commentContent)
-                .data(Map.of(
-                        "type", POST_COMMENT.getType(),
-                        "postId", String.valueOf(postId),
-                        "commentId", String.valueOf(commentId),
-                        "url", "/post/" + postId + "/comment/" + commentId
-                ))
+                .data(new HashMap<String, String>() {{
+                        put("type", POST_COMMENT.getType());
+                        put("postId", String.valueOf(postId));
+                        put("contentId", String.valueOf(commentId));
+                        put("url", "/comment/" + commentId);
+                }})
                 .build();
     }
 
@@ -43,12 +44,11 @@ public class NotificationPayloadFactory {
         return NotificationPayload.builder()
                 .title(replierName + "님이 내 댓글에 대댓글을 남겼어요.")
                 .body(replyContent)
-                .data(Map.of(
-                        "type", POST_COMMENT.getType(),
-                        "postId", String.valueOf(postId),
-                        "commentId", String.valueOf(commentId),
-                        "url", "/post/" + postId + "/comment/" + commentId
-                ))
+                .data(new HashMap<String, String>() {{
+                        put("type", POST_COMMENT.getType());
+                        put("contentId", String.valueOf(commentId));
+                        put("url", "/comment/" + commentId);
+                }})
                 .build();
     }
 
@@ -57,12 +57,11 @@ public class NotificationPayloadFactory {
         return NotificationPayload.builder()
                 .title("내 문의에 답변이 작성되었어요.")
                 .body(replyContent)
-                .data(Map.of(
-                        "type", EVENT_COMMENT.getType(),
-                        "eventId", String.valueOf(eventId),
-                        "commentId", String.valueOf(commentId),
-                        "url", "/event/" + eventId + "/comment/" + commentId + "/reply/" + replyId
-                ))
+                .data(new HashMap<String, String>() {{
+                        put("type", EVENT_COMMENT.getType());
+                        put("contentId", String.valueOf(replyId));
+                        put("url", "/reply/" + replyId);
+                }})
                 .build();
     }
 
@@ -71,12 +70,11 @@ public class NotificationPayloadFactory {
         return NotificationPayload.builder()
                 .title("새로운 문의 사항이 접수되었어요.")
                 .body(commentContent)
-                .data(Map.of(
-                        "type", EVENT_COMMENT.getType(),
-                        "eventId", String.valueOf(eventId),
-                        "commentId", String.valueOf(commentId),
-                        "url", "/event/" + eventId + "/comment/" + commentId
-                ))
+                .data(new HashMap<String, String>() {{
+                        put("type", EVENT_COMMENT.getType());
+                        put("contentId", String.valueOf(commentId));
+                        put("url", "/comment/" + commentId);
+                }})
                 .build();
     }
 
@@ -86,12 +84,12 @@ public class NotificationPayloadFactory {
         return NotificationPayload.builder()
                 .title(eventTitle + "참석 1일 전이에요!")
                 .body("참석 명단을 작성한 이벤트예요.")
-                .data(Map.of(
-                        "type", EVENT.getType(),
-                        "eventId", String.valueOf(eventId),
-                        "url", "/event/" + eventId,
-                        "notificationId", String.valueOf(notificationId)
-                ))
+                .data(new HashMap<String, String>() {{
+                        put("type", EVENT.getType());
+                        put("contentId", String.valueOf(eventId));
+                        put("url", "/event/" + eventId);
+                        put("notificationId", String.valueOf(notificationId));
+                }})
                 .build();
     }
 
@@ -100,12 +98,12 @@ public class NotificationPayloadFactory {
         return NotificationPayload.builder()
                 .title(eventTitle + "참석 당일이에요!")
                 .body("참석 명단을 작성한 이벤트예요.")
-                .data(Map.of(
-                        "type", EVENT.getType(),
-                        "eventId", String.valueOf(eventId),
-                        "url", "/event/" + eventId,
-                        "notificationId", String.valueOf(notificationId)
-                ))
+                .data(new HashMap<String, String>() {{
+                        put("type", EVENT.getType());
+                        put("contentId", String.valueOf(eventId));
+                        put("url", "/event/" + eventId);
+                        put("notificationId", String.valueOf(notificationId));
+                }})
                 .build();
     }
 
@@ -139,6 +137,7 @@ public class NotificationPayloadFactory {
                 .body(notiContent)
                 .data(Map.of(
                         "type", finalType,
+                        "contentId", String.valueOf(postId),
                         "url", url + "/" + postId
                 ));
 
