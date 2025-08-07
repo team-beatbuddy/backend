@@ -108,7 +108,9 @@ public class FirebaseMessageScheduler {
                         : notificationPayloadFactory.createEventAttendanceD1NotificationPayload(event.getId(), event.getTitle(), saved.getId());
 
                 // 3. 실제 저장된 알림 업데이트 (제목/내용 등)
-                saved.update(payload.getTitle(), payload.getBody(), payload.getImageUrl());
+                saved.update(payload.getTitle(), payload.getBody(), payload.getImageUrl(), payload.getData().get("contentId") != null
+                        ? Long.parseLong(payload.getData().get("contentId"))
+                        : null);
 
                 // 4. 푸시 전송
                 notificationSender.send(member.getFcmToken(), payload);

@@ -26,6 +26,8 @@ public class NotificationListDTO {
     private String imageUrl;
     @Schema(description = "알림 유형", example = "EVENT")
     private String type;
+    @Schema(description = "알림과 연관된 본문의 ID (이벤트, 댓글 등)", example = "1")
+    private Long contentId;
     @Schema(description = "수신자 회원 ID", example = "123")
     private Long memberId;
     @Schema(description = "알림 읽음 여부", example = "true")
@@ -47,6 +49,7 @@ public class NotificationListDTO {
                 .message(entity.getMessage())
                 .imageUrl(entity.getImageUrl())
                 .type(entity.getType().name())
+                .contentId(entity.getContentId())
                 .memberId(entity.getReceiver().getId())
                 .isRead(entity.isRead())
                 .createdAt(entity.getCreatedAt())

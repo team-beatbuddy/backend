@@ -32,6 +32,8 @@ public class Notification extends BaseTimeEntity {
     private String message;
     private String imageUrl;
 
+    private Long contentId; // 알림과 연관된 본문의 ID (이벤트, 댓글 등)
+
     private boolean isRead = false;
 
     private LocalDateTime readAt;
@@ -41,9 +43,10 @@ public class Notification extends BaseTimeEntity {
         this.readAt = LocalDateTime.now();
     }
 
-    public void update(String title, String body, String imageUrl) {
+    public void update(String title, String body, String imageUrl, Long contentId) {
         this.title = title;
         this.message = body;
         this.imageUrl = imageUrl;
+        this.contentId = contentId;
     }
 }
