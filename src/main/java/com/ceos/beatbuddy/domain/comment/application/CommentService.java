@@ -226,7 +226,7 @@ public class CommentService {
         if (hasChildReplies) {
             comment.setDeleted(true);
             commentRepository.save(comment);
-            return;Coupon
+            return;
         }
 
         // 3. 댓글 삭제
