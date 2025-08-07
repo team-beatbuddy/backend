@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.member.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
@@ -14,14 +15,20 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Schema(description = "사업자 정보")
 public class BusinessInfo {
+    @Schema(description = "사업자 이름", example = "홍길동의 카페")
     private String businessName;
     @Column(nullable = false)
+    @Schema(description = "사업자 승인 여부", example = "false")
     private boolean isApproved = false;
+    @Schema(description = "사업자 전화번호", example = "010-1234-5678")
     private String phoneNumber;
+    @Schema(description = "사업자 생년월일", example = "1990-01-01")
     private LocalDate dateOfBirth;
 
     @Column(nullable = false)
+    @Schema(description = "본인 인증 완료 여부", example = "false")
     private boolean isVerified = false; // 본인 인증 완료 되었는지
 
     public void savePhoneNumber(String phoneNumber) {
