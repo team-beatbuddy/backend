@@ -2,11 +2,13 @@ package com.ceos.beatbuddy.domain.post.controller;
 
 
 import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
+import com.ceos.beatbuddy.domain.post.dto.api.PostPageListResponseApi;
 import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -25,51 +27,10 @@ public interface FreePostApiDocs {
      */
     @Operation(summary = "게시글 검색", description = "검색어로 게시글을 검색합니다.")
     @ApiResponse(responseCode = "200", description = "검색된 게시글 목록 반환",
-    content = @Content(examples = {@ExampleObject(
-            name = "게시글 검색 성공", description = "검색어로 게시글을 성공적으로 검색한 경우",
-            value = """
-                    {
-                      "status": 200,
-                      "code": "SUCCESS_POST_SEARCH",
-                      "message": "포스트 검색을 성공적으로 했습니다.",
-                      "data": {
-                        "totalPost": 1,
-                        "size": 10,
-                        "page": 1,
-                        "responseDTOS": [
-                          {
-                            "id": 535,
-                            "title": "string",
-                            "content": "string",
-                            "role": "USER",
-                            "likes": 0,
-                            "scraps": 0,
-                            "comments": 0,
-                            "liked": false,
-                            "scrapped": false,
-                            "hasCommented": false,
-                            "nickname": "BeatBuddy",
-                            "createAt": "2025-07-04"
-                          }
-                        ]
-                      }
-                    }
-                    """),
-            @ExampleObject(name = "게시글 검색 성공, 비어있음", description = "비어있는 검색 결과",
-            value = """
-                    {
-                      "status": 200,
-                      "code": "SUCCESS_BUT_EMPTY_LIST",
-                      "message": "성공적으로 조회했으나 리스트가 비었습니다.",
-                      "data": {
-                        "totalPost": 0,
-                        "size": 10,
-                        "page": 1,
-                        "responseDTOS": []
-                      }
-                    }
-                    """)
-    }))
+    content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = PostPageListResponseApi.class))
+    )
     @ApiResponse(responseCode = "400", description = "잘못된 요청",
     content = @Content(examples = {@ExampleObject(name = "검색어가 2글자 미만인 경우", description = "검색어가 2글자 미만인 경우", value = SwaggerExamples.KEYWORD_TOO_SHORT),
             @ExampleObject(name = "검색어가 비어있는 경우", description = "검색어가 비어있는 경우", value = SwaggerExamples.EMPTY_KEYWORD)}))

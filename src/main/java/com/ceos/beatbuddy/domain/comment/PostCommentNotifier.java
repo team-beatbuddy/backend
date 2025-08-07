@@ -29,7 +29,10 @@ public class PostCommentNotifier {
         NotificationPayload notificationPayload = notificationPayloadFactory.createPostCommentPayload(
                 comment.getPost().getId(),
                 comment.getId(),
-                comment.isAnonymous() ? "익명" : commentWriter.getNickname(),
+                comment.isAnonymous() ? "익명" : 
+                    (commentWriter.getPostProfileInfo() != null && commentWriter.getPostProfileInfo().getPostProfileNickname() != null
+                        ? commentWriter.getPostProfileInfo().getPostProfileNickname()
+                        : commentWriter.getNickname()),
                 comment.getContent()
         );
 
@@ -56,7 +59,10 @@ public class PostCommentNotifier {
             NotificationPayload notificationPayload = notificationPayloadFactory.createReplyCommentPayload(
                     comment.getPost().getId(),
                     comment.getId(),
-                    comment.isAnonymous() ? "익명" : comment.getMember().getNickname(),
+                    comment.isAnonymous() ? "익명" : 
+                        (comment.getMember().getPostProfileInfo() != null && comment.getMember().getPostProfileInfo().getPostProfileNickname() != null
+                            ? comment.getMember().getPostProfileInfo().getPostProfileNickname()
+                            : comment.getMember().getNickname()),
                     comment.getContent()
             );
 

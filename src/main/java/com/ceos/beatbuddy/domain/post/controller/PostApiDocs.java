@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.post.controller;
 
 import com.ceos.beatbuddy.domain.post.dto.*;
+import com.ceos.beatbuddy.domain.post.dto.api.PostPageListResponseApi;
 import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -114,69 +115,7 @@ public interface PostApiDocs {
             @ApiResponse(responseCode = "200", description = "스크랩한 게시글 목록 조회 성공",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class),
-                            examples = @ExampleObject(name = "성공 예시", value = """
-                            {
-                              "status": 200,
-                              "code": "GET_SCRAPPED_POST_LIST",
-                              "message": "스크랩한 글을 불러왔습니다.",
-                              "data": {
-                                "totalPost": 2,
-                                "size": 10,
-                                "page": 0,
-                                "responseDTOS": [
-                                  {
-                                    "id": 537,
-                                    "title": "string",
-                                    "content": "string",
-                                    "role": "BUSINESS",
-                                    "likes": 1,
-                                    "scraps": 1,
-                                    "comments": 0,
-                                    "liked": false,
-                                    "scrapped": true,
-                                    "hasCommented": false,
-                                    "nickname": "BeatBuddy",
-                                    "createAt": "2025-07-06T22:19:08.514011",
-                                    "hashtags": [
-                                      "이태원",
-                                      "홍대",
-                                      "강남.신사"
-                                    ],
-                                    "isAuthor": true,
-                                    "writerId": 1,
-                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                    "isAnonymous": false
-                                  },
-                                  {
-                                    "id": 539,
-                                    "title": "string",
-                                    "content": "string",
-                                    "role": "BUSINESS",
-                                    "likes": 1,
-                                    "scraps": 1,
-                                    "comments": 1,
-                                    "liked": true,
-                                    "scrapped": true,
-                                    "hasCommented": true,
-                                    "nickname": "BeatBuddy",
-                                    "createAt": "2025-07-06T22:19:08.514011",
-                                    "hashtags": [
-                                      "홍대",
-                                      "이태원",
-                                      "뮤직"
-                                    ],
-                                    "isAuthor": true,
-                                    "writerId": 1,
-                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                    "isAnonymous": false
-                                  }
-                                ]
-                              }
-                            }
-                                """)
-                    )
-            ),
+                            schema = @Schema(implementation = PostPageListResponseApi.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청",
                     content = @Content(
                             mediaType = "application/json",
@@ -209,67 +148,7 @@ public interface PostApiDocs {
             @ApiResponse(responseCode = "200", description = "내가 작성한 글 목록 조회 성공",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = PostListResponseDTO.class),
-                            examples = @ExampleObject(value = """
-                            {
-                              "status": 200,
-                              "code": "GET_MY_POST_LIST",
-                              "message": "내가 작성한 글을 불러왔습니다.",
-                              "data": {
-                                "totalPost": 46,
-                                "size": 10,
-                                "page": 1,
-                                "responseDTOS": [
-                                  {
-                                    "id": 537,
-                                    "title": "string",
-                                    "content": "string",
-                                    "role": "BUSINESS",
-                                    "likes": 1,
-                                    "scraps": 1,
-                                    "comments": 0,
-                                    "liked": false,
-                                    "scrapped": true,
-                                    "hasCommented": false,
-                                    "nickname": "BeatBuddy",
-                                    "createAt": "2025-07-06T22:19:08.514011",
-                                    "hashtags": [
-                                      "이태원",
-                                      "홍대",
-                                      "강남.신사"
-                                    ],
-                                    "isAuthor": true,
-                                    "writerId": 1,
-                                    "profileImageUrl": "",
-                                    "isAnonymous": false
-                                  },
-                                  {
-                                    "id": 41,
-                                    "title": "string",
-                                    "content": "string",
-                                    "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/3d50a441-6--.png",
-                                    "role": "ADMIN",
-                                    "likes": 0,
-                                    "scraps": 0,
-                                    "comments": 0,
-                                    "liked": false,
-                                    "scrapped": false,
-                                    "hasCommented": false,
-                                    "nickname": "닉네임 수정1",
-                                    "createAt": "2025-07-06T22:19:08.514011",
-                                    "hashtags": [
-                                      "홍대"
-                                    ],
-                                    "isAuthor": false,
-                                    "writerId": 1,
-                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                    "isAnonymous": true
-                                  }
-                                ]
-                              }
-                            }
-                    """))
-            ),
+                            schema = @Schema(implementation = PostPageListResponseApi.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청",
                     content = @Content(
                             mediaType = "application/json",
@@ -435,7 +314,7 @@ public interface PostApiDocs {
             @ApiResponse(responseCode = "200", description = "포스트 수정 성공",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class),
+                            schema = @Schema(implementation = PostPageListResponseApi.class),
                             examples = @ExampleObject(
                                     name = "SuccessResponse", summary = "성공 응답 예시",
                                     value = """
@@ -532,139 +411,7 @@ public interface PostApiDocs {
             description = "게시글 목록 조회 성공",
             content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = ResponseDTO.class),
-                    examples = @ExampleObject(value = """
-                    {
-                      "status": 200,
-                      "code": "SUCCESS_GET_POST_SORT_LIST",
-                      "message": "type 에 맞는 post를 불러왔습니다.",
-                      "data": {
-                        "totalPost": 46,
-                        "size": 10,
-                        "page": 1,
-                        "responseDTOS": [
-                          {
-                            "id": 539,
-                            "title": "제목 수정",
-                            "content": "string",
-                            "thumbImage": [],
-                            "role": "BUSINESS",
-                            "likes": 1,
-                            "scraps": 1,
-                            "comments": 1,
-                            "liked": true,
-                            "scrapped": true,
-                            "hasCommented": true,
-                            "nickname": "BeatBuddy",
-                            "createAt": "2025-07-06T22:19:08.514011",
-                            "hashtags": [
-                              "홍대",
-                              "이태원",
-                              "뮤직"
-                            ],
-                            "isAuthor": true,
-                            "writerId": 1,
-                            "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                            "isAnonymous": true,
-                            "isFollowing": false
-                          },
-                          {
-                            "id": 538,
-                            "title": "",
-                            "content": "string",
-                            "thumbImage": [],
-                            "role": "BUSINESS",
-                            "likes": 1,
-                            "scraps": 0,
-                            "comments": 0,
-                            "liked": false,
-                            "scrapped": false,
-                            "hasCommented": false,
-                            "nickname": "BeatBuddy",
-                            "createAt": "2025-07-06T22:19:08.514011",
-                            "hashtags": [
-                              "홍대"
-                            ],
-                            "isAuthor": true,
-                            "writerId": 1,
-                            "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                            "isAnonymous": true,
-                            "isFollowing": false
-                          },
-                          {
-                            "id": 537,
-                            "title": "string",
-                            "content": "string",
-                            "thumbImage": [],
-                            "role": "BUSINESS",
-                            "likes": 1,
-                            "scraps": 1,
-                            "comments": 0,
-                            "liked": false,
-                            "scrapped": true,
-                            "hasCommented": false,
-                            "nickname": "BeatBuddy",
-                            "createAt": "2025-07-06T22:19:08.514011",
-                            "hashtags": [
-                              "이태원",
-                              "홍대",
-                              "강남.신사"
-                            ],
-                            "isAuthor": true,
-                            "writerId": 1,
-                            "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                            "isAnonymous": true,
-                            "isFollowing": true
-                          },
-                          {
-                            "id": 536,
-                            "title": "string",
-                            "content": "string",
-                            "thumbImage": [],
-                            "role": "BUSINESS",
-                            "likes": 0,
-                            "scraps": 0,
-                            "comments": 0,
-                            "liked": false,
-                            "scrapped": false,
-                            "hasCommented": false,
-                            "nickname": "BeatBuddy",
-                            "createAt": "2025-07-06T22:19:08.514011",
-                            "hashtags": [],
-                            "isAuthor": true,
-                            "writerId": 1,
-                            "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                            "isAnonymous": true,
-                            "isFollowing": true
-                          },
-                          {
-                            "id": 535,
-                            "title": "string",
-                            "content": "string",
-                            "thumbImage": [],
-                            "role": "BUSINESS",
-                            "likes": 0,
-                            "scraps": 0,
-                            "comments": 0,
-                            "liked": false,
-                            "scrapped": false,
-                            "hasCommented": false,
-                            "nickname": "BeatBuddy",
-                            "createAt": "2025-07-06T22:19:08.514011",
-                            "hashtags": [
-                              "홍대"
-                            ],
-                            "isAuthor": true,
-                            "writerId": 1,
-                            "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                            "isAnonymous": true,
-                            "isFollowing": true
-                          }
-                        ]
-                      }
-                    }
-        """)
-            )
+                    schema = @Schema(implementation = PostPageListResponseApi.class))
     )
     ResponseEntity<ResponseDTO<PostListResponseDTO>> readAllPostsSort(
             @PathVariable String type,
@@ -687,71 +434,7 @@ public interface PostApiDocs {
             @ApiResponse(responseCode = "200", description = "해시태그에 해당하는 포스트 목록을 성공적으로 조회했습니다.",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = PostListResponseDTO.class),
-                            examples = @ExampleObject(value = """
-                            {
-                              "status": 200,
-                              "code": "SUCCESS_GET_POST_LIST_BY_HASHTAG",
-                              "message": "해시태그에 해당하는 포스트 목록을 성공적으로 조회했습니다.",
-                              "data": {
-                                "totalPost": 2,
-                                "size": 10,
-                                "page": 0,
-                                "responseDTOS": [
-                                  {
-                                    "id": 539,
-                                    "title": "제목 수정",
-                                    "content": "string",
-                                    "thumbImage": "",
-                                    "role": "BUSINESS",
-                                    "likes": 1,
-                                    "scraps": 1,
-                                    "comments": 1,
-                                    "liked": true,
-                                    "scrapped": true,
-                                    "hasCommented": true,
-                                    "nickname": "BeatBuddy",
-                                    "createAt": "2025-06-19T22:19:08.514011",
-                                    "hashtags": [
-                                      "홍대",
-                                      "이태원",
-                                      "뮤직"
-                                    ],
-                                    "isAuthor": true,
-                                    "writerId": 1,
-                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                    "isAnonymous": true,
-                                    "isFollowing": true
-                                  },
-                                  {
-                                    "id": 537,
-                                    "title": "string",
-                                    "content": "string",
-                                    "thumbImage": "",
-                                    "role": "BUSINESS",
-                                    "likes": 1,
-                                    "scraps": 1,
-                                    "comments": 0,
-                                    "liked": false,
-                                    "scrapped": true,
-                                    "hasCommented": false,
-                                    "nickname": "BeatBuddy",
-                                    "createAt": "2025-06-19T22:19:08.514011",
-                                    "hashtags": [
-                                      "이태원",
-                                      "홍대",
-                                      "강남.신사"
-                                    ],
-                                    "isAuthor": true,
-                                    "writerId": 1,
-                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                    "isAnonymous": true,
-                                    "isFollowing": true
-                                  }
-                                ]
-                              }
-                            }
-                            """))
+                            schema = @Schema(implementation = PostPageListResponseApi.class))
             ),
             @ApiResponse(responseCode = "400", description = "잘못된 요청",
                     content = @Content(
@@ -786,88 +469,7 @@ public interface PostApiDocs {
             @ApiResponse(responseCode = "200", description = "사용자 게시글 조회 성공",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = PostListResponseDTO.class),
-                            examples = @ExampleObject(value = """
-                            {
-                              "status": 200,
-                              "code": "GET_USER_POST_LIST",
-                              "message": "사용자가 작성한 포스트 목록을 성공적으로 조회했습니다.",
-                              "data": {
-                                "totalPost": 3,
-                                "size": 10,
-                                "page": 1,
-                                "responseDTOS": [
-                                  {
-                                    "id": 536,
-                                    "title": "string",
-                                    "content": "string",
-                                    "thumbImage": "",
-                                    "role": "BUSINESS",
-                                    "likes": 0,
-                                    "scraps": 0,
-                                    "comments": 0,
-                                    "liked": false,
-                                    "scrapped": false,
-                                    "hasCommented": false,
-                                    "nickname": "BeatBuddy",
-                                    "createAt": "2025-06-19T22:19:08.514011",
-                                    "hashtags": [],
-                                    "isAuthor": false,
-                                    "writerId": 1,
-                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                    "isAnonymous": true,
-                                    "isFollowing": true
-                                  },
-                                  {
-                                    "id": 535,
-                                    "title": "string",
-                                    "content": "string",
-                                    "thumbImage": "",
-                                    "role": "BUSINESS",
-                                    "likes": 0,
-                                    "scraps": 0,
-                                    "comments": 0,
-                                    "liked": false,
-                                    "scrapped": false,
-                                    "hasCommented": false,
-                                    "nickname": "BeatBuddy",
-                                    "createAt": "2025-06-19T22:19:08.514011",
-                                    "hashtags": [
-                                      "홍대"
-                                    ],
-                                    "isAuthor": false,
-                                    "writerId": 1,
-                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                    "isAnonymous": true,
-                                    "isFollowing": true
-                                  },
-                                  {
-                                    "id": 534,
-                                    "title": "string",
-                                    "content": "string",
-                                    "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/post/20250704_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                    "role": "BUSINESS",
-                                    "likes": 0,
-                                    "scraps": 0,
-                                    "comments": 0,
-                                    "liked": false,
-                                    "scrapped": false,
-                                    "hasCommented": false,
-                                    "nickname": "BeatBuddy",
-                                    "createAt": "2025-06-19T22:19:08.514011",
-                                    "hashtags": [
-                                      "홍대"
-                                    ],
-                                    "isAuthor": false,
-                                    "writerId": 1,
-                                    "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/profile/20250622_154930_3f228896-4a44-45a2-bccf-66ed9b7e966b.png",
-                                    "isAnonymous": true,
-                                    "isFollowing": true
-                                  }
-                                ]
-                              }
-                            }
-                            """))
+                            schema = @Schema(implementation = PostPageListResponseApi.class))
             ),
             @ApiResponse(responseCode = "400", description = "잘못된 요청",
                     content = @Content(
