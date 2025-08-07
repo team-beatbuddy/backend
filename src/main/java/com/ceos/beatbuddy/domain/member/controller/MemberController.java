@@ -270,8 +270,7 @@ public class MemberController implements MemberApiDocs{
 
 
     // ============ Member Post Profile Endpoints ============
-    @PostMapping(value = "/post-profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/post-profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "사용자 게시물 프로필 정보 저장", description = "사용자의 게시물 프로필 정보를 저장합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "게시물 프로필 정보 저장 성공",
@@ -281,7 +280,7 @@ public class MemberController implements MemberApiDocs{
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ResponseTemplate.class)))
     })
-    public ResponseEntity<ResponseDTO<String>> savePostProfile(@Valid @RequestBody PostProfileRequestDTO postProfileRequestDTO,
+    public ResponseEntity<ResponseDTO<String>> savePostProfile(@Valid @RequestPart("postProfileRequestDTO") PostProfileRequestDTO postProfileRequestDTO,
                                                              @RequestPart(value = "postProfileImage", required = false) MultipartFile postProfileImage) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         onboardingService.savePostProfile(memberId, postProfileRequestDTO, postProfileImage);
