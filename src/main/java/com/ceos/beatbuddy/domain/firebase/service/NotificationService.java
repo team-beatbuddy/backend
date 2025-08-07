@@ -53,12 +53,24 @@ public class NotificationService {
         try {
             FirebaseMessageType type = FirebaseMessageType.valueOf(typeStr);
 
+            // contentId 추출
+            String contentIdStr = payload.getData().get("contentId");
+            Long contentId = null;
+            if (contentIdStr != null) {
+                try {
+                    contentId = Long.parseLong(contentIdStr);
+                } catch (NumberFormatException e) {
+                    log.warn("⚠️ contentId 파싱 실패: {}", contentIdStr);
+                }
+            }
+
             Notification saved = Notification.builder()
                     .receiver(receiver)
                     .title(payload.getTitle())
                     .message(payload.getBody())
                     .imageUrl(payload.getImageUrl())
                     .type(type)
+                    .contentId(contentId)
                     .isRead(false)
                     .readAt(null)
                     .build();
