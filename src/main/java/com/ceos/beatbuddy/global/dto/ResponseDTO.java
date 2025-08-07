@@ -1,9 +1,13 @@
 package com.ceos.beatbuddy.global.dto;
 
 import com.ceos.beatbuddy.global.code.SuccessCode;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ResponseDTO<T> {
     private Integer status;
     private String code;

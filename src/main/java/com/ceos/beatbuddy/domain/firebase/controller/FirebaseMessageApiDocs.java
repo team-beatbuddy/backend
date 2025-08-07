@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.firebase.controller;
 
+import com.ceos.beatbuddy.domain.firebase.api.FirebaseListResponseApi;
 import com.ceos.beatbuddy.domain.firebase.dto.NotificationPageDTO;
 import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
@@ -79,63 +80,8 @@ public interface FirebaseMessageApiDocs {
             description = "알림 목록 조회 성공",
             content = @io.swagger.v3.oas.annotations.media.Content(
                     mediaType = "application/json",
-                    examples = @ExampleObject(
-                            name = "NotificationPageDTO Example",
-                            value = ("""
-                                    {
-                                      "status": 200,
-                                      "code": "SUCCESS_GET_NOTIFICATIONS",
-                                      "message": "성공적으로 알림 목록을 조회했습니다.",
-                                      "data": {
-                                        "page": 1,
-                                        "size": 10,
-                                        "totalElements": 4,
-                                        "totalPages": 1,
-                                        "content": [
-                                          {
-                                            "title": "익명님이 내 게시글에 댓글을 남겼어요.",
-                                            "message": "대댓글 알림 확인",
-                                            "imageUrl": null,
-                                            "type": "POST_COMMENT",
-                                            "memberId": 156,
-                                            "createdAt": "2025-07-14T11:47:12.979572",
-                                            "readAt": null,
-                                            "isRead": false
-                                          },
-                                          {
-                                            "title": "익명님이 내 게시글에 댓글을 남겼어요.",
-                                            "message": "대댓글 알림 확인",
-                                            "imageUrl": null,
-                                            "type": "POST_COMMENT",
-                                            "memberId": 156,
-                                            "createdAt": "2025-07-14T11:48:42.074221",
-                                            "readAt": null,
-                                            "isRead": false
-                                          },
-                                          {
-                                            "title": "익명님이 내 게시글에 댓글을 남겼어요.",
-                                            "message": "대댓글 알림 확인",
-                                            "imageUrl": null,
-                                            "type": "POST_COMMENT",
-                                            "memberId": 156,
-                                            "createdAt": "2025-07-14T11:49:51.050378",
-                                            "readAt": null,
-                                            "isRead": false
-                                          },
-                                          {
-                                            "title": "익명님이 내 댓글에 대댓글을 남겼어요.",
-                                            "message": "대댓글 알림 확인",
-                                            "imageUrl": null,
-                                            "type": "POST_COMMENT",
-                                            "memberId": 156,
-                                            "createdAt": "2025-07-14T11:49:53.130245",
-                                            "readAt": null,
-                                            "isRead": false
-                                          }
-                                        ]
-                                      }
-                                    }
-                                    """)
+                    schema = @io.swagger.v3.oas.annotations.media.Schema(
+                            implementation = FirebaseListResponseApi.class
                     )
             )
     )
