@@ -163,6 +163,7 @@ public class OnboardingService {
 
 
     // ============================ Member PostProfile ============================
+    @Transactional
     public void savePostProfile(Long memberId, PostProfileRequestDTO postProfileRequestDTO, MultipartFile postProfileImage) {
         Member member = memberService.validateAndGetMember(memberId);
 
@@ -184,5 +185,41 @@ public class OnboardingService {
                     PostProfileInfo.from(postProfileNickname, "")
             );
         }
+    }
+
+    @Transactional
+    public void updatePostProfile(Long memberId, PostProfileRequestDTO postProfileRequestDTO, MultipartFile postProfileImage) {
+        Member member = memberService.validateAndGetMember(memberId);
+        
+        // 기존 PostProfileInfo 가져오기 (없으면 새로 생성)
+        PostProfileInfo currentPostProfileInfo = member.getPostProfileInfo();
+        if (currentPostProfileInfo == null) {
+            currentPostProfileInfo = PostProfileInfo.from("", "");
+        }
+        
+        String newNickname = currentPostProfileInfo.getPostProfileNickname();
+        String newImageUrl = currentPostProfileInfo.getPostProfileImageUrl();
+        
+        // 닉네임 수정 (null이 아니고 비어있지 않을 때만)
+        if (postProfileRequestDTO != null && 
+            postProfileRequestDTO.getPostProfileNickname() != null && 
+            !postProfileRequestDTO.getPostProfileNickname().trim().isEmpty()) {
+            newNickname = postProfileRequestDTO.getPostProfileNickname().trim();
+        }
+        
+        // 이미지 수정 (파일이 있을 때만)
+        if (postProfileImage != null && !postProfileImage.isEmpty()) {
+            // 기존 이미지 삭제 (기본값이 아닌 경우)
+            if (currentPostProfileInfo.getPostProfileImageUrl() != null && 
+                !currentPostProfileInfo.getPostProfileImageUrl().isEmpty()) {
+                uploadUtil.deleteImage(currentPostProfileInfo.getPostProfileImageUrl(), UploadUtil.BucketType.MEDIA);
+            }
+            
+            // 새 이미지 업로드
+            newImageUrl = uploadUtil.upload(postProfileImage, UploadUtil.BucketType.MEDIA, "post-profile");
+        }
+        
+        // 변경된 정보로 업데이트
+        member.setPostProfileInfo(PostProfileInfo.from(newNickname, newImageUrl));
     }
 }
