@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.post.dto;
 
 import com.ceos.beatbuddy.domain.post.entity.FixedHashtag;
+import com.ceos.beatbuddy.domain.post.entity.FreePost;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -53,6 +54,9 @@ public class PostPageResponseDTO {
     }
 
     public static PostPageResponseDTO toDTO(Post post, Boolean liked, Boolean scrapped, Boolean hasCommented, List<FixedHashtag> hashtags, boolean isAuthor, boolean isFollowing) {
+        // FreePost인 경우 해시태그를 직접 가져옴
+        List<FixedHashtag> actualHashtags = (post instanceof FreePost) ? 
+            ((FreePost) post).getHashtag() : hashtags;
         return PostPageResponseDTO.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -67,7 +71,7 @@ public class PostPageResponseDTO {
                 .scrapped(scrapped)
                 .hasCommented(hasCommented)
                 .role(post.getMember().getRole().toString())
-                .hashtags(hashtags != null ? hashtags.stream()
+                .hashtags(actualHashtags != null ? actualHashtags.stream()
                         .map(FixedHashtag::getDisplayName)
                         .toList() : List.of())
                 .isAuthor(isAuthor)
