@@ -76,67 +76,6 @@ public interface MemberApiDocs {
     ResponseEntity<ResponseDTO<String>> uploadProfileImage(
             @RequestPart("image") MultipartFile image) throws IOException;
 
-    @Operation(summary = "멤버 요약 프로필 조회", description = "게시판에서 프로필 클릭 시 닉네임, 프로필 이미지, 게시글 수, 팔로워/팔로잉 수 반환, memberId를 넣지 않으면 본인 프로필 요약본이 조회됨.")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "멤버 요약 프로필 조회 성공",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class),
-                            examples =
-                            @ExampleObject(
-                                    name = "멤버 요약 프로필 조회",
-                                    value = """
-                                    {
-                                      "status": 200,
-                                      "code": "SUCCESS_GET_PROFILE_SUMMARY",
-                                      "message": "프로필 요약 조회를 성공했습니다.",
-                                      "data": {
-                                        "memberId": 156,
-                                        "nickname": "길동hong",
-                                        "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/member/01e2e094-3--.png",
-                                        "role": "BUSINESS",
-                                        "postCount": 512,
-                                        "followerCount": 2,
-                                        "followingCount": 1
-                                      }
-                                    }
-                    """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "잘못된 요청입니다. 멤버 ID가 null인 경우",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(
-                                            name = "잘못된 멤버 ID",
-                                            value = """
-                                                    
-                                                    """)
-                            }
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "유저가 존재하지 않습니다.",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(
-                                            name = "존재하지 않는 유저",
-                                            value = SwaggerExamples.MEMBER_NOT_EXIST)
-                            }
-                    )
-            )
-    })
-    ResponseEntity<ResponseDTO<MemberProfileSummaryDTO>> getProfileSummary(
-            @RequestParam(required = false) Long memberId
-    );
-
     @Operation(summary = "닉네임 변경, 14일 이내 조건이 포함된 변경 API", description = "닉네임을 변경합니다. 14일 내 최대 2회 변경 가능")
     @ApiResponses(value = {
             @ApiResponse(

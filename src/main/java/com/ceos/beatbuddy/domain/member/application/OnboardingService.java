@@ -3,16 +3,19 @@ package com.ceos.beatbuddy.domain.member.application;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.dto.*;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.member.entity.PostProfileInfo;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberGenreRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberMoodRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.global.CustomException;
+import com.ceos.beatbuddy.global.util.UploadUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +29,7 @@ public class OnboardingService {
     private final MemberGenreRepository memberGenreRepository;
     private final MemberMoodRepository memberMoodRepository;
     private final MemberRepository memberRepository;
+    private final UploadUtil uploadUtil;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -158,5 +162,64 @@ public class OnboardingService {
     }
 
 
+    // ============================ Member PostProfile ============================
+    @Transactional
+    public void savePostProfile(Long memberId, PostProfileRequestDTO postProfileRequestDTO, MultipartFile postProfileImage) {
+        Member member = memberService.validateAndGetMember(memberId);
 
+        String postProfileNickname = postProfileRequestDTO.getPostProfileNickname();
+        if (postProfileNickname == null || postProfileNickname.isEmpty()) {
+            throw new CustomException(MemberErrorCode.POST_PROFILE_NICKNAME_REQUIRED);
+        }
+
+        // 프로필 사진 있으면 업로드
+        if (postProfileImage != null && !postProfileImage.isEmpty()) {
+            // s3 업로드
+            String postProfileImageUrl = uploadUtil.upload(postProfileImage, UploadUtil.BucketType.MEDIA,"post-profile");
+            member.setPostProfileInfo(
+                    PostProfileInfo.from(postProfileNickname, postProfileImageUrl)
+            );
+        } else {
+            // 프로필 사진이 없으면 기본값 설정
+            member.setPostProfileInfo(
+                    PostProfileInfo.from(postProfileNickname, "")
+            );
+        }
+    }
+
+    @Transactional
+    public void updatePostProfile(Long memberId, PostProfileRequestDTO postProfileRequestDTO, MultipartFile postProfileImage) {
+        Member member = memberService.validateAndGetMember(memberId);
+        
+        // 기존 PostProfileInfo 가져오기 (없으면 새로 생성)
+        PostProfileInfo currentPostProfileInfo = member.getPostProfileInfo();
+        if (currentPostProfileInfo == null) {
+            currentPostProfileInfo = PostProfileInfo.from("", "");
+        }
+        
+        String newNickname = currentPostProfileInfo.getPostProfileNickname();
+        String newImageUrl = currentPostProfileInfo.getPostProfileImageUrl();
+        
+        // 닉네임 수정 (null이 아니고 비어있지 않을 때만)
+        if (postProfileRequestDTO != null && 
+            postProfileRequestDTO.getPostProfileNickname() != null && 
+            !postProfileRequestDTO.getPostProfileNickname().trim().isEmpty()) {
+            newNickname = postProfileRequestDTO.getPostProfileNickname().trim();
+        }
+        
+        // 이미지 수정 (파일이 있을 때만)
+        if (postProfileImage != null && !postProfileImage.isEmpty()) {
+            // 기존 이미지 삭제 (기본값이 아닌 경우)
+            if (currentPostProfileInfo.getPostProfileImageUrl() != null && 
+                !currentPostProfileInfo.getPostProfileImageUrl().isEmpty()) {
+                uploadUtil.deleteImage(currentPostProfileInfo.getPostProfileImageUrl(), UploadUtil.BucketType.MEDIA);
+            }
+            
+            // 새 이미지 업로드
+            newImageUrl = uploadUtil.upload(postProfileImage, UploadUtil.BucketType.MEDIA, "post-profile");
+        }
+        
+        // 변경된 정보로 업데이트
+        member.setPostProfileInfo(PostProfileInfo.from(newNickname, newImageUrl));
+    }
 }
