@@ -42,7 +42,7 @@ public class SearchController {
     @Operation(summary = "홈 검색 드롭다운 기능", description = """
             사용자가 검색바에 입력한 검색어로 검색한 결과에서 드롭다운으로 필터링/정렬한 베뉴 조회
             - keyword, regionTag, genreTag는 필수가 아닙니다.
-            - sortCriteria는 필수입니다. (인기순, 거리순)
+            - sortCriteria는 필수입니다. (인기순, 가까운 순)
             - 가까운 순으로 정렬하고 싶다면 latitude, longitude를 보내주셔야 합니다.
             - keyword는 그대로 보내주면 됩니다.
             - regionTag는 (홍대, 압구정, 강남/신사, 이태원, 기타)로 정확하게 보내주셔야 합니다.
@@ -51,7 +51,7 @@ public class SearchController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "드롭다운 필터링 베뉴 조회 성공"
                     , content = @Content(mediaType = "application/json"
-                    , array = @ArraySchema(schema = @Schema(implementation = SearchQueryResponseDTO.class)))),
+                    , schema = @Schema(implementation = SearchPageResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "검색어가 입력되지 않아서 검색 실패 or 리스트에 없는 장르명이나 지역명 입력 시 에러 반환"
                     , content = @Content(mediaType = "application/json"
                     , schema = @Schema(implementation = ResponseTemplate.class))),
@@ -59,12 +59,24 @@ public class SearchController {
                     , content = @Content(mediaType = "application/json"
                     , schema = @Schema(implementation = ResponseTemplate.class)))
     })
-    public ResponseEntity<List<SearchQueryResponseDTO>> searchDropDownHome(@RequestBody SearchDropDownDTO searchDropDownDTO,
+    public ResponseEntity<SearchPageResponseDTO> searchDropDownHome(@RequestParam(required = false) 
+                                                                           @Schema(description = "지역 필터 값", allowableValues = {"홍대", "압구정", "강남/신사", "이태원", "기타"}) String regionTag,
+                                                                           @RequestParam(required = false) 
+                                                                           @Schema(description = "장르 필터 값", allowableValues = {"HIPHOP", "R&B", "EDM", "HOUSE", "TECHNO", "SOUL&FUNK", "ROCK", "LATIN", "K-POP", "POP"}) String genreTag,
+                                                                           @RequestParam(required = false) 
+                                                                           @Schema(description = "정렬 기준", allowableValues = {"인기순", "가까운 순"}) String criteria,
+                                                                           @RequestParam(required = false) String keyword,
                                                                            @RequestParam(required = false) Double latitude,
                                                                            @RequestParam(required = false) Double longitude,
                                                                            @RequestParam(required = false, defaultValue = "1") int page,
                                                                            @RequestParam(required = false, defaultValue = "10") int size) {
         Long memberId = SecurityUtils.getCurrentMemberId();
+        SearchDropDownDTO searchDropDownDTO = SearchDropDownDTO.builder()
+                .keyword(keyword)
+                .regionTag(regionTag)
+                .genreTag(genreTag)
+                .sortCriteria(criteria)
+                .build();
         return ResponseEntity.ok(searchService.searchDropDown(memberId, searchDropDownDTO, latitude, longitude, "HOME", page, size));
     }
 
@@ -72,7 +84,7 @@ public class SearchController {
     @Operation(summary = "지도 드롭다운 기능", description = """
             사용자가 검색바에 입력한 검색어로 검색한 결과에서 드롭다운으로 필터링/정렬한 베뉴 조회
             - keyword, regionTag, genreTag는 필수가 아닙니다.
-            - sortCriteria는 필수입니다. (인기순, 거리순)
+            - sortCriteria는 필수입니다. (인기순, 가까운 순)
             - 가까운 순으로 정렬하고 싶다면 latitude, longitude를 보내주셔야 합니다.
             - keyword는 그대로 보내주면 됩니다.
             - regionTag는 (홍대, 압구정, 강남/신사, 이태원, 기타)로 정확하게 보내주셔야 합니다.
@@ -81,7 +93,7 @@ public class SearchController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "드롭다운 필터링 베뉴 조회 성공"
                     , content = @Content(mediaType = "application/json"
-                    , array = @ArraySchema(schema = @Schema(implementation = SearchQueryResponseDTO.class)))),
+                    , schema = @Schema(implementation = SearchPageResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "검색어가 입력되지 않아서 검색 실패 or 리스트에 없는 장르명이나 지역명 입력 시 에러 반환"
                     , content = @Content(mediaType = "application/json"
                     , schema = @Schema(implementation = ResponseTemplate.class))),
@@ -89,12 +101,24 @@ public class SearchController {
                     , content = @Content(mediaType = "application/json"
                     , schema = @Schema(implementation = ResponseTemplate.class)))
     })
-    public ResponseEntity<List<SearchQueryResponseDTO>> searchDropDown(@RequestBody SearchDropDownDTO searchDropDownDTO,
+    public ResponseEntity<SearchPageResponseDTO> searchDropDown(@RequestParam(required = false) 
+                                                                @Schema(description = "지역 필터 값", allowableValues = {"홍대", "압구정", "강남/신사", "이태원", "기타"}) String regionTag,
+                                                                @RequestParam(required = false) 
+                                                                @Schema(description = "장르 필터 값", allowableValues = {"HIPHOP", "R&B", "EDM", "HOUSE", "TECHNO", "SOUL&FUNK", "ROCK", "LATIN", "K-POP", "POP"}) String genreTag,
+                                                                @RequestParam(required = false) 
+                                                                @Schema(description = "정렬 기준", allowableValues = {"인기순", "가까운 순"}) String criteria,
+                                                                @RequestParam(required = false) String keyword,
                                                                        @RequestParam(required = false) Double latitude,
                                                                        @RequestParam(required = false) Double longitude,
                                                                        @RequestParam(required = false, defaultValue = "1") int page,
                                                                        @RequestParam(required = false, defaultValue = "10") int size) {
         Long memberId = SecurityUtils.getCurrentMemberId();
+        SearchDropDownDTO searchDropDownDTO = SearchDropDownDTO.builder()
+                .keyword(keyword)
+                .regionTag(regionTag)
+                .genreTag(genreTag)
+                .sortCriteria(criteria)
+                .build();
         return ResponseEntity.ok(searchService.searchDropDown(memberId, searchDropDownDTO, latitude, longitude, "MAP", page, size));
     }
 }
