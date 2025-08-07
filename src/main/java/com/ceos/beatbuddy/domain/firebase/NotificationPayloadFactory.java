@@ -31,7 +31,6 @@ public class NotificationPayloadFactory {
                 .body(commentContent)
                 .data(new HashMap<String, String>() {{
                         put("type", POST_COMMENT.getType());
-                        put("postId", String.valueOf(postId));
                         put("contentId", String.valueOf(commentId));
                         put("url", "/comment/" + commentId);
                 }})
