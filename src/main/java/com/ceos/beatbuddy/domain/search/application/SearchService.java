@@ -10,6 +10,7 @@ import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.recent_search.application.RecentSearchService;
 import com.ceos.beatbuddy.domain.recent_search.entity.SearchTypeEnum;
 import com.ceos.beatbuddy.domain.search.dto.SearchDropDownDTO;
+import com.ceos.beatbuddy.domain.search.dto.SearchPageResponseDTO;
 import com.ceos.beatbuddy.domain.search.dto.SearchQueryResponseDTO;
 import com.ceos.beatbuddy.domain.search.dto.SearchRankResponseDTO;
 import com.ceos.beatbuddy.domain.search.exception.SearchErrorCode;
@@ -100,7 +101,7 @@ public class SearchService {
         }
     }
 
-    public List<SearchQueryResponseDTO> searchDropDown(Long memberId, SearchDropDownDTO searchDropDownDTO, Double latitude, Double longitude, String searchType, int page, int size) {
+    public SearchPageResponseDTO searchDropDown(Long memberId, SearchDropDownDTO searchDropDownDTO, Double latitude, Double longitude, String searchType, int page, int size) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
@@ -172,7 +173,19 @@ public class SearchService {
         List<SearchQueryResponseDTO> sortedList = sortVenuesByCriteria(searchQueryResponseDTOS, criteria, latitude, longitude);
 
         // ✅ 페이지네이션 적용
-        return applyPaginationIfNeeded(sortedList, criteria, page, size);
+        List<SearchQueryResponseDTO> paginatedList = applyPaginationIfNeeded(sortedList, criteria, page, size);
+
+        // ✅ 페이지 정보와 함께 응답 생성
+        int totalElements = sortedList.size();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        return SearchPageResponseDTO.builder()
+                .page(page)
+                .size(size)
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .content(paginatedList)
+                .build();
     }
 
     private List<SearchQueryResponseDTO> sortVenuesByCriteria(List<SearchQueryResponseDTO> list, String criteria, Double lat, Double lng) {
@@ -180,7 +193,7 @@ public class SearchService {
             return list.stream()
                     .sorted(Comparator.comparingLong(SearchQueryResponseDTO::getHeartbeatNum).reversed())
                     .toList();
-        } else if (criteria.equals("거리순")) {
+        } else if (criteria.equals("가까운 순")) {
             return list.stream()
                     .sorted(Comparator.comparingDouble(dto -> 
                         haversine(lat, lng, dto.getLatitude(), dto.getLongitude())
