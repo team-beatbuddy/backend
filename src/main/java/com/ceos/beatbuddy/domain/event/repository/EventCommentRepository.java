@@ -31,8 +31,8 @@ public interface EventCommentRepository extends JpaRepository<EventComment, Long
     List<String> findDistinctAnonymousNicknamesByEventId(@Param("eventId") Long eventId);
 
     // 특정 이벤트의 모든 댓글 삭제
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM EventComment ec WHERE ec.event = :event")
-    void deleteByEvent(@Param("event") Event event);
+    int deleteByEvent(@Param("event") Event event);
 
 }
