@@ -21,7 +21,7 @@ public interface EventLikeRepository extends JpaRepository<EventLike, EventInter
     Set<Long> findLikedEventIdsByMember(@Param("member") Member member);
 
     // 특정 이벤트의 모든 좋아요 삭제
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM EventLike el WHERE el.event = :event")
-    void deleteByEvent(@Param("event") Event event);
+    int deleteByEvent(@Param("event") Event event);
 }
