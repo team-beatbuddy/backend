@@ -102,9 +102,20 @@ public class Event extends BaseTimeEntity {
         기타;
 
         public static Region of(String value) {
+            if (value == null) {
+                throw new CustomException(EventErrorCode.REGION_NOT_EXIST);
+            }
+            
+            // 정규화: 공백, 특수문자를 언더스코어로 통일
+            String normalized = value.trim()
+                    .replace(" ", "_")
+                    .replace("/", "_")
+                    .replace(".", "_")
+                    .replace("-", "_");
+            
             try {
-                return Region.valueOf(value);
-            } catch (IllegalArgumentException | NullPointerException e) {
+                return Region.valueOf(normalized);
+            } catch (IllegalArgumentException e) {
                 throw new CustomException(EventErrorCode.REGION_NOT_EXIST);
             }
         }
@@ -164,11 +175,7 @@ public class Event extends BaseTimeEntity {
             this.notice = dto.getNotice();
         }
         if (dto.getRegion() != null) {
-            try {
-                this.region = Region.valueOf(dto.getRegion());
-            } catch (IllegalArgumentException e) {
-                throw new CustomException(EventErrorCode.REGION_NOT_EXIST);
-            }
+            this.region = Region.of(dto.getRegion());
         }
     }
 
