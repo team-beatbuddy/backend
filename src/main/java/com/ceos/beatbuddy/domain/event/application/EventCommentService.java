@@ -74,10 +74,6 @@ public class EventCommentService {
         // 혹시 빌더에서 설정되지 않은 경우를 대비해 명시적으로 설정
         if (forceAnonymous && anonymousNickname != null) {
             comment.updateAnonymousNickname(anonymousNickname);
-            if (comment.getAnonymousNickname() == null || comment.getAnonymousNickname().isBlank()) {
-                String nickname = anonymousNicknameService.getOrCreateEventAnonymousNickname(eventId, memberId);
-                comment.updateAnonymousNickname(nickname);
-            }
         }
 
         EventComment saved = eventCommentRepository.save(comment);
@@ -202,6 +198,10 @@ public class EventCommentService {
         // 익명 설정은 무시 - 강제 익명 처리
         if (!isStaff) {
             comment.updateAnonymous(true); // 강제 익명 유지
+            if (comment.getAnonymousNickname() == null || comment.getAnonymousNickname().isBlank()) {
+                String nickname = anonymousNicknameService.getOrCreateEventAnonymousNickname(eventId, memberId);
+                comment.updateAnonymousNickname(nickname);
+            }
         }
 
         String displayName = getDisplayName(comment, isStaff);
