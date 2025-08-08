@@ -25,6 +25,9 @@ public class Comment extends BaseTimeEntity {
 
     private boolean isAnonymous;
 
+    @Column(nullable = true)
+    private String anonymousNickname; // 익명 댓글일 때 부여되는 닉네임 (예: "익명 1", "익명 2")
+
     @ManyToOne
     @Nullable
     @JoinColumn(name = "replyId")
