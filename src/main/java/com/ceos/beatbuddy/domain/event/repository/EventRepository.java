@@ -3,13 +3,16 @@ package com.ceos.beatbuddy.domain.event.repository;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import jakarta.persistence.LockModeType;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
@@ -37,4 +40,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Modifying
     @Query("UPDATE Event e SET e.status = 'NOW' WHERE e.status = 'UPCOMING' AND e.startDate <= :now AND e.endDate > :now")
     void updateToNow(@Param("now") LocalDateTime now);
+    
+    // 동시성 제어를 위한 PESSIMISTIC_WRITE 락
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT e FROM Event e WHERE e.id = :id")
+    Optional<Event> findByIdForUpdate(@Param("id") Long id);
 }

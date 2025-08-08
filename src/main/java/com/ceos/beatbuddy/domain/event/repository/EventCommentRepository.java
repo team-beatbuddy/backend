@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EventCommentRepository extends JpaRepository<EventComment, Long> {
@@ -21,5 +22,12 @@ public interface EventCommentRepository extends JpaRepository<EventComment, Long
 
     @Query("SELECT ec FROM EventComment ec JOIN FETCH ec.author WHERE ec.event = :event")
     List<EventComment> findAllByEventWithAuthor(@Param("event") Event event);
+
+    // 이벤트의 특정 멤버가 작성한 첫 번째 익명 댓글 조회
+    Optional<EventComment> findTopByEvent_IdAndAuthor_IdAndAnonymousNicknameIsNotNullOrderByCreatedAtAsc(Long eventId, Long authorId);
+    
+    // 이벤트에서 사용된 모든 익명 닉네임 조회
+    @Query("SELECT DISTINCT ec.anonymousNickname FROM EventComment ec WHERE ec.event.id = :eventId AND ec.anonymousNickname IS NOT NULL")
+    List<String> findDistinctAnonymousNicknamesByEventId(@Param("eventId") Long eventId);
 
 }
