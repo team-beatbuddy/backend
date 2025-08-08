@@ -26,12 +26,16 @@ public class PostCommentNotifier {
         // 자신이 자기 글에 댓글 단 경우 알림 제외
         if (postAuthor.getId().equals(writerId)) return;
 
-        boolean isPostWriter = postAuthor.getId().equals(commentWriter.getId());
-        String displayName = comment.isAnonymous() 
-                ? "익명"  // 알림에서는 익명은 그냥 "익명"으로 표시 (글 작성자든 아니든)
-                : (commentWriter.getPostProfileInfo() != null && commentWriter.getPostProfileInfo().getPostProfileNickname() != null
+        String displayName;
+        if (comment.isAnonymous()) {
+            // 익명 댓글
+            displayName = comment.getAnonymousNickname() != null ? comment.getAnonymousNickname() : "익명";
+        } else {
+            // 실명 댓글 → 게시판용 닉네임 사용
+            displayName = commentWriter.getPostProfileInfo() != null && commentWriter.getPostProfileInfo().getPostProfileNickname() != null
                     ? commentWriter.getPostProfileInfo().getPostProfileNickname()
-                    : commentWriter.getNickname());
+                    : commentWriter.getNickname();
+        }
                     
         NotificationPayload notificationPayload = notificationPayloadFactory.createPostCommentPayload(
                 comment.getPost().getId(),
@@ -60,11 +64,16 @@ public class PostCommentNotifier {
         Member parentWriter = comment.getReply().getMember();
 
         if (!parentWriter.getId().equals(writerId)) {
-            String displayName = comment.isAnonymous() 
-                    ? "익명"  // 알림에서는 익명은 그냥 "익명"으로 표시 (글 작성자든 아니든)
-                    : (comment.getMember().getPostProfileInfo() != null && comment.getMember().getPostProfileInfo().getPostProfileNickname() != null
+            String displayName;
+            if (comment.isAnonymous()) {
+                // 익명 댓글
+                displayName = comment.getAnonymousNickname() != null ? comment.getAnonymousNickname() : "익명";
+            } else {
+                // 실명 댓글 → 게시판용 닉네임 사용
+                displayName = comment.getMember().getPostProfileInfo() != null && comment.getMember().getPostProfileInfo().getPostProfileNickname() != null
                         ? comment.getMember().getPostProfileInfo().getPostProfileNickname()
-                        : comment.getMember().getNickname());
+                        : comment.getMember().getNickname();
+            }
                         
             NotificationPayload notificationPayload = notificationPayloadFactory.createReplyCommentPayload(
                     comment.getPost().getId(),
