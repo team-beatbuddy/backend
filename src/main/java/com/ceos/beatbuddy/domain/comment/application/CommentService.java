@@ -38,6 +38,7 @@ public class CommentService {
     private final FollowRepository followRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final CommentLikeRepository commentLikeRepository;
+    private final AnonymousNicknameService anonymousNicknameService;
     @PersistenceContext
     private EntityManager em;
 
@@ -47,9 +48,17 @@ public class CommentService {
 
         Post post = postService.validateAndGetPost(postId);
 
+        // 익명 닉네임 처리
+        String anonymousNickname = null;
+        if (requestDto.isAnonymous()) {
+            anonymousNickname = anonymousNicknameService.getOrCreateAnonymousNickname(
+                    postId, memberId, post.getMember().getId(), post.isAnonymous());
+        }
+
         Comment comment = Comment.builder()
                 .content(requestDto.content())
                 .isAnonymous(requestDto.isAnonymous())
+                .anonymousNickname(anonymousNickname)
                 .member(member)
                 .post(post)
                 .likes(0)
@@ -64,7 +73,8 @@ public class CommentService {
         // ========  알림 전송
         eventPublisher.publishEvent(new PostCommentCreatedEvent(post, savedComment, member));
 
-        return CommentResponseDto.from(savedComment, true, isFollowing, false, false); // 자신이 작성, 스스로는 차단할 수 없음
+        boolean isPostWriter = post.getMember().getId().equals(member.getId());
+        return CommentResponseDto.from(savedComment, true, isFollowing, false, false, isPostWriter, post.isAnonymous()); // 자신이 작성, 스스로는 차단할 수 없음
     }
 
     @Transactional
@@ -76,9 +86,17 @@ public class CommentService {
         Comment parentComment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
+        // 익명 닉네임 처리
+        String anonymousNickname = null;
+        if (requestDto.isAnonymous()) {
+            anonymousNickname = anonymousNicknameService.getOrCreateAnonymousNickname(
+                    postId, memberId, post.getMember().getId(), post.isAnonymous());
+        }
+
         Comment reply = Comment.builder()
                 .content(requestDto.content())
                 .isAnonymous(requestDto.isAnonymous())
+                .anonymousNickname(anonymousNickname)
                 .member(member)
                 .post(post)
                 .reply(parentComment)
@@ -94,7 +112,8 @@ public class CommentService {
         // ========  알림 전송
         eventPublisher.publishEvent(new PostCommentCreatedEvent(post, savedReply, member));
 
-        return CommentResponseDto.from(savedReply, true, isFollowing, false, false); // 자신이 작성, 스스로는 차단할 수 없음
+        boolean isPostWriter = post.getMember().getId().equals(member.getId());
+        return CommentResponseDto.from(savedReply, true, isFollowing, false, false, isPostWriter, post.isAnonymous()); // 자신이 작성, 스스로는 차단할 수 없음
     }
 
     public CommentResponseDto getComment(Long commentId, Long memberId) {
@@ -103,8 +122,9 @@ public class CommentService {
 
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
         boolean isBlockedMember = memberService.isBlocked(memberId, comment.getMember().getId());
+        boolean isPostWriter = comment.getPost().getMember().getId().equals(comment.getMember().getId());
 
-        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember, comment.isDeleted()); // 자신이 작성한 댓글인지 여부
+        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember, comment.isDeleted(), isPostWriter, comment.getPost().isAnonymous()); // 자신이 작성한 댓글인지 여부
     }
 
     public Page<CommentResponseDto> getAllComments(Long postId, int page, int size, Long memberId) {
@@ -115,21 +135,13 @@ public class CommentService {
         // 전체 댓글 조회 (createdAt 기준 정렬)
         List<Comment> allComments = commentRepository.findAllByPost_IdOrderByCreatedAtAsc(postId);
 
+        // 해당 포스트의 작성자 ID 및 익명 여부 가져오기
+        Long postWriterId = allComments.isEmpty() ? null : allComments.get(0).getPost().getMember().getId();
+        boolean isPostAnonymous = allComments.isEmpty() ? false : allComments.get(0).getPost().isAnonymous();
+
         // 차단/팔로우 처리
         Set<Long> blockedMemberIds = memberService.getBlockedMemberIds(memberId);
         Set<Long> followingIds = followRepository.findFollowingMemberIds(memberId);
-
-        // 익명 처리용 ID → 익명 N 매핑
-        List<Long> anonymousAuthorIds = allComments.stream()
-                .filter(Comment::isAnonymous)
-                .map(c -> c.getMember().getId())
-                .distinct()
-                .toList();
-
-        Map<Long, String> anonymousNameMap = new HashMap<>();
-        for (int i = 0; i < anonymousAuthorIds.size(); i++) {
-            anonymousNameMap.put(anonymousAuthorIds.get(i), "익명 " + (i + 1));
-        }
 
         // 트리 정렬: 부모 댓글 아래에 자식 댓글 붙이기
         List<Comment> sortedComments = new ArrayList<>();
@@ -156,10 +168,34 @@ public class CommentService {
             boolean isAuthor = writerId.equals(memberId);
             boolean isFollowing = followingIds.contains(writerId);
             boolean isBlocked = blockedMemberIds.contains(writerId);
+            boolean isPostWriter = writerId.equals(postWriterId);
 
-            String mappedName = comment.isAnonymous()
-                    ? anonymousNameMap.get(writerId)
-                    : comment.getMember().getNickname();
+            String mappedName = comment.isAnonymous() 
+                    ? (comment.getAnonymousNickname() != null ? comment.getAnonymousNickname() : "익명")
+                    : (comment.getMember().getPostProfileInfo() != null && comment.getMember().getPostProfileInfo().getPostProfileNickname() != null
+                        ? comment.getMember().getPostProfileInfo().getPostProfileNickname()
+                        : comment.getMember().getNickname());
+
+            String imageUrl = comment.isAnonymous() ? "" :
+                    (comment.getMember().getPostProfileInfo() != null && comment.getMember().getPostProfileInfo().getPostProfileImageUrl() != null
+                        ? comment.getMember().getPostProfileInfo().getPostProfileImageUrl()
+                        : (comment.getMember().getProfileImage() != null
+                                ? comment.getMember().getProfileImage()
+                                : ""));
+
+            // isPostWriter 결정 로직
+            Boolean finalIsPostWriter = isPostWriter;
+            if (isPostWriter) {
+                // 글 작성자인 경우
+                if (isPostAnonymous && !comment.isAnonymous()) {
+                    // 익명 게시물 + 실명 댓글 → 작성자임을 숨김
+                    finalIsPostWriter = false;
+                } else if (!isPostAnonymous && comment.isAnonymous()) {
+                    // 실명 게시물 + 익명 댓글 → 작성자임을 숨김
+                    finalIsPostWriter = false;
+                }
+                // 익명 게시물 + 익명 댓글, 실명 게시물 + 실명 댓글은 그대로 유지
+            }
 
             return new CommentResponseDto(
                     comment.getId(),
@@ -167,13 +203,15 @@ public class CommentService {
                     comment.isAnonymous(),
                     comment.getReply() != null ? comment.getReply().getId() : null,
                     mappedName,
+                    imageUrl,
                     comment.getLikes(),
                     comment.getCreatedAt(),
                     isAuthor,
                     writerId,
                     isFollowing,
                     isBlocked,
-                    comment.isDeleted() // 삭제 여부 추가
+                    comment.isDeleted(), // 삭제 여부 추가
+                    finalIsPostWriter
             );
         }).toList();
 
@@ -191,10 +229,22 @@ public class CommentService {
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
 
+        // 익명 닉네임 처리 (수정 시에도 기존 닉네임 유지 또는 새로 생성)
+        String anonymousNickname = comment.getAnonymousNickname();
+        if (requestDto.isAnonymous() && anonymousNickname == null) {
+            // 기존에 익명이 아니었다가 익명으로 변경된 경우 새로 생성
+            anonymousNickname = anonymousNicknameService.getOrCreateAnonymousNickname(
+                    comment.getPost().getId(), memberId, comment.getPost().getMember().getId(), comment.getPost().isAnonymous());
+        } else if (!requestDto.isAnonymous()) {
+            // 익명에서 실명으로 변경된 경우 null로 설정
+            anonymousNickname = null;
+        }
+
         Comment updatedComment = Comment.builder()
                 .id(comment.getId())
                 .content(requestDto.content())
                 .isAnonymous(requestDto.isAnonymous())
+                .anonymousNickname(anonymousNickname)
                 .member(comment.getMember())
                 .post(comment.getPost())
                 .reply(comment.getReply())
@@ -202,8 +252,10 @@ public class CommentService {
                 .build();
 
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
-
-        return CommentResponseDto.from(commentRepository.save(updatedComment), true, isFollowing, false, false); // 자신이 작성한 댓글이므로 true, 자신을 차단할 수 없음.
+        
+        Comment saved = commentRepository.save(updatedComment);
+        boolean isPostWriter = saved.getPost().getMember().getId().equals(saved.getMember().getId());
+        return CommentResponseDto.from(saved, true, isFollowing, false, false, isPostWriter, saved.getPost().isAnonymous()); // 자신이 작성한 댓글이므로 true, 자신을 차단할 수 없음.
     }
 
     @Transactional
@@ -266,7 +318,8 @@ public class CommentService {
         // 팔로잉 여부
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
         // 차단 여부
-        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember, false); // 자신이 작성한 댓글인지 여부
+        boolean isPostWriter = comment.getPost().getMember().getId().equals(comment.getMember().getId());
+        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember, false, isPostWriter, comment.getPost().isAnonymous()); // 자신이 작성한 댓글인지 여부
     }
 
     @Transactional
@@ -293,7 +346,8 @@ public class CommentService {
         em.refresh(comment);
 
         boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
+        boolean isPostWriter = comment.getPost().getMember().getId().equals(comment.getMember().getId());
 
-        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember, false); // 자신이 작성한 댓글인지 여부
+        return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember, false, isPostWriter, comment.getPost().isAnonymous()); // 자신이 작성한 댓글인지 여부
     }
 }
