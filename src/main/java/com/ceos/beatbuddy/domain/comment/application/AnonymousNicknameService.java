@@ -23,7 +23,7 @@ public class AnonymousNicknameService {
     private final PostRepository postRepository;
     private final EventCommentRepository eventCommentRepository;
     private final EventRepository eventRepository;
-    private static final Pattern ANONYMOUS_PATTERN = Pattern.compile("^익명 (\\d+)$");
+    private static final Pattern ANONYMOUS_PATTERN = Pattern.compile("^익명(\\d+)$");
     
     /**
      * 특정 포스트에서 특정 멤버의 익명 닉네임을 가져오거나 새로 생성
@@ -77,7 +77,7 @@ public class AnonymousNicknameService {
             }
         }
         
-        return "익명 " + (maxNumber + 1);
+        return "익명" + (maxNumber + 1);
     }
     
     /**
@@ -123,6 +123,6 @@ public class AnonymousNicknameService {
             }
         }
         
-        return "익명 " + (maxNumber + 1);
+        return "익명" + (maxNumber + 1);
     }
 }
