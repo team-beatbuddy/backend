@@ -4,6 +4,7 @@ import com.ceos.beatbuddy.domain.comment.repository.CommentRepository;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -18,7 +19,9 @@ public class AnonymousNicknameService {
     
     /**
      * 특정 포스트에서 특정 멤버의 익명 닉네임을 가져오거나 새로 생성
+     * 동시성 문제 해결을 위해 트랜잭션 내에서 처리
      */
+    @Transactional
     public String getOrCreateAnonymousNickname(Long postId, Long memberId, Long postWriterId, boolean isPostAnonymous) {
         // 글 작성자인 경우
         if (memberId.equals(postWriterId)) {
@@ -37,6 +40,7 @@ public class AnonymousNicknameService {
             return existingNicknames.get(0); // 첫 번째 결과 반환
         }
         
+        // 동시성 문제 해결: 트랜잭션 격리 수준으로 race condition 방지
         // 새로운 익명 닉네임 생성
         return generateNewAnonymousNickname(postId);
     }

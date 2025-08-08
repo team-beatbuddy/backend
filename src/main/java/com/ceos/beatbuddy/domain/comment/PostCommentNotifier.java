@@ -18,6 +18,20 @@ public class PostCommentNotifier {
     private final NotificationService notificationService;
     private final NotificationPayloadFactory notificationPayloadFactory;
     private final NotificationSender notificationSender;
+    
+    /**
+     * 댓글 작성자의 표시 이름 결정
+     */
+    private String getDisplayName(Comment comment) {
+        if (comment.isAnonymous()) {
+            return comment.getAnonymousNickname() != null ? comment.getAnonymousNickname() : "익명";
+        } else {
+            Member writer = comment.getMember();
+            return writer.getPostProfileInfo() != null && writer.getPostProfileInfo().getPostProfileNickname() != null
+                    ? writer.getPostProfileInfo().getPostProfileNickname()
+                    : writer.getNickname();
+        }
+    }
 
     public void notifyPostAuthor(Comment comment, Long writerId) {
         Member postAuthor = comment.getPost().getMember();
@@ -26,16 +40,7 @@ public class PostCommentNotifier {
         // 자신이 자기 글에 댓글 단 경우 알림 제외
         if (postAuthor.getId().equals(writerId)) return;
 
-        String displayName;
-        if (comment.isAnonymous()) {
-            // 익명 댓글
-            displayName = comment.getAnonymousNickname() != null ? comment.getAnonymousNickname() : "익명";
-        } else {
-            // 실명 댓글 → 게시판용 닉네임 사용
-            displayName = commentWriter.getPostProfileInfo() != null && commentWriter.getPostProfileInfo().getPostProfileNickname() != null
-                    ? commentWriter.getPostProfileInfo().getPostProfileNickname()
-                    : commentWriter.getNickname();
-        }
+        String displayName = getDisplayName(comment);
                     
         NotificationPayload notificationPayload = notificationPayloadFactory.createPostCommentPayload(
                 comment.getPost().getId(),
@@ -64,16 +69,7 @@ public class PostCommentNotifier {
         Member parentWriter = comment.getReply().getMember();
 
         if (!parentWriter.getId().equals(writerId)) {
-            String displayName;
-            if (comment.isAnonymous()) {
-                // 익명 댓글
-                displayName = comment.getAnonymousNickname() != null ? comment.getAnonymousNickname() : "익명";
-            } else {
-                // 실명 댓글 → 게시판용 닉네임 사용
-                displayName = comment.getMember().getPostProfileInfo() != null && comment.getMember().getPostProfileInfo().getPostProfileNickname() != null
-                        ? comment.getMember().getPostProfileInfo().getPostProfileNickname()
-                        : comment.getMember().getNickname();
-            }
+            String displayName = getDisplayName(comment);
                         
             NotificationPayload notificationPayload = notificationPayloadFactory.createReplyCommentPayload(
                     comment.getPost().getId(),
