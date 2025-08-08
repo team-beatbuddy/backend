@@ -45,4 +45,8 @@ public class EventComment extends BaseTimeEntity {
     public void updateAnonymous(boolean anonymous) {
         this.anonymous = anonymous;
     }
+    
+    public void updateAnonymousNickname(String anonymousNickname) {
+        this.anonymousNickname = anonymousNickname;
+    }
 }
