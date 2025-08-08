@@ -35,6 +35,9 @@ public class EventComment extends BaseTimeEntity {
 
     private boolean anonymous;
 
+    @Column(nullable = true)
+    private String anonymousNickname; // 이벤트 댓글의 익명 닉네임 (예: "익명 1", "익명 2")
+
     public void updateContent(String content) {
         this.content = content;
     }

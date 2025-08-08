@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.event.application;
 
+import com.ceos.beatbuddy.domain.comment.application.AnonymousNicknameService;
 import com.ceos.beatbuddy.domain.event.dto.EventCommentCreateRequestDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventCommentResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventCommentTreeResponseDTO;
@@ -31,6 +32,7 @@ public class EventCommentService {
     private final EventValidator eventValidator;
     private final FollowRepository followRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final AnonymousNicknameService anonymousNicknameService;
 
     @Transactional
     public EventCommentResponseDTO createComment(Long eventId, Long memberId, EventCommentCreateRequestDTO dto, Long parentCommentId) {
@@ -46,24 +48,35 @@ public class EventCommentService {
             level = parent.getLevel() + 1;
         }
 
+        boolean isEventHost = event.getHost().getId().equals(memberId);
+        boolean isAdmin = member.isAdmin();
+        boolean isStaff = isEventHost || isAdmin;
+        
+        // 이벤트 댓글은 강제 익명 처리 (호스트/관리자 제외)
+        boolean forceAnonymous = !isStaff;
+        String anonymousNickname = null;
+        
+        if (forceAnonymous) {
+            anonymousNickname = anonymousNicknameService.getOrCreateEventAnonymousNickname(eventId, memberId);
+        }
+
         EventComment comment = EventComment.builder()
                 .event(event)
                 .author(member)
                 .content(dto.getContent())
-                .anonymous(dto.isAnonymous())
+                .anonymous(forceAnonymous) // 강제 익명 설정
+                .anonymousNickname(anonymousNickname) // 익명 닉네임 저장
                 .parentId(parent != null ? parent.getId() : null)
                 .level(level)
                 .build();
 
         EventComment saved = eventCommentRepository.save(comment);
 
-        boolean isStaff = event.getHost().getId().equals(memberId);
-
         // ================ 알림 전송=
         eventPublisher.publishEvent(new EventCommentCreatedEvent(event, member, saved, parent, isStaff));
 
-
-        return EventCommentResponseDTO.toDTO(saved, true, false, isStaff, false, member.getNickname()); // 본인 차단 불가능
+        String displayName = isStaff ? "담당자" : anonymousNickname;
+        return EventCommentResponseDTO.toDTO(saved, true, false, isStaff, false, displayName);
     }
 
 
@@ -103,18 +116,6 @@ public class EventCommentService {
         Set<Long> blockedMemberIds = memberService.getBlockedMemberIds(memberId);
         Set<Long> followingIds = followRepository.findFollowingMemberIds(memberId);
 
-        // 익명 작성자 ID 추출 및 번호 매핑
-        List<Long> anonymousIds = all.stream()
-                .filter(EventComment::isAnonymous)
-                .map(c -> c.getAuthor().getId())
-                .distinct()
-                .toList();
-
-        Map<Long, String> anonymousNameMap = new HashMap<>();
-        for (int i = 0; i < anonymousIds.size(); i++) {
-            anonymousNameMap.put(anonymousIds.get(i), "익명 " + (i + 1));
-        }
-
         // 댓글 트리 구성 (부모 ID 기준 그룹핑)
         Map<Long, List<EventComment>> grouped = all.stream()
                 .collect(Collectors.groupingBy(c -> c.getParentId() == null ? c.getId() : c.getParentId()));
@@ -131,20 +132,16 @@ public class EventCommentService {
                             .sorted(Comparator.comparing(EventComment::getCreatedAt))
                             .map(c -> {
                                 boolean isEventHost = c.getAuthor().getId().equals(event.getHost().getId());
-                                String displayName;
-                                if (isEventHost) {
-                                    displayName = "담당자";
-                                } else if (c.isAnonymous()) {
-                                    displayName = anonymousNameMap.get(c.getAuthor().getId());
-                                } else {
-                                    displayName = c.getAuthor().getNickname();
-                                }
+                                boolean isAuthorAdmin = c.getAuthor().isAdmin();
+                                boolean isStaff = isEventHost || isAuthorAdmin;
+                                
+                                String displayName = getDisplayName(c, isStaff);
                                 
                                 return EventCommentResponseDTO.toDTO(
                                         c,
                                         c.getAuthor().getId().equals(memberId),
                                         followingIds.contains(c.getAuthor().getId()),
-                                        isAdmin || isEventHost,
+                                        isAdmin || isStaff,
                                         blockedMemberIds.contains(c.getAuthor().getId()),
                                         displayName
                                 );
@@ -152,21 +149,17 @@ public class EventCommentService {
                             .toList();
 
                     boolean isParentEventHost = parent.getAuthor().getId().equals(event.getHost().getId());
-                    String parentDisplayName;
-                    if (isParentEventHost) {
-                        parentDisplayName = "담당자";
-                    } else if (parent.isAnonymous()) {
-                        parentDisplayName = anonymousNameMap.get(parent.getAuthor().getId());
-                    } else {
-                        parentDisplayName = parent.getAuthor().getNickname();
-                    }
+                    boolean isParentAdmin = parent.getAuthor().isAdmin();
+                    boolean isParentStaff = isParentEventHost || isParentAdmin;
+                    
+                    String parentDisplayName = getDisplayName(parent, isParentStaff);
                     
                     return EventCommentTreeResponseDTO.toDTO(
                             parent,
                             replies,
                             parent.getAuthor().getId().equals(memberId),
                             followingIds.contains(parent.getAuthor().getId()),
-                            isAdmin || isParentEventHost,
+                            isAdmin || isParentStaff,
                             blockedMemberIds.contains(parent.getAuthor().getId()),
                             parentDisplayName
                     );
@@ -191,17 +184,34 @@ public class EventCommentService {
             comment.updateContent(dto.getContent());
         }
 
-        if (dto.getAnonymous() != null) {
-            comment.updateAnonymous(dto.getAnonymous());
+        boolean isEventHost = event.getHost().getId().equals(memberId);
+        boolean isAdmin = member.isAdmin();
+        boolean isStaff = isEventHost || isAdmin;
+        
+        // 익명 설정은 무시 - 강제 익명 처리
+        if (!isStaff) {
+            comment.updateAnonymous(true); // 강제 익명 유지
         }
 
-        boolean isStaff = comment.getAuthor().equals(event.getHost());
-
-        return EventCommentResponseDTO.toDTO(comment, comment.getAuthor().getId().equals(member.getId()), false, isStaff, false, member.getNickname());
+        String displayName = getDisplayName(comment, isStaff);
+        return EventCommentResponseDTO.toDTO(comment, comment.getAuthor().getId().equals(member.getId()), false, isStaff, false, displayName);
     }
 
     private EventComment validateAndGetComment(Long commentId) {
         return eventCommentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMENT));
+    }
+    
+    /**
+     * 이벤트 댓글 표시명 결정
+     * - 담당자/관리자: "담당자"
+     * - 일반 사용자: 저장된 anonymousNickname (강제 익명)
+     */
+    private String getDisplayName(EventComment comment, boolean isStaff) {
+        if (isStaff) {
+            return "담당자";
+        }
+        // 강제 익명이므로 저장된 anonymousNickname 사용
+        return comment.getAnonymousNickname();
     }
 }
