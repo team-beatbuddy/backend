@@ -4,6 +4,7 @@ import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventAttendance;
 import com.ceos.beatbuddy.domain.event.entity.EventAttendanceId;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
@@ -31,5 +32,10 @@ public interface EventAttendanceRepository extends JpaRepository<EventAttendance
             @Param("member") Member member,
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to);
+
+    // 특정 이벤트의 모든 참석자 정보 삭제
+    @Modifying
+    @Query("DELETE FROM EventAttendance ea WHERE ea.event = :event")
+    void deleteByEvent(@Param("event") Event event);
 
 }
