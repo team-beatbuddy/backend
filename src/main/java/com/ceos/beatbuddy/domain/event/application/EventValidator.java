@@ -182,15 +182,11 @@ public class EventValidator {
             throw new CustomException(EventErrorCode.INVALID_DATE_RANGE);
         }
         
-        // 과거 날짜로는 이벤트를 만들 수 없음 (현재 시간 기준)
-        LocalDateTime now = LocalDateTime.now();
-        if (endDate.isBefore(now)) {
-            throw new CustomException(EventErrorCode.PAST_EVENT_NOT_ALLOWED);
-        }
+        // 과거 날짜 이벤트 생성 허용 - 제거됨
     }
     
     /**
-     * 이벤트 수정 시 날짜 유효성 검증 (과거 날짜 허용)
+     * 이벤트 수정 시 날짜 유효성 검증 (null 허용)
      */
     public void validateEventDatesForUpdate(LocalDateTime startDate, LocalDateTime endDate) {
         if (startDate == null || endDate == null) {
