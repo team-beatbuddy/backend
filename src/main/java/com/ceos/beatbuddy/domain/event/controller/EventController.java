@@ -270,4 +270,13 @@ public class EventController implements EventApiDocs {
 
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/{eventId}")
+    public ResponseEntity<ResponseDTO<String>> deleteEvent(@PathVariable Long eventId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        eventService.deleteEvent(eventId, memberId);
+        
+        return ResponseEntity.ok()
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS, "이벤트가 성공적으로 삭제되었습니다."));
+    }
 }

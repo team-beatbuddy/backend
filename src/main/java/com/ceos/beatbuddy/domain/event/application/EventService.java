@@ -9,6 +9,7 @@ import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventAttendanceId;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
+import com.ceos.beatbuddy.domain.event.repository.EventCommentRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
@@ -41,6 +42,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventQueryRepository eventQueryRepository;
     private final EventLikeRepository eventLikeRepository;
+    private final EventCommentRepository eventCommentRepository;
     private final EventValidator eventValidator;
     private final EventAttendanceRepository eventAttendanceRepository;
     private final EventElasticService eventElasticService;
@@ -338,6 +340,37 @@ public class EventService {
     public EventStatusDTO getEventStatus(Long eventId) {
         Event event = validateAndGet(eventId);
         return EventStatusDTO.from(event);
+    }
+    
+    /**
+     * 이벤트 삭제 (연관 데이터 모두 삭제)
+     */
+    @Transactional
+    public void deleteEvent(Long eventId, Long memberId) {
+        Event event = validateAndGet(eventId);
+        
+        // 삭제 권한 검증 (이벤트 호스트 또는 관리자만 삭제 가능)
+        eventValidator.checkAccessForEvent(eventId, memberId);
+        
+        // 1. 이벤트 댓글 삭제
+        eventCommentRepository.deleteByEvent(event);
+        
+        // 2. 이벤트 참석자 정보 삭제
+        eventAttendanceRepository.deleteByEvent(event);
+        
+        // 3. 이벤트 좋아요 삭제
+        eventLikeRepository.deleteByEvent(event);
+        
+        // 4. Elasticsearch에서 이벤트 문서 삭제
+        try {
+            eventElasticService.delete(eventId);
+        } catch (Exception e) {
+            // Elasticsearch 삭제 실패해도 DB 삭제는 진행
+            System.err.println("Failed to delete event from Elasticsearch: " + e.getMessage());
+        }
+        
+        // 5. 메인 이벤트 엔티티 삭제
+        eventRepository.delete(event);
     }
 
 
