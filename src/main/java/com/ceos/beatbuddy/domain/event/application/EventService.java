@@ -113,8 +113,10 @@ public class EventService {
             throw new CustomException(ErrorCode.TOO_MANY_IMAGES_5);
         }
 
-        // 1. 날짜 유효성 검증 (수정용 - 과거 날짜 허용)
-        eventValidator.validateEventDatesForUpdate(dto.getStartDate(), dto.getEndDate());
+        // 1. 날짜 유효성 검증 (기존 값과 조합하여 검증)
+        eventValidator.validateEventDatesForUpdate(
+                dto.getStartDate(), dto.getEndDate(),
+                event.getStartDate(), event.getEndDate());
 
         // 2. 기본 정보 업데이트
         event.updateEventInfo(dto);
