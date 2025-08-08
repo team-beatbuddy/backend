@@ -100,7 +100,6 @@ public class EventElasticService {
                         .fields("title", "content", "location", "notice",
                                 "entranceNotice", "venueKoreanName", "venueEnglishName", "venueLocation", "region", "isFreeEntrance")
                         .query(keyword)
-                        .fuzziness("AUTO")
                 ))
                 : Query.of(q -> q
                 .bool(b -> b
@@ -109,7 +108,6 @@ public class EventElasticService {
                                         .fields("title", "content", "location", "notice",
                                                 "entranceNotice", "venueKoreanName", "venueEnglishName", "venueLocation", "region", "isFreeEntrance")
                                         .query(keyword)
-                                        .fuzziness("AUTO")
                                 ))
                         .filter(f -> f.term(t -> t.field("isVisible").value(true)))
                 ));
