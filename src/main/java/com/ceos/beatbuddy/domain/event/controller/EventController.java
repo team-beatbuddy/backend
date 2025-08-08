@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.event.controller;
 
 import com.ceos.beatbuddy.domain.event.application.*;
+import com.ceos.beatbuddy.domain.event.scheduler.EventStatusScheduler;
 import com.ceos.beatbuddy.domain.event.dto.*;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.global.CustomException;
@@ -34,6 +35,7 @@ public class EventController implements EventApiDocs {
     private final EventAttendanceService eventAttendanceService;
     private final EventInteractionService eventInteractionService;
     private final EventElasticService eventElasticService;
+    private final EventStatusScheduler eventStatusScheduler;
 
     @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -267,6 +269,32 @@ public class EventController implements EventApiDocs {
         }
 
         return ResponseEntity.ok().build();
+    }
+    
+    /**
+     * 테스트용: 이벤트 상태 스케줄러 수동 실행
+     */
+    @Profile("dev")
+    @PostMapping("/test/status-update")
+    public ResponseEntity<ResponseDTO<String>> testStatusUpdate() {
+        log.info("🧪 테스트: 이벤트 상태 업데이트 수동 실행");
+        eventStatusScheduler.runManually();
+        
+        return ResponseEntity.ok()
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS, 
+                      "이벤트 상태 업데이트 스케줄러가 수동으로 실행되었습니다. 로그를 확인해주세요."));
+    }
+    
+    /**
+     * 테스트용: 특정 이벤트 상태 확인
+     */
+    @Profile("dev")
+    @GetMapping("/test/{eventId}/status")
+    public ResponseEntity<ResponseDTO<EventStatusDTO>> getEventStatus(@PathVariable Long eventId) {
+        EventStatusDTO result = eventService.getEventStatus(eventId);
+        
+        return ResponseEntity.ok()
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS, result));
     }
 
 }

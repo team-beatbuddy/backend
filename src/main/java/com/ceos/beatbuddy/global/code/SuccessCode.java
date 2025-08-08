@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 @Getter
 public enum SuccessCode implements ApiCode {
+    SUCCESS(HttpStatus.OK, "요청을 성공적으로 처리했습니다."),
     /**
      * User
      */
