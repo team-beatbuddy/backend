@@ -38,7 +38,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     int updateToPast(@Param("now") LocalDateTime now);
 
     @Modifying
-    @Query("UPDATE Event e SET e.status = 'NOW' WHERE e.status = 'UPCOMING' AND e.startDate <= :now AND e.endDate > :now")
+    @Query("UPDATE Event e SET e.status = 'NOW' WHERE e.status = 'UPCOMING' AND e.startDate <= :now AND e.endDate >= :now")
     int updateToNow(@Param("now") LocalDateTime now);
     
     @Modifying
