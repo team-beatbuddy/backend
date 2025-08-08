@@ -66,9 +66,12 @@ public class EventService {
 
         // 엔티티 생성
         Event event = EventCreateRequestDTO.toEntity(eventCreateRequestDTO, member);
+        
+        // 날짜에 따른 올바른 상태 설정
+        event.updateEventStatusByDate();
 
         // 베뉴가 등록되어있다면,
-        if (eventCreateRequestDTO.getVenueId() != null) {
+        if (eventCreateRequestDTO.getVenueId() != null && eventCreateRequestDTO.getVenueId() > 0) {
             Venue venue = venueInfoService.validateAndGetVenue(eventCreateRequestDTO.getVenueId());
             event.setVenue(venue);
         }

@@ -232,13 +232,27 @@ public class Event extends BaseTimeEntity {
     public void updateEventStatusByDate() {
         LocalDateTime today = LocalDateTime.now();
         if (startDate != null && endDate != null) {
+            System.out.println("=== Event Status Debug ===");
+            System.out.println("Current time: " + today);
+            System.out.println("Start date: " + startDate);
+            System.out.println("End date: " + endDate);
+            System.out.println("startDate.isAfter(today): " + startDate.isAfter(today));
+            System.out.println("endDate.isBefore(today): " + endDate.isBefore(today));
+            
+            // startDate <= 오늘 <= endDate 인 경우 NOW
             if (!startDate.isAfter(today) && !endDate.isBefore(today)) {
                 this.status = EventStatus.NOW;
+                System.out.println("Status set to: NOW");
             } else if (startDate.isAfter(today)) {
+                // startDate > 오늘 인 경우 UPCOMING
                 this.status = EventStatus.UPCOMING;
+                System.out.println("Status set to: UPCOMING");
             } else {
+                // endDate < 오늘 인 경우 PAST
                 this.status = EventStatus.PAST;
+                System.out.println("Status set to: PAST");
             }
+            System.out.println("========================");
         }
     }
 }
