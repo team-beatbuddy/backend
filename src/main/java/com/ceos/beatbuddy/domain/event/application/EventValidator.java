@@ -13,6 +13,7 @@ import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,9 @@ import java.util.Objects;
 public class EventValidator {
     private final MemberService memberService;
     private final EventRepository eventRepository;
+    
+    @Value("${event.allow-past-on-create:false}")
+    private boolean allowPastOnCreate;
 
     public void checkAccessForEvent(Long eventId, Long memberId) {
         Member host = memberService.validateAndGetMember(memberId);
@@ -182,7 +186,13 @@ public class EventValidator {
             throw new CustomException(EventErrorCode.INVALID_DATE_RANGE);
         }
         
-        // 과거 날짜 이벤트 생성 허용 - 제거됨
+        // 환경별 설정에 따른 과거 날짜 이벤트 생성 제한
+        if (!allowPastOnCreate) {
+            LocalDateTime now = LocalDateTime.now();
+            if (startDate.isBefore(now) || endDate.isBefore(now)) {
+                throw new CustomException(EventErrorCode.PAST_EVENT_NOT_ALLOWED);
+            }
+        }
     }
     
     /**
