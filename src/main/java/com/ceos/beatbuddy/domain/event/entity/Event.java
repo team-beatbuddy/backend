@@ -152,6 +152,16 @@ public class Event extends BaseTimeEntity {
         if (dto.getContent() != null) {
             this.content = dto.getContent();
         }
+        // 날짜 업데이트 (임시 변수에 저장 후 검증)
+        LocalDateTime newStartDate = dto.getStartDate() != null ? dto.getStartDate() : this.startDate;
+        LocalDateTime newEndDate = dto.getEndDate() != null ? dto.getEndDate() : this.endDate;
+        
+        // 날짜 유효성 검증 (startDate > endDate 방지)
+        if (newStartDate != null && newEndDate != null && newStartDate.isAfter(newEndDate)) {
+            throw new CustomException(EventErrorCode.INVALID_DATE_RANGE);
+        }
+        
+        // 검증 통과 시 실제 업데이트
         if (dto.getStartDate() != null) {
             this.startDate = dto.getStartDate();
         }
@@ -222,13 +232,27 @@ public class Event extends BaseTimeEntity {
     public void updateEventStatusByDate() {
         LocalDateTime today = LocalDateTime.now();
         if (startDate != null && endDate != null) {
+            System.out.println("=== Event Status Debug ===");
+            System.out.println("Current time: " + today);
+            System.out.println("Start date: " + startDate);
+            System.out.println("End date: " + endDate);
+            System.out.println("startDate.isAfter(today): " + startDate.isAfter(today));
+            System.out.println("endDate.isBefore(today): " + endDate.isBefore(today));
+            
+            // startDate <= 오늘 <= endDate 인 경우 NOW
             if (!startDate.isAfter(today) && !endDate.isBefore(today)) {
                 this.status = EventStatus.NOW;
+                System.out.println("Status set to: NOW");
             } else if (startDate.isAfter(today)) {
+                // startDate > 오늘 인 경우 UPCOMING
                 this.status = EventStatus.UPCOMING;
+                System.out.println("Status set to: UPCOMING");
             } else {
+                // endDate < 오늘 인 경우 PAST
                 this.status = EventStatus.PAST;
+                System.out.println("Status set to: PAST");
             }
+            System.out.println("========================");
         }
     }
 }
