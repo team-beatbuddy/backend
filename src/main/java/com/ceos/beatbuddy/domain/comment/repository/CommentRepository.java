@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
@@ -33,4 +34,11 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findAllByReplyId(Long commentId);
 
     boolean existsByReply_Id(Long parentCommentId);
+    
+    // 특정 포스트에서 특정 멤버의 기존 익명 닉네임 찾기 (첫 번째 결과만)
+    Optional<Comment> findTopByPost_IdAndMember_IdAndIsAnonymousTrueAndAnonymousNicknameIsNotNullOrderByCreatedAtAsc(Long postId, Long memberId);
+    
+    // 특정 포스트의 모든 익명 닉네임 조회 (중복 제거)
+    @Query("SELECT DISTINCT c.anonymousNickname FROM Comment c WHERE c.post.id = :postId AND c.isAnonymous = true AND c.anonymousNickname IS NOT NULL ORDER BY c.anonymousNickname")
+    List<String> findDistinctAnonymousNicknamesByPostId(Long postId);
 }
