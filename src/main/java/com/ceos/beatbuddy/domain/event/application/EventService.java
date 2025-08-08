@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.event.application;
 import com.ceos.beatbuddy.domain.event.dto.EventCreateRequestDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
+import com.ceos.beatbuddy.domain.event.dto.EventStatusDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventUpdateRequestDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventAttendanceId;
@@ -57,6 +58,9 @@ public class EventService {
             throw new CustomException(ErrorCode.TOO_MANY_IMAGES_5);
         }
 
+        // 날짜 유효성 검증
+        eventValidator.validateEventDates(eventCreateRequestDTO.getStartDate(), eventCreateRequestDTO.getEndDate());
+
         // 에약금 정보 확인
         eventValidator.validateReceiveMoney(eventCreateRequestDTO.isReceiveMoney(), eventCreateRequestDTO.getDepositAccount(), eventCreateRequestDTO.getDepositAmount());
 
@@ -104,10 +108,13 @@ public class EventService {
             throw new CustomException(ErrorCode.TOO_MANY_IMAGES_5);
         }
 
-        // 1. 기본 정보 업데이트
+        // 1. 날짜 유효성 검증 (수정용 - 과거 날짜 허용)
+        eventValidator.validateEventDatesForUpdate(dto.getStartDate(), dto.getEndDate());
+
+        // 2. 기본 정보 업데이트
         event.updateEventInfo(dto);
 
-        // 2. 참석자 정보 설정
+        // 3. 참석자 정보 설정
         eventValidator.validateReceiveInfoConfig(dto);
         event.updateReceiveSettings(
                 dto.getReceiveInfo(),
@@ -319,6 +326,15 @@ public class EventService {
     public Event validateAndGet(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+    }
+    
+    /**
+     * 테스트용: 특정 이벤트의 상태 정보 조회
+     */
+    @Transactional(readOnly = true)
+    public EventStatusDTO getEventStatus(Long eventId) {
+        Event event = validateAndGet(eventId);
+        return EventStatusDTO.from(event);
     }
 
 
