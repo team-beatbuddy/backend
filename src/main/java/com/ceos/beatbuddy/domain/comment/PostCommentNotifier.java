@@ -26,13 +26,17 @@ public class PostCommentNotifier {
         // 자신이 자기 글에 댓글 단 경우 알림 제외
         if (postAuthor.getId().equals(writerId)) return;
 
+        boolean isPostWriter = postAuthor.getId().equals(commentWriter.getId());
+        String displayName = comment.isAnonymous() 
+                ? "익명"  // 알림에서는 익명은 그냥 "익명"으로 표시 (글 작성자든 아니든)
+                : (commentWriter.getPostProfileInfo() != null && commentWriter.getPostProfileInfo().getPostProfileNickname() != null
+                    ? commentWriter.getPostProfileInfo().getPostProfileNickname()
+                    : commentWriter.getNickname());
+                    
         NotificationPayload notificationPayload = notificationPayloadFactory.createPostCommentPayload(
                 comment.getPost().getId(),
                 comment.getId(),
-                comment.isAnonymous() ? "익명" : 
-                    (commentWriter.getPostProfileInfo() != null && commentWriter.getPostProfileInfo().getPostProfileNickname() != null
-                        ? commentWriter.getPostProfileInfo().getPostProfileNickname()
-                        : commentWriter.getNickname()),
+                displayName,
                 comment.getContent()
         );
 
@@ -56,13 +60,16 @@ public class PostCommentNotifier {
         Member parentWriter = comment.getReply().getMember();
 
         if (!parentWriter.getId().equals(writerId)) {
+            String displayName = comment.isAnonymous() 
+                    ? "익명"  // 알림에서는 익명은 그냥 "익명"으로 표시 (글 작성자든 아니든)
+                    : (comment.getMember().getPostProfileInfo() != null && comment.getMember().getPostProfileInfo().getPostProfileNickname() != null
+                        ? comment.getMember().getPostProfileInfo().getPostProfileNickname()
+                        : comment.getMember().getNickname());
+                        
             NotificationPayload notificationPayload = notificationPayloadFactory.createReplyCommentPayload(
                     comment.getPost().getId(),
                     comment.getId(),
-                    comment.isAnonymous() ? "익명" : 
-                        (comment.getMember().getPostProfileInfo() != null && comment.getMember().getPostProfileInfo().getPostProfileNickname() != null
-                            ? comment.getMember().getPostProfileInfo().getPostProfileNickname()
-                            : comment.getMember().getNickname()),
+                    displayName,
                     comment.getContent()
             );
 
