@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Profile("dev")
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -23,7 +24,6 @@ public class EventTestController {
     /**
      * 테스트용: 이벤트 상태 스케줄러 수동 실행
      */
-    @Profile("dev")
     @PostMapping("/status-update")
     public ResponseEntity<ResponseDTO<String>> testStatusUpdate() {
         log.info("🧪 테스트: 이벤트 상태 업데이트 수동 실행");
@@ -37,7 +37,6 @@ public class EventTestController {
     /**
      * 테스트용: 특정 이벤트 상태 확인
      */
-    @Profile("dev")
     @GetMapping("/{eventId}/status")
     public ResponseEntity<ResponseDTO<EventStatusDTO>> getEventStatus(@PathVariable Long eventId) {
         EventStatusDTO result = eventService.getEventStatus(eventId);
