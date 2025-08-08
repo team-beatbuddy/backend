@@ -58,6 +58,7 @@ public class EventCommentService {
         
         if (forceAnonymous) {
             anonymousNickname = anonymousNicknameService.getOrCreateEventAnonymousNickname(eventId, memberId);
+            System.out.println("DEBUG: Generated anonymous nickname: " + anonymousNickname + " for eventId: " + eventId + ", memberId: " + memberId);
         }
 
         EventComment comment = EventComment.builder()
@@ -70,7 +71,17 @@ public class EventCommentService {
                 .level(level)
                 .build();
 
+        // 혹시 빌더에서 설정되지 않은 경우를 대비해 명시적으로 설정
+        if (forceAnonymous && anonymousNickname != null) {
+            comment.updateAnonymousNickname(anonymousNickname);
+            if (comment.getAnonymousNickname() == null || comment.getAnonymousNickname().isBlank()) {
+                String nickname = anonymousNicknameService.getOrCreateEventAnonymousNickname(eventId, memberId);
+                comment.updateAnonymousNickname(nickname);
+            }
+        }
+
         EventComment saved = eventCommentRepository.save(comment);
+        System.out.println("DEBUG: Saved EventComment with anonymousNickname: " + saved.getAnonymousNickname() + ", id: " + saved.getId());
 
         // ================ 알림 전송=
         eventPublisher.publishEvent(new EventCommentCreatedEvent(event, member, saved, parent, isStaff));
