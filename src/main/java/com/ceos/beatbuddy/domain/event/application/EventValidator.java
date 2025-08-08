@@ -196,15 +196,21 @@ public class EventValidator {
     }
     
     /**
-     * 이벤트 수정 시 날짜 유효성 검증 (null 허용)
+     * 이벤트 수정 시 날짜 유효성 검증 (기존 값과 조합하여 검증)
      */
-    public void validateEventDatesForUpdate(LocalDateTime startDate, LocalDateTime endDate) {
-        if (startDate == null || endDate == null) {
-            return; // 수정 시에는 null 허용 (기존 값 유지)
+    public void validateEventDatesForUpdate(LocalDateTime newStartDate, LocalDateTime newEndDate, 
+                                          LocalDateTime existingStartDate, LocalDateTime existingEndDate) {
+        // 최종 적용될 날짜 계산 (새 값이 있으면 새 값, 없으면 기존 값)
+        LocalDateTime finalStartDate = newStartDate != null ? newStartDate : existingStartDate;
+        LocalDateTime finalEndDate = newEndDate != null ? newEndDate : existingEndDate;
+        
+        // 최종 날짜가 모두 있어야 검증 가능
+        if (finalStartDate == null || finalEndDate == null) {
+            return;
         }
         
         // 시작일이 종료일보다 늦으면 안됨
-        if (startDate.isAfter(endDate)) {
+        if (finalStartDate.isAfter(finalEndDate)) {
             throw new CustomException(EventErrorCode.INVALID_DATE_RANGE);
         }
     }
