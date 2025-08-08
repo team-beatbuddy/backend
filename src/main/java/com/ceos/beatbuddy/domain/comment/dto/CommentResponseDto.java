@@ -9,6 +9,7 @@ public record CommentResponseDto(
         Boolean isAnonymous,
         Long replyId,
         String memberName,
+        String imageUrl,
         Integer likes,
         LocalDateTime createdAt,
         Boolean isAuthor,
@@ -28,6 +29,12 @@ public record CommentResponseDto(
                     (comment.getMember().getPostProfileInfo() != null && comment.getMember().getPostProfileInfo().getPostProfileNickname() != null
                         ? comment.getMember().getPostProfileInfo().getPostProfileNickname()
                         : comment.getMember().getNickname()),
+                comment.isAnonymous() ? "" :
+                    (comment.getMember().getPostProfileInfo() != null && comment.getMember().getPostProfileInfo().getPostProfileImageUrl() != null
+                        ? comment.getMember().getPostProfileInfo().getPostProfileImageUrl()
+                        : (comment.getMember().getProfileImage() != null
+                                ? comment.getMember().getProfileImage()
+                                : "")),
                 comment.getLikes(),
                 comment.getCreatedAt(),
                 isAuthor,

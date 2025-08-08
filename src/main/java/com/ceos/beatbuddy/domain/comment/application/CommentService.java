@@ -159,7 +159,16 @@ public class CommentService {
 
             String mappedName = comment.isAnonymous()
                     ? anonymousNameMap.get(writerId)
-                    : comment.getMember().getNickname();
+                    : (comment.getMember().getPostProfileInfo() != null && comment.getMember().getPostProfileInfo().getPostProfileNickname() != null
+                        ? comment.getMember().getPostProfileInfo().getPostProfileNickname()
+                        : comment.getMember().getNickname());
+
+            String imageUrl = comment.isAnonymous() ? "" :
+                    (comment.getMember().getPostProfileInfo() != null && comment.getMember().getPostProfileInfo().getPostProfileImageUrl() != null
+                        ? comment.getMember().getPostProfileInfo().getPostProfileImageUrl()
+                        : (comment.getMember().getProfileImage() != null
+                                ? comment.getMember().getProfileImage()
+                                : ""));
 
             return new CommentResponseDto(
                     comment.getId(),
@@ -167,6 +176,7 @@ public class CommentService {
                     comment.isAnonymous(),
                     comment.getReply() != null ? comment.getReply().getId() : null,
                     mappedName,
+                    imageUrl,
                     comment.getLikes(),
                     comment.getCreatedAt(),
                     isAuthor,
