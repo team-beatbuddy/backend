@@ -35,11 +35,15 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Modifying
     @Query("UPDATE Event e SET e.status = 'PAST' WHERE e.status = 'NOW' AND e.endDate < :now")
-    void updateToPast(@Param("now") LocalDateTime now);
+    int updateToPast(@Param("now") LocalDateTime now);
 
     @Modifying
     @Query("UPDATE Event e SET e.status = 'NOW' WHERE e.status = 'UPCOMING' AND e.startDate <= :now AND e.endDate > :now")
-    void updateToNow(@Param("now") LocalDateTime now);
+    int updateToNow(@Param("now") LocalDateTime now);
+    
+    @Modifying
+    @Query("UPDATE Event e SET e.status = 'PAST' WHERE e.status = 'UPCOMING' AND e.endDate < :now")
+    int updateUpcomingToPast(@Param("now") LocalDateTime now);
     
     // 동시성 제어를 위한 PESSIMISTIC_WRITE 락
     @Lock(LockModeType.PESSIMISTIC_WRITE)

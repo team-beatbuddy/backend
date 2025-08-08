@@ -152,6 +152,16 @@ public class Event extends BaseTimeEntity {
         if (dto.getContent() != null) {
             this.content = dto.getContent();
         }
+        // 날짜 업데이트 (임시 변수에 저장 후 검증)
+        LocalDateTime newStartDate = dto.getStartDate() != null ? dto.getStartDate() : this.startDate;
+        LocalDateTime newEndDate = dto.getEndDate() != null ? dto.getEndDate() : this.endDate;
+        
+        // 날짜 유효성 검증 (startDate > endDate 방지)
+        if (newStartDate != null && newEndDate != null && newStartDate.isAfter(newEndDate)) {
+            throw new CustomException(EventErrorCode.INVALID_DATE_RANGE);
+        }
+        
+        // 검증 통과 시 실제 업데이트
         if (dto.getStartDate() != null) {
             this.startDate = dto.getStartDate();
         }

@@ -15,6 +15,7 @@ import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Component
@@ -165,6 +166,40 @@ public class EventValidator {
     protected void validateCommentBelongsToEvent(EventComment comment, Long eventId) {
         if (!comment.getEvent().getId().equals(eventId)) {
             throw new CustomException(ErrorCode.NOT_FOUND_COMMENT_IN_EVENT);
+        }
+    }
+    
+    /**
+     * 이벤트 날짜 유효성 검증
+     */
+    public void validateEventDates(LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate == null || endDate == null) {
+            throw new CustomException(EventErrorCode.MISSING_DATE);
+        }
+        
+        // 시작일이 종료일보다 늦으면 안됨
+        if (startDate.isAfter(endDate)) {
+            throw new CustomException(EventErrorCode.INVALID_DATE_RANGE);
+        }
+        
+        // 과거 날짜로는 이벤트를 만들 수 없음 (현재 시간 기준)
+        LocalDateTime now = LocalDateTime.now();
+        if (endDate.isBefore(now)) {
+            throw new CustomException(EventErrorCode.PAST_EVENT_NOT_ALLOWED);
+        }
+    }
+    
+    /**
+     * 이벤트 수정 시 날짜 유효성 검증 (과거 날짜 허용)
+     */
+    public void validateEventDatesForUpdate(LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate == null || endDate == null) {
+            return; // 수정 시에는 null 허용 (기존 값 유지)
+        }
+        
+        // 시작일이 종료일보다 늦으면 안됨
+        if (startDate.isAfter(endDate)) {
+            throw new CustomException(EventErrorCode.INVALID_DATE_RANGE);
         }
     }
 }
