@@ -20,7 +20,8 @@ public enum EventErrorCode implements ApiCode {
     INVALID_RECEIVE_INFO_CONFIGURATION(HttpStatus.BAD_REQUEST, "receiveInfo가 false일 때 다른 수집 항목은 true일 수 없습니다."),
     ATTENDANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이벤트에 대한 참석 정보를 찾을 수 없습니다."),
     REGION_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 지역입니다."),
-    INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "시작 날짜가 종료 날짜보다 늦을 수 없습니다.")
+    INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "시작 날짜가 종료 날짜보다 늦을 수 없습니다."),
+    MISSING_DATE(HttpStatus.BAD_REQUEST, "시작 날짜와 종료 날짜는 필수입니다.")
     ;
     private final HttpStatus httpStatus;
     private final String message;

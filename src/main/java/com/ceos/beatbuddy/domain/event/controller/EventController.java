@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.event.controller;
 
 import com.ceos.beatbuddy.domain.event.application.*;
+import com.ceos.beatbuddy.domain.event.scheduler.EventStatusScheduler;
 import com.ceos.beatbuddy.domain.event.dto.*;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.global.CustomException;
@@ -34,6 +35,7 @@ public class EventController implements EventApiDocs {
     private final EventAttendanceService eventAttendanceService;
     private final EventInteractionService eventInteractionService;
     private final EventElasticService eventElasticService;
+    private final EventStatusScheduler eventStatusScheduler;
 
     @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -269,4 +271,12 @@ public class EventController implements EventApiDocs {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/{eventId}")
+    public ResponseEntity<ResponseDTO<String>> deleteEvent(@PathVariable Long eventId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        eventService.deleteEvent(eventId, memberId);
+        
+        return ResponseEntity.ok()
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS, "이벤트가 성공적으로 삭제되었습니다."));
+    }
 }

@@ -13,8 +13,10 @@ import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Component
@@ -22,6 +24,9 @@ import java.util.Objects;
 public class EventValidator {
     private final MemberService memberService;
     private final EventRepository eventRepository;
+    
+    @Value("${event.allow-past-on-create:false}")
+    private boolean allowPastOnCreate;
 
     public void checkAccessForEvent(Long eventId, Long memberId) {
         Member host = memberService.validateAndGetMember(memberId);
@@ -165,6 +170,48 @@ public class EventValidator {
     protected void validateCommentBelongsToEvent(EventComment comment, Long eventId) {
         if (!comment.getEvent().getId().equals(eventId)) {
             throw new CustomException(ErrorCode.NOT_FOUND_COMMENT_IN_EVENT);
+        }
+    }
+    
+    /**
+     * 이벤트 날짜 유효성 검증
+     */
+    public void validateEventDates(LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate == null || endDate == null) {
+            throw new CustomException(EventErrorCode.MISSING_DATE);
+        }
+        
+        // 시작일이 종료일보다 늦으면 안됨
+        if (startDate.isAfter(endDate)) {
+            throw new CustomException(EventErrorCode.INVALID_DATE_RANGE);
+        }
+        
+        // 환경별 설정에 따른 과거 날짜 이벤트 생성 제한
+        if (!allowPastOnCreate) {
+            LocalDateTime now = LocalDateTime.now();
+            if (startDate.isBefore(now) || endDate.isBefore(now)) {
+                throw new CustomException(EventErrorCode.PAST_EVENT_NOT_ALLOWED);
+            }
+        }
+    }
+    
+    /**
+     * 이벤트 수정 시 날짜 유효성 검증 (기존 값과 조합하여 검증)
+     */
+    public void validateEventDatesForUpdate(LocalDateTime newStartDate, LocalDateTime newEndDate, 
+                                          LocalDateTime existingStartDate, LocalDateTime existingEndDate) {
+        // 최종 적용될 날짜 계산 (새 값이 있으면 새 값, 없으면 기존 값)
+        LocalDateTime finalStartDate = newStartDate != null ? newStartDate : existingStartDate;
+        LocalDateTime finalEndDate = newEndDate != null ? newEndDate : existingEndDate;
+        
+        // 최종 날짜가 모두 있어야 검증 가능
+        if (finalStartDate == null || finalEndDate == null) {
+            return;
+        }
+        
+        // 시작일이 종료일보다 늦으면 안됨
+        if (finalStartDate.isAfter(finalEndDate)) {
+            throw new CustomException(EventErrorCode.INVALID_DATE_RANGE);
         }
     }
 }

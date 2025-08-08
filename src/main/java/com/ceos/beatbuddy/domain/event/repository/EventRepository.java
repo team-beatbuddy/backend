@@ -18,28 +18,32 @@ import java.util.Optional;
 public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findAllByHost(Member member);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE Event e SET e.likes = e.likes + 1 WHERE e.id = :eventId")
     void increaseLike(@Param("eventId") Long eventId);
 
     // 좋아요를 누른 것이 확인되어야만 좋아요 취소가 가능
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE Event e SET e.likes = e.likes -1 WHERE e.id = :eventId")
     void decreaseLike(@Param("eventId") Long eventId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE Event e SET e.views = e.views + 1 WHERE e.id = :eventId")
     void increaseViews(@Param("eventId") Long eventId);
 
     int countAllByVenue_Id(Long venueId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Event e SET e.status = 'PAST' WHERE e.status = 'NOW' AND e.endDate < :now")
-    void updateToPast(@Param("now") LocalDateTime now);
+    int updateToPast(@Param("now") LocalDateTime now);
 
-    @Modifying
-    @Query("UPDATE Event e SET e.status = 'NOW' WHERE e.status = 'UPCOMING' AND e.startDate <= :now AND e.endDate > :now")
-    void updateToNow(@Param("now") LocalDateTime now);
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Event e SET e.status = 'NOW' WHERE e.status = 'UPCOMING' AND e.startDate <= :now AND e.endDate >= :now")
+    int updateToNow(@Param("now") LocalDateTime now);
+    
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Event e SET e.status = 'PAST' WHERE e.status = 'UPCOMING' AND e.endDate < :now")
+    int updateUpcomingToPast(@Param("now") LocalDateTime now);
     
     // 동시성 제어를 위한 PESSIMISTIC_WRITE 락
     @Lock(LockModeType.PESSIMISTIC_WRITE)

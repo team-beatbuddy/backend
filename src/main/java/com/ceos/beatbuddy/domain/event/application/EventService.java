@@ -3,11 +3,13 @@ package com.ceos.beatbuddy.domain.event.application;
 import com.ceos.beatbuddy.domain.event.dto.EventCreateRequestDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
+import com.ceos.beatbuddy.domain.event.dto.EventStatusDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventUpdateRequestDTO;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventAttendanceId;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
+import com.ceos.beatbuddy.domain.event.repository.EventCommentRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
@@ -40,6 +42,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventQueryRepository eventQueryRepository;
     private final EventLikeRepository eventLikeRepository;
+    private final EventCommentRepository eventCommentRepository;
     private final EventValidator eventValidator;
     private final EventAttendanceRepository eventAttendanceRepository;
     private final EventElasticService eventElasticService;
@@ -57,14 +60,20 @@ public class EventService {
             throw new CustomException(ErrorCode.TOO_MANY_IMAGES_5);
         }
 
+        // 날짜 유효성 검증
+        eventValidator.validateEventDates(eventCreateRequestDTO.getStartDate(), eventCreateRequestDTO.getEndDate());
+
         // 에약금 정보 확인
         eventValidator.validateReceiveMoney(eventCreateRequestDTO.isReceiveMoney(), eventCreateRequestDTO.getDepositAccount(), eventCreateRequestDTO.getDepositAmount());
 
         // 엔티티 생성
         Event event = EventCreateRequestDTO.toEntity(eventCreateRequestDTO, member);
+        
+        // 날짜에 따른 올바른 상태 설정
+        event.updateEventStatusByDate();
 
         // 베뉴가 등록되어있다면,
-        if (eventCreateRequestDTO.getVenueId() != null) {
+        if (eventCreateRequestDTO.getVenueId() != null && eventCreateRequestDTO.getVenueId() > 0) {
             Venue venue = venueInfoService.validateAndGetVenue(eventCreateRequestDTO.getVenueId());
             event.setVenue(venue);
         }
@@ -104,10 +113,15 @@ public class EventService {
             throw new CustomException(ErrorCode.TOO_MANY_IMAGES_5);
         }
 
-        // 1. 기본 정보 업데이트
+        // 1. 날짜 유효성 검증 (기존 값과 조합하여 검증)
+        eventValidator.validateEventDatesForUpdate(
+                dto.getStartDate(), dto.getEndDate(),
+                event.getStartDate(), event.getEndDate());
+
+        // 2. 기본 정보 업데이트
         event.updateEventInfo(dto);
 
-        // 2. 참석자 정보 설정
+        // 3. 참석자 정보 설정
         eventValidator.validateReceiveInfoConfig(dto);
         event.updateReceiveSettings(
                 dto.getReceiveInfo(),
@@ -319,6 +333,46 @@ public class EventService {
     public Event validateAndGet(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(EventErrorCode.NOT_FOUND_EVENT));
+    }
+    
+    /**
+     * 테스트용: 특정 이벤트의 상태 정보 조회
+     */
+    @Transactional(readOnly = true)
+    public EventStatusDTO getEventStatus(Long eventId) {
+        Event event = validateAndGet(eventId);
+        return EventStatusDTO.from(event);
+    }
+    
+    /**
+     * 이벤트 삭제 (연관 데이터 모두 삭제)
+     */
+    @Transactional
+    public void deleteEvent(Long eventId, Long memberId) {
+        Event event = validateAndGet(eventId);
+        
+        // 삭제 권한 검증 (이벤트 호스트 또는 관리자만 삭제 가능)
+        eventValidator.checkAccessForEvent(eventId, memberId);
+        
+        // 1. 이벤트 댓글 삭제
+        eventCommentRepository.deleteByEvent(event);
+        
+        // 2. 이벤트 참석자 정보 삭제
+        eventAttendanceRepository.deleteByEvent(event);
+        
+        // 3. 이벤트 좋아요 삭제
+        eventLikeRepository.deleteByEvent(event);
+        
+        // 4. Elasticsearch에서 이벤트 문서 삭제
+        try {
+            eventElasticService.delete(eventId);
+        } catch (Exception e) {
+            // Elasticsearch 삭제 실패해도 DB 삭제는 진행
+            System.err.println("Failed to delete event from Elasticsearch: " + e.getMessage());
+        }
+        
+        // 5. 메인 이벤트 엔티티 삭제
+        eventRepository.delete(event);
     }
 
 
