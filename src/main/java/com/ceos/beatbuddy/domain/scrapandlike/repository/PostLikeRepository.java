@@ -1,13 +1,12 @@
 package com.ceos.beatbuddy.domain.scrapandlike.repository;
 
-import com.ceos.beatbuddy.domain.scrapandlike.entity.PostInteractionId;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostLike;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface PostLikeRepository extends JpaRepository<PostLike, PostInteractionId> {
-    boolean existsById(PostInteractionId id);
-    void deleteById(PostInteractionId id);
+public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
+    boolean existsByMember_IdAndPost_Id(Long memberId, Long postId);
+    void deleteByMember_IdAndPost_Id(Long memberId, Long postId);
     List<PostLike> findAllByMember_IdAndPost_IdIn(Long memberId, List<Long> postIds);
 }

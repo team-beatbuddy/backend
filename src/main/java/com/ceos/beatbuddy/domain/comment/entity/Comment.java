@@ -5,13 +5,7 @@ import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.CommentLike;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import lombok.*;
 import org.springframework.lang.Nullable;
 
 import java.util.ArrayList;

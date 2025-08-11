@@ -2,7 +2,6 @@ package com.ceos.beatbuddy.domain.search.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

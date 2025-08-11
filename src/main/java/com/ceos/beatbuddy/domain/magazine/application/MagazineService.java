@@ -10,13 +10,12 @@ import com.ceos.beatbuddy.domain.magazine.repository.MagazineRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.constant.Role;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineInteractionId;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.MagazineLikeRepository;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.CustomException;
-import com.ceos.beatbuddy.global.util.UploadUtil;
 import com.ceos.beatbuddy.global.code.ErrorCode;
+import com.ceos.beatbuddy.global.util.UploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -152,8 +151,7 @@ public class MagazineService {
         magazineRepository.increaseViews(magazineId);
 
         // 매거진 좋아요 여부 확인
-        boolean isLiked = magazineLikeRepository.existsById(
-                MagazineInteractionId.builder().memberId(memberId).magazineId(magazineId).build());
+        boolean isLiked = magazineLikeRepository.existsByMember_IdAndMagazine_Id(memberId, magazineId);
 
         return MagazineDetailDTO.toDTO(magazine, isLiked, magazine.getMember().getId().equals(memberId));
     }

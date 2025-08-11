@@ -3,7 +3,6 @@ package com.ceos.beatbuddy.domain.follow.application;
 import com.ceos.beatbuddy.domain.follow.dto.FollowResponseDTO;
 import com.ceos.beatbuddy.domain.follow.entity.Follow;
 import com.ceos.beatbuddy.domain.follow.entity.FollowCreatedEvent;
-import com.ceos.beatbuddy.domain.follow.entity.FollowId;
 import com.ceos.beatbuddy.domain.follow.exception.FollowErrorCode;
 import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
 import com.ceos.beatbuddy.domain.member.entity.Member;
@@ -36,14 +35,11 @@ public class FollowService {
         Member following = memberRepository.findById(followingId)
                 .orElseThrow(() -> new CustomException(FollowErrorCode.FOLLOWING_TARGET_NOT_FOUND));
 
-        FollowId followId = new FollowId(followerId, followingId);
-
-        if (followRepository.existsById(followId)) {
+        if (followRepository.existsByFollower_IdAndFollowing_Id(followerId, followingId)) {
             throw new CustomException(FollowErrorCode.ALREADY_FOLLOWED);
         }
 
         Follow follow = Follow.builder()
-                .id(followId)
                 .follower(follower)
                 .following(following)
                 .build();
@@ -59,9 +55,7 @@ public class FollowService {
 
     @Transactional
     public void unfollow(Long followerId, Long followingId) {
-        FollowId followId = new FollowId(followerId, followingId);
-
-        Follow follow = followRepository.findById(followId)
+        Follow follow = followRepository.findByFollower_IdAndFollowing_Id(followerId, followingId)
                 .orElseThrow(() -> new CustomException(FollowErrorCode.FOLLOW_NOT_FOUND));
 
         followRepository.delete(follow);

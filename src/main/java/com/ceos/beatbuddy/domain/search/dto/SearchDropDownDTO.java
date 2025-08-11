@@ -1,13 +1,10 @@
 package com.ceos.beatbuddy.domain.search.dto;
 
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Builder
 @Getter

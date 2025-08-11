@@ -4,7 +4,6 @@ import com.ceos.beatbuddy.domain.magazine.entity.Magazine;
 import com.ceos.beatbuddy.domain.magazine.repository.MagazineRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineInteractionId;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineLike;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.MagazineLikeRepository;
 import com.ceos.beatbuddy.global.CustomException;
@@ -38,8 +37,7 @@ public class MagazineInteractionService {
         Magazine magazine = magazineValidator.validateAndGetMagazineVisibleTrue(magazineId);
 
         // 좋아요 증가 (이미 좋아요가 있으면 예외처리
-        boolean alreadyLiked = magazineLikeRepository.existsById(
-                MagazineInteractionId.builder().memberId(memberId).magazineId(magazineId).build());
+        boolean alreadyLiked = magazineLikeRepository.existsByMember_IdAndMagazine_Id(memberId, magazineId);
 
         if (alreadyLiked) {
             throw new CustomException(ErrorCode.ALREADY_LIKED);
@@ -66,12 +64,11 @@ public class MagazineInteractionService {
         magazineValidator.validateAndGetMagazine(magazineId);
 
         // 좋아요 삭제
-        MagazineLike magazineLike = magazineLikeRepository.findById(
-                MagazineInteractionId.builder().memberId(memberId).magazineId(magazineId).build()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_FOUND_LIKE)
-        );
+        if (!magazineLikeRepository.existsByMember_IdAndMagazine_Id(memberId, magazineId)) {
+            throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
+        }
 
-        magazineLikeRepository.delete(magazineLike);
+        magazineLikeRepository.deleteByMember_IdAndMagazine_Id(memberId, magazineId);
         magazineRepository.decreaseLike(magazineId);
     }
 }

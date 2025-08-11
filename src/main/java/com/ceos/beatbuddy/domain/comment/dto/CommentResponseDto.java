@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.comment.dto;
 
 import com.ceos.beatbuddy.domain.comment.entity.Comment;
+
 import java.time.LocalDateTime;
 
 public record CommentResponseDto(

@@ -2,7 +2,6 @@ package com.ceos.beatbuddy.global;
 
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.dto.ErrorResponseDTO;
-import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.HashMap;
 import java.util.Map;

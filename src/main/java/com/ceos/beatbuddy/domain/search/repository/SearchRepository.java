@@ -5,27 +5,25 @@ import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
+import com.ceos.beatbuddy.domain.search.dto.SearchDTO;
 import com.ceos.beatbuddy.domain.search.dto.SearchQueryResponseDTO;
 import com.ceos.beatbuddy.domain.search.exception.SearchErrorCode;
 import com.ceos.beatbuddy.domain.vector.entity.Vector;
-import com.ceos.beatbuddy.domain.venue.entity.*;
+import com.ceos.beatbuddy.domain.venue.entity.QVenue;
+import com.ceos.beatbuddy.domain.venue.entity.QVenueGenre;
+import com.ceos.beatbuddy.domain.venue.entity.QVenueMood;
+import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.exception.VenueErrorCode;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.Expressions;
-import jakarta.persistence.EntityManager;
-
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-
-import com.ceos.beatbuddy.domain.search.dto.SearchDTO;
-import org.springframework.data.support.PageableExecutionUtils;
+import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.time.LocalDateTime;
 import java.util.*;

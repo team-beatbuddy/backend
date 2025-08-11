@@ -3,7 +3,6 @@ package com.ceos.beatbuddy.domain.event.application;
 import com.ceos.beatbuddy.domain.event.dto.*;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventAttendance;
-import com.ceos.beatbuddy.domain.event.entity.EventAttendanceId;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
@@ -31,7 +30,7 @@ public class EventAttendanceService {
 
         eventValidator.validateAttendanceInput(dto, event);
 
-        boolean alreadyAttendance = eventAttendanceRepository.existsById(new EventAttendanceId(event.getId(), memberId));
+        boolean alreadyAttendance = eventAttendanceRepository.existsByMember_IdAndEvent_Id(memberId, event.getId());
 
         if (alreadyAttendance) {
             throw new CustomException(EventErrorCode.ALREADY_ATTENDANCE_EVENT);
@@ -116,8 +115,6 @@ public class EventAttendanceService {
     }
 
     protected EventAttendance validateAndGetAttendance(Long eventId, Long memberId) {
-        EventAttendanceId id = new EventAttendanceId(eventId, memberId);
-        return eventAttendanceRepository.findById(id).orElseThrow(
-                () -> new CustomException(EventErrorCode.ATTENDANCE_NOT_FOUND));
+        return eventAttendanceRepository.findByMember_IdAndEvent_Id(memberId, eventId);
     }
 }

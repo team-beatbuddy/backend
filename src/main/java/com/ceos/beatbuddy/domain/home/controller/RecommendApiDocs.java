@@ -1,12 +1,10 @@
 package com.ceos.beatbuddy.domain.home.controller;
 
-import com.ceos.beatbuddy.domain.home.dto.KeywordResponseDTO;
 import com.ceos.beatbuddy.domain.venue.dto.RecommendFilterDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueResponseDTO;
 import com.ceos.beatbuddy.global.ResponseTemplate;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;

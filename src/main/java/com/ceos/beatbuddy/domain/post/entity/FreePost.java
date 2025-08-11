@@ -1,19 +1,17 @@
 package com.ceos.beatbuddy.domain.post.entity;
 
-import static lombok.AccessLevel.PROTECTED;
-
-import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.venue.entity.Venue;
-import jakarta.persistence.*;
-
-import java.util.List;
-
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.springframework.lang.Nullable;
+
+import java.util.List;
+
+import static lombok.AccessLevel.PROTECTED;
 
 @NoArgsConstructor(access = PROTECTED)
 @Entity

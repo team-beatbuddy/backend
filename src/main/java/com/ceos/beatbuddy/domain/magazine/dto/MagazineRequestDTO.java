@@ -1,11 +1,7 @@
 package com.ceos.beatbuddy.domain.magazine.dto;
 
 import com.ceos.beatbuddy.domain.magazine.entity.Magazine;
-import com.ceos.beatbuddy.domain.magazine.exception.MagazineErrorCode;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.global.CustomException;
-import com.ceos.beatbuddy.global.code.ErrorCode;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

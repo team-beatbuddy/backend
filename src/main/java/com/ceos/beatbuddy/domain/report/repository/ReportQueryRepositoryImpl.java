@@ -1,10 +1,8 @@
 package com.ceos.beatbuddy.domain.report.repository;
 
-import com.ceos.beatbuddy.domain.admin.dto.ReportSummaryDTO;
 import com.ceos.beatbuddy.domain.member.entity.QMember;
 import com.ceos.beatbuddy.domain.report.entity.QReport;
 import com.ceos.beatbuddy.domain.report.entity.Report;
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

@@ -1,8 +1,6 @@
 package com.ceos.beatbuddy.domain.search.dto;
 
 import com.ceos.beatbuddy.domain.member.constant.Region;
-import com.ceos.beatbuddy.domain.venue.entity.VenueGenre;
-import com.ceos.beatbuddy.domain.venue.entity.VenueMood;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
