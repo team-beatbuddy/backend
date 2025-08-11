@@ -15,10 +15,14 @@ import lombok.NoArgsConstructor;
 public class MemberProfileSummaryDTO {
     @Schema(description = "회원 ID", example = "1")
     private Long memberId;
-    @Schema(description = "회원 닉네임(게시판용)", example = "홍길동")
+    @Schema(description = "회원 닉네임", example = "홍길동")
     private String nickname;
-    @Schema(description = "회원 프로필 이미지 URL(게시판용)", example = "https://example.com/profile.jpg")
+    @Schema(description = "회원 프로필 이미지 URL", example = "https://example.com/profile.jpg")
     private String profileImageUrl;
+    @Schema(description = "회원 닉네임(게시판용)", example = "홍길동")
+    private String postProfileNickname;
+    @Schema(description = "회원 프로필 이미지 URL(게시판용)", example = "https://example.com/post_profile.jpg")
+    private String postProfileImageUrl;
     @Schema(description = "회원 역할", example = "USER")
     private String role;
     @Schema(description = "게시글 수", example = "10")
@@ -34,11 +38,13 @@ public class MemberProfileSummaryDTO {
     @JsonProperty("isPostProfileCreated")
     private Boolean isPostProfileCreated;
 
-    public static MemberProfileSummaryDTO toDTO(Long id, String nickname, String profileImageUrl, String role, Integer postCount, Integer followerCount, Integer followingCount, String businessName, Boolean isPostProfileCreated) {
+    public static MemberProfileSummaryDTO toDTO(Long id, String nickname, String profileImageUrl, String postProfileNickname, String postProfileImageUrl, String role, Integer postCount, Integer followerCount, Integer followingCount, String businessName, Boolean isPostProfileCreated) {
         return MemberProfileSummaryDTO.builder()
                 .memberId(id)
                 .nickname(nickname)
                 .profileImageUrl(profileImageUrl)
+                .postProfileNickname(postProfileNickname)
+                .postProfileImageUrl(postProfileImageUrl)
                 .role(role)
                 .postCount(postCount)
                 .followerCount(followerCount)
@@ -46,10 +52,5 @@ public class MemberProfileSummaryDTO {
                 .businessName(businessName)
                 .isPostProfileCreated(isPostProfileCreated)
                 .build();
-    }
-
-    // 기존 호환성을 위한 오버로드 메소드
-    public static MemberProfileSummaryDTO toDTO(Long id, String nickname, String profileImageUrl, String role, Integer postCount, Integer followerCount, Integer followingCount) {
-        return toDTO(id, nickname, profileImageUrl, role, postCount, followerCount, followingCount, null, false);
     }
 }
