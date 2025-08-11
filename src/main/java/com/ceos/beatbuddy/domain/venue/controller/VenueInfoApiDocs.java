@@ -2,13 +2,11 @@ package com.ceos.beatbuddy.domain.venue.controller;
 
 import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueCouponResponseDTO;
-import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;

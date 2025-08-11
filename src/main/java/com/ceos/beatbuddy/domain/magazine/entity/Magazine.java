@@ -2,11 +2,13 @@ package com.ceos.beatbuddy.domain.magazine.entity;
 
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.MagazineLike;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;

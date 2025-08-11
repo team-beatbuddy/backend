@@ -1,22 +1,16 @@
 package com.ceos.beatbuddy.domain.member.entity;
 
-import com.ceos.beatbuddy.domain.event.entity.EventComment;
 import com.ceos.beatbuddy.domain.member.constant.Gender;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.constant.Role;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.EventLike;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.type.SetType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Getter

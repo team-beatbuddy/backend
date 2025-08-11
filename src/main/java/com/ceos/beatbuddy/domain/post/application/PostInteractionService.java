@@ -7,7 +7,6 @@ import com.ceos.beatbuddy.domain.post.dto.PostInteractionStatus;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
 import com.ceos.beatbuddy.domain.post.repository.PostRepository;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.PostInteractionId;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostLike;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostScrap;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostLikeRepository;
@@ -36,15 +35,13 @@ public class PostInteractionService {
 
         Post post = validateAndGetPost(postId);
 
-        PostInteractionId likeId = new PostInteractionId(memberId, post.getId());
-        if (postLikeRepository.existsById(likeId)) {
+        if (postLikeRepository.existsByMember_IdAndPost_Id(memberId, postId)) {
             throw new CustomException(ErrorCode.ALREADY_LIKED);
         }
 
         PostLike postLike = PostLike.builder()
                 .post(post)
                 .member(member)
-                .id(likeId)
                 .build();
 
         postLikeRepository.save(postLike);
@@ -56,34 +53,29 @@ public class PostInteractionService {
     public void deletePostLike(Long postId, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
 
-
         Post post = validateAndGetPost(postId);
 
-        PostInteractionId likeId = new PostInteractionId(member.getId(), post.getId());
-        PostLike postLike = postLikeRepository.findById(likeId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_LIKE));
+        if (!postLikeRepository.existsByMember_IdAndPost_Id(memberId, postId)) {
+            throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
+        }
 
-        postLikeRepository.delete(postLike);
+        postLikeRepository.deleteByMember_IdAndPost_Id(memberId, postId);
         postRepository.decreaseLike(postId);
-
     }
 
     @Transactional
     public void scrapPost(Long postId, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
 
-
         Post post = validateAndGetPost(postId);
 
-        PostInteractionId scrapId = new PostInteractionId(memberId, post.getId());
-        if (postScrapRepository.existsById(scrapId)) {
+        if (postScrapRepository.existsByMember_IdAndPost_Id(memberId, postId)) {
             throw new CustomException(ErrorCode.ALREADY_SCRAPPED);
         }
 
         PostScrap postScrap = PostScrap.builder()
                 .post(post)
                 .member(member)
-                .id(scrapId)
                 .build();
 
         postScrapRepository.save(postScrap);
@@ -95,14 +87,13 @@ public class PostInteractionService {
     public void deletePostScrap(Long postId, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
 
-
         Post post = validateAndGetPost(postId);
 
-        PostInteractionId scrapId = new PostInteractionId(member.getId(), post.getId());
-        PostScrap postScrap = postScrapRepository.findById(scrapId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_SCRAP));
+        if (!postScrapRepository.existsByMember_IdAndPost_Id(memberId, postId)) {
+            throw new CustomException(ErrorCode.NOT_FOUND_SCRAP);
+        }
 
-        postScrapRepository.delete(postScrap);
+        postScrapRepository.deleteByMember_IdAndPost_Id(memberId, postId);
         postRepository.decreaseScrap(postId);
     }
 

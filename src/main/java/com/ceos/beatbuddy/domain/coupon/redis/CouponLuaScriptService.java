@@ -1,9 +1,7 @@
 package com.ceos.beatbuddy.domain.coupon.redis;
 
-import com.ceos.beatbuddy.domain.coupon.domain.Coupon;
 import com.ceos.beatbuddy.domain.coupon.exception.CouponErrorCode;
 import com.ceos.beatbuddy.global.CustomException;
-import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;

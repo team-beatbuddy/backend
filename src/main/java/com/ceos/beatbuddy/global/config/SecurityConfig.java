@@ -2,8 +2,8 @@ package com.ceos.beatbuddy.global.config;
 
 import com.ceos.beatbuddy.global.config.jwt.JwtFilter;
 import com.ceos.beatbuddy.global.config.jwt.TokenProvider;
-import com.ceos.beatbuddy.global.config.oauth.CustomClientRegistrationRepo;
 import com.ceos.beatbuddy.global.config.oauth.OAuth2SuccessHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -30,8 +30,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.HashMap;
 import java.util.Map;

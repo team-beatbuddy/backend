@@ -2,7 +2,6 @@ package com.ceos.beatbuddy.domain.event.dto;
 
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventAttendance;
-import com.ceos.beatbuddy.domain.event.entity.EventAttendanceId;
 import com.ceos.beatbuddy.domain.member.constant.Gender;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,7 +26,6 @@ public class EventAttendanceRequestDTO {
 
     public static EventAttendance toEntity(EventAttendanceRequestDTO dto, Member member, Event event) {
         EventAttendance.EventAttendanceBuilder builder = EventAttendance.builder()
-                .id(new EventAttendanceId(event.getId(), member.getId()))
                 .event(event)
                 .member(member);
 

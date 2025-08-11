@@ -14,19 +14,21 @@ import java.util.Optional;
 @AllArgsConstructor
 @Builder
 @Getter
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"memberId", "eventId"})
+})
 public class EventAttendance extends BaseTimeEntity {
 
-    @EmbeddedId
-    private EventAttendanceId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("memberId")
     @JoinColumn(name = "memberId")
     @Setter(AccessLevel.PROTECTED)
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("eventId")
     @JoinColumn(name = "eventId")
     @Setter(AccessLevel.PROTECTED)
     private Event event;

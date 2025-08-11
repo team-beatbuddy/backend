@@ -3,7 +3,6 @@ package com.ceos.beatbuddy.domain.heartbeat.controller;
 
 import com.ceos.beatbuddy.domain.heartbeat.application.HeartbeatService;
 import com.ceos.beatbuddy.domain.heartbeat.dto.HeartbeatResponseDTO;
-import com.ceos.beatbuddy.domain.member.dto.MemberResponseDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueResponseDTO;
 import com.ceos.beatbuddy.global.ResponseTemplate;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;

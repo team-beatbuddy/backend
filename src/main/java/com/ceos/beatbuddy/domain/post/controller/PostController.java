@@ -2,18 +2,14 @@ package com.ceos.beatbuddy.domain.post.controller;
 
 import com.ceos.beatbuddy.domain.post.application.PostService;
 import com.ceos.beatbuddy.domain.post.dto.*;
-import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

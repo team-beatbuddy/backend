@@ -1,7 +1,6 @@
 package com.ceos.beatbuddy.domain.archive.dto;
 
 
-import com.ceos.beatbuddy.domain.member.constant.Region;
 import lombok.Builder;
 import lombok.Getter;
 

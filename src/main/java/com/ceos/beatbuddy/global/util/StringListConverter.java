@@ -3,7 +3,6 @@ package com.ceos.beatbuddy.global.util;
 import com.ceos.beatbuddy.global.CustomException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 

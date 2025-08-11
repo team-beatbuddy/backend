@@ -14,24 +14,25 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"memberId", "eventId"})
+})
 public class EventLike extends BaseTimeEntity {
 
-    @EmbeddedId
-    private EventInteractionId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @MapsId("memberId")
     @JoinColumn(name = "memberId", nullable = true)
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("eventId")
     @JoinColumn(name = "eventId")
     private Event event;
 
     public static EventLike toEntity(Member member, Event event) {
         return EventLike.builder()
-                .id(new EventInteractionId(member.getId(), event.getId()))
                 .member(member)
                 .event(event)
                 .build();

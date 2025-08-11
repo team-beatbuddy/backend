@@ -2,7 +2,6 @@ package com.ceos.beatbuddy.domain.member.repository;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.entity.MemberGenre;
-import com.ceos.beatbuddy.domain.member.entity.MemberMood;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

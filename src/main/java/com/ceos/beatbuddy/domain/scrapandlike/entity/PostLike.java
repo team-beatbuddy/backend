@@ -14,24 +14,25 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"memberId", "postId"})
+})
 public class PostLike extends BaseTimeEntity {
 
-    @EmbeddedId
-    private PostInteractionId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @MapsId("memberId")
     @JoinColumn(name = "memberId", nullable = true)
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("postId")
     @JoinColumn(name = "postId")
     private Post post;
 
     public static PostLike toEntity(Member member, Post post) {
         return PostLike.builder()
-                .id(new PostInteractionId(member.getId(), post.getId()))
                 .member(member)
                 .post(post)
                 .build();

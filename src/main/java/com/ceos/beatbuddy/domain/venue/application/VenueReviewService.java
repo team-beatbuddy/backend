@@ -4,7 +4,6 @@ import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.VenueReviewLike;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.VenueReviewLikeId;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.VenueReviewLikeRepository;
 import com.ceos.beatbuddy.domain.venue.dto.VenueReviewRequestDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueReviewResponseDTO;
@@ -15,8 +14,8 @@ import com.ceos.beatbuddy.domain.venue.exception.VenueReviewErrorCode;
 import com.ceos.beatbuddy.domain.venue.repository.VenueReviewQueryRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueReviewRepository;
 import com.ceos.beatbuddy.global.CustomException;
-import com.ceos.beatbuddy.global.util.UploadUtil;
 import com.ceos.beatbuddy.global.code.ErrorCode;
+import com.ceos.beatbuddy.global.util.UploadUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -181,7 +180,7 @@ public class VenueReviewService {
         }
 
         // 리뷰 좋아요 삭제
-        venueReviewLikeRepository.deleteById(new VenueReviewLikeId(member.getId(), venueReview.getId()));
+        venueReviewLikeRepository.deleteByVenueReview_IdAndMember_Id(venueReviewId, memberId);
         venueReviewRepository.decreaseLikeCount(venueReview.getId());
     }
 

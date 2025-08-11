@@ -1,6 +1,5 @@
 package com.ceos.beatbuddy.domain.vector.exception;
 
-import com.ceos.beatbuddy.domain.vector.dto.VectorErrorCodeResponse;
 import com.ceos.beatbuddy.global.ApiCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

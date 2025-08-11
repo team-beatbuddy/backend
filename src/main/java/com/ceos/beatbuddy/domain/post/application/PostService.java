@@ -1,8 +1,6 @@
 package com.ceos.beatbuddy.domain.post.application;
 
-import com.ceos.beatbuddy.domain.comment.entity.Comment;
 import com.ceos.beatbuddy.domain.comment.repository.CommentRepository;
-import com.ceos.beatbuddy.domain.scrapandlike.repository.CommentLikeRepository;
 import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
@@ -13,17 +11,15 @@ import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
 import com.ceos.beatbuddy.domain.post.repository.PostQueryRepository;
 import com.ceos.beatbuddy.domain.post.repository.PostRepository;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.PostInteractionId;
+import com.ceos.beatbuddy.domain.scrapandlike.repository.CommentLikeRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostLikeRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostScrapRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.service.ImageUploadService;
+import com.ceos.beatbuddy.global.util.UploadResult;
 import com.ceos.beatbuddy.global.util.UploadUtil;
 import com.ceos.beatbuddy.global.util.UploadUtilAsyncWrapper;
-import com.ceos.beatbuddy.global.util.UploadResult;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -400,10 +396,8 @@ public class PostService {
     }
 
     private Triple<Boolean, Boolean, Boolean> getPostInteractions(Long memberId, Long postId) {
-        PostInteractionId interactionId = new PostInteractionId(memberId, postId);
-
-        boolean isLiked = postLikeRepository.existsById(interactionId);
-        boolean isScrapped = postScrapRepository.existsById(interactionId);
+        boolean isLiked = postLikeRepository.existsByMember_IdAndPost_Id(memberId, postId);
+        boolean isScrapped = postScrapRepository.existsByMember_IdAndPost_Id(memberId, postId);
         boolean hasCommented = commentRepository.existsByPost_IdAndMember_Id(postId, memberId);
 
         return Triple.of(isLiked, isScrapped, hasCommented);
