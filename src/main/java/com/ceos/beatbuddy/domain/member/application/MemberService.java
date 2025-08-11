@@ -282,6 +282,11 @@ public class MemberService {
     @Transactional(readOnly = true)
     public PostProfileInfo getPostProfile(Long memberId) {
         Member member = validateAndGetMember(memberId);
+
+        if (member.getPostProfileInfo() == null) {
+            // 게시판용 프로필이 없는 경우 기본값 반환
+            return PostProfileInfo.from(null, null);
+        }
         return PostProfileInfo.from(member.getPostProfileInfo().getPostProfileNickname(), member.getPostProfileInfo().getPostProfileImageUrl());
     }
 }
