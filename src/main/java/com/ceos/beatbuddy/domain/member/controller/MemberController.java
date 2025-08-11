@@ -5,6 +5,7 @@ import com.ceos.beatbuddy.domain.member.application.OnboardingService;
 import com.ceos.beatbuddy.domain.member.dto.*;
 import com.ceos.beatbuddy.domain.member.dto.api.MemberProfileSummaryApi;
 import com.ceos.beatbuddy.domain.member.dto.api.ResponseApi;
+import com.ceos.beatbuddy.domain.member.entity.PostProfileInfo;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.ResponseTemplate;
@@ -318,6 +319,24 @@ public class MemberController implements MemberApiDocs{
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_UPDATE_POST_PROFILE.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_POST_PROFILE, "게시물 프로필 수정 성공"));
+    }
+
+    @GetMapping("/post-profile")
+    @Operation(summary = "사용자 게시물 프로필 정보 조회", description = "사용자의 게시물 프로필 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "게시물 프로필 정보 조회 성공",
+                    content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = PostProfileInfo.class))),
+            @ApiResponse(responseCode = "404", description = "요청한 유저가 존재하지 않습니다",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseTemplate.class)))
+    })
+    public ResponseEntity<ResponseDTO<PostProfileInfo>> getPostProfile() {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        PostProfileInfo postProfileInfo = memberService.getPostProfile(memberId);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_POST_PROFILE.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_POST_PROFILE, postProfileInfo));
     }
 
     // ============= Member Blocking Endpoints =============

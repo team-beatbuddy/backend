@@ -8,10 +8,7 @@ import com.ceos.beatbuddy.domain.member.dto.AdminMemberListDTO;
 import com.ceos.beatbuddy.domain.member.dto.MemberProfileSummaryDTO;
 import com.ceos.beatbuddy.domain.member.dto.MemberResponseDTO;
 import com.ceos.beatbuddy.domain.member.dto.NicknameDTO;
-import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.member.entity.MemberBlock;
-import com.ceos.beatbuddy.domain.member.entity.MemberGenre;
-import com.ceos.beatbuddy.domain.member.entity.MemberMood;
+import com.ceos.beatbuddy.domain.member.entity.*;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.exception.MemberGenreErrorCode;
 import com.ceos.beatbuddy.domain.member.exception.MemberMoodErrorCode;
@@ -280,5 +277,11 @@ public class MemberService {
         return members.stream()
                 .map(AdminMemberListDTO::fromMember)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public PostProfileInfo getPostProfile(Long memberId) {
+        Member member = validateAndGetMember(memberId);
+        return PostProfileInfo.from(member.getNickname(), member.getProfileImage());
     }
 }
