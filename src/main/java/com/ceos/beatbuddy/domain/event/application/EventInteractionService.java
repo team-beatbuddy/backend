@@ -5,7 +5,6 @@ import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.EventInteractionId;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.EventLike;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
@@ -27,9 +26,7 @@ public class EventInteractionService {
 
         Event event = eventService.validateAndGet(eventId);
 
-        EventInteractionId id = new EventInteractionId(memberId, eventId);
-
-        if (eventLikeRepository.existsById(id)) {
+        if (eventLikeRepository.existsByMember_IdAndEvent_Id(memberId, eventId)) {
             throw new CustomException(ErrorCode.ALREADY_LIKED);
         }
 
@@ -48,11 +45,11 @@ public class EventInteractionService {
 
 
         // 좋아요 여부 확인
-        EventInteractionId id = new EventInteractionId(memberId, eventId);
-        EventLike eventLike = eventLikeRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_LIKE));
+        if (!eventLikeRepository.existsByMember_IdAndEvent_Id(memberId, eventId)) {
+            throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
+        }
 
-        eventLikeRepository.delete(eventLike);
+        eventLikeRepository.deleteByMember_IdAndEvent_Id(memberId, eventId);
         eventRepository.decreaseLike(eventId);
     }
 }

@@ -3,9 +3,9 @@ package com.ceos.beatbuddy.global.util;
 import com.ceos.beatbuddy.domain.post.entity.FixedHashtag;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+
 import java.util.ArrayList;
 import java.util.List;
 

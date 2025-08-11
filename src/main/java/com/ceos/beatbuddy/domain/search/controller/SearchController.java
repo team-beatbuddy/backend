@@ -1,10 +1,10 @@
 package com.ceos.beatbuddy.domain.search.controller;
 
 import com.ceos.beatbuddy.domain.search.application.SearchService;
-import com.ceos.beatbuddy.domain.search.dto.*;
-import com.ceos.beatbuddy.global.CustomException;
+import com.ceos.beatbuddy.domain.search.dto.SearchDropDownDTO;
+import com.ceos.beatbuddy.domain.search.dto.SearchPageResponseDTO;
+import com.ceos.beatbuddy.domain.search.dto.SearchRankResponseDTO;
 import com.ceos.beatbuddy.global.ResponseTemplate;
-import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

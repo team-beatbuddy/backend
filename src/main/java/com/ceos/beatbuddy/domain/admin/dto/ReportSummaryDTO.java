@@ -1,6 +1,5 @@
 package com.ceos.beatbuddy.domain.admin.dto;
 
-import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.report.entity.Report;
 import lombok.Builder;
 import lombok.Getter;

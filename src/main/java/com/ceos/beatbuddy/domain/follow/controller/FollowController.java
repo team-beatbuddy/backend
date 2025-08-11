@@ -2,7 +2,6 @@ package com.ceos.beatbuddy.domain.follow.controller;
 
 import com.ceos.beatbuddy.domain.follow.application.FollowService;
 import com.ceos.beatbuddy.domain.follow.dto.FollowResponseDTO;
-import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;

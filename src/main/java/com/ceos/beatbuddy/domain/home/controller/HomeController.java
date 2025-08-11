@@ -1,7 +1,6 @@
 package com.ceos.beatbuddy.domain.home.controller;
 
 import com.ceos.beatbuddy.domain.home.application.HomeService;
-import com.ceos.beatbuddy.domain.home.dto.KeywordResponseDTO;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.application.RecommendService;
 import com.ceos.beatbuddy.domain.venue.dto.RecommendFilterDTO;

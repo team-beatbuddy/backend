@@ -20,11 +20,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
-
-import static org.apache.commons.compress.utils.FileNameUtils.getExtension;
-import java.util.Arrays;
 import java.util.Set;
+import java.util.UUID;
 
 @Component
 public class UploadUtil {

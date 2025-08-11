@@ -9,23 +9,24 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "Follows")
+@Table(name = "Follows", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"followerId", "followingId"})
+})
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Follow extends BaseTimeEntity {
 
-    @EmbeddedId
-    private FollowId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("followerId") // FollowId.followerId 와 매핑
     @JoinColumn(name = "followerId")
     private Member follower;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("followingId") // FollowId.followingId 와 매핑
     @JoinColumn(name = "followingId")
     private Member following;
 }

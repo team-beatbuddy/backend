@@ -12,10 +12,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.util.Objects;
 import java.util.Optional;
 
-import static com.ceos.beatbuddy.domain.follow.entity.QFollow.follow;
 import static com.ceos.beatbuddy.domain.member.entity.QMember.member;
 import static com.ceos.beatbuddy.domain.post.entity.QPost.post;
 @Repository

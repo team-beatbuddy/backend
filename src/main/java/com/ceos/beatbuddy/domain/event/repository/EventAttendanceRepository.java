@@ -2,21 +2,20 @@ package com.ceos.beatbuddy.domain.event.repository;
 
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventAttendance;
-import com.ceos.beatbuddy.domain.event.entity.EventAttendanceId;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface EventAttendanceRepository extends JpaRepository<EventAttendance, EventAttendanceId> {
-    boolean existsById(EventAttendanceId id);
+public interface EventAttendanceRepository extends JpaRepository<EventAttendance, Long> {
+    boolean existsByMember_IdAndEvent_Id(Long memberId, Long eventId);
+    EventAttendance findByMember_IdAndEvent_Id(Long memberId, Long eventId);
     List<EventAttendance> findAllByEventId(Long eventId);
 
     List<EventAttendance> findByMember(Member member);

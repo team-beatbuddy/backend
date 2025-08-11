@@ -2,7 +2,6 @@ package com.ceos.beatbuddy.domain.member.constant;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.Getter;
 
 public enum Region {
 

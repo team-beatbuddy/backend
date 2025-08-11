@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.admin.controller;
 
 import com.ceos.beatbuddy.domain.admin.application.AdminService;
+import com.ceos.beatbuddy.domain.admin.dto.LoginRequest;
 import com.ceos.beatbuddy.domain.admin.dto.ReportSummaryDTO;
 import com.ceos.beatbuddy.domain.member.application.BusinessMemberService;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
@@ -8,7 +9,6 @@ import com.ceos.beatbuddy.domain.member.dto.AdminMemberListDTO;
 import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
 import com.ceos.beatbuddy.domain.report.service.ReportService;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
-import com.ceos.beatbuddy.domain.admin.dto.LoginRequest;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueUpdateDTO;
 import com.ceos.beatbuddy.global.code.SuccessCode;

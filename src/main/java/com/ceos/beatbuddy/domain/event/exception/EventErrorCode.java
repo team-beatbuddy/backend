@@ -21,8 +21,8 @@ public enum EventErrorCode implements ApiCode {
     ATTENDANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이벤트에 대한 참석 정보를 찾을 수 없습니다."),
     REGION_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 지역입니다."),
     INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "시작 날짜가 종료 날짜보다 늦을 수 없습니다."),
-    MISSING_DATE(HttpStatus.BAD_REQUEST, "시작 날짜와 종료 날짜는 필수입니다.")
-    ;
+    MISSING_DATE(HttpStatus.BAD_REQUEST, "시작 날짜와 종료 날짜는 필수입니다."),
+    PAST_EVENT_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "과거 이벤트는 허용되지 않습니다.");
     private final HttpStatus httpStatus;
     private final String message;
 

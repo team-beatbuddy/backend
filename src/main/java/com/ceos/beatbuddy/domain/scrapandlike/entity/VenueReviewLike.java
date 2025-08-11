@@ -14,33 +14,34 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"memberId", "venueReviewId"})
+})
 public class VenueReviewLike extends BaseTimeEntity {
-    @EmbeddedId
-    private VenueReviewLikeId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("memberId")
-    @JoinColumn(name = "memberId")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "memberId", nullable = true)
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("venueReviewId")
     @JoinColumn(name = "venueReviewId")
     private VenueReview venueReview;
 
     public static VenueReviewLike toEntity(Member member, VenueReview venueReview) {
         return VenueReviewLike.builder()
-                .id(new VenueReviewLikeId(member.getId(), venueReview.getId()))
                 .venueReview(venueReview)
                 .member(member)
                 .build();
     }
 
     public Long getVenueReviewId() {
-        return this.id.getVenueReviewId();
+        return this.venueReview.getId();
     }
 
     public Long getMemberId() {
-        return this.id.getMemberId();
+        return this.member.getId();
     }
 }

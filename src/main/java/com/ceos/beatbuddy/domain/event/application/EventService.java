@@ -1,26 +1,16 @@
 package com.ceos.beatbuddy.domain.event.application;
 
-import com.ceos.beatbuddy.domain.event.dto.EventCreateRequestDTO;
-import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
-import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
-import com.ceos.beatbuddy.domain.event.dto.EventStatusDTO;
-import com.ceos.beatbuddy.domain.event.dto.EventUpdateRequestDTO;
+import com.ceos.beatbuddy.domain.event.dto.*;
 import com.ceos.beatbuddy.domain.event.entity.Event;
-import com.ceos.beatbuddy.domain.event.entity.EventAttendanceId;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
-import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
-import com.ceos.beatbuddy.domain.event.repository.EventCommentRepository;
-import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
-import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
-import com.ceos.beatbuddy.domain.event.repository.EventRepository;
+import com.ceos.beatbuddy.domain.event.repository.*;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.scrapandlike.entity.EventInteractionId;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.CustomException;
-import com.ceos.beatbuddy.global.util.UploadUtil;
 import com.ceos.beatbuddy.global.code.ErrorCode;
+import com.ceos.beatbuddy.global.util.UploadUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -157,10 +147,10 @@ public class EventService {
         eventElasticService.save(event);
 
         // 참여 여부 확인
-        boolean isAttending = eventAttendanceRepository.existsById(new EventAttendanceId(memberId, eventId));
+        boolean isAttending = eventAttendanceRepository.existsByMember_IdAndEvent_Id(memberId, eventId);
 
         // 5. 응답 생성
-        boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, eventId));
+        boolean liked = eventLikeRepository.existsByMember_IdAndEvent_Id(memberId, eventId);
         return EventResponseDTO.toDTO(event, liked, true, isAttending); // 좋아요 여부는 조회 후 설정, 내가 작성자 여부는 true로 설정
     }
 
@@ -290,10 +280,10 @@ public class EventService {
         eventRepository.increaseViews(eventId);
 
         // 좋아요 여부 확인
-        boolean liked = eventLikeRepository.existsById(new EventInteractionId(memberId, eventId));
+        boolean liked = eventLikeRepository.existsByMember_IdAndEvent_Id(memberId, eventId);
 
         // 참여 여부 확인
-        boolean isAttending = eventAttendanceRepository.existsById(new EventAttendanceId(eventId, memberId));
+        boolean isAttending = eventAttendanceRepository.existsByMember_IdAndEvent_Id(memberId, eventId);
 
         return EventResponseDTO.toDTO(event, liked, member.getId().equals(event.getHost().getId()), isAttending);
     }

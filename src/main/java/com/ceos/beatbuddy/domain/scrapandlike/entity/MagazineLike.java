@@ -14,24 +14,25 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"memberId", "magazineId"})
+})
 public class MagazineLike extends BaseTimeEntity {
 
-    @EmbeddedId
-    private MagazineInteractionId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("memberId")
-    @JoinColumn(name = "memberId")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "memberId", nullable = true)
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("magazineId")
     @JoinColumn(name = "magazineId")
     private Magazine magazine;
 
     public static MagazineLike toEntity(Member member, Magazine magazine) {
         return MagazineLike.builder()
-                .id(new MagazineInteractionId(member.getId(), magazine.getId()))
                 .member(member)
                 .magazine(magazine)
                 .build();
