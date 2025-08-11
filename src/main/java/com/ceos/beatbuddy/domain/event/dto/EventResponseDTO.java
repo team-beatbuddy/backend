@@ -75,11 +75,15 @@ public class EventResponseDTO {
 
 
     public static EventResponseDTO toDTO(Event event, boolean liked, boolean isAuthor, boolean isAttending) {
+        List<String> images = (event.getImageUrls() == null)
+                ? List.of()
+                : List.copyOf(event.getImageUrls()); // 혹은 new ArrayList<>(event.getImageUrls())
+
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
                 .content(event.getContent())
-                .images(Optional.ofNullable(event.getImageUrls()).orElseGet(ArrayList::new))
+                .images(images)
                 .views(event.getViews())
                 .likes(event.getLikes())
                 .liked(liked)
