@@ -35,7 +35,6 @@ public class EventController implements EventApiDocs {
     private final EventAttendanceService eventAttendanceService;
     private final EventInteractionService eventInteractionService;
     private final EventElasticService eventElasticService;
-    private final EventStatusScheduler eventStatusScheduler;
 
     @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
