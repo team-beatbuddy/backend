@@ -52,8 +52,10 @@ public class MemberQueryRepositoryImpl implements MemberQueryRepository{
         } else {
             // null인 경우 0으로 입력되도록 처리
             long id = result.get(qMember.id);
-            String postProfileNickname = result.get(qMember.postProfileInfo.postProfileNickname);
-            String postProfileImageUrl = result.get(qMember.postProfileInfo.postProfileImageUrl);
+            String nickname = result.get(qMember.nickname);
+            String profileImageUrl = result.get(qMember.profileImage);
+            String postProfileNickname = result.get(qMember.postProfileInfo.postProfileNickname) == null ? null : result.get(qMember.postProfileInfo.postProfileNickname);
+            String postProfileImageUrl = result.get(qMember.postProfileInfo.postProfileImageUrl) == null? null : result.get(qMember.postProfileInfo.postProfileImageUrl);
             Role role = result.get(qMember.role);
             String businessName = result.get(qMember.businessInfo.businessName);
 
@@ -68,7 +70,7 @@ public class MemberQueryRepositoryImpl implements MemberQueryRepository{
             // role이 BUSINESS인 경우 businessName을 사용, 아니면 null
             String displayBusinessName = (role == Role.BUSINESS) ? businessName : null;
 
-            return MemberProfileSummaryDTO.toDTO(id, postProfileNickname, postProfileImageUrl, role.toString(), 
+            return MemberProfileSummaryDTO.toDTO(id, nickname, profileImageUrl, postProfileNickname, postProfileImageUrl, role.toString(),
                                                postCount, followerCount, followingCount, displayBusinessName, isPostProfileCreated);
         }
     }
