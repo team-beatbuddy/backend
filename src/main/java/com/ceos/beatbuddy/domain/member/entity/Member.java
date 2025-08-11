@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.type.SetType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
