@@ -19,9 +19,9 @@ public class MagazineLike extends BaseTimeEntity {
     @EmbeddedId
     private MagazineInteractionId id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @MapsId("memberId")
-    @JoinColumn(name = "memberId")
+    @JoinColumn(name = "memberId", nullable = true)
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)

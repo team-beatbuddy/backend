@@ -1,6 +1,8 @@
 package com.ceos.beatbuddy.domain.post.entity;
 
+import com.ceos.beatbuddy.domain.comment.entity.Comment;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.PostLike;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostScrap;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import com.ceos.beatbuddy.global.util.StringListConverter;
@@ -53,6 +55,16 @@ public abstract class Post extends BaseTimeEntity {
     @JoinColumn(name = "memberId")
     @Setter(PROTECTED)
     private Member member;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> commentList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostScrap> postScraps = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostLike> postLikes = new ArrayList<>();
+
 
     protected Post(String title, String content, Boolean anonymous,
                    List<String> imageUrls, Member member) {

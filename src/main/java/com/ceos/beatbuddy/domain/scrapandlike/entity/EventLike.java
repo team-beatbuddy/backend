@@ -19,9 +19,9 @@ public class EventLike extends BaseTimeEntity {
     @EmbeddedId
     private EventInteractionId id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @MapsId("memberId")
-    @JoinColumn(name = "memberId")
+    @JoinColumn(name = "memberId", nullable = true)
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
