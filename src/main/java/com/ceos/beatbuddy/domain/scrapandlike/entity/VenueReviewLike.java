@@ -18,9 +18,9 @@ public class VenueReviewLike extends BaseTimeEntity {
     @EmbeddedId
     private VenueReviewLikeId id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @MapsId("memberId")
-    @JoinColumn(name = "memberId")
+    @JoinColumn(name = "memberId", nullable = true)
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)

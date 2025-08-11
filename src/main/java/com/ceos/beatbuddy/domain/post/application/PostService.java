@@ -1,6 +1,8 @@
 package com.ceos.beatbuddy.domain.post.application;
 
+import com.ceos.beatbuddy.domain.comment.entity.Comment;
 import com.ceos.beatbuddy.domain.comment.repository.CommentRepository;
+import com.ceos.beatbuddy.domain.scrapandlike.repository.CommentLikeRepository;
 import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
@@ -43,6 +45,7 @@ public class PostService {
     private final PostScrapRepository postScrapRepository;
     private final PostQueryRepository postQueryRepository;
     private final CommentRepository commentRepository;
+    private final CommentLikeRepository commentLikeRepository;
     private final PostTypeHandlerFactory postTypeHandlerFactory;
     private final ImageUploadService imageUploadService;
     private final UploadUtilAsyncWrapper uploadUtilAsyncWrapper;
@@ -55,7 +58,8 @@ public class PostService {
 
     public PostService(MemberService memberService, PostLikeRepository postLikeRepository,
                        PostScrapRepository postScrapRepository, PostQueryRepository postQueryRepository,
-                       CommentRepository commentRepository, PostTypeHandlerFactory postTypeHandlerFactory,
+                       CommentRepository commentRepository, CommentLikeRepository commentLikeRepository,
+                       PostTypeHandlerFactory postTypeHandlerFactory,
                        ImageUploadService imageUploadService, UploadUtilAsyncWrapper uploadUtilAsyncWrapper,
                        PostRepository postRepository, PostInteractionService postInteractionService,
                        FollowRepository followRepository, UploadUtil uploadUtil) {
@@ -64,6 +68,7 @@ public class PostService {
         this.postScrapRepository = postScrapRepository;
         this.postQueryRepository = postQueryRepository;
         this.commentRepository = commentRepository;
+        this.commentLikeRepository = commentLikeRepository;
         this.postTypeHandlerFactory = postTypeHandlerFactory;
         this.imageUploadService = imageUploadService;
         this.uploadUtilAsyncWrapper = uploadUtilAsyncWrapper;

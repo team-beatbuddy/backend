@@ -41,4 +41,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     // 특정 포스트의 모든 익명 닉네임 조회 (중복 제거)
     @Query("SELECT DISTINCT c.anonymousNickname FROM Comment c WHERE c.post.id = :postId AND c.isAnonymous = true AND c.anonymousNickname IS NOT NULL ORDER BY c.anonymousNickname")
     List<String> findDistinctAnonymousNicknamesByPostId(Long postId);
+    
+    // 특정 포스트의 모든 댓글 삭제
+    @Modifying
+    void deleteByPost_Id(Long postId);
 }
