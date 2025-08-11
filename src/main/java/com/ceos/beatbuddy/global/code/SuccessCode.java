@@ -31,6 +31,7 @@ public enum SuccessCode implements ApiCode {
     SUCCESS_GET_MEMBER_INFO(HttpStatus.OK, "성공적으로 멤버 정보를 조회했습니다."),
     SUCCESS_SAVE_POST_PROFILE(HttpStatus.OK, "성공적으로 게시글 프로필 정보를 저장했습니다."),
     SUCCESS_UPDATE_POST_PROFILE(HttpStatus.OK, "성공적으로 게시글 프로필을 수정했습니다."),
+    SUCCESS_GET_POST_PROFILE(HttpStatus.OK, "성공적으로 게시글 프로필 정보를 조회했습니다."),
 
     /**
      * Admin
