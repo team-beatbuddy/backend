@@ -1,7 +1,6 @@
 package com.ceos.beatbuddy.domain.follow.repository;
 
 import com.ceos.beatbuddy.domain.follow.entity.Follow;
-import com.ceos.beatbuddy.domain.follow.entity.FollowId;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,10 +10,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public interface FollowRepository extends JpaRepository<Follow, FollowId> {
-    boolean existsById(FollowId id);
-
-    Optional<Follow> findById(FollowId id);
+public interface FollowRepository extends JpaRepository<Follow, Long> {
+    boolean existsByFollower_IdAndFollowing_Id(Long followerId, Long followingId);
+    
+    Optional<Follow> findByFollower_IdAndFollowing_Id(Long followerId, Long followingId);
+    
+    void deleteByFollower_IdAndFollowing_Id(Long followerId, Long followingId);
 
     List<Follow> findAllByFollower(Member follower);
 

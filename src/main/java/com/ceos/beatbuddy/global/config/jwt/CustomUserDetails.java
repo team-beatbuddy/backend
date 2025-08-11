@@ -1,7 +1,6 @@
 package com.ceos.beatbuddy.global.config.jwt;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

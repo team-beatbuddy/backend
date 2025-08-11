@@ -1,6 +1,5 @@
 package com.ceos.beatbuddy.domain.post.application;
 
-import com.ceos.beatbuddy.domain.follow.entity.Follow;
 import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.post.dto.*;
@@ -23,7 +22,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Component("free")
 @RequiredArgsConstructor

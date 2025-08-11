@@ -1,6 +1,5 @@
 package com.ceos.beatbuddy.domain.heartbeat.exception;
 
-import com.ceos.beatbuddy.domain.heartbeat.dto.HeartbeatErrorCodeResponse;
 import com.ceos.beatbuddy.global.ApiCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

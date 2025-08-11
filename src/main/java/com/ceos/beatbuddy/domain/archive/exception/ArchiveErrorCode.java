@@ -1,6 +1,5 @@
 package com.ceos.beatbuddy.domain.archive.exception;
 
-import com.ceos.beatbuddy.domain.archive.dto.ArchiveErrorCodeResponse;
 import com.ceos.beatbuddy.global.ApiCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

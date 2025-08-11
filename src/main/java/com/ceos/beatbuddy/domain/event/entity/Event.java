@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.event.entity;
 import com.ceos.beatbuddy.domain.event.dto.EventUpdateRequestDTO;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.scrapandlike.entity.EventLike;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import com.ceos.beatbuddy.global.CustomException;
@@ -10,6 +11,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -93,6 +95,15 @@ public class Event extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Region region;
+
+    @OneToMany(mappedBy = "event", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<EventLike> eventLikes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "event", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<EventComment> eventComments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "event", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<EventAttendance> eventAttendances = new ArrayList<>();
 
     public enum Region {
         홍대,

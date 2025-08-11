@@ -4,7 +4,6 @@ import com.ceos.beatbuddy.domain.member.constant.Gender;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.constant.Role;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -12,7 +11,6 @@ import lombok.experimental.SuperBuilder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Getter
@@ -74,7 +72,6 @@ public class Member extends BaseTimeEntity {
     private PostProfileInfo postProfileInfo = new PostProfileInfo(
             null, null
     );
-
 
     public void saveConsents(Boolean isLocationConsent, Boolean isMarketingConsent) {
         this.isLocationConsent = isLocationConsent;

@@ -1,6 +1,5 @@
 package com.ceos.beatbuddy.domain.home.controller;
 
-import com.ceos.beatbuddy.domain.home.dto.KeywordResponseDTO;
 import com.ceos.beatbuddy.domain.venue.dto.RecommendFilterDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueResponseDTO;
 import com.ceos.beatbuddy.global.ResponseTemplate;
