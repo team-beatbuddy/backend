@@ -7,6 +7,7 @@ import com.ceos.beatbuddy.domain.scrapandlike.entity.EventLike;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
 import com.ceos.beatbuddy.global.CustomException;
+import com.ceos.beatbuddy.global.util.StringListConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -49,8 +50,8 @@ public class Event extends BaseTimeEntity {
 
     private String thumbImage;
 
-    @ElementCollection
     @Setter
+    @Convert(converter = StringListConverter.class)
     private List<String> imageUrls;
 
     private int views;
