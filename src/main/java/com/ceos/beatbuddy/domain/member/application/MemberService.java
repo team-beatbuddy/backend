@@ -282,6 +282,6 @@ public class MemberService {
     @Transactional(readOnly = true)
     public PostProfileInfo getPostProfile(Long memberId) {
         Member member = validateAndGetMember(memberId);
-        return PostProfileInfo.from(member.getNickname(), member.getProfileImage());
+        return PostProfileInfo.from(member.getPostProfileInfo().getPostProfileNickname(), member.getPostProfileInfo().getPostProfileImageUrl());
     }
 }
