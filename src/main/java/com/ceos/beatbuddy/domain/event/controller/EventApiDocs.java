@@ -1158,6 +1158,8 @@ public interface EventApiDocs {
     ResponseEntity<ResponseDTO<EventListResponseDTO>> searchEvents(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) java.time.LocalDateTime startDate,
+            @RequestParam(required = false) java.time.LocalDateTime endDate
     );
 }

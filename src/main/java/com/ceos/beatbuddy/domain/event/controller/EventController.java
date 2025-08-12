@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -248,10 +249,12 @@ public class EventController implements EventApiDocs {
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> searchEvents(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) LocalDateTime startDate,
+            @RequestParam(required = false) LocalDateTime endDate
     ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        EventListResponseDTO results = eventElasticService.search(keyword, memberId, page, size);
+        EventListResponseDTO results = eventElasticService.search(keyword, memberId, page, size, startDate, endDate);
         return ResponseEntity
                 .status(SuccessCode.EVENT_SEARCH_SUCCESS.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.EVENT_SEARCH_SUCCESS, results));

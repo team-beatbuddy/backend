@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -78,6 +79,10 @@ public class EventElasticService {
     }
 
     public EventListResponseDTO search(String keyword, Long memberId, int page, int size) {
+        return search(keyword, memberId, page, size, null, null);
+    }
+
+    public EventListResponseDTO search(String keyword, Long memberId, int page, int size, LocalDateTime startDate, LocalDateTime endDate) {
         Member member = memberService.validateAndGetMember(memberId);
 
         // 페이지 유효성 검사
@@ -94,23 +99,67 @@ public class EventElasticService {
                 .map(att -> att.getEvent().getId())
                 .collect(Collectors.toSet());
 
-        Query query = isAdmin
-                ? Query.of(q -> q
-                .multiMatch(m -> m
+        Query query;
+        if (isAdmin) {
+            var boolQueryBuilder = Query.of(q -> q.bool(b -> {
+                b.must(m -> m.multiMatch(mm -> mm
                         .fields("title", "content", "location", "notice",
                                 "entranceNotice", "venueKoreanName", "venueEnglishName", "venueLocation", "region", "isFreeEntrance")
-                        .query(keyword)
-                ))
-                : Query.of(q -> q
-                .bool(b -> b
-                        .must(m -> m
-                                .multiMatch(mm -> mm
-                                        .fields("title", "content", "location", "notice",
-                                                "entranceNotice", "venueKoreanName", "venueEnglishName", "venueLocation", "region", "isFreeEntrance")
-                                        .query(keyword)
-                                ))
-                        .filter(f -> f.term(t -> t.field("isVisible").value(true)))
-                ));
+                        .query(keyword)));
+                
+                // Date range filtering
+                if (startDate != null || endDate != null) {
+                    b.filter(f -> f.range(r -> {
+                        var rangeQuery = r.field("startDate");
+                        if (endDate != null) {
+                            rangeQuery.lte(co.elastic.clients.json.JsonData.of(endDate));
+                        }
+                        return rangeQuery;
+                    }));
+                    
+                    b.filter(f -> f.range(r -> {
+                        var rangeQuery = r.field("endDate");
+                        if (startDate != null) {
+                            rangeQuery.gte(co.elastic.clients.json.JsonData.of(startDate));
+                        }
+                        return rangeQuery;
+                    }));
+                }
+                
+                return b;
+            }));
+            query = boolQueryBuilder;
+        } else {
+            var boolQueryBuilder = Query.of(q -> q.bool(b -> {
+                b.must(m -> m.multiMatch(mm -> mm
+                        .fields("title", "content", "location", "notice",
+                                "entranceNotice", "venueKoreanName", "venueEnglishName", "venueLocation", "region", "isFreeEntrance")
+                        .query(keyword)));
+                b.filter(f -> f.term(t -> t.field("isVisible").value(true)));
+                
+                // Date range filtering
+                if (startDate != null || endDate != null) {
+                    b.filter(f -> f.range(r -> {
+                        var rangeQuery = r.field("startDate");
+                        if (endDate != null) {
+                            rangeQuery.lte(co.elastic.clients.json.JsonData.of(endDate));
+                        }
+                        return rangeQuery;
+                    }));
+                    
+                    b.filter(f -> f.range(r -> {
+                        var rangeQuery = r.field("endDate");
+                        if (startDate != null) {
+                            rangeQuery.gte(co.elastic.clients.json.JsonData.of(startDate));
+                        }
+                        return rangeQuery;
+                    }));
+                }
+                
+                return b;
+            }));
+            query = boolQueryBuilder;
+        }
 
         int from = Math.max(0, (page - 1)) * size;
 
