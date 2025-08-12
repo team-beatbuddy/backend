@@ -8,6 +8,7 @@ import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.post.entity.QPost;
 import com.ceos.beatbuddy.global.CustomException;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -34,16 +35,20 @@ public class MemberQueryRepositoryImpl implements MemberQueryRepository{
                         qMember.postProfileInfo.postProfileImageUrl,
                         qMember.role,
                         qMember.businessInfo.businessName,
-                        qPost.id.countDistinct(),
+                        // 본인 조회시: 모든 글, 타인 조회시: 익명이 아닌 글만 카운트
+                        isOwnProfile 
+                            ? qPost.id.countDistinct()
+                            : new CaseBuilder()
+                                .when(qPost.anonymous.eq(false).or(qPost.anonymous.isNull()))
+                                .then(qPost.id)
+                                .otherwise((Long) null)
+                                .countDistinct(),
                         qFollowerFollow.id.countDistinct(),
                         qFollowingFollow.id.countDistinct()
 
                 )
                 .from(qMember)
-                .leftJoin(qPost).on(
-                    qPost.member.id.eq(qMember.id)
-                    .and(isOwnProfile ? null : qPost.anonymous.eq(false)) // 타인 조회시 익명 글 제외
-                )
+                .leftJoin(qPost).on(qPost.member.id.eq(qMember.id))
                 .leftJoin(qFollowerFollow).on(qFollowerFollow.following.id.eq(qMember.id))
                 .leftJoin(qFollowingFollow).on(qFollowingFollow.follower.id.eq(qMember.id))
                 .where(qMember.id.eq(memberId))
