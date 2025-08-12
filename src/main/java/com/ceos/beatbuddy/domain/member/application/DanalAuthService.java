@@ -47,7 +47,7 @@ public class DanalAuthService {
         body.add("IDEN",     iden7);                   // YYMMDDX
         body.add("NAME",     name);                    // 가입자명(한글)
 
-        if (userId != null)   body.add("USERID",  userId);
+        if (userId != null) body.add("USERID", userId);
         //if (orderId != null)  body.add("ORDERID", orderId);
         //if (ageLimit != null) body.add("AGELIMIT", ageLimit);
         return danalRestTemplate.postForObject(props.getUrl(), new HttpEntity<>(body, headers), String.class);
