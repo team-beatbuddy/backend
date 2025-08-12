@@ -139,8 +139,9 @@ public class MemberService {
         member.setProfileImage(imageUrl);
     }
 
-    public MemberProfileSummaryDTO getProfileSummary(Long memberId) {
-        return memberQueryRepository.getMemberSummary(memberId);
+    public MemberProfileSummaryDTO getProfileSummary(Long targetMemberId, Long currentMemberId) {
+        boolean isOwnProfile = targetMemberId.equals(currentMemberId);
+        return memberQueryRepository.getMemberSummary(targetMemberId, isOwnProfile);
     }
 
 
