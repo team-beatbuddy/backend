@@ -229,10 +229,13 @@ public class MemberController implements MemberApiDocs{
     public ResponseEntity<ResponseDTO<MemberProfileSummaryDTO>> getProfileSummary(
         @RequestParam(required = false) Long memberId
     ) {
+        Long currentMemberId = SecurityUtils.getCurrentMemberId(); // 현재 로그인된 사용자 ID
+        
         if (memberId == null) {
-            memberId = SecurityUtils.getCurrentMemberId(); // 현재 로그인된 사용자 ID
+            memberId = currentMemberId; // 본인 조회
         }
-        MemberProfileSummaryDTO result = memberService.getProfileSummary(memberId);
+        
+        MemberProfileSummaryDTO result = memberService.getProfileSummary(memberId, currentMemberId);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_PROFILE_SUMMARY.getStatus().value())
