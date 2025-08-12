@@ -224,37 +224,18 @@ public class EventController implements EventApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_ATTENDANCE, result));
     }
 
-    @Override
-    @GetMapping("/search/period")
-    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getSearchEventWithPeriod(
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate,
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
-
-        if (startDate.isAfter(endDate)) {
-            throw new CustomException(EventErrorCode.INVALID_DATE_RANGE);
-        }
-
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        EventListResponseDTO result = eventService.getEventsInPeriod(memberId, startDate, endDate, page, size);
-        return ResponseEntity
-                .status(SuccessCode.SUCCESS_GET_SEARCH_EVENT_LIST.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_SEARCH_EVENT_LIST, result));
-    }
-
 
     @Override
     @GetMapping("/search")
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> searchEvents(
-            @RequestParam String keyword,
+            @RequestParam (required = false) String keyword,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) LocalDateTime startDate,
-            @RequestParam(required = false) LocalDateTime endDate
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate
     ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        EventListResponseDTO results = eventElasticService.search(keyword, memberId, page, size, startDate, endDate);
+        EventListResponseDTO results = eventElasticService.search(keyword, memberId, page, size, startDate.atStartOfDay(), endDate.atTime(23, 59, 59));
         return ResponseEntity
                 .status(SuccessCode.EVENT_SEARCH_SUCCESS.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.EVENT_SEARCH_SUCCESS, results));
