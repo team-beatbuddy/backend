@@ -65,7 +65,7 @@ public class Member extends BaseTimeEntity {
     @Embedded
     @Builder.Default
     private BusinessInfo businessInfo = new BusinessInfo(
-            null, false, null, null,null, false
+            null, false, null, null, null, false
     );
 
     @Embedded

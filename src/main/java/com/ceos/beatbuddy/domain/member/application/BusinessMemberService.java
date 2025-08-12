@@ -53,6 +53,7 @@ public class BusinessMemberService {
                 long remainingSeconds = 60 - elapsedSeconds;
                 
                 if (remainingSeconds > 0) {
+                    // 사용자에게 남은 시간을 알려주기 위해 동적 메시지 사용
                     String message = String.format("인증 요청은 1분에 한 번만 가능합니다. %d초 후에 다시 시도해주세요.", remainingSeconds);
                     throw new CustomException(message);
                 }
