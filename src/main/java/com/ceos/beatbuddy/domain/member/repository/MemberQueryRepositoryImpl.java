@@ -21,7 +21,7 @@ import static com.ceos.beatbuddy.domain.post.entity.QPost.post;
 public class MemberQueryRepositoryImpl implements MemberQueryRepository{
     private final JPAQueryFactory queryFactory;
     @Override
-    public MemberProfileSummaryDTO getMemberSummary(Long memberId) {
+    public MemberProfileSummaryDTO getMemberSummary(Long memberId, boolean isOwnProfile) {
         QMember qMember = member;
         QPost qPost = post;
         QFollow qFollowerFollow = new QFollow("followerFollow");
@@ -40,7 +40,10 @@ public class MemberQueryRepositoryImpl implements MemberQueryRepository{
 
                 )
                 .from(qMember)
-                .leftJoin(qPost).on(qPost.member.id.eq(qMember.id))
+                .leftJoin(qPost).on(
+                    qPost.member.id.eq(qMember.id)
+                    .and(isOwnProfile ? null : qPost.anonymous.eq(false)) // 타인 조회시 익명 글 제외
+                )
                 .leftJoin(qFollowerFollow).on(qFollowerFollow.following.id.eq(qMember.id))
                 .leftJoin(qFollowingFollow).on(qFollowingFollow.follower.id.eq(qMember.id))
                 .where(qMember.id.eq(memberId))
