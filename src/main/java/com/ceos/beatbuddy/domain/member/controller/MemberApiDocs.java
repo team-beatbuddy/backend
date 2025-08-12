@@ -1,8 +1,8 @@
 package com.ceos.beatbuddy.domain.member.controller;
 
 import com.ceos.beatbuddy.domain.member.dto.MemberBlockRequestDTO;
-import com.ceos.beatbuddy.domain.member.dto.MemberResponseDTO;
 import com.ceos.beatbuddy.domain.member.dto.NicknameDTO;
+import com.ceos.beatbuddy.domain.member.dto.response.MemberResponseDTO;
 import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;

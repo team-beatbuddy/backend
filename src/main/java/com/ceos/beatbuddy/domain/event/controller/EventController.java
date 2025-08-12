@@ -3,7 +3,6 @@ package com.ceos.beatbuddy.domain.event.controller;
 import com.ceos.beatbuddy.domain.event.application.*;
 import com.ceos.beatbuddy.domain.event.dto.*;
 import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
-import com.ceos.beatbuddy.domain.event.scheduler.EventStatusScheduler;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
