@@ -78,90 +78,46 @@ public class EventElasticService {
         }
     }
 
-    public EventListResponseDTO search(String keyword, Long memberId, int page, int size) {
-        return search(keyword, memberId, page, size, null, null);
-    }
-
-    public EventListResponseDTO search(String keyword, Long memberId, int page, int size, LocalDateTime startDate, LocalDateTime endDate) {
+    public EventListResponseDTO search(String keyword, Long memberId, int page, int size,
+                                       LocalDateTime startDate, LocalDateTime endDate) {
         Member member = memberService.validateAndGetMember(memberId);
-
-        // 페이지 유효성 검사
-        if (page < 1) {
-            throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
-        }
+        if (page < 1) throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
 
         recentSearchService.saveRecentSearch(SearchTypeEnum.EVENT.name(), keyword, memberId);
 
         boolean isAdmin = member.isAdmin();
-
         Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
-        Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
-                .map(att -> att.getEvent().getId())
-                .collect(Collectors.toSet());
+        Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member)
+                .stream().map(att -> att.getEvent().getId()).collect(Collectors.toSet());
 
-        Query query;
-        if (isAdmin) {
-            var boolQueryBuilder = Query.of(q -> q.bool(b -> {
-                b.must(m -> m.multiMatch(mm -> mm
-                        .fields("title", "content", "location", "notice",
-                                "entranceNotice", "venueKoreanName", "venueEnglishName", "venueLocation", "region", "isFreeEntrance")
-                        .query(keyword)));
-                
-                // Date range filtering
-                if (startDate != null || endDate != null) {
-                    b.filter(f -> f.range(r -> {
-                        var rangeQuery = r.field("startDate");
-                        if (endDate != null) {
-                            rangeQuery.lte(co.elastic.clients.json.JsonData.of(endDate));
-                        }
-                        return rangeQuery;
-                    }));
-                    
-                    b.filter(f -> f.range(r -> {
-                        var rangeQuery = r.field("endDate");
-                        if (startDate != null) {
-                            rangeQuery.gte(co.elastic.clients.json.JsonData.of(startDate));
-                        }
-                        return rangeQuery;
-                    }));
-                }
-                
-                return b;
-            }));
-            query = boolQueryBuilder;
-        } else {
-            var boolQueryBuilder = Query.of(q -> q.bool(b -> {
-                b.must(m -> m.multiMatch(mm -> mm
-                        .fields("title", "content", "location", "notice",
-                                "entranceNotice", "venueKoreanName", "venueEnglishName", "venueLocation", "region", "isFreeEntrance")
-                        .query(keyword)));
-                b.filter(f -> f.term(t -> t.field("isVisible").value(true)));
-                
-                // Date range filtering
-                if (startDate != null || endDate != null) {
-                    b.filter(f -> f.range(r -> {
-                        var rangeQuery = r.field("startDate");
-                        if (endDate != null) {
-                            rangeQuery.lte(co.elastic.clients.json.JsonData.of(endDate));
-                        }
-                        return rangeQuery;
-                    }));
-                    
-                    b.filter(f -> f.range(r -> {
-                        var rangeQuery = r.field("endDate");
-                        if (startDate != null) {
-                            rangeQuery.gte(co.elastic.clients.json.JsonData.of(startDate));
-                        }
-                        return rangeQuery;
-                    }));
-                }
-                
-                return b;
-            }));
-            query = boolQueryBuilder;
+        // ---- Query build (옵션 조건만 추가) ----
+        var bool = new co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery.Builder();
+
+        // 키워드 있을 때만
+        if (keyword != null && !keyword.isBlank()) {
+            bool.must(m -> m.multiMatch(mm -> mm
+                    .fields("title", "content", "location", "notice",
+                            "entranceNotice", "venueKoreanName", "venueEnglishName",
+                            "venueLocation", "region", "isFreeEntrance")
+                    .query(keyword)));
         }
 
-        int from = Math.max(0, (page - 1)) * size;
+        // 공개 여부 (관리자만 제외)
+        if (!isAdmin) {
+            bool.filter(f -> f.term(t -> t.field("isVisible").value(true)));
+        }
+
+        // 기간 필터 (있을 때만)
+        if (endDate != null) {
+            bool.filter(f -> f.range(r -> r.field("startDate").lte(co.elastic.clients.json.JsonData.of(endDate))));
+        }
+        if (startDate != null) {
+            bool.filter(f -> f.range(r -> r.field("endDate").gte(co.elastic.clients.json.JsonData.of(startDate))));
+        }
+
+        Query query = Query.of(q -> q.bool(bool.build()));
+
+        int from = (Math.max(1, page) - 1) * size;
 
         SearchResponse<EventDocument> response;
         try {
@@ -170,39 +126,30 @@ public class EventElasticService {
                             .from(from)
                             .size(size)
                             .query(query),
-                    EventDocument.class
-            );
+                    EventDocument.class);
         } catch (IOException e) {
             throw new CustomException(ErrorCode.ELASTICSEARCH_SEARCH_FAILED);
         }
 
         List<Long> ids = response.hits().hits().stream()
-                .map(Hit::source)
-                .filter(Objects::nonNull)
-                .map(EventDocument::getId)
-                .toList();
+                .map(Hit::source).filter(Objects::nonNull).map(EventDocument::getId).toList();
 
         Map<Long, Event> eventMap = eventRepository.findAllById(ids).stream()
                 .collect(Collectors.toMap(Event::getId, Function.identity()));
 
-        List<EventResponseDTO> eventResponseDTOS = ids.stream()
-                .map(eventMap::get)
-                .filter(Objects::nonNull)
-                .map(event -> EventResponseDTO.toListDTO(
-                        event,
-                        event.getHost().getId().equals(memberId),
-                        likedEventIds.contains(event.getId()),
-                        attendingEventIds.contains(event.getId())
-                ))
+        List<EventResponseDTO> items = ids.stream()
+                .map(eventMap::get).filter(Objects::nonNull)
+                .map(ev -> EventResponseDTO.toListDTO(
+                        ev, ev.getHost().getId().equals(memberId),
+                        likedEventIds.contains(ev.getId()),
+                        attendingEventIds.contains(ev.getId())))
                 .toList();
 
-        int totalSize = (int) Objects.requireNonNull(response.hits().total()).value();
+        int total = (int) Objects.requireNonNull(response.hits().total()).value();
         return EventListResponseDTO.builder()
                 .sort("search")
-                .page(page)
-                .size(size)
-                .totalSize(totalSize)
-                .eventResponseDTOS(eventResponseDTOS)
+                .page(page).size(size).totalSize(total)
+                .eventResponseDTOS(items)
                 .build();
     }
 
