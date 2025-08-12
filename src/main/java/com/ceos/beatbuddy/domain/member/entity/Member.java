@@ -32,6 +32,7 @@ public class Member extends BaseTimeEntity {
     private List<Region> regions;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 30)
     @Builder.Default
     private Role role = Role.USER;
 
@@ -64,7 +65,7 @@ public class Member extends BaseTimeEntity {
     @Embedded
     @Builder.Default
     private BusinessInfo businessInfo = new BusinessInfo(
-            null, false, null, null, false
+            null, false, null, null, null, false
     );
 
     @Embedded

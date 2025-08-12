@@ -1,4 +1,4 @@
-package com.ceos.beatbuddy.domain.member.dto;
+package com.ceos.beatbuddy.domain.member.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

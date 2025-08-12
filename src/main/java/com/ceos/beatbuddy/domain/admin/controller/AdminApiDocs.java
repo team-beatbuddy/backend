@@ -2,7 +2,7 @@ package com.ceos.beatbuddy.domain.admin.controller;
 
 import com.ceos.beatbuddy.domain.admin.dto.LoginRequest;
 import com.ceos.beatbuddy.domain.admin.dto.ReportSummaryDTO;
-import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
+import com.ceos.beatbuddy.domain.member.dto.response.AdminResponseDto;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueUpdateDTO;
 import com.ceos.beatbuddy.global.SwaggerExamples;

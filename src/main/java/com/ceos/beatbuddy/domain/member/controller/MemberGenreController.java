@@ -1,8 +1,8 @@
 package com.ceos.beatbuddy.domain.member.controller;
 
 import com.ceos.beatbuddy.domain.member.application.MemberGenreService;
-import com.ceos.beatbuddy.domain.member.dto.MemberResponseDTO;
-import com.ceos.beatbuddy.domain.member.dto.MemberVectorResponseDTO;
+import com.ceos.beatbuddy.domain.member.dto.response.MemberResponseDTO;
+import com.ceos.beatbuddy.domain.member.dto.response.MemberVectorResponseDTO;
 import com.ceos.beatbuddy.domain.vector.dto.GenreRequestDTO;
 import com.ceos.beatbuddy.global.ResponseTemplate;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;

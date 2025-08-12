@@ -3,10 +3,9 @@ package com.ceos.beatbuddy.domain.member.entity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -24,6 +23,9 @@ public class BusinessInfo {
     private boolean isApproved = false;
     @Schema(description = "사업자 전화번호", example = "010-1234-5678")
     private String phoneNumber;
+    @Column(nullable = false)
+    @Schema(description = "사업자 통신사", example = "SKT")
+    private String telCarrier; // 사업자 통신사
     @Schema(description = "사업자 생년월일", example = "1990-01-01")
     private LocalDate dateOfBirth;
 
@@ -31,6 +33,9 @@ public class BusinessInfo {
     @Schema(description = "본인 인증 완료 여부", example = "false")
     private boolean isVerified = false; // 본인 인증 완료 되었는지
 
+    public void saveTelCarrier(String telCarrier) {
+        this.telCarrier = telCarrier;
+    }
     public void savePhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
@@ -43,7 +48,7 @@ public class BusinessInfo {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public void saveVerify() {
+    public void updateVerify() {
         this.isVerified = true;
     }
 
