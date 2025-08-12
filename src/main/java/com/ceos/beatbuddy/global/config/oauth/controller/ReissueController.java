@@ -1,7 +1,7 @@
 package com.ceos.beatbuddy.global.config.oauth.controller;
 
 import com.ceos.beatbuddy.domain.member.application.ReissueService;
-import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
+import com.ceos.beatbuddy.domain.member.dto.response.AdminResponseDto;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.ResponseTemplate;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;

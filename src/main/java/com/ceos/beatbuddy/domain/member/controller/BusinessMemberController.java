@@ -1,7 +1,10 @@
 package com.ceos.beatbuddy.domain.member.controller;
 
 import com.ceos.beatbuddy.domain.member.application.BusinessMemberService;
-import com.ceos.beatbuddy.domain.member.dto.*;
+import com.ceos.beatbuddy.domain.member.dto.BusinessMemberDTO;
+import com.ceos.beatbuddy.domain.member.dto.NicknameAndBusinessNameDTO;
+import com.ceos.beatbuddy.domain.member.dto.VerifyCodeDTO;
+import com.ceos.beatbuddy.domain.member.dto.response.BusinessMemberResponseDTO;
 import com.ceos.beatbuddy.global.code.SuccessCode;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
@@ -23,22 +26,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class BusinessMemberController implements BusinessMemberApiDocs{
     private final BusinessMemberService businessMemberService;
 
-    @Override
     @PostMapping("/verify-code")
-    public ResponseEntity<ResponseDTO<VerificationCodeResponseDTO>> verifyCodeForBusiness(@Valid @RequestBody BusinessMemberDTO dto) {
+    public ResponseEntity<ResponseDTO<Void>> verifyCodeForBusiness(@Valid @RequestBody BusinessMemberDTO dto) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        VerificationCodeResponseDTO result = businessMemberService.sendVerificationCode(dto, memberId);
+        businessMemberService.verifyWithDanal(dto, memberId);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_BUSINESS_VERIFY_CODE.getStatus().value())
-                .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUSINESS_VERIFY_CODE, result));
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_BUSINESS_VERIFY_CODE, null));
     }
 
-    @Override
     @PostMapping("/verify")
     public ResponseEntity<ResponseDTO<BusinessMemberResponseDTO>> verifyBusinessMember (@Valid @RequestBody VerifyCodeDTO dto) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        BusinessMemberResponseDTO result = businessMemberService.businessMemberSignup(memberId, dto);
+        BusinessMemberResponseDTO result = businessMemberService.confirmDanalAuth(memberId, dto);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_BUSINESS_VERIFY.getStatus().value())

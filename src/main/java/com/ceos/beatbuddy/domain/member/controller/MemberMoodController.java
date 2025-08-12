@@ -2,8 +2,8 @@ package com.ceos.beatbuddy.domain.member.controller;
 
 
 import com.ceos.beatbuddy.domain.member.application.MemberMoodService;
-import com.ceos.beatbuddy.domain.member.dto.MemberResponseDTO;
-import com.ceos.beatbuddy.domain.member.dto.MemberVectorResponseDTO;
+import com.ceos.beatbuddy.domain.member.dto.response.MemberResponseDTO;
+import com.ceos.beatbuddy.domain.member.dto.response.MemberVectorResponseDTO;
 import com.ceos.beatbuddy.domain.vector.dto.MoodRequestDTO;
 import com.ceos.beatbuddy.global.ResponseTemplate;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
