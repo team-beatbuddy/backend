@@ -30,7 +30,7 @@ public class EventAttendanceService {
 
         eventValidator.validateAttendanceInput(dto, event);
 
-        boolean alreadyAttendance = eventAttendanceRepository.existsByMember_IdAndEvent_Id(memberId, event.getId());
+        boolean alreadyAttendance = eventAttendanceRepository.existsByMemberIdAndEventId(memberId, event.getId());
 
         if (alreadyAttendance) {
             throw new CustomException(EventErrorCode.ALREADY_ATTENDANCE_EVENT);
@@ -115,6 +115,6 @@ public class EventAttendanceService {
     }
 
     protected EventAttendance validateAndGetAttendance(Long eventId, Long memberId) {
-        return eventAttendanceRepository.findByMember_IdAndEvent_Id(memberId, eventId);
+        return eventAttendanceRepository.findByMemberIdAndEventId(memberId, eventId);
     }
 }

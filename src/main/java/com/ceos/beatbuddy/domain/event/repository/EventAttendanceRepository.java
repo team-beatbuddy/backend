@@ -14,8 +14,8 @@ import java.util.List;
 
 @Repository
 public interface EventAttendanceRepository extends JpaRepository<EventAttendance, Long> {
-    boolean existsByMember_IdAndEvent_Id(Long memberId, Long eventId);
-    EventAttendance findByMember_IdAndEvent_Id(Long memberId, Long eventId);
+    boolean existsByMemberIdAndEventId(Long memberId, Long eventId);
+    EventAttendance findByMemberIdAndEventId(Long memberId, Long eventId);
     List<EventAttendance> findAllByEventId(Long eventId);
 
     List<EventAttendance> findByMember(Member member);

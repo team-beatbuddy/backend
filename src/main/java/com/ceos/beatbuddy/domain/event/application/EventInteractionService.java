@@ -26,7 +26,7 @@ public class EventInteractionService {
 
         Event event = eventService.validateAndGet(eventId);
 
-        if (eventLikeRepository.existsByMember_IdAndEvent_Id(memberId, eventId)) {
+        if (eventLikeRepository.existsByMemberIdAndEventId(memberId, eventId)) {
             throw new CustomException(ErrorCode.ALREADY_LIKED);
         }
 
@@ -45,11 +45,11 @@ public class EventInteractionService {
 
 
         // 좋아요 여부 확인
-        if (!eventLikeRepository.existsByMember_IdAndEvent_Id(memberId, eventId)) {
+        if (!eventLikeRepository.existsByMemberIdAndEventId(memberId, eventId)) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
 
-        eventLikeRepository.deleteByMember_IdAndEvent_Id(memberId, eventId);
+        eventLikeRepository.deleteByMemberIdAndEventId(memberId, eventId);
         eventRepository.decreaseLike(eventId);
     }
 }
