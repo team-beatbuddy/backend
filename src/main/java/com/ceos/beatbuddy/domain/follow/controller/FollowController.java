@@ -42,24 +42,32 @@ public class FollowController implements FollowApiDocs{
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_FOLLOW_DELETE, "팔로우 취소 완료"));
     }
 
-    // 내가 팔로우한 사람들 목록
+    // 팔로잉 목록 조회 (본인 또는 다른 사용자)
     @Override
     @GetMapping("/followings")
-    public ResponseEntity<ResponseDTO<List<FollowResponseDTO>>> getFollowings() {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        List<FollowResponseDTO> result = followService.getFollowings(memberId);
+    public ResponseEntity<ResponseDTO<List<FollowResponseDTO>>> getFollowings(
+            @RequestParam(required = false) Long targetMemberId
+    ) {
+        Long currentMemberId = SecurityUtils.getCurrentMemberId();
+        Long actualTargetId = targetMemberId != null ? targetMemberId : currentMemberId;
+        
+        List<FollowResponseDTO> result = followService.getFollowings(actualTargetId, currentMemberId);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_FOLLOWINGS.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_FOLLOWINGS, result));
     }
 
-    // 나를 팔로우한 사람들 목록
+    // 팔로워 목록 조회 (본인 또는 다른 사용자)
     @Override
     @GetMapping("/followers")
-    public ResponseEntity<ResponseDTO<List<FollowResponseDTO>>> getFollowers() {
-        Long memberId = SecurityUtils.getCurrentMemberId();
-        List<FollowResponseDTO> result = followService.getFollowers(memberId);
+    public ResponseEntity<ResponseDTO<List<FollowResponseDTO>>> getFollowers(
+            @RequestParam(required = false) Long targetMemberId
+    ) {
+        Long currentMemberId = SecurityUtils.getCurrentMemberId();
+        Long actualTargetId = targetMemberId != null ? targetMemberId : currentMemberId;
+        
+        List<FollowResponseDTO> result = followService.getFollowers(actualTargetId, currentMemberId);
 
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_FOLLOWERS.getStatus().value())
