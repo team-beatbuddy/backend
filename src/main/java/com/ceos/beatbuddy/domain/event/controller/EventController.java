@@ -224,26 +224,6 @@ public class EventController implements EventApiDocs {
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_UPDATE_ATTENDANCE, result));
     }
 
-//    @Override
-//    @GetMapping("/search/period")
-//    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getSearchEventWithPeriod(
-//            @RequestParam LocalDate startDate,
-//            @RequestParam LocalDate endDate,
-//            @RequestParam(defaultValue = "1") Integer page,
-//            @RequestParam(defaultValue = "10") Integer size) {
-//
-//        if (startDate.isAfter(endDate)) {
-//            throw new CustomException(EventErrorCode.INVALID_DATE_RANGE);
-//        }
-//
-//        Long memberId = SecurityUtils.getCurrentMemberId();
-//        EventListResponseDTO result = eventService.getEventsInPeriod(memberId, startDate, endDate, page, size);
-//        return ResponseEntity
-//                .status(SuccessCode.SUCCESS_GET_SEARCH_EVENT_LIST.getStatus().value())
-//                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_SEARCH_EVENT_LIST, result));
-//    }
-
-
 
     @Override
     @GetMapping("/search")
