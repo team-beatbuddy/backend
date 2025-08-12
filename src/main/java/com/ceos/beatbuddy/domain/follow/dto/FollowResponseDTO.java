@@ -62,8 +62,11 @@ public class FollowResponseDTO {
                 .build();
     }
     
-    // 기존 호환성을 위한 메서드 (deprecated)
-    @Deprecated
+    /**
+     * @deprecated Use {@link #fromFollowingMember(Follow)} or {@link #fromFollowerMember(Follow)} instead.
+     * This method is deprecated since version 1.0 and will be removed in a future release.
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     public static FollowResponseDTO toDTO(Follow follow) {
         return fromFollowingMember(follow);
     }

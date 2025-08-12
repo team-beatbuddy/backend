@@ -122,13 +122,20 @@ public class FollowService {
                 .toList();
     }
     
-    // 기존 호환성을 위한 메서드들 (deprecated)
-    @Deprecated
+    /**
+     * @deprecated Use {@link #getFollowings(Long, Long)} instead.
+     * This method is deprecated since version 1.0 and will be removed in a future release.
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     public List<FollowResponseDTO> getFollowings(Long memberId) {
         return getFollowings(memberId, memberId); // 본인 조회시 자기 자신을 currentMemberId로 사용
     }
     
-    @Deprecated
+    /**
+     * @deprecated Use {@link #getFollowers(Long, Long)} instead.
+     * This method is deprecated since version 1.0 and will be removed in a future release.
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     public List<FollowResponseDTO> getFollowers(Long memberId) {
         return getFollowers(memberId, memberId); // 본인 조회시 자기 자신을 currentMemberId로 사용
     }
