@@ -51,6 +51,7 @@ public class Event extends BaseTimeEntity {
     private String thumbImage;
 
     @Setter
+    @Column(length = 3000)
     @Convert(converter = StringListConverter.class)
     private List<String> imageUrls;
 
