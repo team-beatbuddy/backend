@@ -227,6 +227,76 @@ public class EventMyPageService{
         return buildResponse("latest", page, size, filtered);
     }
 
+    // 내가 참여하는 이벤트만 (upcoming + now)
+    public EventListResponseDTO getMyPageEventsNowAndUpcomingAttendance(Long memberId, List<String> regionStr, int page, int size) {
+        Member member = memberService.validateAndGetMember(memberId);
+
+        Set<Event.Region> regions = regionStr != null
+                ? regionStr.stream().map(Event.Region::of).collect(Collectors.toSet())
+                : null;
+
+        List<Event> attendingEvents = eventAttendanceRepository.findByMember(member).stream()
+                .map(EventAttendance::getEvent)
+                .toList();
+
+        Set<Long> likedEventIds = eventLikeRepository.findLikedEventIdsByMember(member);
+        Set<Long> attendingEventIds = attendingEvents.stream()
+                .map(Event::getId)
+                .collect(Collectors.toSet());
+
+        List<EventResponseDTO> filtered = attendingEvents.stream()
+                .filter(e -> e.getStatus() == EventStatus.UPCOMING || e.getStatus() == EventStatus.NOW)
+                .filter(e -> regions == null || regions.contains(e.getRegion()))
+                .sorted(
+                        Comparator.comparing(Event::getStartDate)
+                                .thenComparing(Event::getEndDate)
+                )
+                .map(event -> EventResponseDTO.toListDTO(
+                        event,
+                        event.getHost().getId().equals(memberId),
+                        likedEventIds.contains(event.getId()),
+                        attendingEventIds.contains(event.getId())))
+                .toList();
+
+        return buildResponse("latest", page, size, filtered);
+    }
+
+    // 내가 좋아요한 이벤트만 (upcoming + now)
+    public EventListResponseDTO getMyPageEventsNowAndUpcomingLiked(Long memberId, List<String> regionStr, int page, int size) {
+        Member member = memberService.validateAndGetMember(memberId);
+
+        Set<Event.Region> regions = regionStr != null
+                ? regionStr.stream().map(Event.Region::of).collect(Collectors.toSet())
+                : null;
+
+        List<Event> likedEvents = eventLikeRepository.findByMember(member).stream()
+                .map(EventLike::getEvent)
+                .toList();
+
+        Set<Long> likedEventIds = likedEvents.stream()
+                .map(Event::getId)
+                .collect(Collectors.toSet());
+        Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
+                .map(att -> att.getEvent().getId())
+                .collect(Collectors.toSet());
+
+        List<EventResponseDTO> filtered = likedEvents.stream()
+                .filter(e -> e.getStatus() == EventStatus.UPCOMING || e.getStatus() == EventStatus.NOW)
+                .filter(e -> regions == null || regions.contains(e.getRegion()))
+                .sorted(
+                        Comparator.comparing(Event::getStartDate)
+                                .thenComparing(Event::getEndDate)
+                )
+                .map(event -> EventResponseDTO.toListDTO(
+                        event,
+                        event.getHost().getId().equals(memberId),
+                        likedEventIds.contains(event.getId()),
+                        attendingEventIds.contains(event.getId())))
+                .toList();
+
+        return buildResponse("latest", page, size, filtered);
+    }
+
     private Comparator<Event> getComparator(EventStatus status) {
         return switch (status) {
             case UPCOMING -> Comparator.comparing(Event::getStartDate);
