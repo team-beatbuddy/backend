@@ -8,78 +8,94 @@ import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.post.entity.QPost;
 import com.ceos.beatbuddy.global.CustomException;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.querydsl.core.types.dsl.Expressions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Objects;
 import java.util.Optional;
 
+import static com.ceos.beatbuddy.domain.follow.entity.QFollow.follow;
 import static com.ceos.beatbuddy.domain.member.entity.QMember.member;
 import static com.ceos.beatbuddy.domain.post.entity.QPost.post;
 @Repository
 @RequiredArgsConstructor
-public class MemberQueryRepositoryImpl implements MemberQueryRepository{
+public class MemberQueryRepositoryImpl implements MemberQueryRepository {
     private final JPAQueryFactory queryFactory;
+
     @Override
     public MemberProfileSummaryDTO getMemberSummary(Long memberId, boolean isOwnProfile) {
         QMember qMember = member;
         QPost qPost = post;
-        QFollow qFollowerFollow = new QFollow("followerFollow");
-        QFollow qFollowingFollow = new QFollow("followingFollow");
+        QFollow qFollow = follow;
 
+        // 1) postCount 서브쿼리 (본인=전체, 타인=익명 아님만)
+        BooleanExpression visibleForOthers = qPost.anonymous.isFalse().or(qPost.anonymous.isNull());
+        JPQLQuery<Long> postCountSub = JPAExpressions
+                .select(qPost.id.countDistinct())
+                .from(qPost)
+                .where(qPost.member.id.eq(qMember.id)
+                        .and(isOwnProfile ? Expressions.TRUE.isTrue() : visibleForOthers));
+
+        // 2) follower/following 카운트도 서브쿼리로
+        JPQLQuery<Long> followerCountSub = JPAExpressions
+                .select(qFollow.id.countDistinct())
+                .from(qFollow)
+                .where(qFollow.following.id.eq(qMember.id));
+
+        JPQLQuery<Long> followingCountSub = JPAExpressions
+                .select(qFollow.id.countDistinct())
+                .from(qFollow)
+                .where(qFollow.follower.id.eq(qMember.id));
+
+        // 3) 필요한 프로필 컬럼을 명시적으로 select
         Tuple result = queryFactory
                 .select(
                         qMember.id,
+                        qMember.nickname,
+                        qMember.profileImage,
                         qMember.postProfileInfo.postProfileNickname,
                         qMember.postProfileInfo.postProfileImageUrl,
                         qMember.role,
                         qMember.businessInfo.businessName,
-                        // 본인 조회시: 모든 글, 타인 조회시: 익명이 아닌 글만 카운트
-                        isOwnProfile 
-                            ? qPost.id.countDistinct()
-                            : new CaseBuilder()
-                                .when(qPost.anonymous.eq(false).or(qPost.anonymous.isNull()))
-                                .then(qPost.id)
-                                .otherwise((Long) null)
-                                .countDistinct(),
-                        qFollowerFollow.id.countDistinct(),
-                        qFollowingFollow.id.countDistinct()
-
+                        postCountSub,
+                        followerCountSub,
+                        followingCountSub
                 )
                 .from(qMember)
-                .leftJoin(qPost).on(qPost.member.id.eq(qMember.id))
-                .leftJoin(qFollowerFollow).on(qFollowerFollow.following.id.eq(qMember.id))
-                .leftJoin(qFollowingFollow).on(qFollowingFollow.follower.id.eq(qMember.id))
                 .where(qMember.id.eq(memberId))
-                .groupBy(qMember.id, qMember.postProfileInfo.postProfileNickname, qMember.postProfileInfo.postProfileImageUrl, qMember.role, qMember.businessInfo.businessName)
                 .fetchOne();
 
-        if (result == null) {
-            throw new CustomException(MemberErrorCode.MEMBER_NOT_EXIST);
-        } else {
-            // null인 경우 0으로 입력되도록 처리
-            long id = result.get(qMember.id);
-            String nickname = result.get(qMember.nickname);
-            String profileImageUrl = result.get(qMember.profileImage);
-            String postProfileNickname = result.get(qMember.postProfileInfo.postProfileNickname) == null ? null : result.get(qMember.postProfileInfo.postProfileNickname);
-            String postProfileImageUrl = result.get(qMember.postProfileInfo.postProfileImageUrl) == null? null : result.get(qMember.postProfileInfo.postProfileImageUrl);
-            Role role = result.get(qMember.role);
-            String businessName = result.get(qMember.businessInfo.businessName);
+        if (result == null) throw new CustomException(MemberErrorCode.MEMBER_NOT_EXIST);
 
-            int postCount = Optional.ofNullable(result.get(qPost.id.countDistinct())).map(Number::intValue).orElse(0);
-            int followerCount = Optional.ofNullable(result.get(qFollowerFollow.id.countDistinct())).map(Number::intValue).orElse(0);
-            int followingCount = Optional.ofNullable(result.get(qFollowingFollow.id.countDistinct())).map(Number::intValue).orElse(0);
+        long id = result.get(qMember.id);
+        String nickname = result.get(qMember.nickname);
+        String profileImageUrl = result.get(qMember.profileImage);
+        String postProfileNickname = result.get(qMember.postProfileInfo.postProfileNickname);
+        String postProfileImageUrl = result.get(qMember.postProfileInfo.postProfileImageUrl);
+        Role role = result.get(qMember.role);
+        String businessName = result.get(qMember.businessInfo.businessName);
 
-            // 게시물 프로필 생성 여부 확인 (닉네임이나 이미지가 있으면 생성된 것으로 판단)
-            boolean isPostProfileCreated = (postProfileNickname != null && !postProfileNickname.trim().isEmpty()) ||
-                                          (postProfileImageUrl != null && !postProfileImageUrl.trim().isEmpty());
+        int postCount = Optional.ofNullable(result.get(postCountSub)).map(Long::intValue).orElse(0);
+        int followerCount = Optional.ofNullable(result.get(followerCountSub)).map(Long::intValue).orElse(0);
+        int followingCount = Optional.ofNullable(result.get(followingCountSub)).map(Long::intValue).orElse(0);
 
-            // role이 BUSINESS인 경우 businessName을 사용, 아니면 null
-            String displayBusinessName = (role == Role.BUSINESS) ? businessName : null;
+        boolean isPostProfileCreated =
+                (postProfileNickname != null && !postProfileNickname.isBlank()) ||
+                        (postProfileImageUrl != null && !postProfileImageUrl.isBlank());
 
-            return MemberProfileSummaryDTO.toDTO(id, nickname, profileImageUrl, postProfileNickname, postProfileImageUrl, role.toString(),
-                                               postCount, followerCount, followingCount, displayBusinessName, isPostProfileCreated);
-        }
+        String displayBusinessName = (role == Role.BUSINESS) ? businessName : null;
+
+        return MemberProfileSummaryDTO.toDTO(
+                id, nickname, profileImageUrl,
+                postProfileNickname, postProfileImageUrl,
+                Objects.requireNonNull(role).toString(),
+                postCount, followerCount, followingCount,
+                displayBusinessName, isPostProfileCreated
+        );
     }
 }
