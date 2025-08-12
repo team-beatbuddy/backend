@@ -40,7 +40,7 @@ public class DanalConfig {
 
         StringHttpMessageConverter stringConv = new StringHttpMessageConverter(EUC_KR);
 
-        List converters = new ArrayList<>();
+        List<org.springframework.http.converter.HttpMessageConverter<?>> converters = new ArrayList<>();
         // 순서 중요: form 우선
         converters.add(form);
         converters.add(stringConv);
