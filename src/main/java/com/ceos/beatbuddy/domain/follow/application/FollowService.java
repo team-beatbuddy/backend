@@ -7,6 +7,7 @@ import com.ceos.beatbuddy.domain.follow.exception.FollowErrorCode;
 import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
+import com.ceos.beatbuddy.domain.member.repository.MemberBlockRepository;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -14,13 +15,16 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class FollowService {
     private final FollowRepository followRepository;
     private final MemberRepository memberRepository;
+    private final MemberBlockRepository memberBlockRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
@@ -61,26 +65,40 @@ public class FollowService {
         followRepository.delete(follow);
     }
 
-    // 내가 팔로잉한 사람들
+    // 내가 팔로잉한 사람들 (차단된 사용자 제외)
     public List<FollowResponseDTO> getFollowings(Long memberId) {
-        Member follower = memberRepository.findById(memberId)
+        Member targetMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
+        // 차단된 사용자 ID 목록 조회
+        Set<Long> blockedMemberIds = memberBlockRepository.findBlockedMemberIdsByBlockerId(memberId);
+        
+        List<Follow> follows;
+        if (blockedMemberIds.isEmpty()) {
+            follows = followRepository.findAllByFollower(targetMember);
+        } else {
+            follows = followRepository.findAllByFollowerExcludingBlocked(targetMember, blockedMemberIds);
+        }
 
-        List<Follow> follows = followRepository.findAllByFollower(follower);
-
-        return follows.stream().map((FollowResponseDTO::toDTO)).toList();
+        return follows.stream().map(FollowResponseDTO::fromFollowingMember).toList();
     }
 
 
-    // 나를 팔로우한 사람들
+    // 나를 팔로우한 사람들 (차단된 사용자 제외)
     public List<FollowResponseDTO> getFollowers(Long memberId) {
-        Member follower = memberRepository.findById(memberId)
+        Member targetMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
 
+        // 차단된 사용자 ID 목록 조회
+        Set<Long> blockedMemberIds = memberBlockRepository.findBlockedMemberIdsByBlockerId(memberId);
+        
+        List<Follow> follows;
+        if (blockedMemberIds.isEmpty()) {
+            follows = followRepository.findAllByFollowing(targetMember);
+        } else {
+            follows = followRepository.findAllByFollowingExcludingBlocked(targetMember, blockedMemberIds);
+        }
 
-        List<Follow> follows = followRepository.findAllByFollowing(follower);
-
-        return follows.stream().map((FollowResponseDTO::toDTO)).toList();
+        return follows.stream().map(FollowResponseDTO::fromFollowerMember).toList();
     }
 }
