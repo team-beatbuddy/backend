@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -152,33 +153,36 @@ public interface FollowApiDocs {
     ResponseEntity<ResponseDTO<String>> deleteFollow(@Valid @PathVariable Long followingId);
 
     @Operation(summary ="팔로잉 목록 조회 기능\n",
-            description = "내가 팔로잉하는 사람들을 조회합니다.")
+            description = "팔로잉하는 사람들을 조회합니다. targetMemberId를 지정하면 해당 사용자의 팔로잉 목록을, 생략하면 본인의 팔로잉 목록을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "내가 팔로잉하는 사람들 조회, 조회했으나 리스트가 비어있는 경우",
+            @ApiResponse(responseCode = "200", description = "팔로잉 목록 조회 성공",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ResponseDTO.class),
-                            examples = {@ExampleObject(name = "내가 팔로우한 사람 조회 성공", value = """
-                                    
+                            examples = {@ExampleObject(name = "팔로잉 목록 조회 성공", value = """
                                     {
                                       "status": 200,
                                       "code": "SUCCESS_GET_FOLLOWINGS",
-                                      "message": "내가 팔로우하는 목록을 가져왔습니다.",
+                                      "message": "팔로잉 목록을 가져왔습니다.",
                                       "data": [
                                         {
-                                          "followerId": 156,
-                                          "followingId": 140
+                                          "memberId": 140,
+                                          "nickname": "홍길동",
+                                          "profileImage": "https://example.com/profile.jpg",
+                                          "postProfileNickname": "익명사용자1",
+                                          "postProfileImageUrl": "https://example.com/post_profile.jpg",
+                                          "isFollowing": true
                                         }
                                       ]
                                     }
                                     """),
                                     @ExampleObject(
-                                            name = "팔로잉 한 사람이 없는 경우",
+                                            name = "팔로잉한 사람이 없는 경우",
                                             value = """
                                         {
                                           "status": 200,
-                                          "code": "SUCCESS_BUT_EMPTY_LIST",
-                                          "message": "성공적으로 조회했으나 리스트가 비었습니다.",
+                                          "code": "SUCCESS_GET_FOLLOWINGS",
+                                          "message": "팔로잉 목록을 가져왔습니다.",
                                           "data": []
                                         }
                     """
@@ -207,7 +211,7 @@ public interface FollowApiDocs {
                     )
             )
     })
-    ResponseEntity<ResponseDTO<List<FollowResponseDTO>>> getFollowings();
+    ResponseEntity<ResponseDTO<List<FollowResponseDTO>>> getFollowings(@RequestParam(required = false) Long targetMemberId);
 
     @Operation(summary ="나를 팔로우하는 목록 조회 기능\n",
             description = "나를 팔로우하는 사람들을 조회합니다.")
@@ -264,5 +268,5 @@ public interface FollowApiDocs {
                     )
             )
     })
-    ResponseEntity<ResponseDTO<List<FollowResponseDTO>>> getFollowers();
+    ResponseEntity<ResponseDTO<List<FollowResponseDTO>>> getFollowers(@RequestParam(required = false) Long targetMemberId);
 }
