@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.follow.dto;
 
 import com.ceos.beatbuddy.domain.follow.entity.Follow;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,6 +29,14 @@ public class FollowResponseDTO {
     
     @Schema(description = "게시판용 프로필 이미지", example = "https://example.com/post_profile.jpg")
     private String postProfileImageUrl;
+
+    @JsonProperty("isFollowing")
+    private boolean isFollowing; // 팔로우 여부
+    
+    // isFollowing 설정을 위한 setter
+    public void setFollowing(boolean following) {
+        this.isFollowing = following;
+    }
 
     // 팔로잉 목록 조회용 - 내가 팔로우하는 사람의 정보
     public static FollowResponseDTO fromFollowingMember(Follow follow) {
