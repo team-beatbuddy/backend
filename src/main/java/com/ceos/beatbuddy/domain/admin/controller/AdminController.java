@@ -6,7 +6,7 @@ import com.ceos.beatbuddy.domain.admin.dto.ReportSummaryDTO;
 import com.ceos.beatbuddy.domain.member.application.BusinessMemberService;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.dto.AdminMemberListDTO;
-import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
+import com.ceos.beatbuddy.domain.member.dto.response.AdminResponseDto;
 import com.ceos.beatbuddy.domain.report.service.ReportService;
 import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;

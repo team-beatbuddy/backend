@@ -1,7 +1,12 @@
 package com.ceos.beatbuddy.domain.member.application;
 
 import com.ceos.beatbuddy.domain.member.constant.Region;
-import com.ceos.beatbuddy.domain.member.dto.*;
+import com.ceos.beatbuddy.domain.member.dto.MemberConsentRequestDTO;
+import com.ceos.beatbuddy.domain.member.dto.NicknameDTO;
+import com.ceos.beatbuddy.domain.member.dto.PostProfileRequestDTO;
+import com.ceos.beatbuddy.domain.member.dto.RegionRequestDTO;
+import com.ceos.beatbuddy.domain.member.dto.response.MemberResponseDTO;
+import com.ceos.beatbuddy.domain.member.dto.response.OnboardingResponseDto;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.entity.PostProfileInfo;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;

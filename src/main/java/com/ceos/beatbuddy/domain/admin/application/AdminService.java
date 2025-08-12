@@ -1,7 +1,7 @@
 package com.ceos.beatbuddy.domain.admin.application;
 
 import com.ceos.beatbuddy.domain.member.constant.Role;
-import com.ceos.beatbuddy.domain.member.dto.AdminResponseDto;
+import com.ceos.beatbuddy.domain.member.dto.response.AdminResponseDto;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.MemberRepository;

@@ -1,4 +1,4 @@
-package com.ceos.beatbuddy.domain.member.dto;
+package com.ceos.beatbuddy.domain.member.dto.response;
 
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.fasterxml.jackson.annotation.JsonInclude;

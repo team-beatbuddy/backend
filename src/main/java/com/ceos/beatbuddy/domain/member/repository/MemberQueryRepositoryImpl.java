@@ -2,7 +2,7 @@ package com.ceos.beatbuddy.domain.member.repository;
 
 import com.ceos.beatbuddy.domain.follow.entity.QFollow;
 import com.ceos.beatbuddy.domain.member.constant.Role;
-import com.ceos.beatbuddy.domain.member.dto.MemberProfileSummaryDTO;
+import com.ceos.beatbuddy.domain.member.dto.response.MemberProfileSummaryDTO;
 import com.ceos.beatbuddy.domain.member.entity.QMember;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
 import com.ceos.beatbuddy.domain.post.entity.QPost;

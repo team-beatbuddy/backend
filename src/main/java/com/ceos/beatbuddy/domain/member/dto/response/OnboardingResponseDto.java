@@ -1,4 +1,4 @@
-package com.ceos.beatbuddy.domain.member.dto;
+package com.ceos.beatbuddy.domain.member.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
