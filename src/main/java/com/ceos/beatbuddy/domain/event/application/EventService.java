@@ -147,10 +147,10 @@ public class EventService {
         eventElasticService.save(event);
 
         // 참여 여부 확인
-        boolean isAttending = eventAttendanceRepository.existsByMember_IdAndEvent_Id(memberId, eventId);
+        boolean isAttending = eventAttendanceRepository.existsByMemberIdAndEventId(memberId, eventId);
 
         // 5. 응답 생성
-        boolean liked = eventLikeRepository.existsByMember_IdAndEvent_Id(memberId, eventId);
+        boolean liked = eventLikeRepository.existsByMemberIdAndEventId(memberId, eventId);
         return EventResponseDTO.toDTO(event, liked, true, isAttending); // 좋아요 여부는 조회 후 설정, 내가 작성자 여부는 true로 설정
     }
 
@@ -280,10 +280,10 @@ public class EventService {
         eventRepository.increaseViews(eventId);
 
         // 좋아요 여부 확인
-        boolean liked = eventLikeRepository.existsByMember_IdAndEvent_Id(memberId, eventId);
+        boolean liked = eventLikeRepository.existsByMemberIdAndEventId(memberId, eventId);
 
         // 참여 여부 확인
-        boolean isAttending = eventAttendanceRepository.existsByMember_IdAndEvent_Id(memberId, eventId);
+        boolean isAttending = eventAttendanceRepository.existsByMemberIdAndEventId(memberId, eventId);
 
         return EventResponseDTO.toDTO(event, liked, member.getId().equals(event.getHost().getId()), isAttending);
     }
