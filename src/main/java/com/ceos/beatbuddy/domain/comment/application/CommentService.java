@@ -68,7 +68,7 @@ public class CommentService {
         Comment savedComment = commentRepository.save(comment);
         post.increaseComments();
 
-        boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, member.getId());
+        boolean isFollowing = followRepository.existsByFollower_IdAndFollowing_Id(memberId, member.getId());
 
         // ========  알림 전송
         eventPublisher.publishEvent(new PostCommentCreatedEvent(post, savedComment, member));
@@ -107,7 +107,7 @@ public class CommentService {
         Comment savedReply = commentRepository.save(reply);
         post.increaseComments();
 
-        boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, member.getId());
+        boolean isFollowing = followRepository.existsByFollower_IdAndFollowing_Id(memberId, member.getId());
 
         // ========  알림 전송
         eventPublisher.publishEvent(new PostCommentCreatedEvent(post, savedReply, member));
@@ -120,7 +120,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
-        boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
+        boolean isFollowing = followRepository.existsByFollower_IdAndFollowing_Id(memberId, comment.getMember().getId());
         boolean isBlockedMember = memberService.isBlocked(memberId, comment.getMember().getId());
         boolean isPostWriter = comment.getPost().getMember().getId().equals(comment.getMember().getId());
 
@@ -251,7 +251,7 @@ public class CommentService {
                 .likes(comment.getLikes())
                 .build();
 
-        boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
+        boolean isFollowing = followRepository.existsByFollower_IdAndFollowing_Id(memberId, comment.getMember().getId());
         
         Comment saved = commentRepository.save(updatedComment);
         boolean isPostWriter = saved.getPost().getMember().getId().equals(saved.getMember().getId());
@@ -268,13 +268,13 @@ public class CommentService {
         }
 
         // 1. 댓글에 달린 모든 좋아요 먼저 삭제
-        commentLikeRepository.deleteByComment_Id(commentId);
+        commentLikeRepository.deleteByCommentId(commentId);
 
         // 2. 댓글 개수 감소
         comment.getPost().decreaseComments();
 
 
-        boolean hasChildReplies = commentRepository.existsByReply_Id(commentId);
+        boolean hasChildReplies = commentRepository.existsByReplyId(commentId);
         if (hasChildReplies) {
             comment.setDeleted(true);
             commentRepository.save(comment);
@@ -298,7 +298,7 @@ public class CommentService {
         }
 
         // 이미 좋아요를 누른 경우 예외 처리
-        if (commentLikeRepository.existsByComment_IdAndMember_Id(commentId, memberId)) {
+        if (commentLikeRepository.existsByCommentIdAndMemberId(commentId, memberId)) {
             throw new CustomException(ErrorCode.ALREADY_LIKED);
         }
 
@@ -316,7 +316,7 @@ public class CommentService {
         em.refresh(comment);
 
         // 팔로잉 여부
-        boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
+        boolean isFollowing = followRepository.existsByFollower_IdAndFollowing_Id(memberId, comment.getMember().getId());
         // 차단 여부
         boolean isPostWriter = comment.getPost().getMember().getId().equals(comment.getMember().getId());
         return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember, false, isPostWriter, comment.getPost().isAnonymous()); // 자신이 작성한 댓글인지 여부
@@ -333,19 +333,19 @@ public class CommentService {
         }
 
         // 좋아요 엔티티가 존재하는지 확인
-        if (!commentLikeRepository.existsByComment_IdAndMember_Id(commentId, memberId)) {
+        if (!commentLikeRepository.existsByCommentIdAndMemberId(commentId, memberId)) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
 
         // 좋아요 엔티티 삭제
-        commentLikeRepository.deleteByComment_IdAndMember_Id(commentId, memberId);
+        commentLikeRepository.deleteByCommentIdAndMemberId(commentId, memberId);
 
         // 좋아요 로직 구현 필요 (중복 좋아요 방지 등)
         commentRepository.decreaseLikesById(commentId); // 좋아요 수 감소
 
         em.refresh(comment);
 
-        boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, comment.getMember().getId());
+        boolean isFollowing = followRepository.existsByFollower_IdAndFollowing_Id(memberId, comment.getMember().getId());
         boolean isPostWriter = comment.getPost().getMember().getId().equals(comment.getMember().getId());
 
         return CommentResponseDto.from(comment, comment.getMember().getId().equals(memberId), isFollowing, isBlockedMember, false, isPostWriter, comment.getPost().isAnonymous()); // 자신이 작성한 댓글인지 여부

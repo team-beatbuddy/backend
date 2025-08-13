@@ -6,7 +6,11 @@
       "Bash(git commit:*)",
       "Bash(./gradlew:*)",
       "Bash(rm:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(taskkill:*)",
+      "Bash(TASKKILL /F /PID 34860)",
+      "Bash(kill:*)"
     ],
     "deny": []
   }

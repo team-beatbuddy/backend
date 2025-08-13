@@ -114,7 +114,7 @@ public class MagazineService {
 
         // 좋아요 여부 확인
         Set<Long> likedMagazineIds = magazineLikeRepository
-                .findAllByMember_IdAndMagazine_IdIn(
+                .findAllByMemberIdAndMagazineIdIn(
                         memberId,
                         magazines.stream().map(Magazine::getId).toList()
                 )
@@ -151,7 +151,7 @@ public class MagazineService {
         magazineRepository.increaseViews(magazineId);
 
         // 매거진 좋아요 여부 확인
-        boolean isLiked = magazineLikeRepository.existsByMember_IdAndMagazine_Id(memberId, magazineId);
+        boolean isLiked = magazineLikeRepository.existsByMemberIdAndMagazineId(memberId, magazineId);
 
         return MagazineDetailDTO.toDTO(magazine, isLiked, magazine.getMember().getId().equals(memberId));
     }
@@ -304,7 +304,7 @@ public class MagazineService {
         }
 
         // 매거진 좋아요 삭제
-        magazineLikeRepository.deleteAllByMagazine_Id(magazineId);
+        magazineLikeRepository.deleteAllByMagazineId(magazineId);
 
         // 매거진 삭제
         magazineRepository.delete(magazine);
