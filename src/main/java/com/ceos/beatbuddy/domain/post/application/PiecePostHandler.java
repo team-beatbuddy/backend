@@ -53,8 +53,12 @@ public class PiecePostHandler implements PostTypeHandler {
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional
     public void deletePost(Long postId, Member member) {
         Post post = postValidationHelper.validateAndGetPost(postId);
+        if (!(post instanceof PiecePost)) {
+            throw new CustomException(PostErrorCode.POST_NOT_EXIST);
+        }
         validateWriter(post, member);
         piecePostRepository.deleteById(post.getId());
     }
