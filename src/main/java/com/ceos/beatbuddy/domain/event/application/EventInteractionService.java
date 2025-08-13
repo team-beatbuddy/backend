@@ -9,11 +9,13 @@ import com.ceos.beatbuddy.domain.scrapandlike.entity.EventLike;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EventInteractionService {
     private final MemberService memberService;
     private final EventRepository eventRepository;
@@ -26,7 +28,7 @@ public class EventInteractionService {
 
         Event event = eventService.validateAndGet(eventId);
 
-        if (eventLikeRepository.existsByMemberIdAndEventId(memberId, eventId)) {
+        if (eventLikeRepository.existsByMember_IdAndEvent_Id(memberId, eventId)) {
             throw new CustomException(ErrorCode.ALREADY_LIKED);
         }
 
@@ -44,12 +46,16 @@ public class EventInteractionService {
         eventService.validateAndGet(eventId);
 
 
-        // 좋아요 여부 확인
-        if (!eventLikeRepository.existsByMemberIdAndEventId(memberId, eventId)) {
+        // 좋아요 삭제 (실제 삭제된 행 수 확인)
+        int deletedCount = eventLikeRepository.deleteByMember_IdAndEvent_Id(memberId, eventId);
+        if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
-
-        eventLikeRepository.deleteByMemberIdAndEventId(memberId, eventId);
+        
+        if (deletedCount > 1) {
+            log.warn("Multiple event likes deleted for single request - eventId: {}, memberId: {}, deletedCount: {}", 
+                    eventId, memberId, deletedCount);
+        }
         eventRepository.decreaseLike(eventId);
     }
 }

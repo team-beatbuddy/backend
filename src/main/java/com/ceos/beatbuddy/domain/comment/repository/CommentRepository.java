@@ -26,6 +26,11 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Modifying
     @Query("UPDATE Comment c SET c.likes = CASE WHEN c.likes > 0 THEN c.likes - 1 ELSE 0 END WHERE c.id = :commentId")
     void decreaseLikesById(Long commentId);
+    
+    // 좋아요 수를 지정된 개수만큼 감소
+    @Modifying
+    @Query("UPDATE Comment c SET c.likes = CASE WHEN c.likes >= :count THEN c.likes - :count ELSE 0 END WHERE c.id = :commentId")
+    void decreaseLikesById(Long commentId, int count);
 
     @Modifying
     @Query("UPDATE Comment c SET c.likes = c.likes + 1 WHERE c.id = :commentId")
