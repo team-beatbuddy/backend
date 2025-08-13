@@ -31,11 +31,12 @@ public class PostInteractionService {
     private final PostLikeRepository postLikeRepository;
     private final PostScrapRepository postScrapRepository;
     private final CommentRepository commentRepository;
+    private final PostValidationHelper postValidationHelper;
     @Transactional
     public void likePost(Long postId, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
 
-        Post post = validateAndGetPost(postId);
+        Post post = postValidationHelper.validateAndGetPost(postId);
 
         if (postLikeRepository.existsByMember_IdAndPost_Id(memberId, postId)) {
             throw new CustomException(ErrorCode.ALREADY_LIKED);
@@ -53,9 +54,9 @@ public class PostInteractionService {
 
     @Transactional
     public void deletePostLike(Long postId, Long memberId) {
-        Member member = memberService.validateAndGetMember(memberId);
+        memberService.validateAndGetMember(memberId);
 
-        Post post = validateAndGetPost(postId);
+        postValidationHelper.validateAndGetPost(postId);
 
         int deletedCount = postLikeRepository.deleteByMember_IdAndPost_Id(memberId, postId);
         if (deletedCount == 0) {
@@ -79,7 +80,7 @@ public class PostInteractionService {
     public void scrapPost(Long postId, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
 
-        Post post = validateAndGetPost(postId);
+        Post post = postValidationHelper.validateAndGetPost(postId);
 
         if (postScrapRepository.existsByMember_IdAndPost_Id(memberId, postId)) {
             throw new CustomException(ErrorCode.ALREADY_SCRAPPED);
@@ -97,9 +98,9 @@ public class PostInteractionService {
 
     @Transactional
     public void deletePostScrap(Long postId, Long memberId) {
-        Member member = memberService.validateAndGetMember(memberId);
+        memberService.validateAndGetMember(memberId);
 
-        Post post = validateAndGetPost(postId);
+        postValidationHelper.validateAndGetPost(postId);
 
         int deletedCount = postScrapRepository.deleteByMember_IdAndPost_Id(memberId, postId);
         if (deletedCount == 0) {
@@ -142,9 +143,7 @@ public class PostInteractionService {
     }
 
     public Post validateAndGetPost(Long postId) {
-        return  postRepository.findById(postId).orElseThrow(
-                () -> new CustomException(PostErrorCode.POST_NOT_EXIST)
-        );
+        return postValidationHelper.validateAndGetPost(postId);
     }
 
     public PostInteractionStatus getAllPostInteractions(Long memberId, List<Long> postIds) {
