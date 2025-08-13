@@ -10,13 +10,13 @@ import java.util.List;
 
 @Repository
 public interface MagazineLikeRepository extends JpaRepository<MagazineLike, Long> {
-    boolean existsByMember_IdAndMagazine_Id(Long memberId, Long magazineId);
-    void deleteByMember_IdAndMagazine_Id(Long memberId, Long magazineId);
+    boolean existsByMemberIdAndMagazineId(Long memberId, Long magazineId);
+    void deleteByMemberIdAndMagazineId(Long memberId, Long magazineId);
 
     @Query("SELECT ml.magazine.id FROM MagazineLike ml WHERE ml.member.id = :memberId")
     List<Long> findMagazineIdsByMemberId(@Param("memberId") Long memberId);
 
-    List<MagazineLike> findAllByMember_IdAndMagazine_IdIn(Long memberId, List<Long> magazineIds);
+    List<MagazineLike> findAllByMemberIdAndMagazineIdIn(Long memberId, List<Long> magazineIds);
 
-    void deleteAllByMagazine_Id(Long magazineId);
+    void deleteAllByMagazineId(Long magazineId);
 }

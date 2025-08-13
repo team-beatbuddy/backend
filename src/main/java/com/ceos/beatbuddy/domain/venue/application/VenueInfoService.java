@@ -92,7 +92,7 @@ public class VenueInfoService {
         tagList.add(region);
 
         // 쿠폰 사용 가능한 여부
-        boolean hasCoupon = couponRepository.existsByVenues_IdAndExpireDateIsAfter(venue.getId(), LocalDate.now());
+        boolean hasCoupon = couponRepository.existsByVenues_IdAndExpireDateAfter(venue.getId(), LocalDate.now());
 
         return VenueInfoResponseDTO.builder()
                 .venue(venue)
