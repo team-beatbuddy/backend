@@ -14,6 +14,7 @@ import com.ceos.beatbuddy.domain.scrapandlike.repository.PostScrapRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PostInteractionService {
     private final MemberService memberService;
     private final PostRepository postRepository;
@@ -55,12 +57,22 @@ public class PostInteractionService {
 
         Post post = validateAndGetPost(postId);
 
-        if (!postLikeRepository.existsByMember_IdAndPost_Id(memberId, postId)) {
+        int deletedCount = postLikeRepository.deleteByMember_IdAndPost_Id(memberId, postId);
+        if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
+        
+        if (deletedCount > 1) {
+            log.warn("Multiple post likes deleted for single request - postId: {}, memberId: {}, deletedCount: {}", 
+                    postId, memberId, deletedCount);
+        }
 
-        postLikeRepository.deleteByMember_IdAndPost_Id(memberId, postId);
-        postRepository.decreaseLike(postId);
+        // 실제 삭제된 수만큼 카운트 감소
+        if (deletedCount > 1) {
+            postRepository.decreaseLike(postId, deletedCount);
+        } else {
+            postRepository.decreaseLike(postId);
+        }
     }
 
     @Transactional
@@ -89,12 +101,22 @@ public class PostInteractionService {
 
         Post post = validateAndGetPost(postId);
 
-        if (!postScrapRepository.existsByMember_IdAndPost_Id(memberId, postId)) {
+        int deletedCount = postScrapRepository.deleteByMember_IdAndPost_Id(memberId, postId);
+        if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_SCRAP);
         }
+        
+        if (deletedCount > 1) {
+            log.warn("Multiple post scraps deleted for single request - postId: {}, memberId: {}, deletedCount: {}", 
+                    postId, memberId, deletedCount);
+        }
 
-        postScrapRepository.deleteByMember_IdAndPost_Id(memberId, postId);
-        postRepository.decreaseScrap(postId);
+        // 실제 삭제된 수만큼 카운트 감소
+        if (deletedCount > 1) {
+            postRepository.decreaseScrap(postId, deletedCount);
+        } else {
+            postRepository.decreaseScrap(postId);
+        }
     }
 
 

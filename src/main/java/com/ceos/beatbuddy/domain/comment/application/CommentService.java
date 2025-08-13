@@ -18,6 +18,7 @@ import com.ceos.beatbuddy.global.code.ErrorCode;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class CommentService {
     private final CommentRepository commentRepository;
     private final MemberService memberService;
@@ -39,8 +41,6 @@ public class CommentService {
     private final ApplicationEventPublisher eventPublisher;
     private final CommentLikeRepository commentLikeRepository;
     private final AnonymousNicknameService anonymousNicknameService;
-    @PersistenceContext
-    private EntityManager em;
 
     @Transactional
     public CommentResponseDto createComment(Long memberId, Long postId, CommentRequestDto requestDto) {
@@ -298,7 +298,7 @@ public class CommentService {
         }
 
         // 이미 좋아요를 누른 경우 예외 처리
-        if (commentLikeRepository.existsByCommentIdAndMemberId(commentId, memberId)) {
+        if (commentLikeRepository.existsByComment_IdAndMember_Id(commentId, memberId)) {
             throw new CustomException(ErrorCode.ALREADY_LIKED);
         }
 
@@ -312,8 +312,6 @@ public class CommentService {
 
         // 좋아요 로직 구현 필요 (중복 좋아요 방지 등)
         commentRepository.increaseLikesById(commentId); // 좋아요 수 증가
-
-        em.refresh(comment);
 
         // 팔로잉 여부
         boolean isFollowing = followRepository.existsByFollower_IdAndFollowing_Id(memberId, comment.getMember().getId());
@@ -332,18 +330,23 @@ public class CommentService {
             throw new CustomException(ErrorCode.BLOCKED_MEMBER);
         }
 
-        // 좋아요 엔티티가 존재하는지 확인
-        if (!commentLikeRepository.existsByCommentIdAndMemberId(commentId, memberId)) {
+        // 좋아요 엔티티 삭제 (실제 삭제된 행 수 확인)
+        int deletedCount = commentLikeRepository.deleteByComment_IdAndMember_Id(commentId, memberId);
+        if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
+        
+        if (deletedCount > 1) {
+            log.warn("Multiple comment likes deleted for single request - commentId: {}, memberId: {}, deletedCount: {}", 
+                    commentId, memberId, deletedCount);
+        }
 
-        // 좋아요 엔티티 삭제
-        commentLikeRepository.deleteByCommentIdAndMemberId(commentId, memberId);
-
-        // 좋아요 로직 구현 필요 (중복 좋아요 방지 등)
-        commentRepository.decreaseLikesById(commentId); // 좋아요 수 감소
-
-        em.refresh(comment);
+        // 실제 삭제된 수만큼 카운트 감소
+        if (deletedCount > 1) {
+            commentRepository.decreaseLikesById(commentId, deletedCount);
+        } else {
+            commentRepository.decreaseLikesById(commentId);
+        }
 
         boolean isFollowing = followRepository.existsByFollower_IdAndFollowing_Id(memberId, comment.getMember().getId());
         boolean isPostWriter = comment.getPost().getMember().getId().equals(comment.getMember().getId());

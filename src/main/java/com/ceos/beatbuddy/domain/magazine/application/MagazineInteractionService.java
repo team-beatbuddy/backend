@@ -9,11 +9,13 @@ import com.ceos.beatbuddy.domain.scrapandlike.repository.MagazineLikeRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MagazineInteractionService {
     private final MagazineLikeRepository magazineLikeRepository;
     private final MemberService memberService;
@@ -63,12 +65,22 @@ public class MagazineInteractionService {
         // 엔티티 검색
         magazineValidator.validateAndGetMagazine(magazineId);
 
-        // 좋아요 삭제
-        if (!magazineLikeRepository.existsByMemberIdAndMagazineId(memberId, magazineId)) {
+        // 좋아요 삭제 (실제 삭제된 행 수 확인)
+        int deletedCount = magazineLikeRepository.deleteByMemberIdAndMagazineId(memberId, magazineId);
+        if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
+        
+        if (deletedCount > 1) {
+            log.warn("Multiple magazine likes deleted for single request - magazineId: {}, memberId: {}, deletedCount: {}", 
+                    magazineId, memberId, deletedCount);
+        }
 
-        magazineLikeRepository.deleteByMemberIdAndMagazineId(memberId, magazineId);
-        magazineRepository.decreaseLike(magazineId);
+        // 실제 삭제된 수만큼 카운트 감소
+        if (deletedCount > 1) {
+            magazineRepository.decreaseLike(magazineId, deletedCount);
+        } else {
+            magazineRepository.decreaseLike(magazineId);
+        }
     }
 }
