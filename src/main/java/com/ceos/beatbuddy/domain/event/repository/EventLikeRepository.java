@@ -13,7 +13,8 @@ import java.util.Set;
 
 public interface EventLikeRepository extends JpaRepository<EventLike, Long> {
     boolean existsByMemberIdAndEventId(Long memberId, Long eventId);
-    void deleteByMemberIdAndEventId(Long memberId, Long eventId);
+    @Modifying
+    int deleteByMemberIdAndEventId(Long memberId, Long eventId);
     Integer countAllByEvent(Event event);
 
     List<EventLike> findByMember(Member member);
