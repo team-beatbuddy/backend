@@ -37,7 +37,7 @@ public class MagazineInteractionService {
         Magazine magazine = magazineValidator.validateAndGetMagazineVisibleTrue(magazineId);
 
         // 좋아요 증가 (이미 좋아요가 있으면 예외처리
-        boolean alreadyLiked = magazineLikeRepository.existsByMember_IdAndMagazine_Id(memberId, magazineId);
+        boolean alreadyLiked = magazineLikeRepository.existsByMemberIdAndMagazineId(memberId, magazineId);
 
         if (alreadyLiked) {
             throw new CustomException(ErrorCode.ALREADY_LIKED);
@@ -64,11 +64,11 @@ public class MagazineInteractionService {
         magazineValidator.validateAndGetMagazine(magazineId);
 
         // 좋아요 삭제
-        if (!magazineLikeRepository.existsByMember_IdAndMagazine_Id(memberId, magazineId)) {
+        if (!magazineLikeRepository.existsByMemberIdAndMagazineId(memberId, magazineId)) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
 
-        magazineLikeRepository.deleteByMember_IdAndMagazine_Id(memberId, magazineId);
+        magazineLikeRepository.deleteByMemberIdAndMagazineId(memberId, magazineId);
         magazineRepository.decreaseLike(magazineId);
     }
 }

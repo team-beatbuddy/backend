@@ -122,7 +122,7 @@ public class PostService {
         Triple<Boolean, Boolean, Boolean> status = getPostInteractions(memberId, postId);
 
         // following 여부
-        boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, post.getMember().getId());
+        boolean isFollowing = followRepository.existsByFollower_IdAndFollowing_Id(memberId, post.getMember().getId());
 
         // 해시태그 분기 처리
         List<FixedHashtag> hashtags = (post instanceof FreePost freePost)
@@ -459,7 +459,7 @@ public class PostService {
         Triple<Boolean, Boolean, Boolean> status = getPostInteractions(memberId, postId);
 
         // 팔로잉 여부
-        boolean isFollowing = followRepository.existsByFollowerIdAndFollowingId(memberId, post.getMember().getId());
+        boolean isFollowing = followRepository.existsByFollower_IdAndFollowing_Id(memberId, post.getMember().getId());
 
         // 해시태그 분기 처리
         List<FixedHashtag> hashtags = (post instanceof FreePost freePost)

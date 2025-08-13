@@ -26,14 +26,28 @@ public class EventMyPageController implements EventMyPageApiDocs{
     private final EventMyPageService eventMyPageService;
 
     @Override
-    @GetMapping("/upcoming")
-    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyPageEventsNowAndUpcoming(
+    @GetMapping("/upcoming-now/attendance")
+    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyPageEventsNowAndUpcomingAttendance(
             @RequestParam(required = false) List<String> region,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        EventListResponseDTO result = eventMyPageService.getMyPageEventsNowAndUpcoming(memberId, region, page, size);
+        EventListResponseDTO result = eventMyPageService.getMyPageEventsNowAndUpcomingAttendance(memberId, region, page, size);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS, result));
+    }
+
+    @Override
+    @GetMapping("/upcoming-now/liked")
+    public ResponseEntity<ResponseDTO<EventListResponseDTO>> getMyPageEventsNowAndUpcomingLiked(
+            @RequestParam(required = false) List<String> region,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        EventListResponseDTO result = eventMyPageService.getMyPageEventsNowAndUpcomingLiked(memberId, region, page, size);
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_MY_PAGE_EVENTS, result));

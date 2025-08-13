@@ -24,7 +24,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     // 좋아요를 누른 것이 확인되어야만 좋아요 취소가 가능
     @Modifying(clearAutomatically = true)
-    @Query("UPDATE Event e SET e.likes = e.likes -1 WHERE e.id = :eventId")
+    @Query("UPDATE Event e SET e.likes = CASE WHEN e.likes > 0 THEN e.likes - 1 ELSE 0 END WHERE e.id = :eventId")
     void decreaseLike(@Param("eventId") Long eventId);
 
     @Modifying(clearAutomatically = true)
