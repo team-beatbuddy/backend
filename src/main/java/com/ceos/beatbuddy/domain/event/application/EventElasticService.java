@@ -96,10 +96,20 @@ public class EventElasticService {
         // 키워드 있을 때만
         if (keyword != null && !keyword.isBlank()) {
             bool.must(m -> m.multiMatch(mm -> mm
-                    .fields("title", "content", "location", "notice",
-                            "entranceNotice", "venueKoreanName", "venueEnglishName",
-                            "venueLocation", "region", "isFreeEntrance")
-                    .query(keyword)));
+                    .fields(
+                            "title^2.0",
+                            "region^2.0",
+                            "location^2.0",
+                            "venueLocation^2.0",
+                            "content",
+                            "notice",
+                            "entranceNotice",
+                            "venueKoreanName",
+                            "venueEnglishName",
+                            "isFreeEntrance"
+                    )
+                    .query(keyword)
+            ));
         }
 
         // 공개 여부 (관리자만 제외)
