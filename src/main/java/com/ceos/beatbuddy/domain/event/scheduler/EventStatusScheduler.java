@@ -18,7 +18,7 @@ public class EventStatusScheduler {
 
     private final EventRepository eventRepository;
 
-    @Scheduled(cron = "0 0 * * * *") // 매 정시, 시간 무시해도 안정적으로 정렬됨
+    @Scheduled(cron = "0 0 * * * *", zone ="Asia/Seoul") // 매 정시, 시간 무시해도 안정적으로 정렬됨
     @Transactional
     public void updateEventStatusesSafely() {
         try {
