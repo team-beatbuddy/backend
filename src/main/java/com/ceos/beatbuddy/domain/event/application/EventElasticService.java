@@ -101,11 +101,11 @@ public class EventElasticService {
                             "region^2.0",
                             "location^2.0",
                             "venueLocation^2.0",
+                            "venueKoreanName^2.0",
+                            "venueEnglishName^2.0",
                             "content",
                             "notice",
                             "entranceNotice",
-                            "venueKoreanName",
-                            "venueEnglishName",
                             "isFreeEntrance"
                     )
                     .query(keyword)
