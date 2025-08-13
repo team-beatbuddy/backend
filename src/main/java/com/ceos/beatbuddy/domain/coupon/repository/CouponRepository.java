@@ -16,5 +16,5 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
 """)
     List<Coupon> findAllValidByVenueId(@Param("venueId") Long venueId, @Param("today") LocalDate today);
 
-    boolean existsByVenues_IdAndExpireDateIsAfter(Long venueId, LocalDate now);
+    boolean existsByVenues_IdAndExpireDateAfter(Long venueId, LocalDate now);
 }

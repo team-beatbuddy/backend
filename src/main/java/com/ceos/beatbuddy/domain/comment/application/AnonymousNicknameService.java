@@ -66,7 +66,7 @@ public class AnonymousNicknameService {
      * 해당 포스트의 다음 익명 번호 생성
      */
     private String generateNewAnonymousNickname(Long postId) {
-        List<String> allAnonymousNicknames = commentRepository.findDistinctAnonymousNicknamesByPostId(postId);
+        List<String> allAnonymousNicknames = commentRepository.findDistinctAnonymousNicknamesByPost_Id(postId);
         
         int maxNumber = 0;
         for (String nickname : allAnonymousNicknames) {
