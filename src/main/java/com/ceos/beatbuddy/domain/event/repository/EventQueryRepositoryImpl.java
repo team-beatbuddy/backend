@@ -49,7 +49,10 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
                     .leftJoin(eventLike).on(eventLike.event.eq(event).and(eventLike.createdAt.between(yesterday, now)))
                     .where(builder)
                     .groupBy(event)
-                    .orderBy(eventLike.count().desc())
+                    .orderBy(
+                            eventLike.count().desc(), // 1순위: 좋아요 개수 많은 순
+                            event.startDate.asc()     // 2순위: 시작일 빠른 순
+                    )
                     .offset(offset)
                     .limit(limit)
                     .fetch();
