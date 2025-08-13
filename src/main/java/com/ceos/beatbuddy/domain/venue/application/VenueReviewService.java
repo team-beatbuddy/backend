@@ -174,13 +174,11 @@ public class VenueReviewService {
         // Member ID 유효성 검사
         Member member = memberService.validateAndGetMember(memberId);
 
-        // 좋아요가 있는지 확인
-        if (!venueReviewLikeRepository.existsByVenueReview_IdAndMember_Id(venueReviewId, memberId)) {
+        // 리뷰 좋아요 삭제 (실제 삭제된 행 수 확인)
+        int deletedCount = venueReviewLikeRepository.deleteByVenueReview_IdAndMember_Id(venueReviewId, memberId);
+        if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
-
-        // 리뷰 좋아요 삭제
-        venueReviewLikeRepository.deleteByVenueReview_IdAndMember_Id(venueReviewId, memberId);
         venueReviewRepository.decreaseLikeCount(venueReview.getId());
     }
 

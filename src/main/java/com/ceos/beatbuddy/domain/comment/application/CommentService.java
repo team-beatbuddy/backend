@@ -332,13 +332,11 @@ public class CommentService {
             throw new CustomException(ErrorCode.BLOCKED_MEMBER);
         }
 
-        // 좋아요 엔티티가 존재하는지 확인
-        if (!commentLikeRepository.existsByCommentIdAndMemberId(commentId, memberId)) {
+        // 좋아요 엔티티 삭제 (실제 삭제된 행 수 확인)
+        int deletedCount = commentLikeRepository.deleteByCommentIdAndMemberId(commentId, memberId);
+        if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
-
-        // 좋아요 엔티티 삭제
-        commentLikeRepository.deleteByCommentIdAndMemberId(commentId, memberId);
 
         // 좋아요 로직 구현 필요 (중복 좋아요 방지 등)
         commentRepository.decreaseLikesById(commentId); // 좋아요 수 감소

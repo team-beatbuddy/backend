@@ -63,12 +63,11 @@ public class MagazineInteractionService {
         // 엔티티 검색
         magazineValidator.validateAndGetMagazine(magazineId);
 
-        // 좋아요 삭제
-        if (!magazineLikeRepository.existsByMemberIdAndMagazineId(memberId, magazineId)) {
+        // 좋아요 삭제 (실제 삭제된 행 수 확인)
+        int deletedCount = magazineLikeRepository.deleteByMemberIdAndMagazineId(memberId, magazineId);
+        if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
-
-        magazineLikeRepository.deleteByMemberIdAndMagazineId(memberId, magazineId);
         magazineRepository.decreaseLike(magazineId);
     }
 }

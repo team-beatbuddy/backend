@@ -55,11 +55,10 @@ public class PostInteractionService {
 
         Post post = validateAndGetPost(postId);
 
-        if (!postLikeRepository.existsByMember_IdAndPost_Id(memberId, postId)) {
+        int deletedCount = postLikeRepository.deleteByMember_IdAndPost_Id(memberId, postId);
+        if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
-
-        postLikeRepository.deleteByMember_IdAndPost_Id(memberId, postId);
         postRepository.decreaseLike(postId);
     }
 
@@ -89,11 +88,10 @@ public class PostInteractionService {
 
         Post post = validateAndGetPost(postId);
 
-        if (!postScrapRepository.existsByMember_IdAndPost_Id(memberId, postId)) {
+        int deletedCount = postScrapRepository.deleteByMember_IdAndPost_Id(memberId, postId);
+        if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_SCRAP);
         }
-
-        postScrapRepository.deleteByMember_IdAndPost_Id(memberId, postId);
         postRepository.decreaseScrap(postId);
     }
 
