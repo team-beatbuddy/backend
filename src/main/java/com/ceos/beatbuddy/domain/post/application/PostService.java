@@ -49,6 +49,8 @@ public class PostService {
     private final PostInteractionService postInteractionService;
     private final FollowRepository followRepository;
     private final UploadUtil uploadUtil;
+    private final PostResponseHelper postResponseHelper;
+    private final PostValidationHelper postValidationHelper;
 
     private static final List<String> VALID_POST_TYPES = List.of("free", "piece");
 
@@ -58,7 +60,7 @@ public class PostService {
                        PostTypeHandlerFactory postTypeHandlerFactory,
                        ImageUploadService imageUploadService, UploadUtilAsyncWrapper uploadUtilAsyncWrapper,
                        PostRepository postRepository, PostInteractionService postInteractionService,
-                       FollowRepository followRepository, UploadUtil uploadUtil) {
+                       FollowRepository followRepository, UploadUtil uploadUtil, PostResponseHelper postResponseHelper, PostValidationHelper postValidationHelper) {
         this.memberService = memberService;
         this.postLikeRepository = postLikeRepository;
         this.postScrapRepository = postScrapRepository;
@@ -72,6 +74,8 @@ public class PostService {
         this.postInteractionService = postInteractionService;
         this.followRepository = followRepository;
         this.uploadUtil = uploadUtil;
+        this.postResponseHelper = postResponseHelper;
+        this.postValidationHelper = postValidationHelper;
     }
 
     @Transactional
@@ -153,7 +157,7 @@ public class PostService {
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
         Page<? extends Post> postPage = handler.readAllPosts(pageable);
 
-        return getPostListResponseDTO(postPage, memberId);
+        return postResponseHelper.createPostListResponse(postPage, memberId);
     }
 
 
@@ -170,27 +174,7 @@ public class PostService {
         Member member = memberService.validateAndGetMember(memberId);
         List<Post> posts = postQueryRepository.findHotPostsWithin12Hours();
 
-        List<Long> postIds = posts.stream()
-                .map(Post::getId)
-                .toList();
-
-        // 좋아요, 스크랩, 댓글 여부를 IN 쿼리로 한 번에 조회
-        PostInteractionStatus status = postInteractionService.getAllPostInteractions(memberId, postIds);
-
-        // 팔로잉 중인 대상 ID 목록 가져오기
-        Set<Long> followingIds = followRepository.findFollowingMemberIds(member.getId());
-
-        return posts.stream()
-                .map(post -> PostPageResponseDTO.toDTO(
-                        post,
-                        status.likedPostIds().contains(post.getId()),
-                        status.scrappedPostIds().contains(post.getId()),
-                        status.commentedPostIds().contains(post.getId()),
-                        postRepository.findHashtagsByPostId(post.getId()),
-                        post.getMember().getId().equals(member.getId()),
-                        followingIds.contains(post.getMember().getId())
-                ))
-                .toList();
+        return postResponseHelper.createPostPageResponseDTOList(posts, memberId);
     }
 
     public PostListResponseDTO getHashtagPosts(Long memberId, List<String> hashtags, int page, int size) {
@@ -246,28 +230,18 @@ public class PostService {
                 .filter(handler::supports)
                 .toList();
 
-        // 최적화용 postIds 추출
-        List<Long> postIds = filteredPosts.stream()
-                .map(Post::getId)
-                .toList();
-
-        // 좋아요, 스크랩, 댓글 여부를 IN 쿼리로 한 번에 조회
+        // DTO 매핑 - 스크랩된 게시글이므로 모두 스크랩 상태 true로 설정
+        List<Long> postIds = filteredPosts.stream().map(Post::getId).toList();
         PostInteractionStatus status = postInteractionService.getAllPostInteractions(memberId, postIds);
-
-        // 팔로잉 중인 대상 ID 목록 가져오기
         Set<Long> followingIds = followRepository.findFollowingMemberIds(member.getId());
 
-        // DTO 매핑
         List<PostPageResponseDTO> dtos = filteredPosts.stream()
-                .map(post -> PostPageResponseDTO.toDTO(
-                        post,
-                        status.likedPostIds().contains(post.getId()),
-                        true, // 어차피 스크랩된 게시글이니까
-                        status.commentedPostIds().contains(post.getId()),
-                        postRepository.findHashtagsByPostId(post.getId()),
-                        post.getMember().getId().equals(memberId),
-                        followingIds.contains(post.getMember().getId())
-                ))
+                .map(post -> postResponseHelper.createPostPageResponseDTO(post, 
+                    new PostInteractionStatus(
+                        status.likedPostIds(),
+                        postIds.stream().collect(java.util.stream.Collectors.toSet()), // 스크랩된 게시글이므로 모두 true
+                        status.commentedPostIds()
+                    ), memberId, followingIds))
                 .toList();
 
         return PostListResponseDTO.builder()
@@ -298,7 +272,7 @@ public class PostService {
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
         postPage = handler.readAllPostsByMember(memberId, pageable);
 
-        return getPostListResponseDTO(postPage, memberId);
+        return postResponseHelper.createPostListResponse(postPage, memberId);
     }
 
     public PostListResponseDTO getUserPostsByType(Long memberId, Long userId, String type, int page, int size) {
@@ -319,39 +293,10 @@ public class PostService {
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
         Page<? extends Post> postPage = handler.readAllPostsByUserExcludingAnonymous(userId, pageable);
 
-        return getPostListResponseDTO(postPage, memberId);
+        return postResponseHelper.createPostListResponse(postPage, memberId);
     }
 
 
-    private PostListResponseDTO getPostListResponseDTO(Page<? extends Post> postPage, Long memberId) {
-        List<? extends Post> posts = postPage.getContent();
-        List<Long> postIds = posts.stream().map(Post::getId).toList();
-
-        // 좋아요/스크랩/댓글 여부를 IN 쿼리로 한 번에 조회
-        PostInteractionStatus status = postInteractionService.getAllPostInteractions(memberId, postIds);
-
-        // 팔로잉 중인 대상 ID 목록 가져오기
-        Set<Long> followingIds = followRepository.findFollowingMemberIds(memberId);
-
-        List<PostPageResponseDTO> dtoList = posts.stream()
-                .map(post -> PostPageResponseDTO.toDTO(
-                        post,
-                        status.likedPostIds().contains(post.getId()),
-                        status.scrappedPostIds().contains(post.getId()),
-                        status.commentedPostIds().contains(post.getId()),
-                        postRepository.findHashtagsByPostId(post.getId()),
-                        post.getMember().getId().equals(memberId),
-                        followingIds.contains(post.getMember().getId())
-                ))
-                .toList();
-
-        return PostListResponseDTO.builder()
-                .totalPost((int) postPage.getTotalElements())
-                .page(postPage.getNumber() + 1)
-                .size(postPage.getSize())
-                .responseDTOS(dtoList)
-                .build();
-    }
 
 
 
@@ -363,9 +308,7 @@ public class PostService {
     }
 
     public Post validateAndGetPost(Long postId) {
-        return  postRepository.findById(postId).orElseThrow(
-                () -> new CustomException(PostErrorCode.POST_NOT_EXIST)
-        );
+        return postValidationHelper.validateAndGetPost(postId);
     }
 
     private void validatePostAuthor(Post post, Long memberId) {
