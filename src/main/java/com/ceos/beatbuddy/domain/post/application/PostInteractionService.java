@@ -14,6 +14,7 @@ import com.ceos.beatbuddy.domain.scrapandlike.repository.PostScrapRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PostInteractionService {
     private final MemberService memberService;
     private final PostRepository postRepository;
@@ -59,7 +61,16 @@ public class PostInteractionService {
         if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
-        postRepository.decreaseLike(postId);
+        
+        if (deletedCount > 1) {
+            log.warn("Multiple post likes deleted for single request - postId: {}, memberId: {}, deletedCount: {}", 
+                    postId, memberId, deletedCount);
+        }
+
+        // 실제 삭제된 수만큼 카운트 감소
+        for (int i = 0; i < deletedCount; i++) {
+            postRepository.decreaseLike(postId);
+        }
     }
 
     @Transactional
@@ -92,7 +103,16 @@ public class PostInteractionService {
         if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_SCRAP);
         }
-        postRepository.decreaseScrap(postId);
+        
+        if (deletedCount > 1) {
+            log.warn("Multiple post scraps deleted for single request - postId: {}, memberId: {}, deletedCount: {}", 
+                    postId, memberId, deletedCount);
+        }
+
+        // 실제 삭제된 수만큼 카운트 감소
+        for (int i = 0; i < deletedCount; i++) {
+            postRepository.decreaseScrap(postId);
+        }
     }
 
 

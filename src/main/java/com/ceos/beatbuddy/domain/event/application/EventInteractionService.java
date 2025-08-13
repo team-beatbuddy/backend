@@ -9,11 +9,13 @@ import com.ceos.beatbuddy.domain.scrapandlike.entity.EventLike;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EventInteractionService {
     private final MemberService memberService;
     private final EventRepository eventRepository;
@@ -49,7 +51,15 @@ public class EventInteractionService {
         if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
+        
+        if (deletedCount > 1) {
+            log.warn("Multiple event likes deleted for single request - eventId: {}, memberId: {}, deletedCount: {}", 
+                    eventId, memberId, deletedCount);
+        }
 
-        eventRepository.decreaseLike(eventId);
+        // 실제 삭제된 수만큼 카운트 감소
+        for (int i = 0; i < deletedCount; i++) {
+            eventRepository.decreaseLike(eventId);
+        }
     }
 }
