@@ -41,7 +41,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 좋아요를 누른 것이 확인되어야만 좋아요 취소가 가능
     @Modifying
-    @Query("UPDATE Post p SET p.scraps = p.scraps - 1 WHERE p.id = :postId")
+    @Query("UPDATE Post p SET p.scraps = CASE WHEN p.scraps > 0 THEN p.scraps - 1 ELSE 0 END WHERE p.id = :postId")
     void decreaseScrap(@Param("postId") Long postId);
 
     @Modifying
