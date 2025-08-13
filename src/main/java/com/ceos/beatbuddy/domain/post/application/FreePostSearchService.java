@@ -117,7 +117,7 @@ public class FreePostSearchService {
         try {
 
             List<Query> filters = tags.stream()
-                    .map(tag -> Query.of(q -> q.term(t -> t.field("hashtags").value(tag))))
+                    .map(tag -> Query.of(q -> q.match(m -> m.field("hashtags").query(tag))))
                     .toList();
 
             Query query = Query.of(q -> q.bool(b -> b.filter(filters)));
