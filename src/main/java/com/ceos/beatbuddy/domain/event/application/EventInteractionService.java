@@ -44,12 +44,12 @@ public class EventInteractionService {
         eventService.validateAndGet(eventId);
 
 
-        // 좋아요 여부 확인
-        if (!eventLikeRepository.existsByMemberIdAndEventId(memberId, eventId)) {
+        // 좋아요 삭제 (실제 삭제된 행 수 확인)
+        int deletedCount = eventLikeRepository.deleteByMemberIdAndEventId(memberId, eventId);
+        if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
 
-        eventLikeRepository.deleteByMemberIdAndEventId(memberId, eventId);
         eventRepository.decreaseLike(eventId);
     }
 }
