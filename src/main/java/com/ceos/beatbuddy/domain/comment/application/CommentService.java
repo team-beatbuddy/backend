@@ -18,6 +18,7 @@ import com.ceos.beatbuddy.global.code.ErrorCode;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class CommentService {
     private final CommentRepository commentRepository;
     private final MemberService memberService;
@@ -337,9 +339,16 @@ public class CommentService {
         if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
+        
+        if (deletedCount > 1) {
+            log.warn("Multiple comment likes deleted for single request - commentId: {}, memberId: {}, deletedCount: {}", 
+                    commentId, memberId, deletedCount);
+        }
 
-        // 좋아요 로직 구현 필요 (중복 좋아요 방지 등)
-        commentRepository.decreaseLikesById(commentId); // 좋아요 수 감소
+        // 실제 삭제된 수만큼 카운트 감소
+        for (int i = 0; i < deletedCount; i++) {
+            commentRepository.decreaseLikesById(commentId);
+        }
 
         em.refresh(comment);
 

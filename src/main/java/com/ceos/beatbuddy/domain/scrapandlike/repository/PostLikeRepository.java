@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.scrapandlike.repository;
 
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostLike;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 
 import java.util.List;
 

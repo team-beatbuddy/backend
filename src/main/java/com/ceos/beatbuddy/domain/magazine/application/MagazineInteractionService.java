@@ -9,11 +9,13 @@ import com.ceos.beatbuddy.domain.scrapandlike.repository.MagazineLikeRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MagazineInteractionService {
     private final MagazineLikeRepository magazineLikeRepository;
     private final MemberService memberService;
@@ -68,6 +70,15 @@ public class MagazineInteractionService {
         if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
-        magazineRepository.decreaseLike(magazineId);
+        
+        if (deletedCount > 1) {
+            log.warn("Multiple magazine likes deleted for single request - magazineId: {}, memberId: {}, deletedCount: {}", 
+                    magazineId, memberId, deletedCount);
+        }
+
+        // 실제 삭제된 수만큼 카운트 감소
+        for (int i = 0; i < deletedCount; i++) {
+            magazineRepository.decreaseLike(magazineId);
+        }
     }
 }

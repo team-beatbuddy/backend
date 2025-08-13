@@ -17,6 +17,7 @@ import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.util.UploadUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +27,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VenueReviewService {
     private final VenueReviewRepository venueReviewRepository;
     private final VenueInfoService venueInfoService;
@@ -179,7 +181,16 @@ public class VenueReviewService {
         if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
-        venueReviewRepository.decreaseLikeCount(venueReview.getId());
+        
+        if (deletedCount > 1) {
+            log.warn("Multiple venue review likes deleted for single request - venueReviewId: {}, memberId: {}, deletedCount: {}", 
+                    venueReviewId, memberId, deletedCount);
+        }
+
+        // 실제 삭제된 수만큼 카운트 감소
+        for (int i = 0; i < deletedCount; i++) {
+            venueReviewRepository.decreaseLikeCount(venueReview.getId());
+        }
     }
 
     @Transactional
