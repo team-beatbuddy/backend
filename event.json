@@ -28,25 +28,17 @@
         "edge_ngram_analyzer": {
           "type": "custom",
           "tokenizer": "ngram_tokenizer",
-          "filter": [
-            "lowercase"
-          ]
+          "filter": ["lowercase"]
         },
         "synonym_edge_ngram_analyzer": {
           "type": "custom",
           "tokenizer": "ngram_tokenizer",
-          "filter": [
-            "lowercase",
-            "synonym_filter"
-          ]
+          "filter": ["lowercase", "synonym_filter"]
         },
         "synonym_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
-          "filter": [
-            "lowercase",
-            "synonym_filter"
-          ]
+          "filter": ["lowercase", "synonym_filter"]
         }
       }
     }
@@ -57,7 +49,12 @@
         "type": "text",
         "analyzer": "standard",
         "fields": {
-          "keyword": { "type": "keyword" }
+          "keyword": { "type": "keyword" },
+          "ngram": {
+            "type": "text",
+            "analyzer": "edge_ngram_analyzer",
+            "search_analyzer": "standard"
+          }
         }
       },
       "endDate": { "type": "date" },
@@ -81,14 +78,24 @@
         "type": "text",
         "analyzer": "standard",
         "fields": {
-          "keyword": { "type": "keyword" }
+          "keyword": { "type": "keyword" },
+          "ngram": {
+            "type": "text",
+            "analyzer": "edge_ngram_analyzer",
+            "search_analyzer": "standard"
+          }
         }
       },
       "notice": {
         "type": "text",
         "analyzer": "standard",
         "fields": {
-          "keyword": { "type": "keyword" }
+          "keyword": { "type": "keyword" },
+          "ngram": {
+            "type": "text",
+            "analyzer": "edge_ngram_analyzer",
+            "search_analyzer": "standard"
+          }
         }
       },
       "region": {
@@ -104,28 +111,48 @@
         "type": "text",
         "analyzer": "standard",
         "fields": {
-          "keyword": { "type": "keyword" }
+          "keyword": { "type": "keyword" },
+          "ngram": {
+            "type": "text",
+            "analyzer": "edge_ngram_analyzer",
+            "search_analyzer": "standard"
+          }
         }
       },
       "venueEnglishName": {
         "type": "text",
         "analyzer": "standard",
         "fields": {
-          "keyword": { "type": "keyword" }
+          "keyword": { "type": "keyword" },
+          "ngram": {
+            "type": "text",
+            "analyzer": "edge_ngram_analyzer",
+            "search_analyzer": "standard"
+          }
         }
       },
       "venueKoreanName": {
         "type": "text",
         "analyzer": "standard",
         "fields": {
-          "keyword": { "type": "keyword" }
+          "keyword": { "type": "keyword" },
+          "ngram": {
+            "type": "text",
+            "analyzer": "edge_ngram_analyzer",
+            "search_analyzer": "standard"
+          }
         }
       },
       "venueLocation": {
         "type": "text",
         "analyzer": "standard",
         "fields": {
-          "keyword": { "type": "keyword" }
+          "keyword": { "type": "keyword" },
+          "ngram": {
+            "type": "text",
+            "analyzer": "edge_ngram_analyzer",
+            "search_analyzer": "standard"
+          }
         }
       }
     }
