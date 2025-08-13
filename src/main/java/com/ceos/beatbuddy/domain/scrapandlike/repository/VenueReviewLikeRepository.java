@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface VenueReviewLikeRepository extends JpaRepository<VenueReviewLike, Long> {
     boolean existsByVenueReview_IdAndMember_Id(Long venueReviewId, Long memberId);
-    void deleteByVenueReview_IdAndMember_Id(Long venueReviewId, Long memberId);
+    @Modifying
+    int deleteByVenueReview_IdAndMember_Id(Long venueReviewId, Long memberId);
 }

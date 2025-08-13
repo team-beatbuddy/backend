@@ -11,7 +11,8 @@ import java.util.List;
 @Repository
 public interface MagazineLikeRepository extends JpaRepository<MagazineLike, Long> {
     boolean existsByMemberIdAndMagazineId(Long memberId, Long magazineId);
-    void deleteByMemberIdAndMagazineId(Long memberId, Long magazineId);
+    @Modifying
+    int deleteByMemberIdAndMagazineId(Long memberId, Long magazineId);
 
     @Query("SELECT ml.magazine.id FROM MagazineLike ml WHERE ml.member.id = :memberId")
     List<Long> findMagazineIdsByMemberId(@Param("memberId") Long memberId);

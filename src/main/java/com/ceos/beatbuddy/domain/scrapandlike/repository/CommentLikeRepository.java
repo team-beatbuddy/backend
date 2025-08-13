@@ -11,7 +11,8 @@ public interface CommentLikeRepository extends JpaRepository<CommentLike, Long> 
     boolean existsByCommentIdAndMemberId(Long commentId, Long memberId);
 
     // 댓글 좋아요 삭제 (특정 회원)
-    void deleteByCommentIdAndMemberId(Long commentId, Long memberId);
+    @Modifying
+    int deleteByCommentIdAndMemberId(Long commentId, Long memberId);
     
     // 댓글에 달린 모든 좋아요 삭제 (댓글 삭제 시 사용)
     void deleteByCommentId(Long commentId);
