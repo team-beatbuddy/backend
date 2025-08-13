@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
     boolean existsByMember_IdAndPost_Id(Long memberId, Long postId);
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     int deleteByMember_IdAndPost_Id(Long memberId, Long postId);
     List<PostLike> findAllByMember_IdAndPost_IdIn(Long memberId, List<Long> postIds);
 }
