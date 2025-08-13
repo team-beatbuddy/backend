@@ -41,8 +41,6 @@ public class CommentService {
     private final ApplicationEventPublisher eventPublisher;
     private final CommentLikeRepository commentLikeRepository;
     private final AnonymousNicknameService anonymousNicknameService;
-    @PersistenceContext
-    private EntityManager em;
 
     @Transactional
     public CommentResponseDto createComment(Long memberId, Long postId, CommentRequestDto requestDto) {
@@ -300,7 +298,7 @@ public class CommentService {
         }
 
         // 이미 좋아요를 누른 경우 예외 처리
-        if (commentLikeRepository.existsByCommentIdAndMemberId(commentId, memberId)) {
+        if (commentLikeRepository.existsByComment_IdAndMember_Id(commentId, memberId)) {
             throw new CustomException(ErrorCode.ALREADY_LIKED);
         }
 
@@ -314,8 +312,6 @@ public class CommentService {
 
         // 좋아요 로직 구현 필요 (중복 좋아요 방지 등)
         commentRepository.increaseLikesById(commentId); // 좋아요 수 증가
-
-        em.refresh(comment);
 
         // 팔로잉 여부
         boolean isFollowing = followRepository.existsByFollower_IdAndFollowing_Id(memberId, comment.getMember().getId());
@@ -335,7 +331,7 @@ public class CommentService {
         }
 
         // 좋아요 엔티티 삭제 (실제 삭제된 행 수 확인)
-        int deletedCount = commentLikeRepository.deleteByCommentIdAndMemberId(commentId, memberId);
+        int deletedCount = commentLikeRepository.deleteByComment_IdAndMember_Id(commentId, memberId);
         if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
@@ -346,11 +342,11 @@ public class CommentService {
         }
 
         // 실제 삭제된 수만큼 카운트 감소
-        for (int i = 0; i < deletedCount; i++) {
+        if (deletedCount > 1) {
+            commentRepository.decreaseLikesById(commentId, deletedCount);
+        } else {
             commentRepository.decreaseLikesById(commentId);
         }
-
-        em.refresh(comment);
 
         boolean isFollowing = followRepository.existsByFollower_IdAndFollowing_Id(memberId, comment.getMember().getId());
         boolean isPostWriter = comment.getPost().getMember().getId().equals(comment.getMember().getId());

@@ -12,9 +12,10 @@ import java.util.List;
 import java.util.Set;
 
 public interface EventLikeRepository extends JpaRepository<EventLike, Long> {
-    boolean existsByMemberIdAndEventId(Long memberId, Long eventId);
+    boolean existsByMember_IdAndEvent_Id(Long memberId, Long eventId);
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    int deleteByMemberIdAndEventId(Long memberId, Long eventId);
+    @Query("DELETE FROM EventLike el WHERE el.member.id = :memberId AND el.event.id = :eventId")
+    int deleteByMember_IdAndEvent_Id(Long memberId, Long eventId);
     Integer countAllByEvent(Event event);
 
     List<EventLike> findByMember(Member member);

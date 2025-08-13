@@ -13,7 +13,6 @@ import java.util.List;
 
 public interface PostScrapRepository extends JpaRepository<PostScrap, Long> {
     boolean existsByMember_IdAndPost_Id(Long memberId, Long postId);
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
     int deleteByMember_IdAndPost_Id(Long memberId, Long postId);
 
     @Query("SELECT ps.post FROM PostScrap ps WHERE ps.member.id = :memberId")

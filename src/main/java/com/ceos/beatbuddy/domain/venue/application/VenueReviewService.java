@@ -188,7 +188,9 @@ public class VenueReviewService {
         }
 
         // 실제 삭제된 수만큼 카운트 감소
-        for (int i = 0; i < deletedCount; i++) {
+        if (deletedCount > 1) {
+            venueReviewRepository.decreaseLikeCount(venueReview.getId(), deletedCount);
+        } else {
             venueReviewRepository.decreaseLikeCount(venueReview.getId());
         }
     }

@@ -24,6 +24,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Modifying
     @Query("UPDATE Post p SET p.likes = CASE WHEN p.likes > 0 THEN p.likes - 1 ELSE 0 END WHERE p.id = :postId")
     void decreaseLike(@Param("postId") Long postId);
+    
+    // 좋아요 수를 지정된 개수만큼 감소
+    @Modifying
+    @Query("UPDATE Post p SET p.likes = CASE WHEN p.likes >= :count THEN p.likes - :count ELSE 0 END WHERE p.id = :postId")
+    void decreaseLike(@Param("postId") Long postId, @Param("count") int count);
 
     @Query("select f from FreePost f where f.id = :id")
     Optional<FreePost> findFreePostById(@Param("id") Long id);
@@ -43,6 +48,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Modifying
     @Query("UPDATE Post p SET p.scraps = CASE WHEN p.scraps > 0 THEN p.scraps - 1 ELSE 0 END WHERE p.id = :postId")
     void decreaseScrap(@Param("postId") Long postId);
+    
+    // 스크랩 수를 지정된 개수만큼 감소
+    @Modifying
+    @Query("UPDATE Post p SET p.scraps = CASE WHEN p.scraps >= :count THEN p.scraps - :count ELSE 0 END WHERE p.id = :postId")
+    void decreaseScrap(@Param("postId") Long postId, @Param("count") int count);
 
     @Modifying
     @Query("UPDATE Post p SET p.views = p.views + 1 WHERE p.id = :postId")

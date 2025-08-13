@@ -73,7 +73,7 @@ public class EventResponseDTO {
     }
 
 
-    public static EventResponseDTO toDTO(Event event, boolean liked, boolean isAuthor, boolean isAttending, Integer actualLikeCount) {
+    public static EventResponseDTO toDTO(Event event, boolean liked, boolean isAuthor, boolean isAttending) {
         List<String> images = (event.getImageUrls() == null)
                 ? List.of()
                 : List.copyOf(event.getImageUrls()); // 혹은 new ArrayList<>(event.getImageUrls())
@@ -84,7 +84,7 @@ public class EventResponseDTO {
                 .content(event.getContent())
                 .images(images)
                 .views(event.getViews())
-                .likes(actualLikeCount != null ? actualLikeCount : event.getLikes())
+                .likes(event.getLikes())
                 .liked(liked)
                 .location(event.getLocation())
                 .startDate(event.getStartDate())
@@ -107,7 +107,7 @@ public class EventResponseDTO {
                 .build();
     }
 
-    public static EventResponseDTO toListDTO(Event event, boolean isAuthor, boolean liked, boolean isAttending, Integer actualLikeCount) {
+    public static EventResponseDTO toListDTO(Event event, boolean isAuthor, boolean liked, boolean isAttending) {
         return EventResponseDTO.builder()
                 .eventId(event.getId())
                 .title(event.getTitle())
@@ -115,7 +115,7 @@ public class EventResponseDTO {
                 .startDate(event.getStartDate())
                 .endDate(event.getEndDate())
                 .thumbImage(Optional.ofNullable(event.getThumbImage()).orElse(""))
-                .likes(actualLikeCount != null ? actualLikeCount : event.getLikes())
+                .likes(event.getLikes())
                 .views(event.getViews())
                 .location(event.getLocation())
                 .isAuthor(isAuthor)
@@ -124,23 +124,5 @@ public class EventResponseDTO {
                 .isFreeEntrance(event.isFreeEntrance())
                 .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
                 .build();
-    }
-
-    /**
-     * @deprecated Use {@link #toDTO(Event, boolean, boolean, boolean, Integer)} instead.
-     * This method may return inaccurate like counts due to concurrency issues.
-     */
-    @Deprecated(since = "1.0", forRemoval = true)
-    public static EventResponseDTO toDTO(Event event, boolean liked, boolean isAuthor, boolean isAttending) {
-        return toDTO(event, liked, isAuthor, isAttending, null);
-    }
-
-    /**
-     * @deprecated Use {@link #toListDTO(Event, boolean, boolean, boolean, Integer)} instead.
-     * This method may return inaccurate like counts due to concurrency issues.
-     */
-    @Deprecated(since = "1.0", forRemoval = true)
-    public static EventResponseDTO toListDTO(Event event, boolean isAuthor, boolean liked, boolean isAttending) {
-        return toListDTO(event, isAuthor, liked, isAttending, null);
     }
 }

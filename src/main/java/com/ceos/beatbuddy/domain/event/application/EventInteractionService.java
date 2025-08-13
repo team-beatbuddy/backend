@@ -28,7 +28,7 @@ public class EventInteractionService {
 
         Event event = eventService.validateAndGet(eventId);
 
-        if (eventLikeRepository.existsByMemberIdAndEventId(memberId, eventId)) {
+        if (eventLikeRepository.existsByMember_IdAndEvent_Id(memberId, eventId)) {
             throw new CustomException(ErrorCode.ALREADY_LIKED);
         }
 
@@ -47,7 +47,7 @@ public class EventInteractionService {
 
 
         // 좋아요 삭제 (실제 삭제된 행 수 확인)
-        int deletedCount = eventLikeRepository.deleteByMemberIdAndEventId(memberId, eventId);
+        int deletedCount = eventLikeRepository.deleteByMember_IdAndEvent_Id(memberId, eventId);
         if (deletedCount == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND_LIKE);
         }
@@ -56,10 +56,6 @@ public class EventInteractionService {
             log.warn("Multiple event likes deleted for single request - eventId: {}, memberId: {}, deletedCount: {}", 
                     eventId, memberId, deletedCount);
         }
-
-        // 실제 삭제된 수만큼 카운트 감소
-        for (int i = 0; i < deletedCount; i++) {
-            eventRepository.decreaseLike(eventId);
-        }
+        eventRepository.decreaseLike(eventId);
     }
 }

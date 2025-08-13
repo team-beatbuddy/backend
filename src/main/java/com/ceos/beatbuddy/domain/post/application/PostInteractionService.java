@@ -68,7 +68,9 @@ public class PostInteractionService {
         }
 
         // 실제 삭제된 수만큼 카운트 감소
-        for (int i = 0; i < deletedCount; i++) {
+        if (deletedCount > 1) {
+            postRepository.decreaseLike(postId, deletedCount);
+        } else {
             postRepository.decreaseLike(postId);
         }
     }
@@ -110,7 +112,9 @@ public class PostInteractionService {
         }
 
         // 실제 삭제된 수만큼 카운트 감소
-        for (int i = 0; i < deletedCount; i++) {
+        if (deletedCount > 1) {
+            postRepository.decreaseScrap(postId, deletedCount);
+        } else {
             postRepository.decreaseScrap(postId);
         }
     }

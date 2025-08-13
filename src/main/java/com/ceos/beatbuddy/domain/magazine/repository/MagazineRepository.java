@@ -22,6 +22,11 @@ public interface MagazineRepository extends JpaRepository<Magazine, Long> {
     @Modifying
     @Query("UPDATE Magazine m SET m.likes = CASE WHEN m.likes > 0 THEN m.likes - 1 ELSE 0 END WHERE m.id = :magazineId")
     void decreaseLike(@Param("magazineId") Long magazineId);
+    
+    // 좋아요 수를 지정된 개수만큼 감소
+    @Modifying
+    @Query("UPDATE Magazine m SET m.likes = CASE WHEN m.likes >= :count THEN m.likes - :count ELSE 0 END WHERE m.id = :magazineId")
+    void decreaseLike(@Param("magazineId") Long magazineId, @Param("count") int count);
 
     boolean existsByIsPinnedTrueAndOrderInHome(int orderInHome);
     boolean existsByIsPinnedTrueAndOrderInHomeAndIdNot(int orderInHome, Long excludingId);
