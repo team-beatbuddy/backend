@@ -38,18 +38,37 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     int countAllByVenue_Id(Long venueId);
 
+    // 오늘 시작 이전이면 이미 과거로 간 것: NOW → PAST
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("UPDATE Event e SET e.status = 'PAST' WHERE e.status = 'NOW' AND e.endDate < :now")
-    int updateToPast(@Param("now") LocalDateTime now);
+    @Query("""
+        update Event e
+           set e.status = 'PAST'
+         where e.status = 'NOW'
+           and e.endDate < :startOfToday
+    """)
+    int updateToPast(@Param("startOfToday") LocalDateTime startOfToday);
 
+    // 오늘 범위에 걸리면: UPCOMING → NOW
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("UPDATE Event e SET e.status = 'NOW' WHERE e.status = 'UPCOMING' AND e.startDate <= :now AND e.endDate >= :now")
-    int updateToNow(@Param("now") LocalDateTime now);
-    
+    @Query("""
+        update Event e
+           set e.status = 'NOW'
+         where e.status = 'UPCOMING'
+           and e.startDate <= :endOfToday
+           and e.endDate   >= :startOfToday
+    """)
+    int updateToNow(@Param("startOfToday") LocalDateTime startOfToday,
+                    @Param("endOfToday")   LocalDateTime endOfToday);
+
+    // 종료일이 오늘 시작보다 이전이면: UPCOMING → PAST (이상치 정리)
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("UPDATE Event e SET e.status = 'PAST' WHERE e.status = 'UPCOMING' AND e.endDate < :now")
-    int updateUpcomingToPast(@Param("now") LocalDateTime now);
-    
+    @Query("""
+        update Event e
+           set e.status = 'PAST'
+         where e.status = 'UPCOMING'
+           and e.endDate < :startOfToday
+    """)
+    int updateUpcomingToPast(@Param("startOfToday") LocalDateTime startOfToday);
     // 동시성 제어를 위한 PESSIMISTIC_WRITE 락
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT e FROM Event e WHERE e.id = :id")

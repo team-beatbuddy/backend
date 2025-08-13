@@ -24,8 +24,6 @@ public interface EventQueryRepository {
     List<Event> findMyUpcomingEvents(Member member);
     List<Event> findMyNowEvents(Member member);
     List<Event> findMyPastEvents(Member member);
-    List<Event> findEventsInPeriod(LocalDate startDate, LocalDate endDate, int offset, int limit);
-    long countEventsInPeriod(LocalDate startDate, LocalDate endDate);
 
     Page<Event> findVenueOngoingOrUpcomingEvents(Long venueId, Pageable pageable);
     Page<Event> findVenuePastEvents(Long venueId, Pageable pageable);
