@@ -26,6 +26,11 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Event e SET e.likes = CASE WHEN e.likes > 0 THEN e.likes - 1 ELSE 0 END WHERE e.id = :eventId")
     void decreaseLike(@Param("eventId") Long eventId);
+    
+    // 좋아요 수를 지정된 개수만큼 감소
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Event e SET e.likes = CASE WHEN e.likes >= :count THEN e.likes - :count ELSE 0 END WHERE e.id = :eventId")
+    void decreaseLike(@Param("eventId") Long eventId, @Param("count") int count);
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Event e SET e.views = e.views + 1 WHERE e.id = :eventId")

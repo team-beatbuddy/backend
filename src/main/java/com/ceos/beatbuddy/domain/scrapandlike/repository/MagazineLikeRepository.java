@@ -12,7 +12,9 @@ import java.util.List;
 @Repository
 public interface MagazineLikeRepository extends JpaRepository<MagazineLike, Long> {
     boolean existsByMemberIdAndMagazineId(Long memberId, Long magazineId);
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM MagazineLike ml WHERE ml.member.id = :memberId AND ml.magazine.id = :magazineId")
     int deleteByMemberIdAndMagazineId(Long memberId, Long magazineId);
 
     @Query("SELECT ml.magazine.id FROM MagazineLike ml WHERE ml.member.id = :memberId")
