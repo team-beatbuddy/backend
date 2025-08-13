@@ -6,14 +6,47 @@
           "type": "edge_ngram",
           "min_gram": 1,
           "max_gram": 20,
-          "token_chars": ["letter", "digit"]
+          "token_chars": [
+            "letter",
+            "digit"
+          ]
+        }
+      },
+      "filter": {
+        "synonym_filter": {
+          "type": "synonym",
+          "synonyms": [
+            "홍대, HONGDAE",
+            "이태원, ITAEWON",
+            "압구정, APGUJEONG",
+            "강남,신사,강남_신사,강남/신사,GANGNAM/SINSA",
+            "기타, OTHERS"
+          ]
         }
       },
       "analyzer": {
         "edge_ngram_analyzer": {
           "type": "custom",
           "tokenizer": "ngram_tokenizer",
-          "filter": ["lowercase"]
+          "filter": [
+            "lowercase"
+          ]
+        },
+        "synonym_edge_ngram_analyzer": {
+          "type": "custom",
+          "tokenizer": "ngram_tokenizer",
+          "filter": [
+            "lowercase",
+            "synonym_filter"
+          ]
+        },
+        "synonym_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "synonym_filter"
+          ]
         }
       }
     }
@@ -24,102 +57,75 @@
         "type": "text",
         "analyzer": "standard",
         "fields": {
-          "keyword": {
-            "type": "keyword"
-          }
+          "keyword": { "type": "keyword" }
         }
       },
-      "endDate": {
-        "type": "date"
-      },
+      "endDate": { "type": "date" },
       "entranceNotice": {
         "type": "text",
         "analyzer": "standard",
         "fields": {
-          "keyword": {
-            "type": "keyword"
-          }
+          "keyword": { "type": "keyword" }
         }
       },
-      "id": {
-        "type": "long"
-      },
+      "id": { "type": "long" },
       "isFreeEntrance": {
         "type": "text",
         "analyzer": "standard",
         "fields": {
-          "keyword": {
-            "type": "keyword"
-          }
+          "keyword": { "type": "keyword" }
         }
       },
-      "isVisible": {
-        "type": "boolean"
-      },
+      "isVisible": { "type": "boolean" },
       "location": {
         "type": "text",
         "analyzer": "standard",
         "fields": {
-          "keyword": {
-            "type": "keyword"
-          }
+          "keyword": { "type": "keyword" }
         }
       },
       "notice": {
         "type": "text",
         "analyzer": "standard",
         "fields": {
-          "keyword": {
-            "type": "keyword"
-          }
+          "keyword": { "type": "keyword" }
         }
       },
       "region": {
         "type": "text",
-        "analyzer": "standard",
+        "analyzer": "synonym_edge_ngram_analyzer",
+        "search_analyzer": "synonym_analyzer",
         "fields": {
-          "keyword": {
-            "type": "keyword"
-          }
+          "keyword": { "type": "keyword" }
         }
       },
-      "startDate": {
-        "type": "date"
-      },
+      "startDate": { "type": "date" },
       "title": {
         "type": "text",
         "analyzer": "standard",
         "fields": {
-          "keyword": {
-            "type": "keyword"
-          }
+          "keyword": { "type": "keyword" }
         }
       },
       "venueEnglishName": {
         "type": "text",
         "analyzer": "standard",
         "fields": {
-          "keyword": {
-            "type": "keyword"
-          }
+          "keyword": { "type": "keyword" }
         }
       },
       "venueKoreanName": {
         "type": "text",
         "analyzer": "standard",
         "fields": {
-          "keyword": {
-            "type": "keyword"
-          }
+          "keyword": { "type": "keyword" }
         }
       },
       "venueLocation": {
         "type": "text",
         "analyzer": "standard",
         "fields": {
-          "keyword": {
-            "type": "keyword"
-          }
+          "keyword": { "type": "keyword" }
         }
       }
     }

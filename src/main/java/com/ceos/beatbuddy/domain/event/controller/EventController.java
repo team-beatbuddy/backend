@@ -235,7 +235,9 @@ public class EventController implements EventApiDocs {
             @RequestParam(required = false) LocalDate endDate
     ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        EventListResponseDTO results = eventElasticService.search(keyword, memberId, page, size, startDate.atStartOfDay(), endDate.atTime(23, 59, 59));
+        LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = endDate != null ? endDate.atTime(23, 59, 59) : null;
+        EventListResponseDTO results = eventElasticService.search(keyword, memberId, page, size, startDateTime, endDateTime);
         return ResponseEntity
                 .status(SuccessCode.EVENT_SEARCH_SUCCESS.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.EVENT_SEARCH_SUCCESS, results));
