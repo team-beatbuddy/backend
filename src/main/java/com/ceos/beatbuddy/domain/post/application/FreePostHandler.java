@@ -38,6 +38,8 @@ public class FreePostHandler implements PostTypeHandler{
     private final FollowRepository followRepository;
     private final PostRepository postRepository;
     private final UploadUtilAsyncWrapper uploadUtilAsyncWrapper;
+    private final PostResponseHelper postResponseHelper;
+    private final PostValidationHelper postValidationHelper;
 
     @Override
     public boolean supports(Post post) {
@@ -70,7 +72,7 @@ public class FreePostHandler implements PostTypeHandler{
     @Override
     @Transactional
     public Post readPost(Long postId) {
-        Post post = validateAndGetPost(postId);
+        Post post = postValidationHelper.validateAndGetPost(postId);
 
         postRepository.increaseViews(postId); // 조회수 증가
         return post;
@@ -79,10 +81,10 @@ public class FreePostHandler implements PostTypeHandler{
     @Override
     @Transactional
     public void deletePost(Long postId, Member member) {
-        Post post = validateAndGetPost(postId);
+        Post post = postValidationHelper.validateAndGetPost(postId);
         validateWriter(post, member);
         freePostRepository.deleteById(post.getId());
-        freePostSearchService.delete(postId); // 게시// 글 삭제 시 검색 인덱스에서 제거
+        freePostSearchService.delete(postId); // 게시글 삭제 시 검색 인덱스에서 제거
 
         List<String> imageUrls = post.getImageUrls();
 
@@ -94,8 +96,7 @@ public class FreePostHandler implements PostTypeHandler{
 
     @Override
     public Post validateAndGetPost(Long postId) {
-        return freePostRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
+        return postValidationHelper.validateAndGetPost(postId);
     }
 
     @Override
@@ -158,45 +159,12 @@ public class FreePostHandler implements PostTypeHandler{
         List<FixedHashtag> fixedHashtags = validateAndGetHashtags(hashtags);
 
         // 정렬은 QueryDSL 내부에서 처리 createdAt DESC
-        Page<FreePost> posts = postQueryRepository.findPostsByHashtags(fixedHashtags, pageable);
-
-        if (posts.isEmpty()) {
-            return PostListResponseDTO.builder()
-                    .totalPost(0)
-                    .page(pageable.getPageNumber())
-                    .size(pageable.getPageSize())
-                    .responseDTOS(Collections.emptyList())
-                    .build();
-        }
-
-        List<Long> postIds = posts.stream().map(Post::getId).toList();
-
-
-        // 회원의 상호작용 정보 조회
-        PostInteractionStatus status = postInteractionService.getAllPostInteractions(member.getId(), postIds);
-
-        // 팔로잉 중인 대상 ID 목록 가져오기
-        Set<Long> followingIds = followRepository.findFollowingMemberIds(member.getId());
-
-
-        List<PostPageResponseDTO> dtos = posts.stream()
-                .map(post -> PostPageResponseDTO.toDTO(
-                        post,
-                        status.likedPostIds().contains(post.getId()),
-                        status.scrappedPostIds().contains(post.getId()),
-                        status.commentedPostIds().contains(post.getId()),
-                        post.getHashtag(),
-                        post.getMember().getId().equals(member.getId()),
-                        followingIds.contains(post.getMember().getId())
-                ))
-                .toList();
-
-        return PostListResponseDTO.builder()
-                .totalPost((int) posts.getTotalElements())
-                .page(pageable.getPageNumber())
-                .size(pageable.getPageSize())
-                .responseDTOS(dtos)
-                .build();
+        return freePostSearchService.searchPostsByHashtags(
+            fixedHashtags, 
+            pageable.getPageNumber() + 1, // Service는 1기반 페이지 기대
+            pageable.getPageSize(), 
+            member.getId()
+        );
     }
 
 

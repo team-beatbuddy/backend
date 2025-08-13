@@ -24,6 +24,7 @@ public class PiecePostHandler implements PostTypeHandler {
     private final PiecePostRepository piecePostRepository;
     private final VenueInfoService venueInfoService;
     private final PieceService pieceService;
+    private final PostValidationHelper postValidationHelper;
 
     @Override
     public boolean supports(Post post) {
@@ -52,16 +53,19 @@ public class PiecePostHandler implements PostTypeHandler {
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional
     public void deletePost(Long postId, Member member) {
-        Post post = validateAndGetPost(postId);
+        Post post = postValidationHelper.validateAndGetPost(postId);
+        if (!(post instanceof PiecePost)) {
+            throw new CustomException(PostErrorCode.POST_NOT_EXIST);
+        }
         validateWriter(post, member);
         piecePostRepository.deleteById(post.getId());
     }
 
     @Override
     public Post validateAndGetPost(Long postId) {
-        return piecePostRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_EXIST));
+        return postValidationHelper.validateAndGetPost(postId);
     }
 
     @Override
