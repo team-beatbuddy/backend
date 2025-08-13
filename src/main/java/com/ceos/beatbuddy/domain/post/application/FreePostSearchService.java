@@ -38,10 +38,12 @@ public class FreePostSearchService {
     private final FollowRepository followRepository;
     private final MemberService memberService;
     private final RecentSearchService recentSearchService;
+    private final PostResponseHelper postResponseHelper;
 
     public void save(FreePost post) {
         try {
             FreePostDocument document = FreePostDocument.toDTO(post); // DTO or 도큐먼트 변환
+            log.info("ES 인덱싱 - postId: {}, hashtags: {}", post.getId(), document.getHashtags());
             elasticsearchClient.index(i -> i
                     .index("post")
                     .id(post.getId().toString())
@@ -107,16 +109,20 @@ public class FreePostSearchService {
         int adjustedPage = Math.max(0, page - 1);
 
         List<String> tags = fixedHashtags.stream()
-                .map(FixedHashtag::name) // enum이면 name(), 값필드 있으면 getValue()
+                .map(FixedHashtag::getDisplayName) // 인덱싱과 동일한 displayName 사용
                 .toList();
+
+        log.info("검색할 해시태그들: {}", tags);
 
         try {
 
             List<Query> filters = tags.stream()
-                    .map(tag -> Query.of(q -> q.term(t -> t.field("hashtags").value(tag))))
+                    .map(tag -> Query.of(q -> q.match(m -> m.field("hashtags").query(tag))))
                     .toList();
 
             Query query = Query.of(q -> q.bool(b -> b.filter(filters)));
+            
+            log.info("Elasticsearch 쿼리: {}", query);
 
             // 1. Elasticsearch에서 검색
             SearchResponse<FreePostDocument> response = elasticsearchClient.search(s -> s
@@ -126,6 +132,8 @@ public class FreePostSearchService {
                             .query(query),
                     FreePostDocument.class
             );
+            
+            log.info("ES 검색 결과 개수: {}", response.hits().hits().size());
 
             return processSearchResponse(response, page, size, memberId, member);
         } catch (IOException e) {
@@ -159,12 +167,7 @@ public class FreePostSearchService {
     }
 
     private PostListResponseDTO createEmptyResponse(int page, int size) {
-        return PostListResponseDTO.builder()
-                .totalPost(0)
-                .page(page)
-                .size(size)
-                .responseDTOS(Collections.emptyList())
-                .build();
+        return postResponseHelper.createEmptyPostListResponse(page, size);
     }
 
     private List<Long> extractPostIds(SearchResponse<FreePostDocument> response) {
@@ -193,15 +196,7 @@ public class FreePostSearchService {
 
     private List<PostPageResponseDTO> convertToDTO(List<FreePost> posts, PostInteractionStatus status, Long memberId, Set<Long> followingIds) {
         return posts.stream()
-                .map(post -> PostPageResponseDTO.toDTO(
-                        post,
-                        status.likedPostIds().contains(post.getId()),
-                        status.scrappedPostIds().contains(post.getId()),
-                        status.commentedPostIds().contains(post.getId()),
-                        post.getHashtag() != null ? post.getHashtag() : Collections.emptyList(),
-                        post.getMember().getId().equals(memberId),
-                        followingIds.contains(post.getMember().getId())
-                ))
+                .map(post -> postResponseHelper.createPostPageResponseDTO(post, status, memberId, followingIds))
                 .toList();
     }
 }
