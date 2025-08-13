@@ -70,7 +70,7 @@ public class PostResponseHelper {
     public PostListResponseDTO createEmptyPostListResponse(int page, int size) {
         return PostListResponseDTO.builder()
                 .totalPost(0)
-                .page(page)
+                .page(page) // FreePostSearchService에서 이미 1-base로 전달됨
                 .size(size)
                 .responseDTOS(Collections.emptyList())
                 .build();

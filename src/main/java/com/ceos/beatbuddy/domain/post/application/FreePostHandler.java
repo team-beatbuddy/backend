@@ -159,7 +159,12 @@ public class FreePostHandler implements PostTypeHandler{
         List<FixedHashtag> fixedHashtags = validateAndGetHashtags(hashtags);
 
         // 정렬은 QueryDSL 내부에서 처리 createdAt DESC
-        return freePostSearchService.searchPostsByHashtags(fixedHashtags, pageable.getPageNumber(), pageable.getPageSize(), member.getId());
+        return freePostSearchService.searchPostsByHashtags(
+            fixedHashtags, 
+            pageable.getPageNumber() + 1, // Service는 1기반 페이지 기대
+            pageable.getPageSize(), 
+            member.getId()
+        );
     }
 
 
