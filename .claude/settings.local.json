@@ -7,10 +7,7 @@
       "Bash(./gradlew:*)",
       "Bash(rm:*)",
       "Bash(find:*)",
-      "Bash(grep:*)",
-      "Bash(taskkill:*)",
-      "Bash(TASKKILL /F /PID 34860)",
-      "Bash(kill:*)"
+      "Bash(grep:*)"
     ],
     "deny": []
   }
