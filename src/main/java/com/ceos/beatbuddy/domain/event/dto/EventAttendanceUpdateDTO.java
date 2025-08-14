@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.event.dto;
 
+import com.ceos.beatbuddy.domain.event.constant.SNSType;
 import com.ceos.beatbuddy.domain.member.constant.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,7 @@ public class EventAttendanceUpdateDTO {
 
     private Integer totalMember; // 동행 인원
 
-    private String snsType;
+    private SNSType snsType;
 
     private String snsId;
 

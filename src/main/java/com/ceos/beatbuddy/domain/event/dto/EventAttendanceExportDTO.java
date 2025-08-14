@@ -36,7 +36,7 @@ public class EventAttendanceExportDTO {
                 .name(entity.getName() != null ? entity.getName() : "-")
                 .gender(entity.getGender().getText() != null? entity.getGender().getText() : "-")
                 .phoneNumber(entity.getPhoneNumber() != null ? entity.getPhoneNumber() : "-")
-                .snsType(entity.getSnsType() != null ? entity.getSnsType() : "-")
+                .snsType(entity.getSnsType() != null ? entity.getSnsType().name() : "-")
                 .snsId(entity.getSnsId() != null ? entity.getSnsId() : "-")
                 .isPaid(entity.getHasPaid() != null ? entity.getHasPaid().toString() : "-")
                 .totalMember(entity.getTotalMember() != null? entity.getTotalMember().toString() : "-")
