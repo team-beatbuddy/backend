@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.event.application;
 import com.ceos.beatbuddy.domain.event.dto.EventAttendanceRequestDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventAttendanceUpdateDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventUpdateRequestDTO;
+import com.ceos.beatbuddy.domain.event.constant.SNSType;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventAttendance;
 import com.ceos.beatbuddy.domain.event.entity.EventComment;
@@ -77,8 +78,11 @@ public class EventValidator {
             if (event.isReceiveTotalCount() && dto.getTotalNumber() == null) {
                 throw new CustomException(EventErrorCode.MISSING_TOTAL_COUNT);
             }
-            if (event.isReceiveSNSId() && (isEmpty(dto.getSnsType()) || isEmpty(dto.getSnsId()))) {
-                throw new CustomException(EventErrorCode.MISSING_SNS_ID_OR_TYPE);
+            if (event.isReceiveSNSId()) {
+                SNSType snsType = SNSType.fromString(dto.getSnsType());
+                if (isEmpty(dto.getSnsType()) || (!snsType.isNone() && isEmpty(dto.getSnsId()))) {
+                    throw new CustomException(EventErrorCode.MISSING_SNS_ID_OR_TYPE);
+                }
             }
             if (event.isReceiveMoney() && dto.getIsPaid() == null) {
                 throw new CustomException(EventErrorCode.MISSING_PAYMENT);
@@ -151,8 +155,16 @@ public class EventValidator {
 
     // SNS 정보가 비어있을 때 예외 처리
     private void validateSnsInfo(EventAttendanceUpdateDTO dto, EventAttendance existing) {
-        boolean dtoMissing = isEmpty(dto.getSnsType()) || isEmpty(dto.getSnsId());
-        boolean existingMissing = isEmpty(existing.getSnsType()) || isEmpty(existing.getSnsId());
+        // DTO와 기존 데이터에서 SNSType이 NONE인 경우 검증 제외
+        boolean dtoHasNone = dto.getSnsType() != null && dto.getSnsType().isNone();
+        boolean existingHasNone = existing.getSnsType() != null && existing.getSnsType().isNone();
+        
+        if (dtoHasNone || existingHasNone) {
+            return; // NONE인 경우 검증하지 않음
+        }
+        
+        boolean dtoMissing = dto.getSnsType() == null || isEmpty(dto.getSnsId());
+        boolean existingMissing = existing.getSnsType() == null || isEmpty(existing.getSnsId());
 
         if (dtoMissing && existingMissing) {
             throw new CustomException(EventErrorCode.MISSING_SNS_ID_OR_TYPE);

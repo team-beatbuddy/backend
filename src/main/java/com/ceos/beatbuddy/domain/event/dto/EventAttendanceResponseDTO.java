@@ -31,7 +31,7 @@ public class EventAttendanceResponseDTO {
                 .name(entity.getName())
                 .gender(entity.getGender() != null ? entity.getGender().getText() : null)
                 .phoneNumber(entity.getPhoneNumber())
-                .snsType(entity.getSnsType())
+                .snsType(entity.getSnsType() != null ? entity.getSnsType().name() : null)
                 .snsId(entity.getSnsId())
                 .isPaid(entity.getHasPaid())
                 .totalMember(entity.getTotalMember())
