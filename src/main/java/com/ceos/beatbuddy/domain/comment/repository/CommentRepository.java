@@ -17,6 +17,9 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // 단건 존재 여부
     boolean existsByPost_IdAndMember_Id(Long postId, Long memberId);
+    
+    // 삭제되지 않은 댓글 존재 여부
+    boolean existsByPost_IdAndMember_IdAndIsDeletedFalse(Long postId, Long memberId);
 
     // 최적화용 bulk 조회
     List<Comment> findAllByMember_IdAndPost_IdIn(Long memberId, List<Long> postIds);
