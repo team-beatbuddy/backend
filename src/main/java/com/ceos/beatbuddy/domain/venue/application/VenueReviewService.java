@@ -235,12 +235,15 @@ public class VenueReviewService {
             List<String> currentImageUrls = venueReview.getImageUrls();
             List<String> currentThumbnailUrls = venueReview.getThumbnailUrls();
             
-            // 삭제할 썸네일 URL들 찾기
+            // 삭제할 썸네일 URL들 찾기 - 인덱스 불일치 방지
             List<String> deleteThumbUrls = new ArrayList<>();
-            for (String deleteUrl : deleteUrls) {
-                int index = currentImageUrls.indexOf(deleteUrl);
-                if (index != -1 && index < currentThumbnailUrls.size()) {
-                    deleteThumbUrls.add(currentThumbnailUrls.get(index));
+            if (currentImageUrls != null && currentThumbnailUrls != null && 
+                currentImageUrls.size() == currentThumbnailUrls.size()) {
+                for (String deleteUrl : deleteUrls) {
+                    int index = currentImageUrls.indexOf(deleteUrl);
+                    if (index != -1 && index < currentThumbnailUrls.size()) {
+                        deleteThumbUrls.add(currentThumbnailUrls.get(index));
+                    }
                 }
             }
             
