@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.event.entity;
 
 import com.ceos.beatbuddy.domain.event.dto.EventAttendanceUpdateDTO;
+import com.ceos.beatbuddy.domain.event.constant.SNSType;
 import com.ceos.beatbuddy.domain.member.constant.Gender;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
@@ -44,7 +45,8 @@ public class EventAttendance extends BaseTimeEntity {
     private Integer totalMember; // 동행인원 (본인 포함)
 
     @Setter(AccessLevel.PROTECTED)
-    private String snsType; // 인스타그램, 페이스북, X
+    @Enumerated(EnumType.STRING)
+    private SNSType snsType;
     @Setter(AccessLevel.PROTECTED)
     private String snsId;
 
@@ -57,7 +59,14 @@ public class EventAttendance extends BaseTimeEntity {
         Optional.ofNullable(dto.getPhoneNumber()).ifPresent(this::setPhoneNumber);
         Optional.ofNullable(dto.getTotalMember()).ifPresent(this::setTotalMember);
         Optional.ofNullable(dto.getSnsType()).ifPresent(this::setSnsType);
-        Optional.ofNullable(dto.getSnsId()).ifPresent(this::setSnsId);
+        
+        // SNSType이 NONE인 경우 snsId는 항상 null로 처리
+        if (dto.getSnsType() != null && dto.getSnsType().isNone()) {
+            this.setSnsId(null);
+        } else {
+            Optional.ofNullable(dto.getSnsId()).ifPresent(this::setSnsId);
+        }
+        
         Optional.ofNullable(dto.getHasPaid()).ifPresent(this::setHasPaid);
     }
 }
