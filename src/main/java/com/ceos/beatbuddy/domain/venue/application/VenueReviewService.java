@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -81,7 +82,7 @@ public class VenueReviewService {
     @Transactional(readOnly = true)
     public List<VenueReviewResponseDTO> getVenueReview(Long venueId, Long memberId, boolean hasImage, String sort) {
         // Venue ID 유효성 검사
-        Venue venue = venueInfoService.validateAndGetVenue(venueId);
+        venueInfoService.validateAndGetVenue(venueId);
         memberService.validateAndGetMember(memberId);
 
         // 정렬 기준
@@ -100,11 +101,21 @@ public class VenueReviewService {
 
         Set<Long> followingMemberIds = followRepository.findFollowingMemberIds(memberId);
 
-        // 리뷰에 대한 좋아요 여부 설정
+        // 리뷰 ID 목록 추출
+        List<Long> reviewIds = reviews.stream()
+                .map(VenueReview::getId)
+                .toList();
+
+        // 좋아요한 리뷰 ID 목록을 한 번에 조회 (N+1 문제 해결)
+        Set<Long> likedReviewIds = venueReviewLikeRepository.findAllByMember_IdAndVenueReview_IdIn(memberId, reviewIds)
+                .stream()
+                .map(like -> like.getVenueReview().getId())
+                .collect(Collectors.toSet());
+
+        // 리뷰 DTO 변환
         return reviews.stream()
                 .map(review -> {
-                    boolean isLiked = venueReviewLikeRepository.existsByVenueReview_IdAndMember_Id(review.getId(), memberId);
-                    // 리뷰 작성자가 본인인지 여부
+                    boolean isLiked = likedReviewIds.contains(review.getId());
                     boolean isAuthor = review.getMember().getId().equals(memberId);
                     return VenueReviewResponseDTO.toDTO(review, isLiked, isAuthor, followingMemberIds.contains(review.getMember().getId()));
                 })
