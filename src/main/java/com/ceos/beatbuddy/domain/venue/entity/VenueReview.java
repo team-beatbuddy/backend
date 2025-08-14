@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.venue.entity;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.VenueReviewLike;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
+import com.ceos.beatbuddy.global.util.StringListConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,10 +28,10 @@ public class VenueReview extends BaseTimeEntity {
 
     private int likes;
 
-    @ElementCollection
+    @Convert(converter = StringListConverter.class)
     private List<String> imageUrls = new ArrayList<>(); // 리뷰 이미지 URL 목록
     
-    @ElementCollection
+    @Convert(converter = StringListConverter.class)
     private List<String> thumbnailUrls = new ArrayList<>(); // 썸네일 이미지 URL 목록
 
     @ManyToOne(fetch = FetchType.LAZY)
