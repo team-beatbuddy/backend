@@ -16,14 +16,18 @@ import com.ceos.beatbuddy.domain.venue.repository.VenueReviewRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.util.UploadUtil;
+import com.ceos.beatbuddy.global.service.ImageUploadService;
+import com.ceos.beatbuddy.global.util.UploadResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +37,7 @@ public class VenueReviewService {
     private final VenueInfoService venueInfoService;
     private final MemberService memberService;
     private final UploadUtil uploadUtil;
+    private final ImageUploadService imageUploadService;
     private final VenueReviewQueryRepository venueReviewQueryRepository;
     private final VenueReviewLikeRepository venueReviewLikeRepository;
     private final FollowRepository followRepository;
@@ -58,10 +63,14 @@ public class VenueReviewService {
         venueReview.setVenue(venue);
         venueReview.setMember(member);
 
-        // 이미지 업로드
+        // 이미지 업로드 (썸네일 포함)
         if (images != null && !images.isEmpty()) {
-            List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.VENUE,REVIEW_FOLDER);
+            List<UploadResult> uploadResults = imageUploadService.uploadImagesWithThumbnails(images, UploadUtil.BucketType.VENUE, REVIEW_FOLDER);
+            List<String> imageUrls = uploadResults.stream().map(UploadResult::getOriginalUrl).toList();
+            List<String> thumbnailUrls = uploadResults.stream().map(UploadResult::getThumbnailUrl).toList();
+            
             venueReview.setImageUrls(imageUrls);
+            venueReview.setThumbnailUrls(thumbnailUrls);
         }
 
         // 리뷰 저장
@@ -73,7 +82,7 @@ public class VenueReviewService {
     @Transactional(readOnly = true)
     public List<VenueReviewResponseDTO> getVenueReview(Long venueId, Long memberId, boolean hasImage, String sort) {
         // Venue ID 유효성 검사
-        Venue venue = venueInfoService.validateAndGetVenue(venueId);
+        venueInfoService.validateAndGetVenue(venueId);
         memberService.validateAndGetMember(memberId);
 
         // 정렬 기준
@@ -92,11 +101,21 @@ public class VenueReviewService {
 
         Set<Long> followingMemberIds = followRepository.findFollowingMemberIds(memberId);
 
-        // 리뷰에 대한 좋아요 여부 설정
+        // 리뷰 ID 목록 추출
+        List<Long> reviewIds = reviews.stream()
+                .map(VenueReview::getId)
+                .toList();
+
+        // 좋아요한 리뷰 ID 목록을 한 번에 조회 (N+1 문제 해결)
+        Set<Long> likedReviewIds = venueReviewLikeRepository.findAllByMember_IdAndVenueReview_IdIn(memberId, reviewIds)
+                .stream()
+                .map(like -> like.getVenueReview().getId())
+                .collect(Collectors.toSet());
+
+        // 리뷰 DTO 변환
         return reviews.stream()
                 .map(review -> {
-                    boolean isLiked = venueReviewLikeRepository.existsByVenueReview_IdAndMember_Id(review.getId(), memberId);
-                    // 리뷰 작성자가 본인인지 여부
+                    boolean isLiked = likedReviewIds.contains(review.getId());
                     boolean isAuthor = review.getMember().getId().equals(memberId);
                     return VenueReviewResponseDTO.toDTO(review, isLiked, isAuthor, followingMemberIds.contains(review.getMember().getId()));
                 })
@@ -220,17 +239,43 @@ public class VenueReviewService {
             throw new CustomException(ErrorCode.TOO_MANY_IMAGES_5);
         }
 
-        // 이미지 삭제
+        // 이미지 삭제 (원본 + 썸네일)
         if (venueReviewUpdateDTO.getDeleteImageUrls() != null && !venueReviewUpdateDTO.getDeleteImageUrls().isEmpty()) {
-            uploadUtil.deleteImages(venueReviewUpdateDTO.getDeleteImageUrls(), UploadUtil.BucketType.VENUE);
-            venueReview.getImageUrls().removeAll(venueReviewUpdateDTO.getDeleteImageUrls());
+            // 삭제할 원본 이미지의 인덱스 찾기
+            List<String> deleteUrls = venueReviewUpdateDTO.getDeleteImageUrls();
+            List<String> currentImageUrls = venueReview.getImageUrls();
+            List<String> currentThumbnailUrls = venueReview.getThumbnailUrls();
+            
+            // 삭제할 썸네일 URL들 찾기 - 인덱스 불일치 방지
+            List<String> deleteThumbUrls = new ArrayList<>();
+            if (currentImageUrls != null && currentThumbnailUrls != null && 
+                currentImageUrls.size() == currentThumbnailUrls.size()) {
+                for (String deleteUrl : deleteUrls) {
+                    int index = currentImageUrls.indexOf(deleteUrl);
+                    if (index != -1 && index < currentThumbnailUrls.size()) {
+                        deleteThumbUrls.add(currentThumbnailUrls.get(index));
+                    }
+                }
+            }
+            
+            // 원본 + 썸네일 모두 삭제
+            uploadUtil.deleteImages(deleteUrls, UploadUtil.BucketType.VENUE);
+            if (!deleteThumbUrls.isEmpty()) {
+                uploadUtil.deleteImages(deleteThumbUrls, UploadUtil.BucketType.VENUE);
+            }
+            
+            venueReview.getImageUrls().removeAll(deleteUrls);
+            venueReview.getThumbnailUrls().removeAll(deleteThumbUrls);
         }
 
-
-        // 이미지 업로드
+        // 이미지 업로드 (원본 + 썸네일)
         if (images != null && !images.isEmpty()) {
-            List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.VENUE, REVIEW_FOLDER);
+            List<UploadResult> uploadResults = imageUploadService.uploadImagesWithThumbnails(images, UploadUtil.BucketType.VENUE, REVIEW_FOLDER);
+            List<String> imageUrls = uploadResults.stream().map(UploadResult::getOriginalUrl).toList();
+            List<String> thumbnailUrls = uploadResults.stream().map(UploadResult::getThumbnailUrl).toList();
+            
             venueReview.getImageUrls().addAll(imageUrls);
+            venueReview.getThumbnailUrls().addAll(thumbnailUrls);
         }
 
         // 리뷰 저장

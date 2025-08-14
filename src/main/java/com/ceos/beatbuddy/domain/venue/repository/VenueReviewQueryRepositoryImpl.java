@@ -21,6 +21,8 @@ public class VenueReviewQueryRepositoryImpl implements VenueReviewQueryRepositor
 
         return queryFactory
                 .selectFrom(review)
+                .leftJoin(review.member).fetchJoin()
+                .leftJoin(review.venue).fetchJoin()
                 .where(review.venue.id.eq(venueId))
                 .orderBy(getOrderSpecifier(review, sortBy))
                 .fetch();
@@ -32,6 +34,8 @@ public class VenueReviewQueryRepositoryImpl implements VenueReviewQueryRepositor
 
         return queryFactory
                 .selectFrom(review)
+                .leftJoin(review.member).fetchJoin()
+                .leftJoin(review.venue).fetchJoin()
                 .where(
                         review.venue.id.eq(venueId),
                         review.imageUrls.isNotEmpty()
@@ -46,6 +50,8 @@ public class VenueReviewQueryRepositoryImpl implements VenueReviewQueryRepositor
 
         return queryFactory
                 .selectFrom(review)
+                .leftJoin(review.member).fetchJoin()
+                .leftJoin(review.venue).fetchJoin()
                 .where(
                         review.venue.id.eq(venueId),
                         blockedMemberIds.isEmpty() ? null : review.member.id.notIn(blockedMemberIds)
@@ -60,6 +66,8 @@ public class VenueReviewQueryRepositoryImpl implements VenueReviewQueryRepositor
 
         return queryFactory
                 .selectFrom(review)
+                .leftJoin(review.member).fetchJoin()
+                .leftJoin(review.venue).fetchJoin()
                 .where(
                         review.venue.id.eq(venueId),
                         review.imageUrls.isNotEmpty(),

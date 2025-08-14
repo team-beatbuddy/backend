@@ -4,6 +4,7 @@ package com.ceos.beatbuddy.domain.venue.controller;
 import com.ceos.beatbuddy.domain.venue.dto.VenueReviewRequestDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueReviewResponseDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueReviewUpdateDTO;
+import com.ceos.beatbuddy.domain.venue.dto.api.VenueReviewListApi;
 import com.ceos.beatbuddy.global.SwaggerExamples;
 import com.ceos.beatbuddy.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -130,35 +131,7 @@ public interface VenueReviewApiDocs {
             @ApiResponse(responseCode = "200", description = "베뉴 리뷰 조회 성공",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class),
-                            examples = {@ExampleObject(value = """
-                                            {
-                                              "status": 200,
-                                              "code": "SUCCESS_GET_VENUE_REVIEW",
-                                              "message": "베뉴 리뷰를 조회했습니다.",
-                                              "data": [
-                                                {
-                                                  "venueReviewId": 6,
-                                                  "content": "string",
-                                                  "nickname": "길동hong",
-                                                  "likes": 0,
-                                                  "liked": false,
-                                                  "profileImageUrl": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/member/01e2e094-3--.png",
-                                                  "role": "BUSINESS",
-                                                  "createdAt": "2025-07-01T19:53:56.294687",
-                                                  "imageUrls": [
-                                                    "https://beatbuddy-venue.s3.ap-northeast-2.amazonaws.com/review/20250701_195355_32a97151-fdb7-4334-9d20-e508f3a48fb6.png",
-                                                    "https://beatbuddy-venue.s3.ap-northeast-2.amazonaws.com/review/20250701_195355_3d34539f-7521-4bdb-ae4c-d04efbecfe9f.png"
-                                                  ],
-                                                  "isAuthor": true,
-                                                  "writerId": 1,
-                                                  "isFollowing": false
-                                                }
-                                              ]
-                                            }
-                                    """),
-                                    @ExampleObject(name = "빈 리뷰 리스트", value = SwaggerExamples.SUCCESS_BUT_EMPTY_LIST)
-                            }
+                            schema = @Schema(implementation = VenueReviewListApi.class)
                     )
             ),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 유저, 베뉴가 존재하지 않는 경우",
