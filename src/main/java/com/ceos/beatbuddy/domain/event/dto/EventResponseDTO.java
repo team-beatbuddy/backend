@@ -124,7 +124,7 @@ public class EventResponseDTO {
                 .isAttending(isAttending)
                 .isFreeEntrance(event.isFreeEntrance())
                 .receiveAccompany(event.isReceiveTotalCount())
-                .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
+                .region(Optional.of(event.getRegion().name()).orElse(""))
                 .build();
     }
 }
