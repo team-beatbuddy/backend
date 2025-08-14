@@ -161,17 +161,19 @@ public class SearchService {
     }
 
     private List<SearchQueryResponseDTO> sortVenuesByCriteria(List<SearchQueryResponseDTO> list, String criteria, Double lat, Double lng) {
-        if (criteria.equals("인기순")) {
+        if ("인기순".equals(criteria)) {
             return list.stream()
                     .sorted(Comparator.comparingLong(SearchQueryResponseDTO::getHeartbeatNum).reversed())
                     .toList();
-        } else if (criteria.equals("가까운 순")) {
+        } else if ("가까운 순".equals(criteria) || "거리순".equals(criteria)) {
             return list.stream()
                     .sorted(Comparator.comparingDouble(dto -> 
                         haversine(lat, lng, dto.getLatitude(), dto.getLongitude())
                     ))
                     .toList();
-        } else throw new CustomException(SearchErrorCode.UNAVAILABLE_SORT_CRITERIA);
+        } else {
+            throw new CustomException(SearchErrorCode.UNAVAILABLE_SORT_CRITERIA);
+        }
     }
 
     private List<SearchQueryResponseDTO> applyPaginationIfNeeded(List<SearchQueryResponseDTO> list, String criteria, int page, int size) {
@@ -237,7 +239,7 @@ public class SearchService {
     }
 
     private void validateCoordinatesForSortCriteria(String criteria, Double latitude, Double longitude) {
-        if ("가까운 순".equals(criteria)) {
+        if ("가까운 순".equals(criteria) || "거리순".equals(criteria)) {
             if (latitude == null || longitude == null) {
                 throw new CustomException(SearchErrorCode.COORDINATES_REQUIRED_FOR_DISTANCE_SORT);
             }
