@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
                 System.getenv().getOrDefault("ENV", "local"),
                 req.getMethod(), req.getRequestURI(), 500,
                 memberId, ex.getClass().getSimpleName(),
-                briefReason(ex), safeMessage(ex),
+                safeMessage(ex), safeMessage(ex),
                 traceId, OffsetDateTime.now(ZoneId.of("Asia/Seoul")).toString()
         );
 
@@ -60,9 +60,6 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDTO(internalServerError));
     }
 
-    private static String briefReason(Throwable ex) {
-        return ex.getMessage();
-    }
     private static String safeMessage(Throwable ex) {
         return Optional.ofNullable(ex.getMessage()).orElse("unexpected error");
     }
