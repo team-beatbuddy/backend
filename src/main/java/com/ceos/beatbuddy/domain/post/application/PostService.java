@@ -341,7 +341,7 @@ public class PostService {
     private Triple<Boolean, Boolean, Boolean> getPostInteractions(Long memberId, Long postId) {
         boolean isLiked = postLikeRepository.existsByMember_IdAndPost_Id(memberId, postId);
         boolean isScrapped = postScrapRepository.existsByMember_IdAndPost_Id(memberId, postId);
-        boolean hasCommented = commentRepository.existsByPost_IdAndMember_Id(postId, memberId);
+        boolean hasCommented = commentRepository.existsByPost_IdAndMember_IdAndIsDeletedFalse(postId, memberId);
 
         return Triple.of(isLiked, isScrapped, hasCommented);
     }
