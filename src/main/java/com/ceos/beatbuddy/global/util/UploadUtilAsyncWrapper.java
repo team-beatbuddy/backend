@@ -23,8 +23,8 @@ public class UploadUtilAsyncWrapper {
         long start = System.currentTimeMillis();
         log.info("▶ START Upload: {}", name);
 
-        if ("post".equals(folder)) {
-            // post 폴더인 경우: 원본과 썸네일을 진짜 병렬로 업로드
+        if ("post".equals(folder) || "review".equals(folder)) {
+            // post/review 폴더인 경우: 원본과 썸네일을 진짜 병렬로 업로드
             CompletableFuture<String> originalFuture = CompletableFuture.supplyAsync(() -> {
                 try {
                     // 비디오 썸네일 생성을 제외한 원본 업로드만 수행
@@ -68,7 +68,7 @@ public class UploadUtilAsyncWrapper {
             
             return CompletableFuture.completedFuture(result);
         } else {
-            // post가 아닌 경우: 원본만 업로드
+            // post/review가 아닌 경우: 원본만 업로드
             String originalUrl = uploadUtil.upload(image, type, folder);
             
             UploadResult result = UploadResult.builder()
