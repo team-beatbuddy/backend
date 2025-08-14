@@ -63,7 +63,7 @@ public class SearchController {
                                                                            @Schema(description = "지역 필터 값", allowableValues = {"홍대", "압구정", "강남/신사", "이태원", "기타"}) String regionTag,
                                                                            @RequestParam(required = false) 
                                                                            @Schema(description = "장르 필터 값", allowableValues = {"HIPHOP", "R&B", "EDM", "HOUSE", "TECHNO", "SOUL&FUNK", "ROCK", "LATIN", "K-POP", "POP"}) String genreTag,
-                                                                           @RequestParam(required = false) 
+                                                                           @RequestParam(required = false, defaultValue = "가까운 순") 
                                                                            @Schema(description = "정렬 기준", allowableValues = {"인기순", "가까운 순"}) String criteria,
                                                                            @RequestParam(required = false) String keyword,
                                                                            @RequestParam(required = false) Double latitude,
@@ -105,7 +105,7 @@ public class SearchController {
                                                                 @Schema(description = "지역 필터 값", allowableValues = {"홍대", "압구정", "강남/신사", "이태원", "기타"}) String regionTag,
                                                                 @RequestParam(required = false) 
                                                                 @Schema(description = "장르 필터 값", allowableValues = {"HIPHOP", "R&B", "EDM", "HOUSE", "TECHNO", "SOUL&FUNK", "ROCK", "LATIN", "K-POP", "POP"}) String genreTag,
-                                                                @RequestParam(required = false) 
+                                                                @RequestParam(required = false, defaultValue = "가까운 순") 
                                                                 @Schema(description = "정렬 기준", allowableValues = {"인기순", "가까운 순"}) String criteria,
                                                                 @RequestParam(required = false) String keyword,
                                                                        @RequestParam(required = false) Double latitude,
