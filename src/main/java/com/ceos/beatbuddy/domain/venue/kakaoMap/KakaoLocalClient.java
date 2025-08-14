@@ -1,35 +1,26 @@
 package com.ceos.beatbuddy.domain.venue.kakaoMap;
 
 import com.ceos.beatbuddy.global.CustomException;
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
-import reactor.netty.http.client.HttpClient;
-
-import java.time.Duration;
 
 @Service
-@RequiredArgsConstructor
 public class KakaoLocalClient {
 
     private final KakaoConfig kakaoConfig;
-    private WebClient webClient;
-    @PostConstruct
-    public void init() {
-        this.webClient = WebClient.builder()
-                .baseUrl("https://dapi.kakao.com")
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "KakaoAK " + kakaoConfig.getClientId())
-                .clientConnector(new ReactorClientHttpConnector(
-                    HttpClient.create()
-                        .responseTimeout(Duration.ofSeconds(5))
-                ))
-                .build();
+    private final WebClient webClient;
+
+    public KakaoLocalClient(
+            KakaoConfig kakaoConfig,
+            @Qualifier("kakaoWebClient") WebClient webClient // ← 명시!
+    ) {
+        this.kakaoConfig = kakaoConfig;
+        this.webClient = webClient;
     }
+
     public Mono<CoordinateResponse> getCoordinateFromAddress(String address) {
         if (address == null || address.trim().isEmpty()) {
             return Mono.error(new CustomException("주소가 비어있습니다."));
