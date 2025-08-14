@@ -83,7 +83,10 @@ public class EventElasticService {
         Member member = memberService.validateAndGetMember(memberId);
         if (page < 1) throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
 
-        recentSearchService.saveRecentSearch(SearchTypeEnum.EVENT.name(), keyword, memberId);
+        // 키워드가 있을 때만 최근 검색어에 저장
+        if (keyword != null && !keyword.isBlank()) {
+            recentSearchService.saveRecentSearch(SearchTypeEnum.EVENT.name(), keyword, memberId);
+        }
 
         boolean isAdmin = member.isAdmin();
         Set<Long> likedEventIds = new HashSet<>(eventLikeRepository.findLikedEventIdsByMember(member));
