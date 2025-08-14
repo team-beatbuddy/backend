@@ -20,6 +20,9 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // 최적화용 bulk 조회
     List<Comment> findAllByMember_IdAndPost_IdIn(Long memberId, List<Long> postIds);
+    
+    // 삭제되지 않은 댓글만 조회
+    List<Comment> findAllByMember_IdAndPost_IdInAndIsDeletedFalse(Long memberId, List<Long> postIds);
 
     List<Comment> findAllByPost_IdOrderByCreatedAtAsc(Long postId);
 
