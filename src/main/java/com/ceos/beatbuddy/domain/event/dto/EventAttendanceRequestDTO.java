@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Schema(description = "이벤트 참석 요청 DTO")
 public class EventAttendanceRequestDTO {
-    @Schema(description = "이벤트 ID", example = "1")
+    @Schema(description = "이름", example = "홍길동")
     private String name;
     @Schema(description = "성별 (MALE, FEMALE, None)", example = "MALE", allowableValues = "MALE, FEMALE, NONE")
     private String gender;
