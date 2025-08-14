@@ -2,7 +2,9 @@ package com.ceos.beatbuddy.domain.post.application;
 
 import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.post.dto.*;
+import com.ceos.beatbuddy.domain.post.dto.PostCreateRequestDTO;
+import com.ceos.beatbuddy.domain.post.dto.PostListResponseDTO;
+import com.ceos.beatbuddy.domain.post.dto.UpdatePostRequestDTO;
 import com.ceos.beatbuddy.domain.post.entity.FixedHashtag;
 import com.ceos.beatbuddy.domain.post.entity.FreePost;
 import com.ceos.beatbuddy.domain.post.entity.Post;
@@ -22,10 +24,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Component("free")
 @RequiredArgsConstructor
