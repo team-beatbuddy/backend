@@ -16,6 +16,8 @@ import com.ceos.beatbuddy.domain.venue.repository.VenueReviewRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import com.ceos.beatbuddy.global.util.UploadUtil;
+import com.ceos.beatbuddy.global.service.ImageUploadService;
+import com.ceos.beatbuddy.global.util.UploadResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,7 @@ public class VenueReviewService {
     private final VenueInfoService venueInfoService;
     private final MemberService memberService;
     private final UploadUtil uploadUtil;
+    private final ImageUploadService imageUploadService;
     private final VenueReviewQueryRepository venueReviewQueryRepository;
     private final VenueReviewLikeRepository venueReviewLikeRepository;
     private final FollowRepository followRepository;
@@ -58,10 +61,14 @@ public class VenueReviewService {
         venueReview.setVenue(venue);
         venueReview.setMember(member);
 
-        // 이미지 업로드
+        // 이미지 업로드 (썸네일 포함)
         if (images != null && !images.isEmpty()) {
-            List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.VENUE,REVIEW_FOLDER);
+            List<UploadResult> uploadResults = imageUploadService.uploadImagesWithThumbnails(images, UploadUtil.BucketType.VENUE, REVIEW_FOLDER);
+            List<String> imageUrls = uploadResults.stream().map(UploadResult::getOriginalUrl).toList();
+            List<String> thumbnailUrls = uploadResults.stream().map(UploadResult::getThumbnailUrl).toList();
+            
             venueReview.setImageUrls(imageUrls);
+            venueReview.setThumbnailUrls(thumbnailUrls);
         }
 
         // 리뷰 저장
