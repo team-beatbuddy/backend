@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -227,17 +228,40 @@ public class VenueReviewService {
             throw new CustomException(ErrorCode.TOO_MANY_IMAGES_5);
         }
 
-        // 이미지 삭제
+        // 이미지 삭제 (원본 + 썸네일)
         if (venueReviewUpdateDTO.getDeleteImageUrls() != null && !venueReviewUpdateDTO.getDeleteImageUrls().isEmpty()) {
-            uploadUtil.deleteImages(venueReviewUpdateDTO.getDeleteImageUrls(), UploadUtil.BucketType.VENUE);
-            venueReview.getImageUrls().removeAll(venueReviewUpdateDTO.getDeleteImageUrls());
+            // 삭제할 원본 이미지의 인덱스 찾기
+            List<String> deleteUrls = venueReviewUpdateDTO.getDeleteImageUrls();
+            List<String> currentImageUrls = venueReview.getImageUrls();
+            List<String> currentThumbnailUrls = venueReview.getThumbnailUrls();
+            
+            // 삭제할 썸네일 URL들 찾기
+            List<String> deleteThumbUrls = new ArrayList<>();
+            for (String deleteUrl : deleteUrls) {
+                int index = currentImageUrls.indexOf(deleteUrl);
+                if (index != -1 && index < currentThumbnailUrls.size()) {
+                    deleteThumbUrls.add(currentThumbnailUrls.get(index));
+                }
+            }
+            
+            // 원본 + 썸네일 모두 삭제
+            uploadUtil.deleteImages(deleteUrls, UploadUtil.BucketType.VENUE);
+            if (!deleteThumbUrls.isEmpty()) {
+                uploadUtil.deleteImages(deleteThumbUrls, UploadUtil.BucketType.VENUE);
+            }
+            
+            venueReview.getImageUrls().removeAll(deleteUrls);
+            venueReview.getThumbnailUrls().removeAll(deleteThumbUrls);
         }
 
-
-        // 이미지 업로드
+        // 이미지 업로드 (원본 + 썸네일)
         if (images != null && !images.isEmpty()) {
-            List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.VENUE, REVIEW_FOLDER);
+            List<UploadResult> uploadResults = imageUploadService.uploadImagesWithThumbnails(images, UploadUtil.BucketType.VENUE, REVIEW_FOLDER);
+            List<String> imageUrls = uploadResults.stream().map(UploadResult::getOriginalUrl).toList();
+            List<String> thumbnailUrls = uploadResults.stream().map(UploadResult::getThumbnailUrl).toList();
+            
             venueReview.getImageUrls().addAll(imageUrls);
+            venueReview.getThumbnailUrls().addAll(thumbnailUrls);
         }
 
         // 리뷰 저장
