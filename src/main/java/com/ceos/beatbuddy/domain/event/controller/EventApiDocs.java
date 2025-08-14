@@ -390,26 +390,11 @@ public interface EventApiDocs {
                             "views": 0,
                             "startDate": "2025-06-17T00:00:00",
                             "endDate": "2025-06-17T00:00:00",
+                            "receiveAccompany": false,
                             "location": "경기도 파주",
                             "isAuthor": false,
                             "region": "홍대",
                             "isAttending": false,
-                            "liked": false,
-                            "isFreeEntrance": false
-                          },
-                          {
-                            "eventId": 2,
-                            "title": "string",
-                            "content": "string",
-                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ae7cd814-fGroup%201000003259.png",
-                            "likes": 1,
-                            "views": 0,
-                            "startDate": "2025-06-18T00:00:00",
-                            "endDate": "2025-06-23T00:00:00",
-                            "location": "서울시",
-                            "isAuthor": false,
-                            "region": "홍대",
-                            "isAttending": true,
                             "liked": false,
                             "isFreeEntrance": false
                           }
@@ -468,6 +453,7 @@ public interface EventApiDocs {
                             "isAuthor": false,
                             "region": "홍대",
                             "isAttending": false,
+                            "receiveAccompany": false,
                             "liked": false,
                             "isFreeEntrance": false
                           }
@@ -524,22 +510,7 @@ public interface EventApiDocs {
                             "endDate": "2025-06-23T00:00:00",
                             "region": "홍대",
                             "isFreeEntrance": false,
-                            "isAttending": true,
-                            "isAuthor": true
-                          },
-                          {
-                            "eventId": 1,
-                            "title": "이벤트 시작",
-                            "content": "이게 바로 이트",
-                            "thumbImage": "https://beatbuddy.s3.ap-northeast-2.amazonaws.com/ddded007-dGroup%201000003259.png",
-                            "liked": false,
-                            "location": "경기도 파주",
-                            "likes": 5,
-                            "views": 29,
-                            "startDate": "2025-06-17T00:00:00",
-                            "endDate": "2025-06-17T00:00:00",
-                            "region": "강남_신사",
-                            "isFreeEntrance": false,
+                            "receiveAccompany": false,
                             "isAttending": true,
                             "isAuthor": true
                           }
