@@ -28,9 +28,11 @@ public class VenueReview extends BaseTimeEntity {
 
     private int likes;
 
+    @Column(length = 3000)
     @Convert(converter = StringListConverter.class)
     private List<String> imageUrls = new ArrayList<>(); // 리뷰 이미지 URL 목록
-    
+
+    @Column(length = 3000)
     @Convert(converter = StringListConverter.class)
     private List<String> thumbnailUrls = new ArrayList<>(); // 썸네일 이미지 URL 목록
 
