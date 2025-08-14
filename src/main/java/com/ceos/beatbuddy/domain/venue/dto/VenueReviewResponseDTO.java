@@ -24,6 +24,7 @@ public class VenueReviewResponseDTO {
     private String role; // 사용자 역할 (예: "USER", "ADMIN")
     private LocalDateTime createdAt; // 리뷰 작성 시간
     private List<String> imageUrls;
+    private List<String> thumbImageUrls;
 
     @JsonProperty("isAuthor")
     private Boolean isAuthor; // 작성자가 본인인지 여부
@@ -47,6 +48,7 @@ public class VenueReviewResponseDTO {
                 .role(entity.getMember().getRole().name())
                 .createdAt(entity.getCreatedAt())
                 .imageUrls(entity.getImageUrls() != null ? entity.getImageUrls() : List.of())
+                .thumbImageUrls(entity.getThumbnailUrls() != null ? entity.getThumbnailUrls() : List.of())
                 .isAuthor(isAuthor) // 작성자가 본인인지 여부
                 .writerId(entity.getMember().getId())
                 .isFollowing(isFollowing) // 팔로우 여부
