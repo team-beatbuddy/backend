@@ -12,6 +12,7 @@ import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.vector.entity.Vector;
+import com.ceos.beatbuddy.domain.venue.dto.VenueInfoOptimizedData;
 import com.ceos.beatbuddy.domain.venue.dto.VenueInfoResponseDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueUpdateDTO;
@@ -23,6 +24,7 @@ import com.ceos.beatbuddy.domain.venue.exception.VenueGenreErrorCode;
 import com.ceos.beatbuddy.domain.venue.exception.VenueMoodErrorCode;
 import com.ceos.beatbuddy.domain.venue.kakaoMap.KakaoLocalClient;
 import com.ceos.beatbuddy.domain.venue.repository.VenueGenreRepository;
+import com.ceos.beatbuddy.domain.venue.repository.VenueInfoQueryRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueMoodRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import com.ceos.beatbuddy.global.CustomException;
@@ -66,6 +68,7 @@ public class VenueInfoService {
     private final EventAttendanceRepository eventAttendanceRepository;
     private final EventRepository eventRepository;
     private final KakaoLocalClient kakaoLocalClient;
+    private final VenueInfoQueryRepository venueInfoQueryRepository;
 
     private final UploadUtil uploadUtil;
     public List<Venue> getVenueInfoList() {
@@ -74,31 +77,17 @@ public class VenueInfoService {
 
     public VenueInfoResponseDTO getVenueInfo(Long venueId, Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
-        Venue venue = venueRepository.findById(venueId)
-                .orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
-        boolean isHeartbeat = heartbeatRepository.findByMemberVenue(member, venue).isPresent();
-
-        VenueGenre venueGenre = venueGenreRepository.findByVenue(venue)
-                .orElseThrow(() -> new CustomException(VenueGenreErrorCode.VENUE_GENRE_NOT_EXIST));
-        List<String> trueGenreElements = Vector.getTrueGenreElements(venueGenre.getGenreVector());
-
-        VenueMood venueMood = venueMoodRepository.findByVenue(venue)
-                .orElseThrow(() -> new CustomException(VenueMoodErrorCode.VENUE_MOOD_NOT_EXIST));
-        List<String> trueMoodElements = Vector.getTrueMoodElements(venueMood.getMoodVector());
-        String region = venue.getRegion().getText();
-
-        List<String> tagList = new ArrayList<>(trueGenreElements);
-        tagList.addAll(trueMoodElements);
-        tagList.add(region);
-
-        // 쿠폰 사용 가능한 여부
-        boolean hasCoupon = couponRepository.existsByVenues_IdAndExpireDateAfter(venue.getId(), LocalDate.now());
+        
+        var optimizedData = venueInfoQueryRepository.findVenueInfoOptimized(venueId, memberId);
+        if (optimizedData == null) {
+            throw new CustomException(VenueErrorCode.VENUE_NOT_EXIST);
+        }
 
         return VenueInfoResponseDTO.builder()
-                .venue(venue)
-                .isHeartbeat(isHeartbeat)
-                .isCoupon(hasCoupon)
-                .tagList(tagList)
+                .venue(optimizedData.getVenue())
+                .isHeartbeat(optimizedData.isHeartbeat())
+                .isCoupon(optimizedData.isHasCoupon())
+                .tagList(optimizedData.getTagList())
                 .build();
     }
 
@@ -299,8 +288,12 @@ public class VenueInfoService {
             throw new CustomException(VenueErrorCode.VENUE_NOT_EXIST);
         }
 
-        return venueIds.stream()
-                .map(this::validateAndGetVenue)
-                .collect(Collectors.toList());
+        List<Venue> venues = venueRepository.findByIdIn(venueIds);
+        
+        if (venues.size() != venueIds.size()) {
+            throw new CustomException(VenueErrorCode.VENUE_NOT_EXIST);
+        }
+
+        return venues;
     }
 }
