@@ -128,7 +128,7 @@ public class PostInteractionService {
     }
 
     private Set<Long> getCommentedPostIds(Long memberId, List<Long> postIds) {
-        return commentRepository.findAllByMember_IdAndPost_IdIn(memberId, postIds)
+        return commentRepository.findAllByMember_IdAndPost_IdInAndIsDeletedFalse(memberId, postIds)
                 .stream()
                 .map(c -> c.getPost().getId())
                 .collect(Collectors.toSet());
