@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.venue.repository;
 import com.ceos.beatbuddy.domain.venue.entity.QVenueReview;
 import com.ceos.beatbuddy.domain.venue.entity.VenueReview;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -38,7 +39,7 @@ public class VenueReviewQueryRepositoryImpl implements VenueReviewQueryRepositor
                 .leftJoin(review.venue).fetchJoin()
                 .where(
                         review.venue.id.eq(venueId),
-                        review.imageUrls.isNotNull().and(review.imageUrls.ne(""))
+                        Expressions.booleanTemplate("{0} is not null", review.imageUrls)
                 )
                 .orderBy(getOrderSpecifier(review, sortBy))
                 .fetch();
@@ -70,7 +71,7 @@ public class VenueReviewQueryRepositoryImpl implements VenueReviewQueryRepositor
                 .leftJoin(review.venue).fetchJoin()
                 .where(
                         review.venue.id.eq(venueId),
-                        review.imageUrls.isNotNull().and(review.imageUrls.ne("")),
+                        Expressions.booleanTemplate("{0} is not null", review.imageUrls),
                         blockedMemberIds.isEmpty() ? null : review.member.id.notIn(blockedMemberIds)
                 )
                 .orderBy(getOrderSpecifier(review, sortBy))
