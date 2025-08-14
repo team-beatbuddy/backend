@@ -38,7 +38,7 @@ public class VenueReviewQueryRepositoryImpl implements VenueReviewQueryRepositor
                 .leftJoin(review.venue).fetchJoin()
                 .where(
                         review.venue.id.eq(venueId),
-                        review.imageUrls.isNotEmpty()
+                        review.imageUrls.isNotNull().and(review.imageUrls.ne(""))
                 )
                 .orderBy(getOrderSpecifier(review, sortBy))
                 .fetch();
@@ -70,7 +70,7 @@ public class VenueReviewQueryRepositoryImpl implements VenueReviewQueryRepositor
                 .leftJoin(review.venue).fetchJoin()
                 .where(
                         review.venue.id.eq(venueId),
-                        review.imageUrls.isNotEmpty(),
+                        review.imageUrls.isNotNull().and(review.imageUrls.ne("")),
                         blockedMemberIds.isEmpty() ? null : review.member.id.notIn(blockedMemberIds)
                 )
                 .orderBy(getOrderSpecifier(review, sortBy))
