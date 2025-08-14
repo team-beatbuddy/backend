@@ -15,8 +15,6 @@ import com.ceos.beatbuddy.domain.scrapandlike.entity.CommentLike;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.CommentLikeRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;

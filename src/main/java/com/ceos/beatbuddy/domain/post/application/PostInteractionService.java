@@ -5,7 +5,6 @@ import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.post.dto.PostInteractionStatus;
 import com.ceos.beatbuddy.domain.post.entity.Post;
-import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
 import com.ceos.beatbuddy.domain.post.repository.PostRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostLike;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.PostScrap;
