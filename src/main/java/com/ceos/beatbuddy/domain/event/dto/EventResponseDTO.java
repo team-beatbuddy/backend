@@ -38,7 +38,7 @@ public class EventResponseDTO {
     private Boolean receiveName; // 이름 받을 건지
     private Boolean receiveGender; // 성별 받을 건지
     private Boolean receivePhoneNumber; // 전화번호 받을 건지
-    private Boolean receiveTotalCount; // 동행 인원 받을 건지
+    private Boolean receiveAccompany; // 동행 인원 받을 건지
     private Boolean receiveSNSId; // sns id 받을 건지
     private Boolean receiveMoney; // 예약금 받을 건지
 
@@ -93,6 +93,7 @@ public class EventResponseDTO {
                 .receiveName(event.isReceiveName())
                 .receiveGender(event.isReceiveGender())
                 .receivePhoneNumber(event.isReceivePhoneNumber())
+                .receiveAccompany(event.isReceiveTotalCount())
                 .receiveMoney(event.isReceiveMoney())
                 .receiveSNSId(event.isReceiveSNSId())
                 .depositAccount(Optional.ofNullable(event.getDepositAccount()).orElse(""))
@@ -122,6 +123,7 @@ public class EventResponseDTO {
                 .liked(liked)
                 .isAttending(isAttending)
                 .isFreeEntrance(event.isFreeEntrance())
+                .receiveAccompany(event.isReceiveTotalCount())
                 .region(Optional.ofNullable(event.getRegion()).map(Enum::name).orElse(""))
                 .build();
     }
