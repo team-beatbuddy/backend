@@ -1,5 +1,6 @@
 package com.ceos.beatbuddy.domain.event.constant;
 
+import com.ceos.beatbuddy.domain.event.exception.EventErrorCode;
 import com.ceos.beatbuddy.global.CustomException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public enum SNSType {
         try {
             return SNSType.valueOf(value.toUpperCase());
         } catch (IllegalArgumentException e) {
-            return CustomException;
+            throw new CustomException(EventErrorCode.SNS_TYPE_NOT_EXIST);
         }
     }
     
