@@ -9,7 +9,10 @@ public enum SearchErrorCode implements ApiCode {
 
     KEYWORD_IS_EMPTY(HttpStatus.BAD_REQUEST,"검색어가 입력되지 않았습니다." ),
     SORT_CRITERIA_EMPTY(HttpStatus.BAD_REQUEST,"정렬 기준이 입력되지 않았습니다." ),
-    UNAVAILABLE_SORT_CRITERIA(HttpStatus.BAD_REQUEST,"'가까운 순' 또는 '인기순'만 입력해주세요." );
+    UNAVAILABLE_SORT_CRITERIA(HttpStatus.BAD_REQUEST,"'가까운 순' 또는 '인기순'만 입력해주세요." ),
+    COORDINATES_REQUIRED_FOR_DISTANCE_SORT(HttpStatus.BAD_REQUEST, "'가까운 순' 정렬을 위해서는 위도와 경도 정보가 필요합니다."),
+    INVALID_LATITUDE_RANGE(HttpStatus.BAD_REQUEST, "유효하지 않은 위도값입니다. (33.0 ~ 43.0 범위)"),
+    INVALID_LONGITUDE_RANGE(HttpStatus.BAD_REQUEST, "유효하지 않은 경도값입니다. (124.0 ~ 132.0 범위)");
 
     private final HttpStatus httpStatus;
     private final String message;

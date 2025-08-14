@@ -117,6 +117,9 @@ public class SearchService {
         String genreKeyword = searchDropDownDTO.getGenreTag();
 
         String criteria = searchDropDownDTO.getSortCriteria();
+        
+        // 정렬 기준에 따른 위도/경도 유효성 검증
+        validateCoordinatesForSortCriteria(criteria, latitude, longitude);
 
         List<VenueDocument> venueList = venueSearchService.searchMapDropDown(keyword, regionKeyword, genreKeyword);
 
@@ -231,5 +234,22 @@ public class SearchService {
         tagList.addAll(venueDocument.getMood());
         tagList.add(venueDocument.getRegion());
         return tagList;
+    }
+
+    private void validateCoordinatesForSortCriteria(String criteria, Double latitude, Double longitude) {
+        if ("가까운 순".equals(criteria)) {
+            if (latitude == null || longitude == null) {
+                throw new CustomException(SearchErrorCode.COORDINATES_REQUIRED_FOR_DISTANCE_SORT);
+            }
+            
+            // 위도/경도 범위 검증 (대한민국 기준)
+            if (latitude < 33.0 || latitude > 43.0) {
+                throw new CustomException(SearchErrorCode.INVALID_LATITUDE_RANGE);
+            }
+            if (longitude < 124.0 || longitude > 132.0) {
+                throw new CustomException(SearchErrorCode.INVALID_LONGITUDE_RANGE);
+            }
+        }
+        // "인기순"의 경우 위도/경도가 null이어도 괜찮음
     }
 }
