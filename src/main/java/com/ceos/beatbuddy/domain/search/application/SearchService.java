@@ -3,9 +3,8 @@ package com.ceos.beatbuddy.domain.search.application;
 
 import com.ceos.beatbuddy.domain.heartbeat.entity.Heartbeat;
 import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
+import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
-import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;
-import com.ceos.beatbuddy.domain.member.repository.MemberRepository;
 import com.ceos.beatbuddy.domain.recent_search.application.RecentSearchService;
 import com.ceos.beatbuddy.domain.recent_search.entity.SearchTypeEnum;
 import com.ceos.beatbuddy.domain.search.dto.SearchDropDownDTO;
@@ -13,17 +12,15 @@ import com.ceos.beatbuddy.domain.search.dto.SearchPageResponseDTO;
 import com.ceos.beatbuddy.domain.search.dto.SearchQueryResponseDTO;
 import com.ceos.beatbuddy.domain.search.dto.SearchRankResponseDTO;
 import com.ceos.beatbuddy.domain.search.exception.SearchErrorCode;
-import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.application.VenueSearchService;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.entity.VenueDocument;
-import com.ceos.beatbuddy.domain.venue.repository.VenueGenreRepository;
-import com.ceos.beatbuddy.domain.venue.repository.VenueMoodRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -43,29 +40,34 @@ import java.util.stream.Collectors;
 public class SearchService {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final VenueRepository venueRepository;
-    private final VenueGenreRepository venueGenreRepository;
-    private final VenueMoodRepository venueMoodRepository;
     private final HeartbeatRepository heartbeatRepository;
     private final RecentSearchService recentSearchService;
-    private final VenueInfoService venueInfoService;
     private final VenueSearchService venueSearchService;
 
     private void saveSearchKeywordsToRedis(List<String> keywords) {
         if (keywords == null || keywords.isEmpty()) return;
 
-        for (String keyword : keywords) {
-            try {
-                // 1점 증가
-                redisTemplate.opsForZSet().incrementScore("ranking", keyword, 1.0);
-
-                // 만료 시간 (24시간 후)
+        try {
+            // Pipeline을 사용하여 배치 처리로 성능 최적화
+            redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
                 long expireAt = Instant.now().getEpochSecond() + 86400;
-                redisTemplate.opsForZSet().add("expire", keyword, (double) expireAt);
-            } catch (Exception e) {
-                log.error("Redis 키워드 저장 실패: keyword={}, error={}", keyword, e.getMessage(), e);
-            }
+                
+                for (String keyword : keywords) {
+                    try {
+                        // 1점 증가
+                        redisTemplate.opsForZSet().incrementScore("ranking", keyword, 1.0);
+                        // 만료 시간 설정
+                        redisTemplate.opsForZSet().add("expire", keyword, (double) expireAt);
+                    } catch (Exception e) {
+                        log.error("Redis 키워드 저장 실패: keyword={}, error={}", keyword, e.getMessage(), e);
+                    }
+                }
+                return null;
+            });
+        } catch (Exception e) {
+            log.error("Redis Pipeline 실행 실패: keywords={}, error={}", keywords, e.getMessage(), e);
         }
     }
 
@@ -75,7 +77,7 @@ public class SearchService {
         String key = "ranking";
         ZSetOperations<String, String> ZSetOperations = redisTemplate.opsForZSet();
         Set<ZSetOperations.TypedTuple<String>> typedTuples = ZSetOperations.reverseRangeWithScores(key, 0, 9);  //score순으로 10개 보여줌
-        return typedTuples.stream().map(SearchRankResponseDTO::toSearchRankResponseDTO).collect(Collectors.toList());
+        return Objects.requireNonNull(typedTuples).stream().map(SearchRankResponseDTO::toSearchRankResponseDTO).collect(Collectors.toList());
     }
 
     @Scheduled(fixedRate = 3600000) // 1시간마다 실행
@@ -95,8 +97,7 @@ public class SearchService {
     }
 
     public SearchPageResponseDTO searchDropDown(Long memberId, SearchDropDownDTO searchDropDownDTO, Double latitude, Double longitude, String searchType, int page, int size) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+        Member member = memberService.validateAndGetMember(memberId);
 
         if (page < 1) {
             throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
@@ -134,33 +135,8 @@ public class SearchService {
                 .map(hb -> hb.getVenue().getId())
                 .collect(Collectors.toSet());
 
-        List<SearchQueryResponseDTO> searchQueryResponseDTOS = venueList.stream()
-                .map(venueDocument -> {
-                    Venue venue = venueMap.get(venueDocument.getId());
-                    if (venue == null) return null; // 예외 처리 필요 시 추가
-
-                    boolean isHeartbeat = heartbeatVenueIds.contains(venueDocument.getId());
-
-                    List<String> tagList = new ArrayList<>(venueDocument.getGenre());
-                    tagList.addAll(venueDocument.getMood());
-                    tagList.add(venueDocument.getRegion());
-
-                    return new SearchQueryResponseDTO(
-                            LocalDateTime.now(),
-                            venueDocument.getId(),
-                            venueDocument.getEnglishName(),
-                            venueDocument.getKoreanName(),
-                            tagList,
-                            venue.getHeartbeatNum(),
-                            isHeartbeat,
-                            venue.getLogoUrl(),
-                            venue.getBackgroundUrl(),
-                            venueDocument.getAddress(),
-                            venue.getLatitude(),
-                            venue.getLongitude()
-                    );
-                })
-                .toList();
+        List<SearchQueryResponseDTO> searchQueryResponseDTOS = convertToSearchQueryResponseDTOs(
+                venueList, venueMap, heartbeatVenueIds);
 
         // ✅ 정렬
         List<SearchQueryResponseDTO> sortedList = sortVenuesByCriteria(searchQueryResponseDTOS, criteria, latitude, longitude);
@@ -213,5 +189,47 @@ public class SearchService {
                 + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
                 * Math.sin(dLon / 2) * Math.sin(dLon / 2);
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    private List<SearchQueryResponseDTO> convertToSearchQueryResponseDTOs(
+            List<VenueDocument> venueList, 
+            Map<Long, Venue> venueMap, 
+            Set<Long> heartbeatVenueIds) {
+        
+        return venueList.stream()
+                .map(venueDocument -> {
+                    Venue venue = venueMap.get(venueDocument.getId());
+                    if (venue == null) {
+                        log.error("Venue not found for document ID: {} - data inconsistency detected", venueDocument.getId());
+                        return null; // 전체 검색 실패를 방지하기 위해 null 반환 후 필터링
+                    }
+
+                    boolean isHeartbeat = heartbeatVenueIds.contains(venueDocument.getId());
+                    List<String> tagList = createTagList(venueDocument);
+
+                    return new SearchQueryResponseDTO(
+                            LocalDateTime.now(),
+                            venueDocument.getId(),
+                            venueDocument.getEnglishName(),
+                            venueDocument.getKoreanName(),
+                            tagList,
+                            venue.getHeartbeatNum(),
+                            isHeartbeat,
+                            venue.getLogoUrl(),
+                            venue.getBackgroundUrl(),
+                            venueDocument.getAddress(),
+                            venue.getLatitude(),
+                            venue.getLongitude()
+                    );
+                })
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    private List<String> createTagList(VenueDocument venueDocument) {
+        List<String> tagList = new ArrayList<>(venueDocument.getGenre());
+        tagList.addAll(venueDocument.getMood());
+        tagList.add(venueDocument.getRegion());
+        return tagList;
     }
 }
