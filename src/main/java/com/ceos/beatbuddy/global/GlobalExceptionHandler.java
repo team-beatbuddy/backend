@@ -1,8 +1,13 @@
 package com.ceos.beatbuddy.global;
 
 import com.ceos.beatbuddy.global.code.ErrorCode;
+import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
+import com.ceos.beatbuddy.global.discord.DiscordErrorNotifier;
+import com.ceos.beatbuddy.global.discord.ErrorNotice;
 import com.ceos.beatbuddy.global.dto.ErrorResponseDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,13 +17,55 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
 @Slf4j
 public class GlobalExceptionHandler {
+        private final DiscordErrorNotifier notifier;
 
+    /** 모든 예외를 처리하는 최종 핸들러 */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponseDTO> handleAllExceptions(Exception ex, HttpServletRequest req) {
+        String traceId = (String) req.getAttribute("traceId");
+        Long memberId = SecurityUtils.getCurrentMemberId();
+
+        ErrorNotice notice = new ErrorNotice(
+                System.getenv().getOrDefault("ENV", "local"),
+                req.getMethod(), req.getRequestURI(), 500,
+                memberId, ex.getClass().getSimpleName(),
+                briefReason(ex), safeMessage(ex),
+                traceId, OffsetDateTime.now(ZoneId.of("Asia/Seoul")).toString()
+        );
+
+        notifier.send(notice)
+                .doOnError(e -> log.warn("Discord notify failed", e))
+                .subscribe();
+
+        log.error("Unhandled Exception", ex);
+
+        ApiCode internalServerError = new ApiCode() {
+            @Override public HttpStatus getStatus() { return HttpStatus.INTERNAL_SERVER_ERROR; }
+            @Override public String getMessage() { return "예상치 못한 서버 오류가 발생했습니다."; }
+            @Override public String name() { return "INTERNAL_SERVER_ERROR"; }
+        };
+
+        return ResponseEntity
+                .status(internalServerError.getStatus())
+                .body(new ErrorResponseDTO(internalServerError));
+    }
+
+    private static String briefReason(Throwable ex) {
+        return ex.getMessage();
+    }
+    private static String safeMessage(Throwable ex) {
+        return Optional.ofNullable(ex.getMessage()).orElse("unexpected error");
+    }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -99,17 +146,17 @@ public class GlobalExceptionHandler {
 
 
 
-    //Generic fallback for any other unexpected exceptions
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception e) {
-        log.error("An unexpected server error occurred: {}", e.getMessage(), e);
-        ApiCode internalServerError = new ApiCode() {
-            @Override public HttpStatus getStatus() { return HttpStatus.INTERNAL_SERVER_ERROR; }
-            @Override public String getMessage() { return "예상치 못한 서버 오류가 발생했습니다."; }
-            @Override public String name() { return "INTERNAL_SERVER_ERROR"; }
-        };
-        return ResponseEntity
-                .status(internalServerError.getStatus())
-                .body(new ErrorResponseDTO(internalServerError));
-    }
+//    //Generic fallback for any other unexpected exceptions
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception e) {
+//        log.error("An unexpected server error occurred: {}", e.getMessage(), e);
+//        ApiCode internalServerError = new ApiCode() {
+//            @Override public HttpStatus getStatus() { return HttpStatus.INTERNAL_SERVER_ERROR; }
+//            @Override public String getMessage() { return "예상치 못한 서버 오류가 발생했습니다."; }
+//            @Override public String name() { return "INTERNAL_SERVER_ERROR"; }
+//        };
+//        return ResponseEntity
+//                .status(internalServerError.getStatus())
+//                .body(new ErrorResponseDTO(internalServerError));
+//    }
 }
