@@ -6,7 +6,6 @@ import com.ceos.beatbuddy.domain.member.dto.NicknameAndBusinessNameDTO;
 import com.ceos.beatbuddy.domain.member.dto.NicknameDTO;
 import com.ceos.beatbuddy.domain.member.dto.VerifyCodeDTO;
 import com.ceos.beatbuddy.domain.member.dto.response.BusinessMemberResponseDTO;
-import com.ceos.beatbuddy.domain.member.entity.BusinessInfo;
 import com.ceos.beatbuddy.domain.member.entity.Carrier;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.member.exception.MemberErrorCode;

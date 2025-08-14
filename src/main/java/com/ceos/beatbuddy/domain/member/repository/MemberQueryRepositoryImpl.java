@@ -9,10 +9,10 @@ import com.ceos.beatbuddy.domain.post.entity.QPost;
 import com.ceos.beatbuddy.global.CustomException;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.querydsl.core.types.dsl.Expressions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
