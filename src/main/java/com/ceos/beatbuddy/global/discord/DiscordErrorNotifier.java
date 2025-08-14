@@ -1,7 +1,5 @@
 package com.ceos.beatbuddy.global.discord;
 
-import com.ceos.beatbuddy.domain.venue.kakaoMap.KakaoConfig;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
