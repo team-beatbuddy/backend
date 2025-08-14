@@ -143,20 +143,4 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDTO(ErrorCode.INVALID_PARAMETER_TYPE, message));
     }
 
-
-
-
-//    //Generic fallback for any other unexpected exceptions
-//    @ExceptionHandler(Exception.class)
-//    public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception e) {
-//        log.error("An unexpected server error occurred: {}", e.getMessage(), e);
-//        ApiCode internalServerError = new ApiCode() {
-//            @Override public HttpStatus getStatus() { return HttpStatus.INTERNAL_SERVER_ERROR; }
-//            @Override public String getMessage() { return "예상치 못한 서버 오류가 발생했습니다."; }
-//            @Override public String name() { return "INTERNAL_SERVER_ERROR"; }
-//        };
-//        return ResponseEntity
-//                .status(internalServerError.getStatus())
-//                .body(new ErrorResponseDTO(internalServerError));
-//    }
 }
