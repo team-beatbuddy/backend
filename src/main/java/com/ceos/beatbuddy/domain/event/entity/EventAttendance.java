@@ -57,7 +57,14 @@ public class EventAttendance extends BaseTimeEntity {
         Optional.ofNullable(dto.getPhoneNumber()).ifPresent(this::setPhoneNumber);
         Optional.ofNullable(dto.getTotalMember()).ifPresent(this::setTotalMember);
         Optional.ofNullable(dto.getSnsType()).ifPresent(this::setSnsType);
-        Optional.ofNullable(dto.getSnsId()).ifPresent(this::setSnsId);
+        
+        // SNSType이 NONE인 경우 snsId는 항상 null로 처리
+        if ("NONE".equalsIgnoreCase(dto.getSnsType())) {
+            this.setSnsId(null);
+        } else {
+            Optional.ofNullable(dto.getSnsId()).ifPresent(this::setSnsId);
+        }
+        
         Optional.ofNullable(dto.getHasPaid()).ifPresent(this::setHasPaid);
     }
 }

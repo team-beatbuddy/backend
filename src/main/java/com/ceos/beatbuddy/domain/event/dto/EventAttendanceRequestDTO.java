@@ -34,7 +34,14 @@ public class EventAttendanceRequestDTO {
         if (dto.getPhoneNumber() != null) builder.phoneNumber(dto.getPhoneNumber());
         if (dto.getTotalNumber() != null) builder.totalMember(dto.getTotalNumber());
         if (dto.getSnsType() != null) builder.snsType(dto.getSnsType());
-        if (dto.getSnsId() != null) builder.snsId(dto.getSnsId());
+        
+        // SNSType이 NONE인 경우 snsId는 항상 null로 처리
+        if ("NONE".equalsIgnoreCase(dto.getSnsType())) {
+            builder.snsId(null);
+        } else if (dto.getSnsId() != null) {
+            builder.snsId(dto.getSnsId());
+        }
+        
         builder.hasPaid(dto.getIsPaid());
 
         return builder.build();

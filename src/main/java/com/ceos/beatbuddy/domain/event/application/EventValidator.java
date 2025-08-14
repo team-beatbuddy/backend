@@ -77,7 +77,8 @@ public class EventValidator {
             if (event.isReceiveTotalCount() && dto.getTotalNumber() == null) {
                 throw new CustomException(EventErrorCode.MISSING_TOTAL_COUNT);
             }
-            if (event.isReceiveSNSId() && (isEmpty(dto.getSnsType()) || isEmpty(dto.getSnsId()))) {
+            if (event.isReceiveSNSId() && (isEmpty(dto.getSnsType()) || 
+                    (!isEmpty(dto.getSnsType()) && !"NONE".equalsIgnoreCase(dto.getSnsType()) && isEmpty(dto.getSnsId())))) {
                 throw new CustomException(EventErrorCode.MISSING_SNS_ID_OR_TYPE);
             }
             if (event.isReceiveMoney() && dto.getIsPaid() == null) {
@@ -151,6 +152,14 @@ public class EventValidator {
 
     // SNS 정보가 비어있을 때 예외 처리
     private void validateSnsInfo(EventAttendanceUpdateDTO dto, EventAttendance existing) {
+        // DTO에서 SNSType이 NONE인 경우 검증 제외
+        boolean dtoHasNone = "NONE".equalsIgnoreCase(dto.getSnsType());
+        boolean existingHasNone = "NONE".equalsIgnoreCase(existing.getSnsType());
+        
+        if (dtoHasNone || existingHasNone) {
+            return; // NONE인 경우 검증하지 않음
+        }
+        
         boolean dtoMissing = isEmpty(dto.getSnsType()) || isEmpty(dto.getSnsId());
         boolean existingMissing = isEmpty(existing.getSnsType()) || isEmpty(existing.getSnsId());
 
