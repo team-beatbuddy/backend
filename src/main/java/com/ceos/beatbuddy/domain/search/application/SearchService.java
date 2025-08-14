@@ -12,17 +12,15 @@ import com.ceos.beatbuddy.domain.search.dto.SearchPageResponseDTO;
 import com.ceos.beatbuddy.domain.search.dto.SearchQueryResponseDTO;
 import com.ceos.beatbuddy.domain.search.dto.SearchRankResponseDTO;
 import com.ceos.beatbuddy.domain.search.exception.SearchErrorCode;
-import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.application.VenueSearchService;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.domain.venue.entity.VenueDocument;
-import com.ceos.beatbuddy.domain.venue.repository.VenueGenreRepository;
-import com.ceos.beatbuddy.domain.venue.repository.VenueMoodRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -44,11 +42,8 @@ public class SearchService {
     private final RedisTemplate<String, String> redisTemplate;
     private final MemberService memberService;
     private final VenueRepository venueRepository;
-    private final VenueGenreRepository venueGenreRepository;
-    private final VenueMoodRepository venueMoodRepository;
     private final HeartbeatRepository heartbeatRepository;
     private final RecentSearchService recentSearchService;
-    private final VenueInfoService venueInfoService;
     private final VenueSearchService venueSearchService;
 
     private void saveSearchKeywordsToRedis(List<String> keywords) {
@@ -56,7 +51,7 @@ public class SearchService {
 
         try {
             // Pipeline을 사용하여 배치 처리로 성능 최적화
-            redisTemplate.executePipelined((org.springframework.data.redis.core.RedisCallback<Object>) connection -> {
+            redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
                 long expireAt = Instant.now().getEpochSecond() + 86400;
                 
                 for (String keyword : keywords) {
@@ -82,7 +77,7 @@ public class SearchService {
         String key = "ranking";
         ZSetOperations<String, String> ZSetOperations = redisTemplate.opsForZSet();
         Set<ZSetOperations.TypedTuple<String>> typedTuples = ZSetOperations.reverseRangeWithScores(key, 0, 9);  //score순으로 10개 보여줌
-        return typedTuples.stream().map(SearchRankResponseDTO::toSearchRankResponseDTO).collect(Collectors.toList());
+        return Objects.requireNonNull(typedTuples).stream().map(SearchRankResponseDTO::toSearchRankResponseDTO).collect(Collectors.toList());
     }
 
     @Scheduled(fixedRate = 3600000) // 1시간마다 실행
@@ -205,8 +200,8 @@ public class SearchService {
                 .map(venueDocument -> {
                     Venue venue = venueMap.get(venueDocument.getId());
                     if (venue == null) {
-                        log.warn("Venue not found for document ID: {}", venueDocument.getId());
-                        return null;
+                        log.error("Venue not found for document ID: {} - data inconsistency detected", venueDocument.getId());
+                        return null; // 전체 검색 실패를 방지하기 위해 null 반환 후 필터링
                     }
 
                     boolean isHeartbeat = heartbeatVenueIds.contains(venueDocument.getId());
