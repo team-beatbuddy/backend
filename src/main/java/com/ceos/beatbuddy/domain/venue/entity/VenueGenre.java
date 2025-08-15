@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 @Builder
 @Getter
 @AllArgsConstructor
-@Table(name = "venue_mood",
+@Table(name = "venue_genre",
         uniqueConstraints = @UniqueConstraint(columnNames = "venueId"))
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class VenueGenre extends BaseTimeEntity {
