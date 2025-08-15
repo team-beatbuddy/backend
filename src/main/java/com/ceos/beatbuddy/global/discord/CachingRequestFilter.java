@@ -4,14 +4,10 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 public class CachingRequestFilter extends OncePerRequestFilter {
 
@@ -22,7 +18,25 @@ public class CachingRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request, CACHE_LIMIT_BYTES);
-        chain.doFilter(wrappedRequest, response); // 바디 안 읽고 그냥 진행
+        ContentCachingRequestWrapper wrapped = new ContentCachingRequestWrapper(request, CACHE_LIMIT_BYTES);
+
+        // ✅ query string/headers/ip 는 "wrapped"에 기록해야 이후 단계에서 보인다
+        String query = wrapped.getQueryString();
+        // 디코딩
+        if (query != null && !query.isBlank()) {
+            query = java.net.URLDecoder.decode(query, "UTF-8");
+            wrapped.setAttribute("req.query", query);
+        }
+
+        String ua = wrapped.getHeader("User-Agent");
+        if (ua != null) wrapped.setAttribute("req.userAgent", ua);
+
+        String xff = wrapped.getHeader("X-Forwarded-For");
+        String clientIp = (xff != null && !xff.isBlank())
+                ? xff.split(",")[0].trim()
+                : request.getRemoteAddr();
+        wrapped.setAttribute("req.clientIp", clientIp);
+
+        chain.doFilter(wrapped, response); // 바디 안 읽고 그냥 진행
     }
 }
