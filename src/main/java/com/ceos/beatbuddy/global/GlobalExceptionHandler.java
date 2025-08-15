@@ -39,6 +39,7 @@ public class GlobalExceptionHandler {
         String traceId = (String) req.getAttribute("traceId");
         Long memberId = SecurityUtils.getCurrentMemberId();
         String query = (String) req.getAttribute("req.query");
+        System.out.println("query = " + query);
         String clientIp = (String) req.getAttribute("req.clientIp");
         String userAgent = (String) req.getAttribute("req.userAgent");
 
