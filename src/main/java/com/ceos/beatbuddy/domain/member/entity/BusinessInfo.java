@@ -26,7 +26,7 @@ public class BusinessInfo {
     private String phoneNumber;
 
     @Schema(description = "사업자 통신사", example = "SKT")
-    private String telCarrier; // 사업자 통신사
+    private String telCarrier = null; // 사업자 통신사
     @Schema(description = "사업자 생년월일", example = "1990-01-01")
     private LocalDate dateOfBirth;
 
