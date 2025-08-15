@@ -11,6 +11,7 @@ import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.domain.post.application.PostService;
 import com.ceos.beatbuddy.domain.post.entity.Post;
+import com.ceos.beatbuddy.domain.post.repository.PostRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.entity.CommentLike;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.CommentLikeRepository;
 import com.ceos.beatbuddy.global.CustomException;
@@ -35,6 +36,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final MemberService memberService;
     private final PostService postService;
+    private final PostRepository postRepository;
     private final FollowRepository followRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final CommentLikeRepository commentLikeRepository;
@@ -64,7 +66,7 @@ public class CommentService {
                 .build();
 
         Comment savedComment = commentRepository.save(comment);
-        post.increaseComments();
+        postRepository.increaseComments(postId);
 
         boolean isFollowing = followRepository.existsByFollower_IdAndFollowing_Id(memberId, member.getId());
 
@@ -103,7 +105,7 @@ public class CommentService {
                 .build();
 
         Comment savedReply = commentRepository.save(reply);
-        post.increaseComments();
+        postRepository.increaseComments(postId);
 
         boolean isFollowing = followRepository.existsByFollower_IdAndFollowing_Id(memberId, member.getId());
 
@@ -269,7 +271,7 @@ public class CommentService {
         commentLikeRepository.deleteByCommentId(commentId);
 
         // 2. 댓글 개수 감소
-        comment.getPost().decreaseComments();
+        postRepository.decreaseComments(comment.getPost().getId());
 
 
         boolean hasChildReplies = commentRepository.existsByReplyId(commentId);
