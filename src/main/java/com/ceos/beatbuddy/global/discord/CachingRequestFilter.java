@@ -20,6 +20,11 @@ public class CachingRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
+        if (request.getRequestURI().startsWith("/login/oauth2/code/")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String path = request.getRequestURI();
 
         // ✅ OAuth2 콜백 및 토큰 요청 경로는 건너뜀
