@@ -73,8 +73,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             memberId = member.getId();
 
-            username = appleLoginId;
-
 
         } else {
             log.error("Unsupported principal type: {}", principal.getClass());
