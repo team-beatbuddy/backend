@@ -16,12 +16,16 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.util.ContentCachingRequestWrapper;
 
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.ceos.beatbuddy.global.discord.CachingRequestFilter.MAX_BODY_PREVIEW;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
@@ -35,9 +39,20 @@ public class GlobalExceptionHandler {
         String traceId = (String) req.getAttribute("traceId");
         Long memberId = SecurityUtils.getCurrentMemberId();
         String query = (String) req.getAttribute("req.query");
-        String bodyPreview = (String) req.getAttribute("req.bodyPreview");
         String clientIp = (String) req.getAttribute("req.clientIp");
         String userAgent = (String) req.getAttribute("req.userAgent");
+
+        // 여기서 바디 추출
+        String bodyPreview = "(empty)";
+        if (req instanceof ContentCachingRequestWrapper wrapper) {
+            byte[] buf = wrapper.getContentAsByteArray();
+            if (buf.length > 0) {
+                bodyPreview = new String(buf, StandardCharsets.UTF_8);
+                if (bodyPreview.length() > MAX_BODY_PREVIEW) {
+                    bodyPreview = bodyPreview.substring(0, MAX_BODY_PREVIEW) + "…(+truncated)";
+                }
+            }
+        }
 
         ErrorNotice notice = new ErrorNotice(
                 System.getenv().getOrDefault("ENV", "local"),
