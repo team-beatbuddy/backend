@@ -19,12 +19,12 @@ import java.time.LocalDate;
 public class BusinessInfo {
     @Schema(description = "사업자 이름", example = "홍길동의 카페")
     private String businessName;
-    @Column(nullable = false)
+
     @Schema(description = "사업자 승인 여부", example = "false")
     private boolean isApproved = false;
     @Schema(description = "사업자 전화번호", example = "010-1234-5678")
     private String phoneNumber;
-    @Column(nullable = false)
+
     @Schema(description = "사업자 통신사", example = "SKT")
     private String telCarrier; // 사업자 통신사
     @Schema(description = "사업자 생년월일", example = "1990-01-01")

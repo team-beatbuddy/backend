@@ -8,6 +8,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 public class CachingRequestFilter extends OncePerRequestFilter {
 
@@ -18,25 +20,34 @@ public class CachingRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+
+        // ✅ OAuth2 콜백 및 토큰 요청 경로는 건너뜀
+        if (path.startsWith("/login/oauth2/code/") || path.startsWith("/oauth2/authorization")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         ContentCachingRequestWrapper wrapped = new ContentCachingRequestWrapper(request, CACHE_LIMIT_BYTES);
 
-        // ✅ query string/headers/ip 는 "wrapped"에 기록해야 이후 단계에서 보인다
+        // query string
         String query = wrapped.getQueryString();
-        // 디코딩
         if (query != null && !query.isBlank()) {
-            query = java.net.URLDecoder.decode(query, "UTF-8");
+            query = URLDecoder.decode(query, StandardCharsets.UTF_8);
             wrapped.setAttribute("req.query", query);
         }
 
+        // user agent
         String ua = wrapped.getHeader("User-Agent");
         if (ua != null) wrapped.setAttribute("req.userAgent", ua);
 
+        // client ip
         String xff = wrapped.getHeader("X-Forwarded-For");
         String clientIp = (xff != null && !xff.isBlank())
                 ? xff.split(",")[0].trim()
                 : request.getRemoteAddr();
         wrapped.setAttribute("req.clientIp", clientIp);
 
-        chain.doFilter(wrapped, response); // 바디 안 읽고 그냥 진행
+        chain.doFilter(wrapped, response);
     }
 }
