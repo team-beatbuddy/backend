@@ -34,13 +34,21 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleAllExceptions(Exception ex, HttpServletRequest req) {
         String traceId = (String) req.getAttribute("traceId");
         Long memberId = SecurityUtils.getCurrentMemberId();
+        String query = (String) req.getAttribute("req.query");
+        String bodyPreview = (String) req.getAttribute("req.bodyPreview");
+        String clientIp = (String) req.getAttribute("req.clientIp");
+        String userAgent = (String) req.getAttribute("req.userAgent");
 
         ErrorNotice notice = new ErrorNotice(
                 System.getenv().getOrDefault("ENV", "local"),
                 req.getMethod(), req.getRequestURI(), 500,
                 memberId, ex.getClass().getSimpleName(),
                 safeMessage(ex), safeMessage(ex),
-                traceId, OffsetDateTime.now(ZoneId.of("Asia/Seoul")).toString()
+                traceId, OffsetDateTime.now(ZoneId.of("Asia/Seoul")).toString(),
+                query,
+                bodyPreview,
+                clientIp,
+                userAgent
         );
 
         notifier.send(notice)
