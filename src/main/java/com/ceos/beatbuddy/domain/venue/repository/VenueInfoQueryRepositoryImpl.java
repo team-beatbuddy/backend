@@ -9,7 +9,6 @@ import com.ceos.beatbuddy.domain.venue.entity.QVenue;
 import com.ceos.beatbuddy.domain.venue.entity.QVenueGenre;
 import com.ceos.beatbuddy.domain.venue.entity.QVenueMood;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
