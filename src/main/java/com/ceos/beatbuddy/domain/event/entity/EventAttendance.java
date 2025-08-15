@@ -1,7 +1,7 @@
 package com.ceos.beatbuddy.domain.event.entity;
 
-import com.ceos.beatbuddy.domain.event.dto.EventAttendanceUpdateDTO;
 import com.ceos.beatbuddy.domain.event.constant.SNSType;
+import com.ceos.beatbuddy.domain.event.dto.EventAttendanceUpdateDTO;
 import com.ceos.beatbuddy.domain.member.constant.Gender;
 import com.ceos.beatbuddy.domain.member.entity.Member;
 import com.ceos.beatbuddy.global.BaseTimeEntity;
