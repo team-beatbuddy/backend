@@ -58,6 +58,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("UPDATE Post p SET p.views = p.views + 1 WHERE p.id = :postId")
     void increaseViews(@Param("postId") Long postId);
     
+    @Modifying
+    @Query("UPDATE Post p SET p.comments = p.comments + 1 WHERE p.id = :postId")
+    void increaseComments(@Param("postId") Long postId);
+    
+    @Modifying
+    @Query("UPDATE Post p SET p.comments = CASE WHEN p.comments > 0 THEN p.comments - 1 ELSE 0 END WHERE p.id = :postId")
+    void decreaseComments(@Param("postId") Long postId);
+    
     // 동시성 제어를 위한 PESSIMISTIC_WRITE 락
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Post p WHERE p.id = :id")
