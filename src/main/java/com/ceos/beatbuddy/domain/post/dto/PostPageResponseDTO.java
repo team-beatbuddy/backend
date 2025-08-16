@@ -84,8 +84,7 @@ public class PostPageResponseDTO {
                 .nickname(post.isAnonymous() 
                         ? "익명" 
                         : (post.getMember().getPostProfileInfo() != null && post.getMember().getPostProfileInfo().getPostProfileNickname() != null
-                                ? post.getMember().getPostProfileInfo().getPostProfileNickname()
-                                : post.getMember().getNickname()))
+                                ? post.getMember().getPostProfileInfo().getPostProfileNickname() : ""))
                 .createAt(post.getCreatedAt())
                 .likes(post.getLikes())
                 .scraps(post.getScraps())
@@ -104,10 +103,7 @@ public class PostPageResponseDTO {
                         post.isAnonymous()
                                 ? ""
                                 : (post.getMember().getPostProfileInfo() != null && post.getMember().getPostProfileInfo().getPostProfileImageUrl() != null
-                                ? post.getMember().getPostProfileInfo().getPostProfileImageUrl()
-                                : (post.getMember().getProfileImage() != null
-                                        ? post.getMember().getProfileImage()
-                                        : ""))
+                                ? post.getMember().getPostProfileInfo().getPostProfileImageUrl() : "")
                 )
                 .isFollowing(isFollowing)
                 .build();
