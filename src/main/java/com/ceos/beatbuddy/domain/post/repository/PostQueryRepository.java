@@ -30,4 +30,12 @@ public interface PostQueryRepository {
      * @return 포스트 페이지 (차단된 멤버 제외)
      */
     Page<FreePost> findPostsByHashtagsExcludingBlocked(List<FixedHashtag> hashtags, Pageable pageable, List<Long> blockedMemberIds);
+    
+    /**
+     * 모든 FreePost 조회 (차단된 멤버 제외)
+     * @param pageable 페이징 정보
+     * @param blockedMemberIds 차단된 멤버 ID 목록
+     * @return 포스트 페이지 (차단된 멤버 제외)
+     */
+    Page<FreePost> findAllFreePostsExcludingBlocked(Pageable pageable, List<Long> blockedMemberIds);
 }

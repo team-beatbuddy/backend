@@ -131,11 +131,12 @@ public class PostService {
         
         // 차단한 사용자 ID 목록 조회
         Set<Long> blockedMemberIds = memberBlockRepository.findBlockedMemberIdsByBlockerId(memberId);
+        List<Long> blockedMemberIdsList = List.copyOf(blockedMemberIds);
 
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
-        Page<? extends Post> postPage = handler.readAllPosts(pageable);
+        Page<? extends Post> postPage = handler.readAllPostsExcludingBlocked(pageable, blockedMemberIdsList);
 
-        return postResponseHelper.createPostListResponseExcludingBlocked(postPage, memberId, blockedMemberIds);
+        return postResponseHelper.createPostListResponse(postPage, memberId);
     }
 
 
@@ -150,12 +151,14 @@ public class PostService {
 
     public List<PostPageResponseDTO> getHotPosts(Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
-        List<Post> posts = postQueryRepository.findHotPostsWithin12Hours();
         
         // 차단한 사용자 ID 목록 조회
         Set<Long> blockedMemberIds = memberBlockRepository.findBlockedMemberIdsByBlockerId(memberId);
+        List<Long> blockedMemberIdsList = List.copyOf(blockedMemberIds);
+        
+        List<Post> posts = postQueryRepository.findHotPostsWithin12HoursExcludingBlocked(blockedMemberIdsList);
 
-        return postResponseHelper.createPostPageResponseDTOListExcludingBlocked(posts, memberId, blockedMemberIds);
+        return postResponseHelper.createPostPageResponseDTOList(posts, memberId);
     }
 
     public PostListResponseDTO getHashtagPosts(Long memberId, List<String> hashtags, int page, int size) {
@@ -166,10 +169,14 @@ public class PostService {
         }
 
         Pageable pageable = PageRequest.of(page -1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        
+        // 차단한 사용자 ID 목록 조회
+        Set<Long> blockedMemberIds = memberBlockRepository.findBlockedMemberIdsByBlockerId(memberId);
+        List<Long> blockedMemberIdsList = List.copyOf(blockedMemberIds);
 
         PostTypeHandler handler = postTypeHandlerFactory.getHandler("free");
 
-        return handler.hashTagPostList(hashtags, pageable, member);
+        return handler.hashTagPostListExcludingBlocked(hashtags, pageable, member, blockedMemberIdsList);
     }
 
 
