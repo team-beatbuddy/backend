@@ -10,8 +10,6 @@ import com.ceos.beatbuddy.domain.post.entity.FreePost;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
 import com.ceos.beatbuddy.domain.post.repository.PostQueryRepository;
-import com.ceos.beatbuddy.domain.post.repository.PostRepository;
-import com.ceos.beatbuddy.domain.scrapandlike.repository.CommentLikeRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostLikeRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostScrapRepository;
 import com.ceos.beatbuddy.global.CustomException;
@@ -20,6 +18,7 @@ import com.ceos.beatbuddy.global.service.ImageUploadService;
 import com.ceos.beatbuddy.global.util.UploadResult;
 import com.ceos.beatbuddy.global.util.UploadUtil;
 import com.ceos.beatbuddy.global.util.UploadUtilAsyncWrapper;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,48 +34,22 @@ import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class PostService {
     private final MemberService memberService;
     private final PostLikeRepository postLikeRepository;
     private final PostScrapRepository postScrapRepository;
     private final PostQueryRepository postQueryRepository;
     private final CommentRepository commentRepository;
-    private final CommentLikeRepository commentLikeRepository;
     private final PostTypeHandlerFactory postTypeHandlerFactory;
     private final ImageUploadService imageUploadService;
     private final UploadUtilAsyncWrapper uploadUtilAsyncWrapper;
-    private final PostRepository postRepository;
     private final PostInteractionService postInteractionService;
     private final FollowRepository followRepository;
-    private final UploadUtil uploadUtil;
     private final PostResponseHelper postResponseHelper;
     private final PostValidationHelper postValidationHelper;
 
     private static final List<String> VALID_POST_TYPES = List.of("free", "piece");
-
-    public PostService(MemberService memberService, PostLikeRepository postLikeRepository,
-                       PostScrapRepository postScrapRepository, PostQueryRepository postQueryRepository,
-                       CommentRepository commentRepository, CommentLikeRepository commentLikeRepository,
-                       PostTypeHandlerFactory postTypeHandlerFactory,
-                       ImageUploadService imageUploadService, UploadUtilAsyncWrapper uploadUtilAsyncWrapper,
-                       PostRepository postRepository, PostInteractionService postInteractionService,
-                       FollowRepository followRepository, UploadUtil uploadUtil, PostResponseHelper postResponseHelper, PostValidationHelper postValidationHelper) {
-        this.memberService = memberService;
-        this.postLikeRepository = postLikeRepository;
-        this.postScrapRepository = postScrapRepository;
-        this.postQueryRepository = postQueryRepository;
-        this.commentRepository = commentRepository;
-        this.commentLikeRepository = commentLikeRepository;
-        this.postTypeHandlerFactory = postTypeHandlerFactory;
-        this.imageUploadService = imageUploadService;
-        this.uploadUtilAsyncWrapper = uploadUtilAsyncWrapper;
-        this.postRepository = postRepository;
-        this.postInteractionService = postInteractionService;
-        this.followRepository = followRepository;
-        this.uploadUtil = uploadUtil;
-        this.postResponseHelper = postResponseHelper;
-        this.postValidationHelper = postValidationHelper;
-    }
 
     @Transactional
     public ResponsePostDto addNewPost(String type, PostCreateRequestDTO dto, Long memberId, List<MultipartFile> images) {
