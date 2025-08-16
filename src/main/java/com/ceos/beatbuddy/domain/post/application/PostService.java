@@ -4,6 +4,7 @@ import com.ceos.beatbuddy.domain.comment.repository.CommentRepository;
 import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.member.repository.MemberBlockRepository;
 import com.ceos.beatbuddy.domain.post.dto.*;
 import com.ceos.beatbuddy.domain.post.entity.FixedHashtag;
 import com.ceos.beatbuddy.domain.post.entity.FreePost;
@@ -48,6 +49,7 @@ public class PostService {
     private final FollowRepository followRepository;
     private final PostResponseHelper postResponseHelper;
     private final PostValidationHelper postValidationHelper;
+    private final MemberBlockRepository memberBlockRepository;
 
     private static final List<String> VALID_POST_TYPES = List.of("free", "piece");
 
@@ -126,11 +128,14 @@ public class PostService {
         Pageable pageable = PageRequest.of(page-1, size, sortOption);
 
         memberService.validateAndGetMember(memberId);
+        
+        // 차단한 사용자 ID 목록 조회
+        Set<Long> blockedMemberIds = memberBlockRepository.findBlockedMemberIdsByBlockerId(memberId);
 
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
         Page<? extends Post> postPage = handler.readAllPosts(pageable);
 
-        return postResponseHelper.createPostListResponse(postPage, memberId);
+        return postResponseHelper.createPostListResponseExcludingBlocked(postPage, memberId, blockedMemberIds);
     }
 
 
@@ -146,8 +151,11 @@ public class PostService {
     public List<PostPageResponseDTO> getHotPosts(Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
         List<Post> posts = postQueryRepository.findHotPostsWithin12Hours();
+        
+        // 차단한 사용자 ID 목록 조회
+        Set<Long> blockedMemberIds = memberBlockRepository.findBlockedMemberIdsByBlockerId(memberId);
 
-        return postResponseHelper.createPostPageResponseDTOList(posts, memberId);
+        return postResponseHelper.createPostPageResponseDTOListExcludingBlocked(posts, memberId, blockedMemberIds);
     }
 
     public PostListResponseDTO getHashtagPosts(Long memberId, List<String> hashtags, int page, int size) {
