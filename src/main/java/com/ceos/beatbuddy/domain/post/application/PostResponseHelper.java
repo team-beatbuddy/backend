@@ -42,6 +42,7 @@ public class PostResponseHelper {
                 .build();
     }
 
+
     public List<PostPageResponseDTO> createPostPageResponseDTOList(List<? extends Post> posts, Long memberId) {
         List<Long> postIds = posts.stream().map(Post::getId).toList();
         
@@ -52,6 +53,7 @@ public class PostResponseHelper {
                 .map(post -> createPostPageResponseDTO(post, status, memberId, followingIds))
                 .toList();
     }
+
 
     public PostPageResponseDTO createPostPageResponseDTO(Post post, PostInteractionStatus status, Long memberId, Set<Long> followingIds) {
         List<FixedHashtag> hashtags = getHashtagsForPost(post);
