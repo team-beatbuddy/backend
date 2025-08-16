@@ -4,14 +4,13 @@ import com.ceos.beatbuddy.domain.comment.repository.CommentRepository;
 import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.member.repository.MemberBlockRepository;
 import com.ceos.beatbuddy.domain.post.dto.*;
 import com.ceos.beatbuddy.domain.post.entity.FixedHashtag;
 import com.ceos.beatbuddy.domain.post.entity.FreePost;
 import com.ceos.beatbuddy.domain.post.entity.Post;
 import com.ceos.beatbuddy.domain.post.exception.PostErrorCode;
 import com.ceos.beatbuddy.domain.post.repository.PostQueryRepository;
-import com.ceos.beatbuddy.domain.post.repository.PostRepository;
-import com.ceos.beatbuddy.domain.scrapandlike.repository.CommentLikeRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostLikeRepository;
 import com.ceos.beatbuddy.domain.scrapandlike.repository.PostScrapRepository;
 import com.ceos.beatbuddy.global.CustomException;
@@ -20,6 +19,7 @@ import com.ceos.beatbuddy.global.service.ImageUploadService;
 import com.ceos.beatbuddy.global.util.UploadResult;
 import com.ceos.beatbuddy.global.util.UploadUtil;
 import com.ceos.beatbuddy.global.util.UploadUtilAsyncWrapper;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,48 +35,23 @@ import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class PostService {
     private final MemberService memberService;
     private final PostLikeRepository postLikeRepository;
     private final PostScrapRepository postScrapRepository;
     private final PostQueryRepository postQueryRepository;
     private final CommentRepository commentRepository;
-    private final CommentLikeRepository commentLikeRepository;
     private final PostTypeHandlerFactory postTypeHandlerFactory;
     private final ImageUploadService imageUploadService;
     private final UploadUtilAsyncWrapper uploadUtilAsyncWrapper;
-    private final PostRepository postRepository;
     private final PostInteractionService postInteractionService;
     private final FollowRepository followRepository;
-    private final UploadUtil uploadUtil;
     private final PostResponseHelper postResponseHelper;
     private final PostValidationHelper postValidationHelper;
+    private final MemberBlockRepository memberBlockRepository;
 
     private static final List<String> VALID_POST_TYPES = List.of("free", "piece");
-
-    public PostService(MemberService memberService, PostLikeRepository postLikeRepository,
-                       PostScrapRepository postScrapRepository, PostQueryRepository postQueryRepository,
-                       CommentRepository commentRepository, CommentLikeRepository commentLikeRepository,
-                       PostTypeHandlerFactory postTypeHandlerFactory,
-                       ImageUploadService imageUploadService, UploadUtilAsyncWrapper uploadUtilAsyncWrapper,
-                       PostRepository postRepository, PostInteractionService postInteractionService,
-                       FollowRepository followRepository, UploadUtil uploadUtil, PostResponseHelper postResponseHelper, PostValidationHelper postValidationHelper) {
-        this.memberService = memberService;
-        this.postLikeRepository = postLikeRepository;
-        this.postScrapRepository = postScrapRepository;
-        this.postQueryRepository = postQueryRepository;
-        this.commentRepository = commentRepository;
-        this.commentLikeRepository = commentLikeRepository;
-        this.postTypeHandlerFactory = postTypeHandlerFactory;
-        this.imageUploadService = imageUploadService;
-        this.uploadUtilAsyncWrapper = uploadUtilAsyncWrapper;
-        this.postRepository = postRepository;
-        this.postInteractionService = postInteractionService;
-        this.followRepository = followRepository;
-        this.uploadUtil = uploadUtil;
-        this.postResponseHelper = postResponseHelper;
-        this.postValidationHelper = postValidationHelper;
-    }
 
     @Transactional
     public ResponsePostDto addNewPost(String type, PostCreateRequestDTO dto, Long memberId, List<MultipartFile> images) {
@@ -153,9 +128,13 @@ public class PostService {
         Pageable pageable = PageRequest.of(page-1, size, sortOption);
 
         memberService.validateAndGetMember(memberId);
+        
+        // 차단한 사용자 ID 목록 조회
+        Set<Long> blockedMemberIds = memberBlockRepository.findBlockedMemberIdsByBlockerId(memberId);
+        List<Long> blockedMemberIdsList = List.copyOf(blockedMemberIds);
 
         PostTypeHandler handler = postTypeHandlerFactory.getHandler(type);
-        Page<? extends Post> postPage = handler.readAllPosts(pageable);
+        Page<? extends Post> postPage = handler.readAllPostsExcludingBlocked(pageable, blockedMemberIdsList);
 
         return postResponseHelper.createPostListResponse(postPage, memberId);
     }
@@ -172,7 +151,12 @@ public class PostService {
 
     public List<PostPageResponseDTO> getHotPosts(Long memberId) {
         Member member = memberService.validateAndGetMember(memberId);
-        List<Post> posts = postQueryRepository.findHotPostsWithin12Hours();
+        
+        // 차단한 사용자 ID 목록 조회
+        Set<Long> blockedMemberIds = memberBlockRepository.findBlockedMemberIdsByBlockerId(memberId);
+        List<Long> blockedMemberIdsList = List.copyOf(blockedMemberIds);
+        
+        List<Post> posts = postQueryRepository.findHotPostsWithin12HoursExcludingBlocked(blockedMemberIdsList);
 
         return postResponseHelper.createPostPageResponseDTOList(posts, memberId);
     }
@@ -185,10 +169,14 @@ public class PostService {
         }
 
         Pageable pageable = PageRequest.of(page -1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        
+        // 차단한 사용자 ID 목록 조회
+        Set<Long> blockedMemberIds = memberBlockRepository.findBlockedMemberIdsByBlockerId(memberId);
+        List<Long> blockedMemberIdsList = List.copyOf(blockedMemberIds);
 
         PostTypeHandler handler = postTypeHandlerFactory.getHandler("free");
 
-        return handler.hashTagPostList(hashtags, pageable, member);
+        return handler.hashTagPostListExcludingBlocked(hashtags, pageable, member, blockedMemberIdsList);
     }
 
 

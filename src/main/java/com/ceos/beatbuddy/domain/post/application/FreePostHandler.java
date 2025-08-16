@@ -168,6 +168,28 @@ public class FreePostHandler implements PostTypeHandler{
     }
 
 
+    @Override
+    public Page<? extends Post> readAllPostsExcludingBlocked(Pageable pageable, List<Long> blockedMemberIds) {
+        return postQueryRepository.findAllFreePostsExcludingBlocked(pageable, blockedMemberIds);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PostListResponseDTO hashTagPostListExcludingBlocked(List<String> hashtags, Pageable pageable, Member member, List<Long> blockedMemberIds) {
+        if (hashtags == null || hashtags.isEmpty()) {
+            throw new CustomException(PostErrorCode.NOT_FOUND_HASHTAG);
+        }
+
+        // 해시태그 유효성 검사 및 변환
+        List<FixedHashtag> fixedHashtags = validateAndGetHashtags(hashtags);
+
+        // 차단된 사용자를 제외하고 조회
+        Page<FreePost> postPage = postQueryRepository.findPostsByHashtagsExcludingBlocked(
+                fixedHashtags, pageable, blockedMemberIds);
+
+        return postResponseHelper.createPostListResponse(postPage, member.getId());
+    }
+
     protected List<FixedHashtag> validateAndGetHashtags(List<String> hashtags) {
         if (hashtags == null || hashtags.isEmpty()) {
             return List.of();

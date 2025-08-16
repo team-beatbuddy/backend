@@ -136,4 +136,33 @@ public class PostQueryRepositoryImpl implements PostQueryRepository{
 
         return new PageImpl<>(content, pageable, count != null ? count : 0L);
     }
+
+    @Override
+    public Page<FreePost> findAllFreePostsExcludingBlocked(Pageable pageable, List<Long> blockedMemberIds) {
+        QFreePost freePost = QFreePost.freePost;
+
+        // where 조건 설정
+        BooleanExpression whereCondition = null;
+        if (!blockedMemberIds.isEmpty()) {
+            whereCondition = freePost.member.id.notIn(blockedMemberIds);
+        }
+
+        // 데이터 조회
+        List<FreePost> content = queryFactory
+                .selectFrom(freePost)
+                .where(whereCondition)
+                .orderBy(freePost.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // 전체 개수 조회
+        Long count = queryFactory
+                .select(freePost.count())
+                .from(freePost)
+                .where(whereCondition)
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, count != null ? count : 0);
+    }
 }
