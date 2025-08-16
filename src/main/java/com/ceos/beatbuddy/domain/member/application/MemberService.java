@@ -1,6 +1,7 @@
 package com.ceos.beatbuddy.domain.member.application;
 
 import com.ceos.beatbuddy.domain.archive.repository.ArchiveRepository;
+import com.ceos.beatbuddy.domain.follow.repository.FollowRepository;
 import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
 import com.ceos.beatbuddy.domain.member.constant.Region;
 import com.ceos.beatbuddy.domain.member.constant.Role;
@@ -40,6 +41,7 @@ public class MemberService {
     private final ArchiveRepository archiveRepository;
     private final UploadUtil uploadUtil;
     private final MemberQueryRepository memberQueryRepository;
+    private final FollowRepository followRepository;
 //
 //    @Value("${iamport.api.key}")
 //    private String imp_key;
@@ -226,7 +228,12 @@ public class MemberService {
                 .blocker(blocker)
                 .blocked(blocked)
                 .build();
-                
+
+        // 그 사람을 팔로잉 하고 있었다면 삭제
+        if (followRepository.existsByFollower_IdAndFollowing_Id(blockerId, blockedId)) {
+            followRepository.deleteByFollower_IdAndFollowing_Id(blockerId, blockedId);
+        }
+
         memberBlockRepository.save(memberBlock);
     }
     // v2 개발 기능
