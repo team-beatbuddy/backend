@@ -66,4 +66,22 @@ public interface PostTypeHandler {
     Page<? extends Post> readAllPostsByUserExcludingAnonymous(Long userId, Pageable pageable);
 
     Page<? extends Post> readAllPostsByMember(Long memberId, Pageable pageable);
+
+    /**
+     * 모든 게시글을 페이지네이션으로 조회합니다 (차단된 사용자 제외).
+     * @param pageable 페이지네이션 정보
+     * @param blockedMemberIds 차단된 멤버 ID 목록
+     * @return 페이지네이션된 게시글 목록 (차단된 사용자 제외)
+     */
+    Page<? extends Post> readAllPostsExcludingBlocked(Pageable pageable, List<Long> blockedMemberIds);
+
+    /**
+     * 해시태그별 게시글을 조회합니다 (차단된 사용자 제외).
+     * @param hashtags 해시태그 목록
+     * @param pageable 페이지네이션 정보
+     * @param member 요청자
+     * @param blockedMemberIds 차단된 멤버 ID 목록
+     * @return 해시태그별 게시글 목록 (차단된 사용자 제외)
+     */
+    PostListResponseDTO hashTagPostListExcludingBlocked(List<String> hashtags, Pageable pageable, Member member, List<Long> blockedMemberIds);
 }

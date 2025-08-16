@@ -89,4 +89,15 @@ public class PiecePostHandler implements PostTypeHandler {
     public Page<? extends Post> readAllPostsByMember(Long memberId, Pageable pageable) {
         throw new UnsupportedOperationException("PiecePost 기능이 아직 구현되지 않았습니다.");
     }
+
+    @Override
+    public Page<? extends Post> readAllPostsExcludingBlocked(Pageable pageable, List<Long> blockedMemberIds) {
+        // PiecePost는 아직 구현되지 않았으므로 기본 조회 반환
+        return piecePostRepository.findAll(pageable);
+    }
+
+    @Override
+    public PostListResponseDTO hashTagPostListExcludingBlocked(List<String> hashtags, Pageable pageable, Member member, List<Long> blockedMemberIds) {
+        throw new UnsupportedOperationException("PiecePost 생성 기능이 아직 구현되지 않았습니다.");
+    }
 }

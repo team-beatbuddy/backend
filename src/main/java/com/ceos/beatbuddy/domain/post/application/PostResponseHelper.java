@@ -42,30 +42,6 @@ public class PostResponseHelper {
                 .build();
     }
 
-    public PostListResponseDTO createPostListResponseExcludingBlocked(Page<? extends Post> postPage, Long memberId, Set<Long> blockedMemberIds) {
-        List<? extends Post> posts = postPage.getContent();
-        
-        // 차단한 사용자의 게시물 제외
-        List<? extends Post> filteredPosts = posts.stream()
-                .filter(post -> !blockedMemberIds.contains(post.getMember().getId()))
-                .toList();
-        
-        List<Long> postIds = filteredPosts.stream().map(Post::getId).toList();
-
-        PostInteractionStatus status = postInteractionService.getAllPostInteractions(memberId, postIds);
-        Set<Long> followingIds = followRepository.findFollowingMemberIds(memberId);
-
-        List<PostPageResponseDTO> dtoList = filteredPosts.stream()
-                .map(post -> createPostPageResponseDTO(post, status, memberId, followingIds))
-                .toList();
-
-        return PostListResponseDTO.builder()
-                .totalPost(filteredPosts.size())
-                .page(postPage.getNumber() + 1)
-                .size(postPage.getSize())
-                .responseDTOS(dtoList)
-                .build();
-    }
 
     public List<PostPageResponseDTO> createPostPageResponseDTOList(List<? extends Post> posts, Long memberId) {
         List<Long> postIds = posts.stream().map(Post::getId).toList();
@@ -78,21 +54,6 @@ public class PostResponseHelper {
                 .toList();
     }
 
-    public List<PostPageResponseDTO> createPostPageResponseDTOListExcludingBlocked(List<? extends Post> posts, Long memberId, Set<Long> blockedMemberIds) {
-        // 차단한 사용자의 게시물 제외
-        List<? extends Post> filteredPosts = posts.stream()
-                .filter(post -> !blockedMemberIds.contains(post.getMember().getId()))
-                .toList();
-        
-        List<Long> postIds = filteredPosts.stream().map(Post::getId).toList();
-        
-        PostInteractionStatus status = postInteractionService.getAllPostInteractions(memberId, postIds);
-        Set<Long> followingIds = followRepository.findFollowingMemberIds(memberId);
-
-        return filteredPosts.stream()
-                .map(post -> createPostPageResponseDTO(post, status, memberId, followingIds))
-                .toList();
-    }
 
     public PostPageResponseDTO createPostPageResponseDTO(Post post, PostInteractionStatus status, Long memberId, Set<Long> followingIds) {
         List<FixedHashtag> hashtags = getHashtagsForPost(post);
