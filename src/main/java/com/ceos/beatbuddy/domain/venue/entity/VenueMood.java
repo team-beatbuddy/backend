@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "venue_mood",
+@Table(name = "VenueMood",
         uniqueConstraints = @UniqueConstraint(columnNames = "venueId"))
 public class VenueMood extends BaseTimeEntity {
     @Id
