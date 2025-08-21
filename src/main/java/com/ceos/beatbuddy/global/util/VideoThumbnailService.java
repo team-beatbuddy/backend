@@ -50,9 +50,10 @@ public class VideoThumbnailService {
             // 임시 비디오 파일 생성
             tempVideoPath = createTempFile(videoFile, "video_");
             
-            // 썸네일 임시 파일 경로 생성
+            // 썸네일 임시 파일 경로 생성 (UUID로 고유성 보장)
             String thumbnailFileName = generateThumbnailFileName(videoFile.getOriginalFilename());
-            tempThumbnailPath = Files.createTempFile("thumbnail_", ".jpg");
+            String uniquePrefix = "thumbnail_" + UUID.randomUUID().toString().substring(0, 8) + "_";
+            tempThumbnailPath = Files.createTempFile(uniquePrefix, ".jpg");
             
             // FFmpeg를 사용하여 썸네일 생성
             extractThumbnail(tempVideoPath, tempThumbnailPath);
@@ -74,7 +75,8 @@ public class VideoThumbnailService {
      */
     private Path createTempFile(MultipartFile file, String prefix) throws IOException {
         String extension = getFileExtension(file.getOriginalFilename());
-        Path tempPath = Files.createTempFile(prefix, "." + extension);
+        String uniquePrefix = prefix + UUID.randomUUID().toString().substring(0, 8) + "_";
+        Path tempPath = Files.createTempFile(uniquePrefix, "." + extension);
         
         try (InputStream inputStream = file.getInputStream();
              OutputStream outputStream = Files.newOutputStream(tempPath)) {
