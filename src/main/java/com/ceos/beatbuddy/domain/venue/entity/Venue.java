@@ -27,12 +27,12 @@ public class Venue extends BaseTimeEntity {
     private Region region;
     private boolean isSmokingAllowed;
     private String description;
-    @Column(name = "description_eng")
-    private String descriptionEng; // 영어 설명
+//    @Column(name = "description_eng")
+//    private String descriptionEng; // 영어 설명
     @Column(nullable = false)
     private String address;
-    @Column(name = "address_eng")
-    private String addressEng;
+//    @Column(name = "address_eng")
+//    private String addressEng;
     private String instaId;
     private String instaUrl;
     private String phoneNum;
@@ -40,12 +40,12 @@ public class Venue extends BaseTimeEntity {
     private int entranceFee; // 입장료
     @Column(name = "entrance_notice")
     private String entranceNotice; // 입장료 공지
-    @Column(name = "entrance_notice_eng")
-    private String entranceNoticeEng; // 영어 입장료
+//    @Column(name = "entrance_notice_eng")
+//    private String entranceNoticeEng; // 영어 입장료
 
     private String notice;
-    @Column(name = "notice_eng")
-    private String noticeEng; // 영어 공지사항
+//    @Column(name = "notice_eng")
+//    private String noticeEng; // 영어 공지사항
 
     private boolean isFreeEntrance; // 무료 입장 여부
 
@@ -116,10 +116,10 @@ public class Venue extends BaseTimeEntity {
                 .build();
     }
 
-    public void updateTranslations(String descriptionEng, String addressEng, String entranceNoticeEng, String noticeEng) {
-        this.descriptionEng = descriptionEng;
-        this.addressEng = addressEng;
-        this.entranceNoticeEng = entranceNoticeEng;
-        this.noticeEng = noticeEng;
-    }
+//    public void updateTranslations(String descriptionEng, String addressEng, String entranceNoticeEng, String noticeEng) {
+//        this.descriptionEng = descriptionEng;
+//        this.addressEng = addressEng;
+//        this.entranceNoticeEng = entranceNoticeEng;
+//        this.noticeEng = noticeEng;
+//    }
 }

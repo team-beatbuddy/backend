@@ -60,7 +60,7 @@ public class SecurityConfig {
                 // 경로에 대한 권한 부여
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/reissue", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html",
-                                "http://localhost:3000/**","/admin/**").permitAll()
+                                "http://localhost:3000/**","/admin/**", "/fcm-test.html", "/fcm-simple-test.html", "/firebase-messaging-sw.js", "/firebase-cloud-messaging-push-scope").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/venues/**").permitAll()  // 조회 전용 공개
                         .requestMatchers("/api/v1/venues/coordinates/**").authenticated()  // 좌표 관리 API는 인증 필요
                         .requestMatchers("/api/v1/venues/**").authenticated()             // 나머지 베뉴 관리는 인증 필요
@@ -120,7 +120,9 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> {
-            web.ignoring().requestMatchers("/error","/login", "/join");
+            web.ignoring().requestMatchers("/error","/login", "/join", 
+                "/fcm-test.html", "/firebase-messaging-sw.js", 
+                "/css/**", "/js/**", "/images/**", "/static/**");
         };
     }
 
