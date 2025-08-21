@@ -75,9 +75,9 @@ public class VenueInfoController implements VenueInfoApiDocs {
     @Override
     @GetMapping("/{venueId}/events/latest")
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventsByVenueLatest(@PathVariable Long venueId,
-                                                                                            @RequestParam(defaultValue = "1") int page,
-                                                                                            @RequestParam(defaultValue = "10") int size,
-                                                                                                  @RequestParam(defaultValue = "false") boolean isPast) {
+                                                                                    @RequestParam(defaultValue = "1") int page,
+                                                                                    @RequestParam(defaultValue = "10") int size,
+                                                                                    @RequestParam(defaultValue = "false") boolean isPast) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         EventListResponseDTO eventListResponseDTO = venueInfoService.getVenueEventsLatest(venueId, memberId, page, size, isPast);
         return ResponseEntity
@@ -89,8 +89,8 @@ public class VenueInfoController implements VenueInfoApiDocs {
     @Override
     @GetMapping("/{venueId}/events/popular")
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventsByVenuePopular(@PathVariable Long venueId,
-                                                                                                  @RequestParam(defaultValue = "1") int page,
-                                                                                                  @RequestParam(defaultValue = "10") int size) {
+                                                                                     @RequestParam(defaultValue = "1") int page,
+                                                                                     @RequestParam(defaultValue = "10") int size) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         EventListResponseDTO eventListResponseDTO = venueInfoService.getVenueEventsByPopularity(venueId, memberId, page, size);
         return ResponseEntity

@@ -52,7 +52,7 @@ public class FollowService {
         // ======== 알림 전송
         eventPublisher.publishEvent(new FollowCreatedEvent(follower, following));
 
-        return FollowResponseDTO.toDTO(follow);
+        return FollowResponseDTO.fromFollowingMember(follow);
     }
 
 
@@ -87,6 +87,8 @@ public class FollowService {
                     FollowResponseDTO dto = FollowResponseDTO.fromFollowingMember(follow);
                     // 현재 사용자가 이 사용자를 팔로우하고 있는지 확인
                     dto.setFollowing(currentUserFollowingIds.contains(dto.getMemberId()));
+                    // 이 사용자는 현재 사용자를 팔로우 하고 있는지 여부
+                    dto.setFollower(followRepository.existsByFollower_IdAndFollowing_Id(dto.getMemberId(), currentMemberId));
                     return dto;
                 })
                 .toList();
@@ -116,26 +118,10 @@ public class FollowService {
                     FollowResponseDTO dto = FollowResponseDTO.fromFollowerMember(follow);
                     // 현재 사용자가 이 사용자를 팔로우하고 있는지 확인
                     dto.setFollowing(currentUserFollowingIds.contains(dto.getMemberId()));
+                    // 이 사용자는 현재 사용자를 팔로우 하고 있는지 여부
+                    dto.setFollower(followRepository.existsByFollower_IdAndFollowing_Id(currentMemberId, dto.getMemberId()));
                     return dto;
                 })
                 .toList();
-    }
-    
-    /**
-     * @deprecated Use {@link #getFollowings(Long, Long)} instead.
-     * This method is deprecated since version 1.0 and will be removed in a future release.
-     */
-    @Deprecated(since = "1.0", forRemoval = true)
-    public List<FollowResponseDTO> getFollowings(Long memberId) {
-        return getFollowings(memberId, memberId); // 본인 조회시 자기 자신을 currentMemberId로 사용
-    }
-    
-    /**
-     * @deprecated Use {@link #getFollowers(Long, Long)} instead.
-     * This method is deprecated since version 1.0 and will be removed in a future release.
-     */
-    @Deprecated(since = "1.0", forRemoval = true)
-    public List<FollowResponseDTO> getFollowers(Long memberId) {
-        return getFollowers(memberId, memberId); // 본인 조회시 자기 자신을 currentMemberId로 사용
     }
 }

@@ -31,11 +31,27 @@ public class FollowResponseDTO {
     private String postProfileImageUrl;
 
     @JsonProperty("isFollowing")
+    @Schema(description = "팔로우 여부", example = "true")
     private boolean isFollowing; // 팔로우 여부
+
+    // 팔로잉 여부
+    @JsonProperty("isFollower")
+    @Schema(description = "팔로워 여부", example = "false")
+    private boolean isFollower; // 팔로우 여부s
+
     
     // isFollowing 설정을 위한 setter
     public void setFollowing(boolean following) {
         this.isFollowing = following;
+    }
+
+    public boolean getIsFollowing() {
+        return isFollowing;
+    }
+
+    // isFollower 설정을 위한 setter
+    public void setFollower(boolean follower) {
+        this.isFollower = follower;
     }
 
     // 팔로잉 목록 조회용 - 내가 팔로우하는 사람의 정보
@@ -60,14 +76,5 @@ public class FollowResponseDTO {
                 .postProfileNickname(followerMember.getPostProfileInfo().getPostProfileNickname())
                 .postProfileImageUrl(followerMember.getPostProfileInfo().getPostProfileImageUrl())
                 .build();
-    }
-    
-    /**
-     * @deprecated Use {@link #fromFollowingMember(Follow)} or {@link #fromFollowerMember(Follow)} instead.
-     * This method is deprecated since version 1.0 and will be removed in a future release.
-     */
-    @Deprecated(since = "1.0", forRemoval = true)
-    public static FollowResponseDTO toDTO(Follow follow) {
-        return fromFollowingMember(follow);
     }
 }

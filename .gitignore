@@ -184,3 +184,5 @@ src/main/java/com/ceos/beatbuddy/global/config/oauth/OAuth2SuccessHandler.java
 /src/main/resources/application.yml
 
 AuthKey_MULB22L94D.p8
+
+src/main/resources/static/
