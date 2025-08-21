@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 
+import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -31,7 +33,7 @@ public class NotificationService {
     private final MemberRepository memberRepository;
     private final NotificationSender notificationSender;
 
-    @Transactional
+    @Transactional(propagation = REQUIRES_NEW)
     public Notification save(Member receiver, NotificationPayload payload) {
         log.info("🔔 save called with receiverId={}, payload={}",
                 receiver != null ? receiver.getId() : null,
