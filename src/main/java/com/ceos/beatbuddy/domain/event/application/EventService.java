@@ -142,6 +142,8 @@ public class EventService {
             event.getImageUrls().addAll(imageUrls);
         }
 
+        event.setThumbImage(event.getImageUrls().isEmpty() ? null : event.getImageUrls().get(0));
+
         // 일래스틱 저장
         eventElasticService.save(event);
 
