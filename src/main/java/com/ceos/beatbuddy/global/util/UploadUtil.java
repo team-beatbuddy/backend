@@ -26,9 +26,11 @@ import java.util.UUID;
 @Component
 public class UploadUtil {
     private final VideoThumbnailService videoThumbnailService;
+    private final ImageConversionService imageConversionService;
     
-    public UploadUtil(VideoThumbnailService videoThumbnailService) {
+    public UploadUtil(VideoThumbnailService videoThumbnailService, ImageConversionService imageConversionService) {
         this.videoThumbnailService = videoThumbnailService;
+        this.imageConversionService = imageConversionService;
     }
     // 지원되는 영상 파일 확장자
     private static final Set<String> VIDEO_EXTENSIONS = Set.of(
@@ -85,7 +87,10 @@ public class UploadUtil {
         // 확장자 및 파일명 검증
         validationImage(image.getOriginalFilename());
 
-        String fileUrl = uploadImageS3(image, getBucketName(type), folder);
+        // HEIC 파일인 경우 JPG로 변환
+        MultipartFile processedImage = imageConversionService.convertHeicToJpg(image);
+        
+        String fileUrl = uploadImageS3(processedImage, getBucketName(type), folder);
         
         // 비디오 파일인 경우 썸네일 생성
         if (isVideoFile(image.getOriginalFilename())) {
@@ -108,8 +113,11 @@ public class UploadUtil {
         // 확장자 및 파일명 검증
         validationImage(image.getOriginalFilename());
 
+        // HEIC 파일인 경우 JPG로 변환
+        MultipartFile processedImage = imageConversionService.convertHeicToJpg(image);
+        
         // 썸네일 생성 없이 원본만 업로드
-        return uploadImageS3(image, getBucketName(type), folder);
+        return uploadImageS3(processedImage, getBucketName(type), folder);
     }
 
     public String uploadThumbnail(MultipartFile image, BucketType type, String folder, String fileName) {
@@ -252,6 +260,17 @@ public class UploadUtil {
     private static void validationImage(String fileName) {
         int lastDotIndex = fileName.lastIndexOf(".");
         if (lastDotIndex == -1) {
+            throw new CustomException(VenueErrorCode.INVALID_VENUE_IMAGE);
+        }
+        
+        String extension = fileName.substring(lastDotIndex + 1).toLowerCase();
+        Set<String> allowedExtensions = Set.of(
+                "jpg", "jpeg", "png", "gif", "webp", "bmp", "tiff", "svg",
+                "heic", "heif", // HEIC 확장자 추가
+                "mp4", "mov", "avi", "mkv", "wmv", "flv", "webm", "m4v"
+        );
+        
+        if (!allowedExtensions.contains(extension)) {
             throw new CustomException(VenueErrorCode.INVALID_VENUE_IMAGE);
         }
     }
