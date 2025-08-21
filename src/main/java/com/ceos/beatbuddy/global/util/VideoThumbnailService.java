@@ -120,6 +120,11 @@ public class VideoThumbnailService {
         // 간단한 이미지를 프로그래밍 방식으로 생성할 수 있습니다
         log.warn("FFmpeg를 사용할 수 없어 기본 썸네일을 생성합니다.");
         
+        // 파일이 이미 존재하면 삭제 후 생성
+        if (Files.exists(thumbnailPath)) {
+            Files.delete(thumbnailPath);
+        }
+        
         // 임시로 빈 파일 생성 (실제로는 기본 썸네일 이미지 파일을 복사해야 함)
         Files.createFile(thumbnailPath);
     }
