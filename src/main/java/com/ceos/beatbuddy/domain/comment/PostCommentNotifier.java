@@ -34,25 +34,58 @@ public class PostCommentNotifier {
     }
 
     public void notifyPostAuthor(Comment comment, Long writerId) {
+        log.info("🔔 게시글 작성자 알림 시작 - postId: {}, commentId: {}", 
+                comment.getPost().getId(), comment.getId());
+                
         Member postAuthor = comment.getPost().getMember();
         Member commentWriter = comment.getMember();
 
+        log.info("👤 게시글 작성자: {}, 댓글 작성자: {}", postAuthor.getId(), writerId);
+
         // 자신이 자기 글에 댓글 단 경우 알림 제외
-        if (postAuthor.getId().equals(writerId)) return;
+        if (postAuthor.getId().equals(writerId)) {
+            log.info("⏭️ 본인이 자기 글에 댓글 - 알림 스킵");
+            return;
+        }
 
         String displayName = getDisplayName(comment);
+        log.info("📝 표시할 이름: {}", displayName);
                     
+        log.info("📝 NotificationPayload 생성 시작");
         NotificationPayload notificationPayload = notificationPayloadFactory.createPostCommentPayload(
                 comment.getPost().getId(),
                 comment.getId(),
                 displayName,
                 comment.getContent()
         );
+        log.info("📝 NotificationPayload 생성 완료: {}", notificationPayload != null ? "성공" : "null");
 
         if (notificationPayload != null) {
-            Notification saved = notificationService.save(postAuthor, notificationPayload);
-            notificationPayload.getData().put("notificationId", String.valueOf(saved.getId()));
-            notificationSender.send(postAuthor.getFcmToken(), notificationPayload);
+            log.info("💾 알림 DB 저장 시작 - receiver: {}, payload title: {}", postAuthor.getId(), notificationPayload.getTitle());
+            try {
+                Notification saved = notificationService.save(postAuthor, notificationPayload);
+                log.info("💾 notificationService.save 호출 완료 - saved: {}", saved != null ? saved.getId() : "null");
+                if (saved != null) {
+                    notificationPayload.getData().put("notificationId", String.valueOf(saved.getId()));
+                    log.info("✅ 알림 DB 저장 완료 - notificationId: {}", saved.getId());
+                } else {
+                    log.error("❌ saved가 null임");
+                }
+            } catch (Exception e) {
+                log.error("❌ notificationService.save 호출 중 예외", e);
+                throw e;
+            }
+            
+            // FCM 전송은 별도 처리 (실패해도 DB에는 저장됨)
+            try {
+                log.info("🚀 FCM 알림 전송 시작 - token: {}", postAuthor.getFcmToken() != null ? "존재함" : "null");
+                notificationSender.send(postAuthor.getFcmToken(), notificationPayload);
+                log.info("✅ FCM 전송 성공");
+            } catch (Exception e) {
+                log.warn("⚠️ FCM 전송 실패하지만 알림은 목록에서 확인 가능: {}", e.getMessage());
+            }
+        } else {
+            log.error("❌ NotificationPayload가 null");
         }
     }
 
@@ -79,14 +112,20 @@ public class PostCommentNotifier {
             );
 
             if (notificationPayload != null) {
+                log.info("💾 대댓글 알림 DB 저장 시작");
                 Notification saved = notificationService.save(parentWriter, notificationPayload);
                 notificationPayload.getData().put("notificationId", String.valueOf(saved.getId()));
-                notificationSender.send(parentWriter.getFcmToken(), notificationPayload);
-                // Single info log summarizing successful send
-                log.info("대댓글 알림 전송 완료: commentId={}, receiverId={}", comment.getId(), parentWriter.getId());
+                log.info("✅ 대댓글 알림 DB 저장 완료 - notificationId: {}", saved.getId());
+                
+                // FCM 전송은 별도 처리 (실패해도 DB에는 저장됨)
+                try {
+                    notificationSender.send(parentWriter.getFcmToken(), notificationPayload);
+                    log.info("✅ 대댓글 FCM 전송 성공: commentId={}, receiverId={}", comment.getId(), parentWriter.getId());
+                } catch (Exception e) {
+                    log.warn("⚠️ 대댓글 FCM 전송 실패하지만 알림은 목록에서 확인 가능: commentId={}, error={}", comment.getId(), e.getMessage());
+                }
             } else {
-                // Elevated to error since payload failure is exceptional
-                log.error("알림 payload 생성 실패: commentId={}", comment.getId());
+                log.error("❌ 대댓글 알림 payload 생성 실패: commentId={}", comment.getId());
             }
         } else {
             // Self-replies are normal flow, so debug level

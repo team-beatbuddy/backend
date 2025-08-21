@@ -31,9 +31,9 @@ public interface VenueInfoApiDocs {
     
     """)
     @ApiResponse(responseCode = "200", description = "쿠폰 목록 조회 성공",
-    content = @io.swagger.v3.oas.annotations.media.Content(
-            mediaType = "application/json",
-            examples = @ExampleObject(name = "조회 성공", value = """
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(name = "조회 성공", value = """
             {
               "status": 200,
               "code": "SUCCESS_GET_VENUE_COUPONS",
@@ -143,9 +143,9 @@ public interface VenueInfoApiDocs {
                     examples = @ExampleObject(name = "잘못된 페이지 요청", value = SwaggerExamples.PAGE_OUT_OF_BOUNDS))
     )
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventsByVenueLatest(@PathVariable Long venueId,
-                                                                                           @RequestParam(defaultValue = "1") int page,
-                                                                                           @RequestParam(defaultValue = "10") int size,
-                                                                                           @RequestParam(defaultValue = "false") boolean isPast);
+                                                                             @RequestParam(defaultValue = "1") int page,
+                                                                             @RequestParam(defaultValue = "10") int size,
+                                                                             @RequestParam(defaultValue = "false") boolean isPast);
 
 
     @Operation(summary = "베뉴의 이벤트 목록 조회(인기순)",

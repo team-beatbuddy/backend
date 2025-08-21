@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 
+import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -31,7 +33,7 @@ public class NotificationService {
     private final MemberRepository memberRepository;
     private final NotificationSender notificationSender;
 
-    @Transactional
+    @Transactional(propagation = REQUIRES_NEW)
     public Notification save(Member receiver, NotificationPayload payload) {
         log.info("🔔 save called with receiverId={}, payload={}",
                 receiver != null ? receiver.getId() : null,
@@ -73,10 +75,10 @@ public class NotificationService {
                     .readAt(null)
                     .build();
 
-            notificationRepository.save(saved);
+            Notification persistedNotification = notificationRepository.save(saved);
 
-            log.info("✅ 알림 저장 완료 (type={}): {}", type, payload.getBody());
-            return saved;
+            log.info("✅ 알림 저장 완료 (type={}): {} - ID: {}", type, payload.getBody(), persistedNotification.getId());
+            return persistedNotification;
 
         } catch (IllegalArgumentException e) {
             log.error("❌ 유효하지 않은 알림 타입: {}", typeStr);
@@ -146,17 +148,19 @@ public class NotificationService {
                 try {
                     NotificationPayload payloadCopy = basePayload.copy();
 
-                    // 실패 시 예외가 발생하므로 null 체크 불필요
+                    // DB에 먼저 저장 (무조건 성공)
                     Notification saved = save(member, payloadCopy);
-
                     payloadCopy.getData().put("notificationId", String.valueOf(saved.getId()));
 
-                    notificationSender.send(member.getFcmToken(), payloadCopy);
+                    // FCM 전송은 별도 처리 (실패해도 DB에는 저장됨)
+                    try {
+                        notificationSender.send(member.getFcmToken(), payloadCopy);
+                    } catch (Exception e) {
+                        log.warn("⚠️ FCM 전송 실패하지만 알림은 목록에서 확인 가능: memberId={}, error={}", member.getId(), e.getMessage());
+                    }
 
-                } catch (CustomException e) {
-                    log.warn("⚠️ 알림 저장 또는 전송 실패: memberId={}, reason={}", member.getId(), e.getMessage());
                 } catch (Exception e) {
-                    log.error("❌ 알림 전송 중 예외 발생: memberId={}", member.getId(), e);
+                    log.error("❌ 알림 DB 저장 실패: memberId={}", member.getId(), e);
                 }
             }
         });

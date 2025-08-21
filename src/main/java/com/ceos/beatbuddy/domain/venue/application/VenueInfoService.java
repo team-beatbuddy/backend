@@ -1,28 +1,36 @@
 package com.ceos.beatbuddy.domain.venue.application;
 
 import com.ceos.beatbuddy.domain.admin.application.AdminService;
+import com.ceos.beatbuddy.domain.coupon.repository.CouponRepository;
 import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
 import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventRepository;
+import com.ceos.beatbuddy.domain.heartbeat.repository.HeartbeatRepository;
 import com.ceos.beatbuddy.domain.member.application.MemberService;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.ceos.beatbuddy.domain.vector.entity.Vector;
+import com.ceos.beatbuddy.domain.venue.dto.VenueInfoOptimizedData;
 import com.ceos.beatbuddy.domain.venue.dto.VenueInfoResponseDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueRequestDTO;
 import com.ceos.beatbuddy.domain.venue.dto.VenueUpdateDTO;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
+import com.ceos.beatbuddy.domain.venue.entity.VenueGenre;
+import com.ceos.beatbuddy.domain.venue.entity.VenueMood;
 import com.ceos.beatbuddy.domain.venue.exception.VenueErrorCode;
+import com.ceos.beatbuddy.domain.venue.exception.VenueGenreErrorCode;
+import com.ceos.beatbuddy.domain.venue.exception.VenueMoodErrorCode;
 import com.ceos.beatbuddy.domain.venue.kakaoMap.KakaoLocalClient;
+import com.ceos.beatbuddy.domain.venue.repository.VenueGenreRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueInfoQueryRepository;
+import com.ceos.beatbuddy.domain.venue.repository.VenueMoodRepository;
 import com.ceos.beatbuddy.domain.venue.repository.VenueRepository;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
-import com.ceos.beatbuddy.global.translation.TranslationService;
 import com.ceos.beatbuddy.global.util.UploadUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,21 +40,28 @@ import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-@Slf4j
 public class VenueInfoService {
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
     private final VenueRepository venueRepository;
+    private final HeartbeatRepository heartbeatRepository;
+    private final VenueGenreRepository venueGenreRepository;
+    private final VenueMoodRepository venueMoodRepository;
     private final VenueSearchService venueSearchService;
     private final AdminService adminService;
+    private final CouponRepository couponRepository;
     private final MemberService memberService;
     private final EventQueryRepository eventQueryRepository;
     private final EventLikeRepository eventLikeRepository;
@@ -54,7 +69,6 @@ public class VenueInfoService {
     private final EventRepository eventRepository;
     private final KakaoLocalClient kakaoLocalClient;
     private final VenueInfoQueryRepository venueInfoQueryRepository;
-    private final TranslationService translationService;
 
     private final UploadUtil uploadUtil;
     public List<Venue> getVenueInfoList() {
@@ -62,24 +76,19 @@ public class VenueInfoService {
     }
 
     public VenueInfoResponseDTO getVenueInfo(Long venueId, Long memberId) {
-        return getVenueInfo(venueId, memberId, "ko");
-    }
-    
-    public VenueInfoResponseDTO getVenueInfo(Long venueId, Long memberId, String locale) {
-        memberService.validateAndGetMember(memberId);
-        
+        Member member = memberService.validateAndGetMember(memberId);
+
         var optimizedData = venueInfoQueryRepository.findVenueInfoOptimized(venueId, memberId);
         if (optimizedData == null) {
             throw new CustomException(VenueErrorCode.VENUE_NOT_EXIST);
         }
 
-        return VenueInfoResponseDTO.forLocale(
-                optimizedData.getVenue(),
-                optimizedData.isHeartbeat(),
-                optimizedData.isHasCoupon(),
-                optimizedData.getTagList(),
-                locale
-        );
+        return VenueInfoResponseDTO.builder()
+                .venue(optimizedData.getVenue())
+                .isHeartbeat(optimizedData.isHeartbeat())
+                .isCoupon(optimizedData.isHasCoupon())
+                .tagList(optimizedData.getTagList())
+                .build();
     }
 
     @Transactional
@@ -116,9 +125,6 @@ public class VenueInfoService {
         }
 
         Venue venue = venueRepository.save(Venue.of(request, logoImageUrl, backgroundImageUrls));
-
-        // 비동기로 번역 처리
-        translateVenueFields(venue);
 
         kakaoLocalClient.getCoordinateFromAddress(request.getAddress())
                 .subscribe(coord -> {
@@ -190,44 +196,7 @@ public class VenueInfoService {
         venue.updateBackgroundUrl(existingImages);
 
         venue.update(dto);
-        
-        // 업데이트된 내용 번역
-        translateVenueFields(venue);
-        
         venueSearchService.save(venue, null, null); // Venue 정보를 Elasticsearch에 저장
-    }
-
-    @Transactional
-    public void translateVenueFields(Venue venue) {
-        try {
-            Map<String, String> fieldsToTranslate = new HashMap<>();
-            
-            if (venue.getDescription() != null && !venue.getDescription().trim().isEmpty()) {
-                fieldsToTranslate.put("description", venue.getDescription());
-            }
-            if (venue.getAddress() != null && !venue.getAddress().trim().isEmpty()) {
-                fieldsToTranslate.put("address", venue.getAddress());
-            }
-            if (venue.getEntranceNotice() != null && !venue.getEntranceNotice().trim().isEmpty()) {
-                fieldsToTranslate.put("entranceNotice", venue.getEntranceNotice());
-            }
-            if (venue.getNotice() != null && !venue.getNotice().trim().isEmpty()) {
-                fieldsToTranslate.put("notice", venue.getNotice());
-            }
-            
-            if (!fieldsToTranslate.isEmpty()) {
-                Map<String, String> translations = translationService.translateBatch(fieldsToTranslate);
-                
-                venue.updateTranslations(
-                    translations.get("description"),
-                    translations.get("address"),
-                    translations.get("entranceNotice"),
-                    translations.get("notice")
-                );
-            }
-        } catch (Exception e) {
-            log.error("번역 중 오류 발생: venueId={}, error={}", venue.getId(), e.getMessage(), e);
-        }
     }
 
     public EventListResponseDTO getVenueEventsLatest(Long venueId, Long memberId, int page, int size, boolean isPast) {
@@ -320,150 +289,11 @@ public class VenueInfoService {
         }
 
         List<Venue> venues = venueRepository.findByIdIn(venueIds);
-        
+
         if (venues.size() != venueIds.size()) {
             throw new CustomException(VenueErrorCode.VENUE_NOT_EXIST);
         }
 
         return venues;
-    }
-
-    /**
-     * 번역되지 않은 기존 venue들에 대해 번역 동기화 수행
-     */
-    @Transactional
-    public void syncVenueTranslations() {
-        log.info("Venue 번역 동기화 작업을 시작합니다.");
-        
-        List<Venue> venuesNeedingTranslation = findVenuesNeedingTranslation();
-        log.info("번역이 필요한 Venue 수: {}", venuesNeedingTranslation.size());
-        
-        if (venuesNeedingTranslation.isEmpty()) {
-            log.info("번역이 필요한 Venue가 없습니다.");
-            return;
-        }
-        
-        int batchSize = 10; // 한 번에 처리할 venue 개수
-        int totalBatches = (int) Math.ceil((double) venuesNeedingTranslation.size() / batchSize);
-        
-        for (int i = 0; i < totalBatches; i++) {
-            int start = i * batchSize;
-            int end = Math.min(start + batchSize, venuesNeedingTranslation.size());
-            List<Venue> batch = venuesNeedingTranslation.subList(start, end);
-            
-            log.info("배치 {}/{} 처리 중... ({}-{})", i + 1, totalBatches, start + 1, end);
-            
-            processBatch(batch);
-            
-            // API 요청 제한을 위해 잠시 대기
-            try {
-                Thread.sleep(1000); // 1초 대기
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                log.error("번역 동기화 중 인터럽트 발생", e);
-                break;
-            }
-        }
-        
-        log.info("Venue 번역 동기화 작업이 완료되었습니다.");
-    }
-    
-    /**
-     * 번역이 필요한 venue들을 찾아서 반환
-     */
-    private List<Venue> findVenuesNeedingTranslation() {
-        return venueRepository.findAll().stream()
-                .filter(this::needsTranslation)
-                .collect(Collectors.toList());
-    }
-    
-    /**
-     * venue가 번역이 필요한지 확인
-     */
-    private boolean needsTranslation(Venue venue) {
-        // description이 있는데 영어 번역이 없는 경우
-        if (hasContent(venue.getDescription()) && !hasContent(venue.getDescriptionEng())) {
-            return true;
-        }
-        
-        // address가 있는데 영어 번역이 없는 경우
-        if (hasContent(venue.getAddress()) && !hasContent(venue.getAddressEng())) {
-            return true;
-        }
-        
-        // entranceNotice가 있는데 영어 번역이 없는 경우
-        if (hasContent(venue.getEntranceNotice()) && !hasContent(venue.getEntranceNoticeEng())) {
-            return true;
-        }
-        
-        // notice가 있는데 영어 번역이 없는 경우
-        if (hasContent(venue.getNotice()) && !hasContent(venue.getNoticeEng())) {
-            return true;
-        }
-        
-        return false;
-    }
-    
-    /**
-     * 문자열이 유효한 내용을 가지고 있는지 확인
-     */
-    private boolean hasContent(String str) {
-        return str != null && !str.trim().isEmpty();
-    }
-    
-    /**
-     * venue 배치를 처리하여 번역 수행
-     */
-    private void processBatch(List<Venue> venues) {
-        for (Venue venue : venues) {
-            try {
-                translateVenueFields(venue);
-                log.debug("Venue ID {} 번역 완료", venue.getId());
-            } catch (Exception e) {
-                log.error("Venue ID {} 번역 중 오류 발생: {}", venue.getId(), e.getMessage(), e);
-            }
-        }
-    }
-    
-    /**
-     * 특정 venue ID에 대해서만 번역 동기화 수행
-     */
-    @Transactional
-    public void syncVenueTranslation(Long venueId) {
-        log.info("Venue ID {} 번역 동기화 시작", venueId);
-        
-        Venue venue = venueRepository.findById(venueId)
-                .orElseThrow(() -> new CustomException(VenueErrorCode.VENUE_NOT_EXIST));
-        
-        if (!needsTranslation(venue)) {
-            log.info("Venue ID {} 는 번역이 필요하지 않습니다.", venueId);
-            return;
-        }
-        
-        translateVenueFields(venue);
-        log.info("Venue ID {} 번역 동기화 완료", venueId);
-    }
-    
-    /**
-     * 번역 동기화 상태를 확인
-     */
-    public Map<String, Object> getTranslationSyncStatus() {
-        List<Venue> allVenues = venueRepository.findAll();
-        List<Venue> venuesNeedingTranslation = allVenues.stream()
-                .filter(this::needsTranslation)
-                .collect(Collectors.toList());
-        
-        Map<String, Object> status = new HashMap<>();
-        status.put("totalVenues", allVenues.size());
-        status.put("venuesNeedingTranslation", venuesNeedingTranslation.size());
-        status.put("translatedVenues", allVenues.size() - venuesNeedingTranslation.size());
-        status.put("translationProgress", allVenues.isEmpty() ? 100.0 : 
-            ((double)(allVenues.size() - venuesNeedingTranslation.size()) / allVenues.size()) * 100.0);
-        
-        // 번역이 필요한 venue ID 목록도 포함
-        status.put("venueIdsNeedingTranslation", 
-            venuesNeedingTranslation.stream().map(Venue::getId).collect(Collectors.toList()));
-        
-        return status;
     }
 }
