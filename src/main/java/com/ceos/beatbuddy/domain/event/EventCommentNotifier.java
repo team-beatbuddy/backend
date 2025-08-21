@@ -24,13 +24,18 @@ public class EventCommentNotifier {
 
         if (isReplierHost && isReplyToOther) {
             Member parentAuthor = parent.getAuthor();
-            if (parentAuthor.getFcmToken() != null) {
-                NotificationPayload payload = notificationPayloadFactory.createEventReplyCommentPayload(
-                        event.getId(), parent.getId(), reply.getContent(), reply.getId());
-                Notification saved =notificationService.save(parentAuthor, payload);
-                payload.getData().put("notificationId", String.valueOf(saved.getId()));
+            NotificationPayload payload = notificationPayloadFactory.createEventReplyCommentPayload(
+                    event.getId(), parent.getId(), reply.getContent(), reply.getId());
+            
+            // DB에 먼저 저장 (무조건 성공)
+            Notification saved = notificationService.save(parentAuthor, payload);
+            payload.getData().put("notificationId", String.valueOf(saved.getId()));
 
+            // FCM 전송은 별도 처리 (실패해도 DB에는 저장됨)
+            try {
                 notificationSender.send(parentAuthor.getFcmToken(), payload);
+            } catch (Exception e) {
+                // 로그는 NotificationSender에서 처리
             }
         }
     }
@@ -38,12 +43,18 @@ public class EventCommentNotifier {
     public void notifyHostIfNewComment(Event event, Member commenter, EventComment comment) {
         if (!event.getHost().getId().equals(commenter.getId())) {
             Member host = event.getHost();
-            if (host.getFcmToken() != null) {
-                NotificationPayload payload = notificationPayloadFactory.createEventCommentNotificationPayload(
-                        event.getId(), comment.getId(), comment.getContent());
-                Notification saved = notificationService.save(host, payload);
-                payload.getData().put("notificationId", String.valueOf(saved.getId()));
+            NotificationPayload payload = notificationPayloadFactory.createEventCommentNotificationPayload(
+                    event.getId(), comment.getId(), comment.getContent());
+            
+            // DB에 먼저 저장 (무조건 성공)
+            Notification saved = notificationService.save(host, payload);
+            payload.getData().put("notificationId", String.valueOf(saved.getId()));
+            
+            // FCM 전송은 별도 처리 (실패해도 DB에는 저장됨)
+            try {
                 notificationSender.send(host.getFcmToken(), payload);
+            } catch (Exception e) {
+                // 로그는 NotificationSender에서 처리
             }
         }
     }

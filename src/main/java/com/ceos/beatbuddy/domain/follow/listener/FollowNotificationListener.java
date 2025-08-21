@@ -24,16 +24,28 @@ public class FollowNotificationListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleFollowCreated(FollowCreatedEvent event) {
         try {
+            log.info("🔔 팔로우 알림 시작 - follower: {}, following: {}", 
+                    event.follower().getId(), event.following().getId());
+                    
             NotificationPayload payload = notificationPayloadFactory
                     .createFollowPayload(event.follower().getId(), event.follower().getNickname());
 
+            // DB에 먼저 저장 (무조건 성공)
+            log.info("💾 팔로우 알림 DB 저장 시작");
             Notification saved = notificationService.save(event.following(), payload);
             payload.getData().put("notificationId", String.valueOf(saved.getId()));
+            log.info("✅ 팔로우 알림 DB 저장 완료 - notificationId: {}", saved.getId());
 
-            notificationSender.send(event.following().getFcmToken(), payload);
+            // FCM 전송은 별도 처리 (실패해도 DB에는 저장됨)
+            try {
+                log.info("🚀 팔로우 FCM 전송 시작");
+                notificationSender.send(event.following().getFcmToken(), payload);
+                log.info("✅ 팔로우 FCM 전송 성공");
+            } catch (Exception e) {
+                log.warn("⚠️ 팔로우 FCM 전송 실패하지만 알림은 목록에서 확인 가능: {}", e.getMessage());
+            }
         } catch (Exception e) {
-            log.error("❌ 팔로우 알림 전송 실패", e);
-            // TODO: 실패 큐 처리 or 단순 로그
+            log.error("❌ 팔로우 알림 DB 저장 실패", e);
         }
     }
 }
