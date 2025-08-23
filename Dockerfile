@@ -1,4 +1,4 @@
-FROM openjdk:17
+FROM openjdk:17-jdk-slim
 
 # FFmpeg 설치
 RUN apt-get update && \
@@ -8,4 +8,4 @@ RUN apt-get update && \
 
 ARG JAR_FILE=/build/libs/*.jar
 COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java","-jar", "/app.jar"]
+ENTRYPOINT ["java","-jar","/app.jar"]
