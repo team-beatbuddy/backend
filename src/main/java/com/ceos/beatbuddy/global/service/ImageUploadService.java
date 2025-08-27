@@ -12,6 +12,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Service
 @RequiredArgsConstructor
@@ -29,19 +32,23 @@ public class ImageUploadService {
         CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         
         try {
-            allOf.join(); // 모든 업로드 완료 대기
+            // 모든 업로드 완료 대기 (타임아웃 적용)
+            allOf.get(60, TimeUnit.SECONDS);
             
             // 완료된 결과들을 수집
             return futures.stream()
                     .map(future -> {
                         try {
                             return future.join().getOriginalUrl();
-                        } catch (Exception e) {
-                            log.error("이미지 업로드 실패", e);
+                        } catch (CompletionException e) {
+                            log.error("이미지 업로드 실패", e.getCause());
                             throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
                         }
                     })
                     .toList();
+        } catch (TimeoutException e) {
+            log.error("이미지 업로드 타임아웃 (60초 초과)", e);
+            throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
         } catch (Exception e) {
             log.error("병렬 이미지 업로드 중 오류 발생", e);
             throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
@@ -57,19 +64,23 @@ public class ImageUploadService {
         CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         
         try {
-            allOf.join(); // 모든 업로드 완료 대기
+            // 모든 업로드 완료 대기 (타임아웃 적용)
+            allOf.get(60, TimeUnit.SECONDS);
             
             // 완료된 결과들을 수집
             return futures.stream()
                     .map(future -> {
                         try {
                             return future.join();
-                        } catch (Exception e) {
-                            log.error("이미지 업로드 실패", e);
+                        } catch (CompletionException e) {
+                            log.error("이미지 업로드 실패", e.getCause());
                             throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
                         }
                     })
                     .toList();
+        } catch (TimeoutException e) {
+            log.error("이미지+썸네일 업로드 타임아웃 (60초 초과)", e);
+            throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
         } catch (Exception e) {
             log.error("병렬 이미지+썸네일 업로드 중 오류 발생", e);
             throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);

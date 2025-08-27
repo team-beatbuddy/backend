@@ -151,7 +151,7 @@ public class EventCommentService {
                                         c,
                                         c.getAuthor().getId().equals(memberId),
                                         followingIds.contains(c.getAuthor().getId()),
-                                        isAdmin || isStaff,
+                                        isStaff,
                                         blockedMemberIds.contains(c.getAuthor().getId()),
                                         displayName
                                 );
@@ -169,7 +169,7 @@ public class EventCommentService {
                             replies,
                             parent.getAuthor().getId().equals(memberId),
                             followingIds.contains(parent.getAuthor().getId()),
-                            isAdmin || isParentStaff,
+                            isParentStaff,
                             blockedMemberIds.contains(parent.getAuthor().getId()),
                             parentDisplayName
                     );
