@@ -286,14 +286,49 @@ public class UploadUtil {
         if (imageUrl == null || imageUrl.isBlank()) return;
 
         String bucketName = getBucketName(type);
-        String bucketUrl = "https://" + bucketName + ".s3." + region + ".amazonaws.com/";
-        String key = imageUrl.replace(bucketUrl, "");
+        String key = extractS3KeyFromUrl(imageUrl, bucketName);
 
         try {
             amazonS3.deleteObject(bucketName, key);
         } catch (Exception e) {
             throw new CustomException(ErrorCode.IMAGE_DELETE_FAILED);
         }
+    }
+    
+    /**
+     * URL에서 S3 key를 추출합니다. CloudFront URL과 S3 URL 모두 지원합니다.
+     * 
+     * @param imageUrl S3 또는 CloudFront URL
+     * @param bucketName S3 버킷 이름
+     * @return S3 객체 key
+     */
+    private String extractS3KeyFromUrl(String imageUrl, String bucketName) {
+        if (imageUrl == null || imageUrl.isBlank()) {
+            return "";
+        }
+        
+        // S3 URL 형태인 경우: https://bucketname.s3.region.amazonaws.com/path/to/file.jpg
+        String s3BucketUrl = "https://" + bucketName + ".s3." + region + ".amazonaws.com/";
+        if (imageUrl.startsWith(s3BucketUrl)) {
+            return imageUrl.replace(s3BucketUrl, "");
+        }
+        
+        // CloudFront URL 형태인 경우: https://cloudfront-domain.com/path/to/file.jpg
+        // URL에서 경로 부분만 추출 (도메인 제거)
+        try {
+            if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+                int thirdSlashIndex = imageUrl.indexOf('/', imageUrl.indexOf("://") + 3);
+                if (thirdSlashIndex > 0) {
+                    String path = imageUrl.substring(thirdSlashIndex + 1); // 앞의 '/' 제거
+                    return path;
+                }
+            }
+        } catch (Exception e) {
+            // URL 파싱 실패 시 원본에서 도메인 제거 시도
+        }
+        
+        // 유효한 S3 key를 추출할 수 없는 경우 빈 문자열 반환
+        return "";
     }
 
     public void deleteImages(List<String> imageUrls, BucketType type) {
