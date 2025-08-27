@@ -310,23 +310,30 @@ public class PostService {
     public void removeImages(Post post, List<String> deleteFiles) {
         List<String> existing = post.getImageUrls();
 
-        // 1. 삭제 대상 필터링
-        List<String> matched = existing.stream()
-                .filter(deleteFiles::contains)
-                .toList();
+        // 1. CloudFront URL을 S3 URL로 변환 (필요한 경우)
+        List<String> normalizedDeleteFiles = normalizeUrlsForComparison(deleteFiles);
+        List<String> normalizedExisting = normalizeUrlsForComparison(existing);
 
-        // 2. 유효성 검증
+        // 2. 삭제 대상 필터링 - 정규화된 URL로 비교
+        List<String> matched = new ArrayList<>();
+        for (int i = 0; i < existing.size(); i++) {
+            if (normalizedDeleteFiles.contains(normalizedExisting.get(i))) {
+                matched.add(existing.get(i)); // 원본 URL 사용
+            }
+        }
+
+        // 3. 유효성 검증
         if (matched.size() != deleteFiles.size()) {
             throw new CustomException(PostErrorCode.FILE_NOT_FOUND);
         }
 
-        // 3. S3 삭제
-        uploadUtilAsyncWrapper.deleteImagesAsync(deleteFiles, UploadUtil.BucketType.MEDIA);
+        // 4. S3 삭제 - 실제 S3 URL(matched)로 삭제
+        uploadUtilAsyncWrapper.deleteImagesAsync(matched, UploadUtil.BucketType.MEDIA);
 
-        // 4. 연관관계 해제
+        // 5. 연관관계 해제
         existing.removeAll(matched);
 
-        // 5. Free post 썸네일 동기화
+        // 6. Free post 썸네일 동기화
         if (post instanceof FreePost && post.getThumbnailUrls() != null) {
             List<String> thumbnailUrls = new ArrayList<>(post.getThumbnailUrls());
             List<String> originalImageUrls = new ArrayList<>(post.getImageUrls());
@@ -377,7 +384,65 @@ public class PostService {
         return Triple.of(isLiked, isScrapped, hasCommented);
     }
 
+    /**
+     * Free Post의 썸네일과 이미지 순서 동기화
+     * 이미지 개수와 썸네일 개수가 다른 경우 썸네일을 null로 설정
+     */
+    private void synchronizeFrePostThumbnails(Post post) {
+        if (!(post instanceof FreePost)) {
+            return;
+        }
+        
+        List<String> imageUrls = post.getImageUrls();
+        List<String> thumbnailUrls = post.getThumbnailUrls();
+        
+        // 이미지와 썸네일 개수가 다른 경우
+        if (imageUrls.size() != thumbnailUrls.size()) {
+            // 썸네일을 null로 설정하여 불일치 방지
+            post.setThumbnailUrls(null);
+            
+            // 필요시 기존 썸네일들을 S3에서 삭제 (선택적)
+            if (!thumbnailUrls.isEmpty()) {
+                uploadUtilAsyncWrapper.deleteImagesAsync(thumbnailUrls, UploadUtil.BucketType.MEDIA);
+            }
+        }
+    }
 
+    /**
+     * URL 비교를 위한 정규화 처리
+     * CloudFront URL과 S3 URL을 모두 동일한 형태로 변환하여 비교 가능하게 함
+     */
+    private List<String> normalizeUrlsForComparison(List<String> urls) {
+        return urls.stream()
+                .map(this::normalizeUrlForComparison)
+                .toList();
+    }
+    
+    /**
+     * 단일 URL 정규화 처리
+     * URL에서 도메인 부분을 제거하고 경로만 추출하여 비교
+     */
+    private String normalizeUrlForComparison(String url) {
+        if (url == null || url.isEmpty()) {
+            return url;
+        }
+        
+        // URL에서 경로 부분만 추출 (도메인 제거)
+        // 예: https://cloudfront.amazonaws.com/path/to/file.jpg -> /path/to/file.jpg
+        // 또는 https://s3.amazonaws.com/bucket/path/to/file.jpg -> /path/to/file.jpg
+        try {
+            if (url.startsWith("http://") || url.startsWith("https://")) {
+                int thirdSlashIndex = url.indexOf('/', url.indexOf("://") + 3);
+                if (thirdSlashIndex > 0) {
+                    return url.substring(thirdSlashIndex);
+                }
+            }
+            return url;
+        } catch (Exception e) {
+            // URL 파싱 실패 시 원본 반환
+            return url;
+        }
+    }
 
     @Transactional
     public PostReadDetailDTO updatePost(String type, Long postId, Long memberId,
@@ -430,7 +495,10 @@ public class PostService {
             }
         }
 
-        // Free post 썸네일은 이미지와 동일한 순서로 관리되므로 별도 동기화 불필요
+        // Free post 썸네일 동기화 - 이미지와 썸네일 순서 일치 보장
+        if ("free".equalsIgnoreCase(type) && post.getThumbnailUrls() != null) {
+            synchronizeFrePostThumbnails(post);
+        }
 
         // 유저 상호작용 상태
         Triple<Boolean, Boolean, Boolean> status = getPostInteractions(memberId, postId);
