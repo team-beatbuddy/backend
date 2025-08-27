@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -209,7 +210,17 @@ public class OnboardingService {
         if (postProfileRequestDTO != null && 
             postProfileRequestDTO.getPostProfileNickname() != null && 
             !postProfileRequestDTO.getPostProfileNickname().trim().isEmpty()) {
-            newNickname = postProfileRequestDTO.getPostProfileNickname().trim();
+            
+            String requestedNickname = postProfileRequestDTO.getPostProfileNickname().trim();
+            
+            // 닉네임이 기존과 동일한지 확인
+            if (!requestedNickname.equals(currentPostProfileInfo.getPostProfileNickname())) {
+                // 닉네임 변경 제한 체크
+                validatePostProfileNicknameChangeLimit(currentPostProfileInfo);
+                newNickname = requestedNickname;
+            } else {
+                newNickname = currentPostProfileInfo.getPostProfileNickname();
+            }
         }
         
         // 이미지 수정 (파일이 있을 때만)
@@ -224,7 +235,68 @@ public class OnboardingService {
             newImageUrl = uploadUtil.upload(postProfileImage, UploadUtil.BucketType.MEDIA, "post-profile");
         }
         
-        // 변경된 정보로 업데이트
-        member.setPostProfileInfo(PostProfileInfo.from(newNickname, newImageUrl));
+        // 변경된 정보로 업데이트 (닉네임이 변경된 경우 관련 필드들도 업데이트)
+        boolean nicknameChanged = !newNickname.equals(currentPostProfileInfo.getPostProfileNickname());
+        
+        PostProfileInfo updatedProfileInfo;
+        if (nicknameChanged) {
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime lastChangedAt = currentPostProfileInfo.getPostProfileNicknameChangedAt();
+            int newChangeCount;
+            
+            if (lastChangedAt == null) {
+                newChangeCount = 1;
+            } else {
+                int currentCount = currentPostProfileInfo.getPostProfileNicknameChangeCount();
+                if (currentCount >= 2 && lastChangedAt.plusDays(14).isBefore(now.plusDays(1))) {
+                    // 14일이 지났으므로 초기화
+                    newChangeCount = 1;
+                } else {
+                    newChangeCount = currentCount + 1;
+                }
+            }
+            
+            updatedProfileInfo = PostProfileInfo.builder()
+                    .postProfileNickname(newNickname)
+                    .postProfileImageUrl(newImageUrl)
+                    .postProfileNicknameChangedAt(now)
+                    .postProfileNicknameChangeCount(newChangeCount)
+                    .postProfileVersion(currentPostProfileInfo.getPostProfileVersion())
+                    .setNewPostProfileNickname(true)
+                    .build();
+        } else {
+            // 닉네임이 변경되지 않은 경우 (이미지만 변경)
+            updatedProfileInfo = PostProfileInfo.builder()
+                    .postProfileNickname(newNickname)
+                    .postProfileImageUrl(newImageUrl)
+                    .postProfileNicknameChangedAt(currentPostProfileInfo.getPostProfileNicknameChangedAt())
+                    .postProfileNicknameChangeCount(currentPostProfileInfo.getPostProfileNicknameChangeCount())
+                    .postProfileVersion(currentPostProfileInfo.getPostProfileVersion())
+                    .setNewPostProfileNickname(currentPostProfileInfo.getSetNewPostProfileNickname())
+                    .build();
+        }
+        
+        member.setPostProfileInfo(updatedProfileInfo);
+    }
+    
+    /**
+     * PostProfile 닉네임 변경 제한 검증
+     */
+    private void validatePostProfileNicknameChangeLimit(PostProfileInfo currentPostProfileInfo) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime lastChangedAt = currentPostProfileInfo.getPostProfileNicknameChangedAt();
+        
+        // 변경 이력이 없는 경우는 허용
+        if (lastChangedAt == null) {
+            return;
+        }
+        
+        int changeCount = currentPostProfileInfo.getPostProfileNicknameChangeCount();
+        if (changeCount >= 2) {
+            // 마지막 변경일 기준 14일 이내면 차단
+            if (lastChangedAt.plusDays(14).isAfter(now)) {
+                throw new CustomException(MemberErrorCode.NICKNAME_CHANGE_LIMITED);
+            }
+        }
     }
 }
