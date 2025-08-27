@@ -111,10 +111,16 @@ public class PostQueryRepositoryImpl implements PostQueryRepository{
             return new PageImpl<>(Collections.emptyList(), pageable, 0);
         }
 
-        // where 조건을 변수로 추출하여 중복 제거
-        BooleanExpression whereCondition = freePost.hashtag.any().in(hashtags);
+        // where 조건을 변수로 추출하여 중복 제거 (OR 조건으로 해시태그 필터링)
+        BooleanExpression whereCondition = hashtags.stream()
+                .map(hashtag -> freePost.hashtag.any().eq(hashtag))
+                .reduce(BooleanExpression::or)
+                .orElse(null);
+        
         if (!blockedMemberIds.isEmpty()) {
-            whereCondition = whereCondition.and(freePost.member.id.notIn(blockedMemberIds));
+            whereCondition = whereCondition != null ? 
+                whereCondition.and(freePost.member.id.notIn(blockedMemberIds)) :
+                freePost.member.id.notIn(blockedMemberIds);
         }
 
         // 최신순 정렬
