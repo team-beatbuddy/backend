@@ -261,17 +261,15 @@ public class OnboardingService {
                     .postProfileImageUrl(newImageUrl)
                     .postProfileNicknameChangedAt(now)
                     .postProfileNicknameChangeCount(newChangeCount)
-                    .postProfileVersion(currentPostProfileInfo.getPostProfileVersion())
                     .setNewPostProfileNickname(true)
                     .build();
         } else {
             // 닉네임이 변경되지 않은 경우 (이미지만 변경)
             updatedProfileInfo = PostProfileInfo.builder()
-                    .postProfileNickname(newNickname)
+                    .postProfileNickname(currentPostProfileInfo.getPostProfileNickname())
                     .postProfileImageUrl(newImageUrl)
                     .postProfileNicknameChangedAt(currentPostProfileInfo.getPostProfileNicknameChangedAt())
                     .postProfileNicknameChangeCount(currentPostProfileInfo.getPostProfileNicknameChangeCount())
-                    .postProfileVersion(currentPostProfileInfo.getPostProfileVersion())
                     .setNewPostProfileNickname(currentPostProfileInfo.getSetNewPostProfileNickname())
                     .build();
         }

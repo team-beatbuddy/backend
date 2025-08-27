@@ -25,10 +25,6 @@ public class PostProfileInfo {
     @Column(nullable = false)
     private int postProfileNicknameChangeCount = 0;
 
-    @Version
-    @Column(nullable = false)
-    private Long postProfileVersion = 0L;
-
     @Builder.Default
     private Boolean setNewPostProfileNickname = false;
 
