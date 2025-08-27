@@ -123,6 +123,41 @@ public class OnboardingService {
         return true;
     }
 
+    /**
+     * 게시판 프로필 닉네임 중복 체크
+     */
+    public Boolean isPostProfileNicknameDuplicate(Long memberId, String postProfileNickname) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_EXIST));
+
+        if (memberRepository.existsByPostProfileInfo_PostProfileNickname(postProfileNickname)) {
+            throw new CustomException(MemberErrorCode.NICKNAME_ALREADY_EXIST);
+        }
+
+        return true;
+    }
+
+    /**
+     * 게시판 프로필 닉네임 유효성 검증
+     */
+    public Boolean isPostProfileNicknameValid(Long memberId, String postProfileNickname) {
+        Member member = memberService.validateAndGetMember(memberId);
+
+        // 12글자 초과
+        if (postProfileNickname.length() > 12) {
+            throw new CustomException(MemberErrorCode.NICKNAME_OVER_LENGTH);
+        }
+        // 띄어쓰기 존재
+        if (postProfileNickname.matches(".*\\s+.*")) {
+            throw new CustomException(MemberErrorCode.NICKNAME_SPACE_EXIST);
+        }
+        // 특수문자 체크
+        if (!NICKNAME_PATTERN.matcher(postProfileNickname).matches()) {
+            throw new CustomException(MemberErrorCode.NICKNAME_SYMBOL_EXIST);
+        }
+        return true;
+    }
+
 
 
     @Transactional
@@ -177,6 +212,11 @@ public class OnboardingService {
         if (postProfileNickname == null || postProfileNickname.isEmpty()) {
             throw new CustomException(MemberErrorCode.POST_PROFILE_NICKNAME_REQUIRED);
         }
+        
+        // 닉네임 유효성 검증
+        isPostProfileNicknameValid(memberId, postProfileNickname);
+        // 닉네임 중복 체크
+        isPostProfileNicknameDuplicate(memberId, postProfileNickname);
 
         // 프로필 사진 있으면 업로드
         if (postProfileImage != null && !postProfileImage.isEmpty()) {
@@ -215,6 +255,10 @@ public class OnboardingService {
 
             // 닉네임이 기존과 동일한지 확인
             if (!requestedNickname.equals(currentPostProfileInfo.getPostProfileNickname())) {
+                // 닉네임 유효성 검증
+                isPostProfileNicknameValid(memberId, requestedNickname);
+                // 닉네임 중복 체크
+                isPostProfileNicknameDuplicate(memberId, requestedNickname);
                 // 닉네임 변경 제한 체크
                 validatePostProfileNicknameChangeLimit(currentPostProfileInfo);
                 newNickname = requestedNickname;
