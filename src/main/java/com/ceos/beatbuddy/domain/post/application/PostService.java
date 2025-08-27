@@ -331,17 +331,15 @@ public class PostService {
         // 4. S3 삭제 - 실제 S3 URL(matched)로 삭제
         uploadUtilAsyncWrapper.deleteImagesAsync(matched, UploadUtil.BucketType.MEDIA);
 
-        // 5. 연관관계 해제
-        existing.removeAll(matched);
-
-// 6. Free post 썸네일 동기화
+// 5. Free post 썸네일 동기화 (삭제 전 인덱스 추출)
         if (post instanceof FreePost && post.getThumbnailUrls() != null) {
             List<String> thumbnailUrls = new ArrayList<>(post.getThumbnailUrls());
+            List<String> existingBeforeDelete = new ArrayList<>(post.getImageUrls()); // 복사본
 
-            // 삭제 대상 인덱스 추출
+            // 삭제 대상 인덱스 추출 (삭제 전 리스트 기준)
             List<Integer> indicesToDelete = new ArrayList<>();
             for (String deletedImage : matched) {
-                int index = existing.indexOf(deletedImage); // existing == 원본 이미지 리스트
+                int index = existingBeforeDelete.indexOf(deletedImage);
                 if (index >= 0 && index < thumbnailUrls.size()) {
                     indicesToDelete.add(index);
                 }
@@ -364,15 +362,19 @@ public class PostService {
                 uploadUtilAsyncWrapper.deleteImagesAsync(thumbnailsToDelete, UploadUtil.BucketType.MEDIA);
             }
 
+            // 이미지 리스트에서 삭제 진행
+            existing.removeAll(matched);
+
             // 모든 이미지가 삭제된 경우 썸네일도 null 처리
-            if (post.getImageUrls().isEmpty()) {
+            if (existing.isEmpty()) {
                 post.setThumbnailUrls(null);
             } else {
                 post.setThumbnailUrls(thumbnailUrls);
             }
+        } else {
+            // 일반 케이스는 이미지 삭제만
+            existing.removeAll(matched);
         }
-
-
     }
 
     private Triple<Boolean, Boolean, Boolean> getPostInteractions(Long memberId, Long postId) {
