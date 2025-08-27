@@ -18,9 +18,9 @@ public class AsyncConfig {
     @Bean(name = "uploadExecutor")
     public Executor uploadExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(25); // 20장 이미지 * 2(원본+썸네일) + 여유분
-        executor.setMaxPoolSize(50);
-        executor.setQueueCapacity(100);
+        executor.setCorePoolSize(2);   // 동시에 2개
+        executor.setMaxPoolSize(4);    // 최대 4개
+        executor.setQueueCapacity(20); // 대기열
         executor.setThreadNamePrefix("Upload-");
         executor.initialize();
         return executor;
