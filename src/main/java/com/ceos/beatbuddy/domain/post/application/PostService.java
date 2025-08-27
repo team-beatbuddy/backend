@@ -334,47 +334,45 @@ public class PostService {
         // 5. 연관관계 해제
         existing.removeAll(matched);
 
-        // 6. Free post 썸네일 동기화
+// 6. Free post 썸네일 동기화
         if (post instanceof FreePost && post.getThumbnailUrls() != null) {
             List<String> thumbnailUrls = new ArrayList<>(post.getThumbnailUrls());
-            List<String> originalImageUrls = new ArrayList<>(post.getImageUrls());
-            originalImageUrls.addAll(matched); // 삭제 전 원본 순서 복원
-            
-            // 삭제할 이미지의 인덱스 수집
+
+            // 삭제 대상 인덱스 추출
             List<Integer> indicesToDelete = new ArrayList<>();
             for (String deletedImage : matched) {
-                int index = originalImageUrls.indexOf(deletedImage);
+                int index = existing.indexOf(deletedImage); // existing == 원본 이미지 리스트
                 if (index >= 0 && index < thumbnailUrls.size()) {
                     indicesToDelete.add(index);
-                    // 중복 이미지 처리를 위해 찾은 이미지는 null로 치환
-                    originalImageUrls.set(index, null);
                 }
             }
-            
-            // 삭제할 썸네일 수집
+
+            // 썸네일 삭제할 리스트 수집
             List<String> thumbnailsToDelete = new ArrayList<>();
             for (int idx : indicesToDelete) {
                 thumbnailsToDelete.add(thumbnailUrls.get(idx));
             }
-            
-            // 인덱스 역순으로 정렬하여 삭제 (인덱스 shift 방지)
+
+            // 인덱스 역순으로 정렬 후 삭제
             indicesToDelete.sort((a, b) -> Integer.compare(b, a));
             for (int idx : indicesToDelete) {
                 thumbnailUrls.remove(idx);
             }
-            
-            // 썸네일 파일들도 S3에서 삭제
+
+            // 썸네일 S3 삭제
             if (!thumbnailsToDelete.isEmpty()) {
                 uploadUtilAsyncWrapper.deleteImagesAsync(thumbnailsToDelete, UploadUtil.BucketType.MEDIA);
             }
-            
-            // 모든 이미지가 삭제된 경우 썸네일도 null로 설정
+
+            // 모든 이미지가 삭제된 경우 썸네일도 null 처리
             if (post.getImageUrls().isEmpty()) {
                 post.setThumbnailUrls(null);
             } else {
                 post.setThumbnailUrls(thumbnailUrls);
             }
         }
+
+
     }
 
     private Triple<Boolean, Boolean, Boolean> getPostInteractions(Long memberId, Long postId) {
