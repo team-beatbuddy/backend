@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17.0.12_7-jdk
 
 # FFmpeg 설치
 RUN apt-get update && \
