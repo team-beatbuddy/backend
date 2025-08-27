@@ -126,12 +126,12 @@ public class UploadUtil {
 
         ObjectMetadata metadata = new ObjectMetadata();
         byte[] bytes;
-        
+
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             Thumbnails.of(image.getInputStream())
-                    .scale(1.0)
+                    .size(1920, 1080)   // ✅ 해상도 제한 (긴 쪽이 이 안에 맞춰짐)
                     .outputFormat("jpg")
-                    .outputQuality(0.3) // 30% 품질
+                    .outputQuality(0.3) // ✅ 30% 품질로 압축
                     .toOutputStream(os);
             bytes = os.toByteArray();
         } catch (IOException e) {
@@ -150,6 +150,7 @@ public class UploadUtil {
 
         return amazonS3.getUrl(bucketName, s3FileName).toString();
     }
+
 
 
     public List<String> uploadImages(List<MultipartFile> images, BucketType type, String folder) {
