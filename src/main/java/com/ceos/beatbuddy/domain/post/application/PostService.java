@@ -53,6 +53,7 @@ public class PostService {
     private final MemberBlockRepository memberBlockRepository;
 
     private static final List<String> VALID_POST_TYPES = List.of("free", "piece");
+    private static final String POST_TYPE_FREE = "free";
 
     @Transactional
     public ResponsePostDto addNewPost(String type, PostCreateRequestDTO dto, Long memberId, List<MultipartFile> images) {
@@ -67,7 +68,7 @@ public class PostService {
         List<String> thumbnailUrls = null;
 
         if (images != null && !images.isEmpty()) {
-            if ("free".equalsIgnoreCase(type)) {
+            if (POST_TYPE_FREE.equalsIgnoreCase(type)) {
                 // free 타입: 원본 + 썸네일 동시 업로드 (성능 최적화)
                 List<UploadResult> uploadResults = imageUploadService.uploadImagesWithThumbnails(images, UploadUtil.BucketType.MEDIA, "post");
                 imageUrls = uploadResults.stream().map(UploadResult::getOriginalUrl).toList();
@@ -388,7 +389,7 @@ public class PostService {
      * Free Post의 썸네일과 이미지 순서 동기화
      * 이미지 개수와 썸네일 개수가 다른 경우 썸네일을 null로 설정
      */
-    private void synchronizeFrePostThumbnails(Post post) {
+    private void synchronizeFreePostThumbnails(Post post) {
         if (!(post instanceof FreePost)) {
             return;
         }
@@ -396,13 +397,13 @@ public class PostService {
         List<String> imageUrls = post.getImageUrls();
         List<String> thumbnailUrls = post.getThumbnailUrls();
         
-        // 이미지와 썸네일 개수가 다른 경우
-        if (imageUrls.size() != thumbnailUrls.size()) {
+        // 이미지와 썸네일 개수가 다르거나 썸네일이 null인 경우
+        if (thumbnailUrls == null || imageUrls.size() != thumbnailUrls.size()) {
             // 썸네일을 null로 설정하여 불일치 방지
             post.setThumbnailUrls(null);
             
             // 필요시 기존 썸네일들을 S3에서 삭제 (선택적)
-            if (!thumbnailUrls.isEmpty()) {
+            if (thumbnailUrls != null && !thumbnailUrls.isEmpty()) {
                 uploadUtilAsyncWrapper.deleteImagesAsync(thumbnailUrls, UploadUtil.BucketType.MEDIA);
             }
         }
@@ -477,7 +478,7 @@ public class PostService {
 
         // 새 이미지 업로드 및 저장
         if (files != null && !files.isEmpty()) {
-            if ("free".equalsIgnoreCase(type)) {
+            if (POST_TYPE_FREE.equalsIgnoreCase(type)) {
                 // free 타입: 원본 + 썸네일 동시 업로드 (성능 최적화)
                 List<UploadResult> uploadResults = imageUploadService.uploadImagesWithThumbnails(files, UploadUtil.BucketType.MEDIA, "post");
                 List<String> imageUrls = uploadResults.stream().map(UploadResult::getOriginalUrl).toList();
@@ -496,8 +497,8 @@ public class PostService {
         }
 
         // Free post 썸네일 동기화 - 이미지와 썸네일 순서 일치 보장
-        if ("free".equalsIgnoreCase(type) && post.getThumbnailUrls() != null) {
-            synchronizeFrePostThumbnails(post);
+        if (POST_TYPE_FREE.equalsIgnoreCase(type) && post.getThumbnailUrls() != null) {
+            synchronizeFreePostThumbnails(post);
         }
 
         // 유저 상호작용 상태

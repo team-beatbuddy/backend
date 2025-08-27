@@ -327,8 +327,8 @@ public class UploadUtil {
             // URL 파싱 실패 시 원본에서 도메인 제거 시도
         }
         
-        // 마지막으로 전체 URL에서 bucket URL 제거 시도
-        return imageUrl.replace(s3BucketUrl, "");
+        // 유효한 S3 key를 추출할 수 없는 경우 빈 문자열 반환
+        return "";
     }
 
     public void deleteImages(List<String> imageUrls, BucketType type) {
