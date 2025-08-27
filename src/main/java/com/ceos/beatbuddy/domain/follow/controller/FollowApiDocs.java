@@ -92,9 +92,9 @@ public interface FollowApiDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples =
-                            @ExampleObject(
-                                    name = "이미 팔로우한 경우",
-                                    value = """
+                                    {@ExampleObject(
+                                            name = "이미 팔로우한 경우",
+                                            value = """
                                                         {
                                                           "status": 409,
                                                           "error": "CONFLICT",
@@ -102,7 +102,19 @@ public interface FollowApiDocs {
                                                           "message": "이미 팔로우한 대상입니다."
                                                         }
                                                     """
-                            )
+                                    ),
+                                    @ExampleObject(
+                                            name = "차단한 사용자를 팔로우 하려는 경우",
+                                            value = """
+                                                        {
+                                                          "status": 409,
+                                                          "error": "CONFLICT",
+                                                          "code": "CANNOT_FOLLOW_BLOCKED_USER",
+                                                          "message": "차단한 사용자는 팔로우할 수 없습니다."
+                                                        }
+                                                    """
+                                    )
+                                    }
                     )
             )
     })
