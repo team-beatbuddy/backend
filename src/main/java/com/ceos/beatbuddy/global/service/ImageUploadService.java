@@ -25,18 +25,27 @@ public class ImageUploadService {
                 .map(image -> uploadUtilAsyncWrapper.uploadAsync(image, type, folder))
                 .toList();
 
-        // 개별 업로드 결과를 처리하여 부분적 실패 허용
-        return futures.stream()
-                .map(future -> {
-                    try {
-                        return future.join().getOriginalUrl();
-                    } catch (Exception e) {
-                        // 로깅 후 실패한 업로드는 예외 발생
-                        log.error("이미지 업로드 실패", e);
-                        throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
-                    }
-                })
-                .toList();
+        // 모든 업로드가 완료될 때까지 병렬 대기 (성능 최적화)
+        CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        
+        try {
+            allOf.join(); // 모든 업로드 완료 대기
+            
+            // 완료된 결과들을 수집
+            return futures.stream()
+                    .map(future -> {
+                        try {
+                            return future.join().getOriginalUrl();
+                        } catch (Exception e) {
+                            log.error("이미지 업로드 실패", e);
+                            throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
+                        }
+                    })
+                    .toList();
+        } catch (Exception e) {
+            log.error("병렬 이미지 업로드 중 오류 발생", e);
+            throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
+        }
     }
     
     public List<UploadResult> uploadImagesWithThumbnails(List<MultipartFile> images, UploadUtil.BucketType type, String folder) {
@@ -44,17 +53,26 @@ public class ImageUploadService {
                 .map(image -> uploadUtilAsyncWrapper.uploadAsync(image, type, folder))
                 .toList();
 
-        // 개별 업로드 결과를 처리하여 부분적 실패 허용
-        return futures.stream()
-                .map(future -> {
-                    try {
-                        return future.join();
-                    } catch (Exception e) {
-                        // 로깅 후 실패한 업로드는 예외 발생
-                        log.error("이미지 업로드 실패", e);
-                        throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
-                    }
-                })
-                .toList();
+        // 모든 업로드가 완료될 때까지 병렬 대기 (성능 최적화)
+        CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        
+        try {
+            allOf.join(); // 모든 업로드 완료 대기
+            
+            // 완료된 결과들을 수집
+            return futures.stream()
+                    .map(future -> {
+                        try {
+                            return future.join();
+                        } catch (Exception e) {
+                            log.error("이미지 업로드 실패", e);
+                            throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
+                        }
+                    })
+                    .toList();
+        } catch (Exception e) {
+            log.error("병렬 이미지+썸네일 업로드 중 오류 발생", e);
+            throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
+        }
     }
 }
