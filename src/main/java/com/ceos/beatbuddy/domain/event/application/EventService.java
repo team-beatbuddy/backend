@@ -10,6 +10,7 @@ import com.ceos.beatbuddy.domain.venue.application.VenueInfoService;
 import com.ceos.beatbuddy.domain.venue.entity.Venue;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
+import com.ceos.beatbuddy.global.service.ImageUploadService;
 import com.ceos.beatbuddy.global.util.UploadUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EventService {
     private final UploadUtil uploadUtil;
+    private final ImageUploadService imageUploadService;
     private final MemberService memberService;
     private final VenueInfoService venueInfoService;
     private final EventRepository eventRepository;
@@ -70,7 +72,7 @@ public class EventService {
 
         // 이미지 setting
         if (images != null && !images.isEmpty()) {
-            List<String> imageUrls = uploadUtil.uploadImages(images, UploadUtil.BucketType.MEDIA, "event");
+            List<String> imageUrls = imageUploadService.uploadImagesParallel(images, UploadUtil.BucketType.MEDIA, "event");
             event.setThumbImage(imageUrls.get(0));
             event.setImageUrls(imageUrls);
         }
@@ -139,7 +141,7 @@ public class EventService {
         }
 
         if (imageFiles != null && !imageFiles.isEmpty()) {
-            List<String> imageUrls = uploadUtil.uploadImages(imageFiles, UploadUtil.BucketType.MEDIA, "event");
+            List<String> imageUrls = imageUploadService.uploadImagesParallel(imageFiles, UploadUtil.BucketType.MEDIA, "event");
             event.getImageUrls().addAll(imageUrls);
         }
 
