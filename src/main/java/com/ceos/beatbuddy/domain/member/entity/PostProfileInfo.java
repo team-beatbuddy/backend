@@ -36,6 +36,9 @@ public class PostProfileInfo {
         return PostProfileInfo.builder()
                 .postProfileNickname(postProfileNickname)
                 .postProfileImageUrl(postProfileImage)
+                .postProfileNicknameChangedAt(LocalDateTime.now())
+                .postProfileNicknameChangeCount(1)
+                .setNewPostProfileNickname(true)
                 .build();
     }
 }
