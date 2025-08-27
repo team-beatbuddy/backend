@@ -49,18 +49,9 @@ public class FreePostHandler implements PostTypeHandler{
     @Override
     @Transactional
     public Post createPost(PostCreateRequestDTO dto, Member member, List<String> imageUrls) {
-        // Venue 조회 (필요한 경우에만)
-        Venue venue = null;
-        if (dto.getVenueId() != null && dto.getVenueId() > 0) {
-            venue = venueInfoService.validateAndGetVenue(dto.getVenueId());
-        }
-
         List<FixedHashtag> hashtags = validateAndGetHashtags(dto.getHashtags());
 
         FreePost freePost = PostCreateRequestDTO.toEntity(dto, imageUrls, member, hashtags);
-        if (venue != null) {
-            freePost.setVenue(venue);
-        }
 
         freePost = freePostRepository.save(freePost);
         freePostSearchService.save(freePost); // 비동기 ES 저장 - 응답 속도에 영향 없음
