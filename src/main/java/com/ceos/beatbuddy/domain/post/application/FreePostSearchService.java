@@ -20,6 +20,7 @@ import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -43,30 +44,38 @@ public class FreePostSearchService {
     private final RecentSearchService recentSearchService;
     private final PostResponseHelper postResponseHelper;
 
+    @Async
     public void save(FreePost post) {
         try {
             FreePostDocument document = FreePostDocument.toDTO(post); // DTO or 도큐먼트 변환
-            log.info("ES 인덱싱 - postId: {}, hashtags: {}", post.getId(), document.getHashtags());
+            log.info("ES 인덱싱 (비동기) - postId: {}, hashtags: {}", post.getId(), document.getHashtags());
             elasticsearchClient.index(i -> i
                     .index("post")
                     .id(post.getId().toString())
                     .document(document)
             );
+            log.debug("ES 인덱싱 완료 - postId: {}", post.getId());
         } catch (IOException e) {
             log.warn("ES 인덱싱 실패: postId={}, error={}", post.getId(), e.getMessage());
-            throw new CustomException(ErrorCode.ELASTICSEARCH_INDEXING_FAILED);
+            // 비동기에서는 예외를 던지지 않고 로깅만 함 (Post 생성 실패로 이어지면 안 됨)
+        } catch (Exception e) {
+            log.error("ES 인덱싱 중 예상치 못한 오류: postId={}", post.getId(), e);
         }
     }
 
+    @Async
     public void delete(Long postId) {
         try {
             elasticsearchClient.delete(d -> d
                     .index("post")
                     .id(postId.toString())
             );
+            log.debug("ES 인덱싱 삭제 완료 - postId: {}", postId);
         } catch (IOException e) {
             log.warn("ES 인덱싱 삭제 실패: postId={}, error={}", postId, e.getMessage());
-            throw new CustomException(ErrorCode.ELASTICSEARCH_DELETION_FAILED);
+            // 비동기에서는 예외를 던지지 않고 로깅만 함
+        } catch (Exception e) {
+            log.error("ES 인덱싱 삭제 중 예상치 못한 오류: postId={}", postId, e);
         }
     }
 
