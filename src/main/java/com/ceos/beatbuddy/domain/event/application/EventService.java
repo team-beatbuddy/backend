@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -159,23 +160,65 @@ public class EventService {
     public void removeImages(Event event, List<String> deleteFileIds) {
         List<String> existing = event.getImageUrls();
 
-        // 1. 삭제 대상 필터링
-        List<String> matched = existing.stream()
-                .filter(deleteFileIds::contains)
-                .toList();
+        // 1. CloudFront URL을 S3 URL로 변환 (필요한 경우)
+        List<String> normalizedDeleteFiles = normalizeUrlsForComparison(deleteFileIds);
+        List<String> normalizedExisting = normalizeUrlsForComparison(existing);
 
-        // 2. 유효성 검증
+        // 2. 삭제 대상 필터링 - 정규화된 URL로 비교
+        List<String> matched = new ArrayList<>();
+        for (int i = 0; i < existing.size(); i++) {
+            if (normalizedDeleteFiles.contains(normalizedExisting.get(i))) {
+                matched.add(existing.get(i)); // 원본 URL 사용
+            }
+        }
+
+        // 3. 유효성 검증
         if (matched.size() != deleteFileIds.size()) {
             throw new CustomException(EventErrorCode.FILE_NOT_FOUND);
         }
 
-        // 3. S3 삭제
-        uploadUtil.deleteImages(deleteFileIds, UploadUtil.BucketType.MEDIA);
+        // 4. S3 삭제 - 실제 S3 URL(matched)로 삭제
+        uploadUtil.deleteImages(matched, UploadUtil.BucketType.MEDIA);
 
-        // 4. 연관관계 해제
+        // 5. 연관관계 해제
         existing.removeAll(matched);
     }
 
+    /**
+     * URL 비교를 위한 정규화 처리
+     * CloudFront URL과 S3 URL을 모두 동일한 형태로 변환하여 비교 가능하게 함
+     */
+    private List<String> normalizeUrlsForComparison(List<String> urls) {
+        return urls.stream()
+                .map(this::normalizeUrlForComparison)
+                .toList();
+    }
+    
+    /**
+     * 단일 URL 정규화 처리
+     * URL에서 도메인 부분을 제거하고 경로만 추출하여 비교
+     */
+    private String normalizeUrlForComparison(String url) {
+        if (url == null || url.isEmpty()) {
+            return url;
+        }
+        
+        // URL에서 경로 부분만 추출 (도메인 제거)
+        // 예: https://cloudfront.amazonaws.com/path/to/file.jpg -> /path/to/file.jpg
+        // 또는 https://s3.amazonaws.com/bucket/path/to/file.jpg -> /path/to/file.jpg
+        try {
+            if (url.startsWith("http://") || url.startsWith("https://")) {
+                int thirdSlashIndex = url.indexOf('/', url.indexOf("://") + 3);
+                if (thirdSlashIndex > 0) {
+                    return url.substring(thirdSlashIndex);
+                }
+            }
+            return url;
+        } catch (Exception e) {
+            // URL 파싱 실패 시 원본 반환
+            return url;
+        }
+    }
 
     public EventListResponseDTO getUpcomingEvents(String sort, Integer page, Integer size, Long memberId, List<String> regions) {
         Member member = memberService.validateAndGetMember(memberId);
