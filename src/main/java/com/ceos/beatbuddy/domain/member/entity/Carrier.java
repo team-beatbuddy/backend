@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum Carrier {
     SKT(false, "SKT", "SKT 알뜰폰"),
     KT(false,  "KT",  "KT 알뜰폰"),
-    LGT(false, "LGU+", "LGU+ 알뜰폰"); // 내부 표기 LGU+, 다날 전송은 "LGT"
+    LGT(false, "LG U+", "LG U+ 알뜰폰"); // 내부 표기 LGU+, 다날 전송은 "LGT"
 
     private final boolean dummy; // 자리맞춤
     private final String display;
@@ -24,7 +24,7 @@ public enum Carrier {
         if (v.startsWith("SKT")) return new Result("SKT", mvno);
         if (v.startsWith("KT"))  return new Result("KT",  mvno);
         // LGU+ 표기를 다날 코드 LGT로 변환
-        if (v.startsWith("LGU+") || v.startsWith("LGT")) return new Result("LGT", mvno);
+        if (v.startsWith("LG U+") || v.startsWith("LGT")) return new Result("LGT", mvno);
         throw new IllegalArgumentException("지원하지 않는 통신사: " + v);
     }
 
@@ -47,7 +47,7 @@ public enum Carrier {
         } else if (carrier.startsWith("KT")) {
             baseCarrier = "KT";
         } else if (carrier.startsWith("LGT")) {
-            baseCarrier = "LGU+"; // LGT를 LGU+로 표시
+            baseCarrier = "LG U+"; // LGT를 LGU+로 표시
         } else {
             return danalCarrier; // 알 수 없는 통신사는 원래 값 그대로
         }
