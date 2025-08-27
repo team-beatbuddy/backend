@@ -276,7 +276,6 @@ public class OnboardingService {
         // 닉네임 변경 시 검증
         isPostProfileNicknameValid(memberId, requestedNickname);
         isPostProfileNicknameDuplicate(memberId, requestedNickname);
-        validatePostProfileNicknameChangeLimit(currentPostProfileInfo);
         
         return requestedNickname;
     }
@@ -369,24 +368,4 @@ public class OnboardingService {
         return currentCount >= 2 ? 1 : currentCount + 1;
     }
 
-    /**
-     * PostProfile 닉네임 변경 제한 검증
-     */
-    private void validatePostProfileNicknameChangeLimit(PostProfileInfo currentPostProfileInfo) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime lastChangedAt = currentPostProfileInfo.getPostProfileNicknameChangedAt();
-        
-        // 변경 이력이 없는 경우는 허용
-        if (lastChangedAt == null) {
-            return;
-        }
-        
-        int changeCount = currentPostProfileInfo.getPostProfileNicknameChangeCount();
-        if (changeCount >= 2) {
-            // 마지막 변경일 기준 14일 이내면 차단
-            if (lastChangedAt.plusDays(14).isAfter(now)) {
-                throw new CustomException(MemberErrorCode.NICKNAME_CHANGE_LIMITED);
-            }
-        }
-    }
 }
