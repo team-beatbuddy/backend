@@ -23,63 +23,50 @@ public class UploadUtilAsyncWrapper {
         long start = System.currentTimeMillis();
         log.info("▶ START Upload: {}", name);
 
-        if ("post".equals(folder) || "review".equals(folder)) {
-            // post/review 폴더인 경우: 원본과 썸네일을 진짜 병렬로 업로드
-            CompletableFuture<String> originalFuture = CompletableFuture.supplyAsync(() -> {
-                try {
-                    // 비디오 썸네일 생성을 제외한 원본 업로드만 수행
-                    return uploadOriginalOnly(image, type, folder);
-                } catch (Exception e) {
-                    log.error("Failed to upload original for {}: {}", name, e.getMessage());
-                    throw new RuntimeException("Original upload failed", e);
+        try {
+            if ("post".equals(folder) || "review".equals(folder)) {
+                // 순차 실행
+                String originalUrl = uploadOriginalOnly(image, type, folder);
+                String thumbnailUrl;
+
+                if (UploadUtil.isVideoFile(image.getOriginalFilename())) {
+                    // 비디오 → 썸네일 서비스
+                    thumbnailUrl = videoThumbnailService.generateAndUploadThumbnail(image, folder);
+                } else {
+                    // 이미지 → 썸네일 생성
+                    String fileName = generateFileName(image.getOriginalFilename());
+                    thumbnailUrl = uploadUtil.uploadThumbnail(image, type, folder, fileName);
                 }
-            });
-            
-            CompletableFuture<String> thumbnailFuture = CompletableFuture.supplyAsync(() -> {
-                try {
-                    // 비디오 파일인지 확인
-                    if (UploadUtil.isVideoFile(image.getOriginalFilename())) {
-                        // 비디오 파일인 경우 VideoThumbnailService 사용
-                        return videoThumbnailService.generateAndUploadThumbnail(image, folder);
-                    } else {
-                        // 이미지 파일인 경우 기존 uploadThumbnail 사용
-                        String fileName = generateFileName(image.getOriginalFilename());
-                        return uploadUtil.uploadThumbnail(image, type, folder, fileName);
-                    }
-                } catch (Exception e) {
-                    log.error("Failed to upload thumbnail for {}: {}", name, e.getMessage());
-                    throw new RuntimeException("Thumbnail upload failed", e);
-                }
-            });
-            
-            // 두 작업 모두 완료 대기
-            String originalUrl = originalFuture.join();
-            String thumbnailUrl = thumbnailFuture.join();
-            
-            log.info("✅ Both uploads completed for: {}", name);
-            
-            UploadResult result = UploadResult.builder()
-                    .originalUrl(originalUrl)
-                    .thumbnailUrl(thumbnailUrl)
-                    .build();
-            
-            long end = System.currentTimeMillis();
-            log.info("✅ END Upload: {} ({} ms)", name, end - start);
-            
-            return CompletableFuture.completedFuture(result);
-        } else {
-            // post/review가 아닌 경우: 원본만 업로드
-            String originalUrl = uploadUtil.upload(image, type, folder);
-            
-            UploadResult result = UploadResult.builder()
-                    .originalUrl(originalUrl)
-                    .thumbnailUrl(null)
-                    .build();
-            
-            long end = System.currentTimeMillis();
-            log.info("✅ END Upload: {} ({} ms)", name, end - start);
-            
-            return CompletableFuture.completedFuture(result);
+
+                log.info("✅ Both uploads completed for: {}", name);
+
+                UploadResult result = UploadResult.builder()
+                        .originalUrl(originalUrl)
+                        .thumbnailUrl(thumbnailUrl)
+                        .build();
+
+                long end = System.currentTimeMillis();
+                log.info("✅ END Upload: {} ({} ms)", name, end - start);
+
+                return CompletableFuture.completedFuture(result);
+
+            } else {
+                // post/review 아닌 경우 원본만
+                String originalUrl = uploadUtil.upload(image, type, folder);
+
+                UploadResult result = UploadResult.builder()
+                        .originalUrl(originalUrl)
+                        .thumbnailUrl(null)
+                        .build();
+
+                long end = System.currentTimeMillis();
+                log.info("✅ END Upload: {} ({} ms)", name, end - start);
+
+                return CompletableFuture.completedFuture(result);
+            }
+        } catch (Exception e) {
+            log.error("Upload failed for {}: {}", name, e.getMessage());
+            throw e;
         }
     }
 
