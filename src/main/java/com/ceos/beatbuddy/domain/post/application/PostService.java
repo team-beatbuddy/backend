@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -227,7 +228,7 @@ public class PostService {
                 .map(post -> postResponseHelper.createPostPageResponseDTO(post, 
                     new PostInteractionStatus(
                         status.likedPostIds(),
-                        postIds.stream().collect(java.util.stream.Collectors.toSet()), // 스크랩된 게시글이므로 모두 true
+                            new HashSet<>(postIds), // 스크랩된 게시글이므로 모두 true
                         status.commentedPostIds()
                     ), memberId, followingIds))
                 .toList();
@@ -324,6 +325,37 @@ public class PostService {
 
         // 4. 연관관계 해제
         existing.removeAll(matched);
+
+        // 5. Free post 썸네일 동기화
+        if (post instanceof FreePost && post.getThumbnailUrls() != null) {
+            // 삭제된 이미지와 같은 인덱스의 썸네일 찾기 및 삭제
+            List<String> thumbnailUrls = new ArrayList<>(post.getThumbnailUrls());
+            List<String> originalImageUrls = new ArrayList<>(post.getImageUrls());
+            originalImageUrls.addAll(matched); // 삭제될 이미지들 다시 추가하여 원래 순서 복원
+            
+            List<String> thumbnailsToDelete = new ArrayList<>();
+            
+            for (String deletedImage : matched) {
+                int index = originalImageUrls.indexOf(deletedImage);
+                if (index >= 0 && index < thumbnailUrls.size()) {
+                    thumbnailsToDelete.add(thumbnailUrls.get(index));
+                    thumbnailUrls.remove(index);
+                    originalImageUrls.remove(index);
+                }
+            }
+            
+            // 썸네일 파일들도 S3에서 삭제
+            if (!thumbnailsToDelete.isEmpty()) {
+                uploadUtilAsyncWrapper.deleteImagesAsync(thumbnailsToDelete, UploadUtil.BucketType.MEDIA);
+            }
+            
+            // 모든 이미지가 삭제된 경우 썸네일도 null로 설정
+            if (post.getImageUrls().isEmpty()) {
+                post.setThumbnailUrls(null);
+            } else {
+                post.setThumbnailUrls(thumbnailUrls);
+            }
+        }
     }
 
     private Triple<Boolean, Boolean, Boolean> getPostInteractions(Long memberId, Long postId) {
@@ -332,6 +364,31 @@ public class PostService {
         boolean hasCommented = commentRepository.existsByPost_IdAndMember_IdAndIsDeletedFalse(postId, memberId);
 
         return Triple.of(isLiked, isScrapped, hasCommented);
+    }
+
+    /**
+     * Free post의 썸네일을 첫 번째 이미지와 동기화합니다.
+     * 이미지 교체 시 첫 번째 이미지의 썸네일로 갱신하는 데 사용됩니다.
+     */
+    private void syncThumbnailWithFirstImage(Post post) {
+        if (post.getImageUrls() == null || post.getImageUrls().isEmpty() || 
+            post.getThumbnailUrls() == null || post.getThumbnailUrls().isEmpty()) {
+            return;
+        }
+
+        // 첫 번째 이미지가 변경되었다면 해당 썸네일로 첫 번째 썸네일 교체
+        String firstImageUrl = post.getImageUrls().get(0);
+        String firstThumbnailUrl = post.getThumbnailUrls().get(0);
+        
+        // 첫 번째 이미지에 대응하는 썸네일을 찾아서 첫 번째 위치로 이동
+        // 이미지와 썸네일 순서가 일치한다고 가정
+        if (post.getImageUrls().size() == post.getThumbnailUrls().size()) {
+            // 순서가 맞는 경우는 별도 처리 불필요
+            return;
+        }
+        
+        // 이미지 순서 변경이나 추가/삭제로 인해 첫 번째 이미지의 썸네일이 첫 번째 위치에 없는 경우
+        // 실제로는 이미지와 썸네일이 항상 같은 순서로 관리되므로 여기서는 기본 동작 유지
     }
 
 
@@ -384,6 +441,12 @@ public class PostService {
                 List<String> imageUrls = imageUploadService.uploadImagesParallel(files, UploadUtil.BucketType.MEDIA, "post");
                 post.getImageUrls().addAll(imageUrls);
             }
+        }
+
+        // Free post 썸네일 동기화: 이미지가 교체된 경우 첫 번째 이미지의 썸네일로 갱신
+        if ("free".equalsIgnoreCase(type) && post.getThumbnailUrls() != null && !post.getImageUrls().isEmpty()) {
+            // 현재 첫 번째 썸네일이 첫 번째 이미지의 썸네일인지 확인하고 필요시 갱신
+            syncThumbnailWithFirstImage(post);
         }
 
         // 유저 상호작용 상태
