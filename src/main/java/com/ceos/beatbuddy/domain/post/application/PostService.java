@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -227,7 +228,7 @@ public class PostService {
                 .map(post -> postResponseHelper.createPostPageResponseDTO(post, 
                     new PostInteractionStatus(
                         status.likedPostIds(),
-                        postIds.stream().collect(java.util.stream.Collectors.toSet()), // 스크랩된 게시글이므로 모두 true
+                            new HashSet<>(postIds), // 스크랩된 게시글이므로 모두 true
                         status.commentedPostIds()
                     ), memberId, followingIds))
                 .toList();
@@ -324,6 +325,48 @@ public class PostService {
 
         // 4. 연관관계 해제
         existing.removeAll(matched);
+
+        // 5. Free post 썸네일 동기화
+        if (post instanceof FreePost && post.getThumbnailUrls() != null) {
+            List<String> thumbnailUrls = new ArrayList<>(post.getThumbnailUrls());
+            List<String> originalImageUrls = new ArrayList<>(post.getImageUrls());
+            originalImageUrls.addAll(matched); // 삭제 전 원본 순서 복원
+            
+            // 삭제할 이미지의 인덱스 수집
+            List<Integer> indicesToDelete = new ArrayList<>();
+            for (String deletedImage : matched) {
+                int index = originalImageUrls.indexOf(deletedImage);
+                if (index >= 0 && index < thumbnailUrls.size()) {
+                    indicesToDelete.add(index);
+                    // 중복 이미지 처리를 위해 찾은 이미지는 null로 치환
+                    originalImageUrls.set(index, null);
+                }
+            }
+            
+            // 삭제할 썸네일 수집
+            List<String> thumbnailsToDelete = new ArrayList<>();
+            for (int idx : indicesToDelete) {
+                thumbnailsToDelete.add(thumbnailUrls.get(idx));
+            }
+            
+            // 인덱스 역순으로 정렬하여 삭제 (인덱스 shift 방지)
+            indicesToDelete.sort((a, b) -> Integer.compare(b, a));
+            for (int idx : indicesToDelete) {
+                thumbnailUrls.remove(idx);
+            }
+            
+            // 썸네일 파일들도 S3에서 삭제
+            if (!thumbnailsToDelete.isEmpty()) {
+                uploadUtilAsyncWrapper.deleteImagesAsync(thumbnailsToDelete, UploadUtil.BucketType.MEDIA);
+            }
+            
+            // 모든 이미지가 삭제된 경우 썸네일도 null로 설정
+            if (post.getImageUrls().isEmpty()) {
+                post.setThumbnailUrls(null);
+            } else {
+                post.setThumbnailUrls(thumbnailUrls);
+            }
+        }
     }
 
     private Triple<Boolean, Boolean, Boolean> getPostInteractions(Long memberId, Long postId) {
@@ -333,6 +376,7 @@ public class PostService {
 
         return Triple.of(isLiked, isScrapped, hasCommented);
     }
+
 
 
     @Transactional
@@ -385,6 +429,8 @@ public class PostService {
                 post.getImageUrls().addAll(imageUrls);
             }
         }
+
+        // Free post 썸네일은 이미지와 동일한 순서로 관리되므로 별도 동기화 불필요
 
         // 유저 상호작용 상태
         Triple<Boolean, Boolean, Boolean> status = getPostInteractions(memberId, postId);
