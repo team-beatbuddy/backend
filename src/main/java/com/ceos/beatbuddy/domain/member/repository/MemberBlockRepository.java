@@ -29,4 +29,9 @@ public interface MemberBlockRepository extends JpaRepository<MemberBlock, Long> 
      */
     @Query("SELECT COUNT(mb) FROM MemberBlock mb WHERE mb.blocked.id = :blockedId")
     Long countByBlockedId(@Param("blockedId") Long blockedId);
+    
+    /**
+     * 두 사용자 간의 차단 관계 존재 여부 확인 (성능 최적화)
+     */
+    boolean existsByBlocker_IdAndBlocked_Id(Long blockerId, Long blockedId);
 }

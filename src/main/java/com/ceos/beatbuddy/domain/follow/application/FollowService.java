@@ -42,9 +42,9 @@ public class FollowService {
             throw new CustomException(FollowErrorCode.ALREADY_FOLLOWED);
         }
 
-        // 차단 관계 확인 - 양방향 차단 체크
-        boolean isBlockedByFollower = memberBlockRepository.findByBlockerIdAndBlockedId(followerId, followingId).isPresent();
-        boolean isBlockedByFollowing = memberBlockRepository.findByBlockerIdAndBlockedId(followingId, followerId).isPresent();
+        // 차단 관계 확인 - 양방향 차단 체크 (성능 최적화)
+        boolean isBlockedByFollower = memberBlockRepository.existsByBlocker_IdAndBlocked_Id(followerId, followingId);
+        boolean isBlockedByFollowing = memberBlockRepository.existsByBlocker_IdAndBlocked_Id(followingId, followerId);
         
         if (isBlockedByFollower || isBlockedByFollowing) {
             throw new CustomException(FollowErrorCode.CANNOT_FOLLOW_BLOCKED_USER);
