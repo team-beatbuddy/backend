@@ -88,7 +88,7 @@ public class MemberQueryRepositoryImpl implements MemberQueryRepository {
                 (postProfileNickname != null && !postProfileNickname.isBlank()) ||
                         (postProfileImageUrl != null && !postProfileImageUrl.isBlank());
 
-        String displayBusinessName = (role == Role.BUSINESS) ? businessName : null;
+        String displayBusinessName = (role == Role.BUSINESS || role == Role.BUSINESS_NOT) ? businessName : null;
 
         return MemberProfileSummaryDTO.toDTO(
                 id, nickname, profileImageUrl,

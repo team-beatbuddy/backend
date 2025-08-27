@@ -71,7 +71,7 @@ public class Member extends BaseTimeEntity {
     @Embedded
     @Builder.Default
     private PostProfileInfo postProfileInfo = new PostProfileInfo(
-            null, null
+            null, null, null, 0, false
     );
 
     public void saveConsents(Boolean isLocationConsent, Boolean isMarketingConsent) {
