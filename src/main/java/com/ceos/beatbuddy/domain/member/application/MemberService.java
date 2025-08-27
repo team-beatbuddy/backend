@@ -229,9 +229,12 @@ public class MemberService {
                 .blocked(blocked)
                 .build();
 
-        // 그 사람을 팔로잉 하고 있었다면 삭제
+        // 양방향 팔로우 관계 삭제 - 차단 시 모든 팔로우 관계 해제
         if (followRepository.existsByFollower_IdAndFollowing_Id(blockerId, blockedId)) {
             followRepository.deleteByFollower_IdAndFollowing_Id(blockerId, blockedId);
+        }
+        if (followRepository.existsByFollower_IdAndFollowing_Id(blockedId, blockerId)) {
+            followRepository.deleteByFollower_IdAndFollowing_Id(blockedId, blockerId);
         }
 
         memberBlockRepository.save(memberBlock);
