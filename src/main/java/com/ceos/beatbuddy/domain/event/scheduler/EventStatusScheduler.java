@@ -28,7 +28,7 @@ public class EventStatusScheduler {
 
             log.info("🔄 이벤트 상태 업데이트 시작: today={}, start={}, end={}", today, startOfToday, endOfToday);
 
-            int nowUpdated = eventRepository.updateToNow(startOfToday, endOfToday);
+            int nowUpdated = eventRepository.updateToNow(startOfToday);
             log.info("📍 UPCOMING -> NOW 업데이트: {}건", nowUpdated);
 
             int pastUpdated = eventRepository.updateToPast(startOfToday);
@@ -57,7 +57,7 @@ public class EventStatusScheduler {
             log.info("🔧 수동 이벤트 상태 업데이트 실행: {}", today);
 
             // 1. UPCOMING -> NOW 상태 업데이트
-            int nowUpdated = eventRepository.updateToNow(startOfToday, endOfToday);
+            int nowUpdated = eventRepository.updateToNow(startOfToday);
             log.info("📍 UPCOMING -> NOW 업데이트: {}건", nowUpdated);
 
             // 2. NOW -> PAST 상태 업데이트  
