@@ -100,16 +100,16 @@ public class EventElasticService {
         if (keyword != null && !keyword.isBlank()) {
             bool.must(m -> m.multiMatch(mm -> mm
                     .fields(
-                            "title^2.0",
-                            "region^2.0",
-                            "location^2.0",
-                            "venueLocation^2.0",
-                            "venueKoreanName^2.0",
-                            "venueEnglishName^2.0",
-                            "content",
-                            "notice",
-                            "entranceNotice",
-                            "isFreeEntrance"
+                            "title.ngram^2.0",
+                            "region.ngram^2.0",
+                            "location.ngram^2.0",
+                            "venueLocation.ngram^2.0",
+                            "venueKoreanName.ngram^2.0",
+                            "venueEnglishName.ngram^2.0",
+                            "content.ngram",
+                            "notice.ngram",
+                            "entranceNotice.ngram",
+                            "isFreeEntrance.ngram"
                     )
                     .query(keyword)
             ));
