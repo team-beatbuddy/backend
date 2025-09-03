@@ -1,0 +1,16 @@
+# Git attributes for better Copilot integration
+
+# Java files
+*.java linguist-language=Java
+
+# Configuration files
+*.yml linguist-language=YAML
+*.yaml linguist-language=YAML
+*.properties linguist-language=Properties
+
+# Documentation files
+*.md linguist-documentation
+
+# Copilot configuration files
+.copilot/* linguist-vendored=false
+.github/copilot-instructions.md linguist-vendored=false
