@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum Gender {
     TYPE1(0, "MALE"),
     TYPE2(1, "FEMALE"),
-    TYPE3(2, "None");
+    TYPE3(2, "NONE");
 
 
     private Integer idx;
@@ -21,12 +21,20 @@ public enum Gender {
 
     @JsonCreator
     public static Gender fromText(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            return TYPE3; // Default to NONE for empty values
+        }
+        
         for (Gender gender : Gender.values()) {
-            if (gender.getText().equals(text)) {
+            if (gender.getText().equalsIgnoreCase(text.trim())) {
                 return gender;
             }
         }
         throw new CustomException(EventErrorCode.INVALID_GENDER);
+    }
+    
+    public boolean isNone() {
+        return this == TYPE3;
     }
 
     public Integer getIdx() {
