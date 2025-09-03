@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.event.repository;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventAttendance;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,8 +16,10 @@ import java.util.List;
 @Repository
 public interface EventAttendanceRepository extends JpaRepository<EventAttendance, Long> {
     boolean existsByMemberIdAndEventId(Long memberId, Long eventId);
+    @EntityGraph(attributePaths = {"member", "event"})
     @Query("SELECT ea FROM EventAttendance ea WHERE ea.member.id = :memberId AND ea.event.id = :eventId")
     EventAttendance findByMemberIdAndEventId(@Param("memberId") Long memberId, @Param("eventId") Long eventId);
+    @EntityGraph(attributePaths = {"member"})
     List<EventAttendance> findAllByEventId(Long eventId);
 
     List<EventAttendance> findByMember(Member member);
