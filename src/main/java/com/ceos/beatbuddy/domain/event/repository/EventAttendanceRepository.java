@@ -15,7 +15,8 @@ import java.util.List;
 @Repository
 public interface EventAttendanceRepository extends JpaRepository<EventAttendance, Long> {
     boolean existsByMemberIdAndEventId(Long memberId, Long eventId);
-    EventAttendance findByMemberIdAndEventId(Long memberId, Long eventId);
+    @Query("SELECT ea FROM EventAttendance ea WHERE ea.member.id = :memberId AND ea.event.id = :eventId")
+    EventAttendance findByMemberIdAndEventId(@Param("memberId") Long memberId, @Param("eventId") Long eventId);
     List<EventAttendance> findAllByEventId(Long eventId);
 
     List<EventAttendance> findByMember(Member member);

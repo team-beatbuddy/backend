@@ -25,7 +25,7 @@ public class EventAttendanceExportDTO {
     public static EventAttendanceExportDTO toDTO(EventAttendance entity) {
         return EventAttendanceExportDTO.builder()
                 .name(entity.getName() != null ? entity.getName() : "-")
-                .gender(entity.getGender().getText() != null ? entity.getGender().getText() : "-")
+                .gender(entity.getGender() != null ? entity.getGender().getText() : "-")
                 .phoneNumber(entity.getPhoneNumber() != null ? entity.getPhoneNumber() : "-")
                 .build();
     }
@@ -34,7 +34,7 @@ public class EventAttendanceExportDTO {
         return EventAttendanceExportDTO.builder()
                 .localDateTime(entity.getCreatedAt())
                 .name(entity.getName() != null ? entity.getName() : "-")
-                .gender(entity.getGender().getText() != null? entity.getGender().getText() : "-")
+                .gender(entity.getGender() != null? entity.getGender().getText() : "-")
                 .phoneNumber(entity.getPhoneNumber() != null ? entity.getPhoneNumber() : "-")
                 .snsType(entity.getSnsType() != null ? entity.getSnsType().name() : "-")
                 .snsId(entity.getSnsId() != null ? entity.getSnsId() : "-")

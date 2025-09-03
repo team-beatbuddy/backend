@@ -37,7 +37,7 @@ public class EventAttendanceRequestDTO {
                 .event(event)
                 .member(member);
 
-        // receiveInfo가 true이고 각 항목도 수집하도록 설정된 경우에만 값을 설정
+        // receiveInfo가 true인 경우에만 상세 정보를 수집
         if (event.isReceiveInfo()) {
             if (event.isReceiveName() && dto.getName() != null) {
                 builder.name(dto.getName());
@@ -68,6 +68,11 @@ public class EventAttendanceRequestDTO {
             if (event.isReceiveMoney() && dto.getIsPaid() != null) {
                 builder.hasPaid(dto.getIsPaid());
             }
+        } else {
+            // receiveInfo가 false인 경우에도 기본 정보는 저장
+            if (dto.getName() != null) builder.name(dto.getName());
+            if (dto.getTotalNumber() != null) builder.totalMember(dto.getTotalNumber());
+            if (dto.getIsPaid() != null) builder.hasPaid(dto.getIsPaid());
         }
 
         return builder.build();

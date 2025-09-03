@@ -115,6 +115,10 @@ public class EventAttendanceService {
     }
 
     protected EventAttendance validateAndGetAttendance(Long eventId, Long memberId) {
-        return eventAttendanceRepository.findByMemberIdAndEventId(memberId, eventId);
+        EventAttendance attendance = eventAttendanceRepository.findByMemberIdAndEventId(memberId, eventId);
+        if (attendance == null) {
+            throw new CustomException(EventErrorCode.ATTENDANCE_NOT_FOUND);
+        }
+        return attendance;
     }
 }
