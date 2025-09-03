@@ -166,6 +166,10 @@ public class SearchService {
                     .sorted(Comparator.comparingLong(SearchQueryResponseDTO::getHeartbeatNum).reversed())
                     .toList();
         } else if ("가까운 순".equals(criteria) || "거리순".equals(criteria)) {
+            // 거리순 정렬 시 위도/경도가 필수
+            if (lat == null || lng == null) {
+                throw new CustomException(SearchErrorCode.COORDINATES_REQUIRED_FOR_DISTANCE_SORT);
+            }
             return list.stream()
                     .sorted(Comparator.comparingDouble(dto -> 
                         haversine(lat, lng, dto.getLatitude(), dto.getLongitude())
