@@ -166,6 +166,10 @@ public class SearchService {
                     .sorted(Comparator.comparingLong(SearchQueryResponseDTO::getHeartbeatNum).reversed())
                     .toList();
         } else if ("가까운 순".equals(criteria) || "거리순".equals(criteria)) {
+            // 거리순 정렬 시 위도/경도가 필수
+            if (lat == null || lng == null) {
+                throw new CustomException(SearchErrorCode.COORDINATES_REQUIRED_FOR_DISTANCE_SORT);
+            }
             return list.stream()
                     .sorted(Comparator.comparingDouble(dto -> 
                         haversine(lat, lng, dto.getLatitude(), dto.getLongitude())
@@ -186,7 +190,12 @@ public class SearchService {
                 .toList();
     }
 
-    public static double haversine(double lat1, double lon1, double lat2, double lon2) {
+    public static double haversine(Double lat1, Double lon1, Double lat2, Double lon2) {
+        // null 체크
+        if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) {
+            throw new CustomException(SearchErrorCode.COORDINATES_REQUIRED_FOR_DISTANCE_SORT);
+        }
+        
         double R = 6371; // 지구 반지름 (단위: km)
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);

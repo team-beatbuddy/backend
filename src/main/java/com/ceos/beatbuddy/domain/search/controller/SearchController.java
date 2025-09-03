@@ -2,6 +2,7 @@ package com.ceos.beatbuddy.domain.search.controller;
 
 import com.ceos.beatbuddy.domain.search.application.SearchService;
 import com.ceos.beatbuddy.domain.search.dto.SearchDropDownDTO;
+import com.ceos.beatbuddy.domain.search.dto.SearchMapRequestDTO;
 import com.ceos.beatbuddy.domain.search.dto.SearchPageResponseDTO;
 import com.ceos.beatbuddy.domain.search.dto.SearchRankResponseDTO;
 import com.ceos.beatbuddy.global.ResponseTemplate;
@@ -120,5 +121,34 @@ public class SearchController {
                 .sortCriteria(criteria)
                 .build();
         return ResponseEntity.ok(searchService.searchDropDown(memberId, searchDropDownDTO, latitude, longitude, "MAP", page, size));
+    }
+
+    @PostMapping("/map/search")
+    @Operation(summary = "지도 베뉴 검색 (JSON Body)", description = """
+            JSON body로 지도 베뉴 검색을 수행합니다.
+            - sortCriteria는 필수입니다. (인기순, 가까운 순)
+            - 가까운 순으로 정렬하고 싶다면 latitude, longitude를 보내주셔야 합니다.
+            - regionTag는 (홍대, 압구정, 강남/신사, 이태원, 기타)로 정확하게 보내주셔야 합니다.
+            - genreTag는 (HIPHOP,R&B,EDM,HOUSE,TECHNO,SOUL&FUNK,ROCK,LATIN,K-POP,POP)로 정확하게 보내주셔야 합니다.
+    """)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "베뉴 검색 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = SearchPageResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "검색 요청이 올바르지 않음",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseTemplate.class)))
+    })
+    public ResponseEntity<SearchPageResponseDTO> searchMapWithBody(@RequestBody SearchMapRequestDTO request) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        return ResponseEntity.ok(searchService.searchDropDown(
+                memberId, 
+                request.toSearchDropDownDTO(), 
+                request.getLatitude(), 
+                request.getLongitude(), 
+                "MAP", 
+                request.getPage() != null ? request.getPage() : 1,
+                request.getSize() != null ? request.getSize() : 10
+        ));
     }
 }
