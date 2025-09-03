@@ -147,8 +147,8 @@ public class SearchController {
                 request.getLatitude(), 
                 request.getLongitude(), 
                 "MAP", 
-                request.getPage() != null ? request.getPage() : 1,
-                request.getSize() != null ? request.getSize() : 10
+                request.getPage(),
+                request.getSize()
         ));
     }
 }
