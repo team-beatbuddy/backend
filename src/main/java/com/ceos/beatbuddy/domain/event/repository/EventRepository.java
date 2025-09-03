@@ -48,17 +48,16 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     """)
     int updateToPast(@Param("startOfToday") LocalDateTime startOfToday);
 
-    // 오늘 범위에 걸리면: UPCOMING → NOW
+    // 현재 날짜가 이벤트 기간 내에 있으면: UPCOMING → NOW
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
         update Event e
            set e.status = 'NOW'
          where e.status = 'UPCOMING'
-           and e.startDate <= :endOfToday
+           and e.startDate <= :startOfToday
            and e.endDate   >= :startOfToday
     """)
-    int updateToNow(@Param("startOfToday") LocalDateTime startOfToday,
-                    @Param("endOfToday")   LocalDateTime endOfToday);
+    int updateToNow(@Param("startOfToday") LocalDateTime startOfToday);
 
     // 종료일이 오늘 시작보다 이전이면: UPCOMING → PAST (이상치 정리)
     @Modifying(clearAutomatically = true, flushAutomatically = true)
