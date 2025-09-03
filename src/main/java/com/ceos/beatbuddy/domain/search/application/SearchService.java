@@ -190,12 +190,7 @@ public class SearchService {
                 .toList();
     }
 
-    public static double haversine(Double lat1, Double lon1, Double lat2, Double lon2) {
-        // null 체크
-        if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) {
-            throw new CustomException(SearchErrorCode.COORDINATES_REQUIRED_FOR_DISTANCE_SORT);
-        }
-        
+    public static double haversine(double lat1, double lon1, double lat2, double lon2) {
         double R = 6371; // 지구 반지름 (단위: km)
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
