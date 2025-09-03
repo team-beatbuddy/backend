@@ -37,23 +37,38 @@ public class EventAttendanceRequestDTO {
                 .event(event)
                 .member(member);
 
-        if (dto.getName() != null) builder.name(dto.getName());
-        if (dto.getGender() != null) builder.gender(Gender.fromText(dto.getGender()));
-        if (dto.getPhoneNumber() != null) builder.phoneNumber(dto.getPhoneNumber());
-        if (dto.getTotalNumber() != null) builder.totalMember(dto.getTotalNumber());
-        
-        // String을 SNSType enum으로 변환
-        SNSType snsType = SNSType.fromString(dto.getSnsType());
-        builder.snsType(snsType);
-        
-        // SNSType이 NONE인 경우 snsId는 항상 null로 처리
-        if (snsType.isNone()) {
-            builder.snsId(null);
-        } else if (dto.getSnsId() != null) {
-            builder.snsId(dto.getSnsId());
+        // receiveInfo가 true이고 각 항목도 수집하도록 설정된 경우에만 값을 설정
+        if (event.isReceiveInfo()) {
+            if (event.isReceiveName() && dto.getName() != null) {
+                builder.name(dto.getName());
+            }
+            if (event.isReceiveGender() && dto.getGender() != null) {
+                builder.gender(Gender.fromText(dto.getGender()));
+            }
+            if (event.isReceivePhoneNumber() && dto.getPhoneNumber() != null) {
+                builder.phoneNumber(dto.getPhoneNumber());
+            }
+            if (event.isReceiveTotalCount() && dto.getTotalNumber() != null) {
+                builder.totalMember(dto.getTotalNumber());
+            }
+            
+            // SNS 정보 처리
+            if (event.isReceiveSNSId()) {
+                SNSType snsType = SNSType.fromString(dto.getSnsType());
+                builder.snsType(snsType);
+                
+                // SNSType이 NONE인 경우 snsId는 항상 null로 처리
+                if (snsType.isNone()) {
+                    builder.snsId(null);
+                } else if (dto.getSnsId() != null) {
+                    builder.snsId(dto.getSnsId());
+                }
+            }
+            
+            if (event.isReceiveMoney() && dto.getIsPaid() != null) {
+                builder.hasPaid(dto.getIsPaid());
+            }
         }
-        
-        builder.hasPaid(dto.getIsPaid());
 
         return builder.build();
     }
