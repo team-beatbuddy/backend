@@ -24,6 +24,8 @@ public class NotificationListDTO {
     private String message;
     @Schema(description = "알림 이미지 URL", example = "https://example.com/image.jpg")
     private String imageUrl;
+    @Schema(description = "알림 클릭 시 이동할 URL", example = "https://www.beatbuddy.world/event/123")
+    private String url;
     @Schema(description = "알림 유형", example = "EVENT")
     private String type;
     @Schema(description = "알림과 연관된 본문의 ID (이벤트, 댓글 등)", example = "1")
@@ -48,6 +50,7 @@ public class NotificationListDTO {
                 .title(entity.getTitle())
                 .message(entity.getMessage())
                 .imageUrl(entity.getImageUrl())
+                .url(entity.getUrl())
                 .type(entity.getType().name())
                 .contentId(entity.getContentId())
                 .memberId(entity.getReceiver().getId())
