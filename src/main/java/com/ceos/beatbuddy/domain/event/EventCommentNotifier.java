@@ -20,11 +20,9 @@ public class EventCommentNotifier {
 
     public void notifyParentAuthorIfStaffReply(Event event, Member replier, EventComment parent, EventComment reply) {
         boolean isReplierHost = replier.getId().equals(event.getHost().getId());
-        boolean isReplierAdmin = "ADMIN".equals(replier.getRole().name());
-        boolean isReplierStaff = isReplierHost || isReplierAdmin;
         boolean isReplyToOther = !parent.getAuthor().getId().equals(replier.getId());
 
-        if (isReplierStaff && isReplyToOther) {
+        if (isReplierHost && isReplyToOther) {
             Member parentAuthor = parent.getAuthor();
             NotificationPayload payload = notificationPayloadFactory.createEventReplyCommentPayload(
                     event.getId(), parent.getId(), reply.getContent(), reply.getId());

@@ -53,8 +53,8 @@ public class EventCommentService {
 
         boolean isEventHost = event.getHost().getId().equals(memberId);
         boolean isAdmin = member.isAdmin();
-        boolean isStaff = isEventHost || isAdmin;
-        
+        boolean isStaff = isEventHost; // 오직 이벤트 호스트만 담당자
+
         // 이벤트 댓글은 강제 익명 처리 (호스트/관리자 제외)
         boolean forceAnonymous = !isStaff;
         String anonymousNickname = null;
@@ -143,7 +143,7 @@ public class EventCommentService {
                             .map(c -> {
                                 boolean isEventHost = c.getAuthor().getId().equals(event.getHost().getId());
                                 boolean isAuthorAdmin = c.getAuthor().isAdmin();
-                                boolean isStaff = isEventHost || isAuthorAdmin;
+                                boolean isStaff = isEventHost; // 오직 이벤트 호스트만 담당자
                                 
                                 String displayName = getDisplayName(c, isStaff);
                                 
@@ -196,7 +196,7 @@ public class EventCommentService {
 
         boolean isEventHost = event.getHost().getId().equals(memberId);
         boolean isAdmin = member.isAdmin();
-        boolean isStaff = isEventHost || isAdmin;
+        boolean isStaff = isEventHost; // 오직 이벤트 호스트만 담당자
         
         // 익명 설정은 무시 - 강제 익명 처리
         if (!isStaff) {
