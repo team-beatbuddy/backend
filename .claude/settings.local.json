@@ -9,7 +9,8 @@
       "Bash(find:*)",
       "Bash(grep:*)",
       "Bash(sed:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": []
   }
