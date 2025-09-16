@@ -5,6 +5,7 @@ import com.ceos.beatbuddy.domain.firebase.event.NotificationEvent;
 import com.ceos.beatbuddy.global.discord.DiscordNotificationFailureNotifier;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;

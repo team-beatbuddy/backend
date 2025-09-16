@@ -33,4 +33,8 @@ public interface EventQueryRepository {
     int countVenuePastEvents(Long venueId);
 
     List<Event> findEventsByVenueOrderByPopularity(Long venueId, Pageable pageable);
+
+    List<Event> findVenueEventsLatest(Long venueId, Pageable pageable);
+
+    int countVenueEvents(Long venueId);
 }
