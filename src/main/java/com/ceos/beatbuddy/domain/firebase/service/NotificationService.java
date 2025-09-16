@@ -156,11 +156,11 @@ public class NotificationService {
                     Notification saved = save(member, payloadCopy);
                     payloadCopy.getData().put("notificationId", String.valueOf(saved.getId()));
 
-                    // FCM 전송은 별도 처리 (실패해도 DB에는 저장됨)
+                    // FCM 전송은 Kafka를 통해 처리
                     try {
                         notificationSender.send(member.getFcmToken(), payloadCopy);
                     } catch (Exception e) {
-                        log.warn("⚠️ FCM 전송 실패하지만 알림은 목록에서 확인 가능: memberId={}, error={}", member.getId(), e.getMessage());
+                        log.warn("⚠️ 알림 전송 실패: memberId={}, error={}", member.getId(), e.getMessage());
                     }
 
                 } catch (Exception e) {

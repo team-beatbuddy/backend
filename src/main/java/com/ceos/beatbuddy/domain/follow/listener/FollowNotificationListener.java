@@ -36,13 +36,11 @@ public class FollowNotificationListener {
             payload.getData().put("notificationId", String.valueOf(saved.getId()));
             log.info("✅ 팔로우 알림 DB 저장 완료 - notificationId: {}", saved.getId());
 
-            // FCM 전송은 별도 처리 (실패해도 DB에는 저장됨)
+            // FCM 전송은 Kafka를 통해 처리
             try {
-                log.info("🚀 팔로우 FCM 전송 시작");
                 notificationSender.send(event.following().getFcmToken(), payload);
-                log.info("✅ 팔로우 FCM 전송 성공");
             } catch (Exception e) {
-                log.warn("⚠️ 팔로우 FCM 전송 실패하지만 알림은 목록에서 확인 가능: {}", e.getMessage());
+                log.warn("⚠️ 팔로우 알림 전송 실패: {}", e.getMessage());
             }
         } catch (Exception e) {
             log.error("❌ 팔로우 알림 DB 저장 실패", e);
