@@ -64,11 +64,15 @@ public class NotificationService {
                 }
             }
 
+            // URL 추출
+            String url = payload.getData().get("url");
+
             Notification saved = Notification.builder()
                     .receiver(receiver)
                     .title(payload.getTitle())
                     .message(payload.getBody())
                     .imageUrl(payload.getImageUrl())
+                    .url(url)
                     .type(type)
                     .contentId(contentId)
                     .isRead(false)
