@@ -3,6 +3,7 @@ package com.ceos.beatbuddy.domain.event.dto;
 import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.entity.EventStatus;
 import com.ceos.beatbuddy.domain.member.entity.Member;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -43,6 +44,7 @@ public class EventCreateRequestDTO {
     @Schema(description = "이벤트 공지사항", example = "이벤트 관련 공지사항입니다.")
     private String notice;
     @Schema(description = "무료 여부", example = "false")
+    @JsonProperty("isFreeEntrance")
     private boolean isFreeEntrance;
     @Schema(description = "입장료 (무료이면 0)", example = "15000")
     private Integer entranceFee;
@@ -76,9 +78,12 @@ public class EventCreateRequestDTO {
     @NotNull(message = "지역은 필수입니다.")
     private String region;
 
+    public boolean getIsFreeEntrance() {
+        return isFreeEntrance;
+    }
 
     public static Event toEntity(EventCreateRequestDTO eventCreateRequestDTO, Member member) {
-        int entranceFee = eventCreateRequestDTO.isFreeEntrance() ? 0 : eventCreateRequestDTO.getEntranceFee();
+        int entranceFee = eventCreateRequestDTO.getIsFreeEntrance() ? 0 : eventCreateRequestDTO.getEntranceFee();
 
         return Event.builder()
                 .host(member)
@@ -91,7 +96,7 @@ public class EventCreateRequestDTO {
                 .entranceFee(entranceFee)
                 .entranceNotice(eventCreateRequestDTO.getEntranceNotice())
                 .notice(eventCreateRequestDTO.getNotice())
-                .isFreeEntrance(eventCreateRequestDTO.isFreeEntrance())
+                .isFreeEntrance(eventCreateRequestDTO.getIsFreeEntrance())
                 .receiveInfo(eventCreateRequestDTO.isReceiveInfo())
                 .depositAccount(eventCreateRequestDTO.getDepositAccount())
                 .depositAmount(eventCreateRequestDTO.getDepositAmount())
