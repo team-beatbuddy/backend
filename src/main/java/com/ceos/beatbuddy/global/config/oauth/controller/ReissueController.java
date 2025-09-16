@@ -1,27 +1,22 @@
 package com.ceos.beatbuddy.global.config.oauth.controller;
 
 import com.ceos.beatbuddy.domain.member.application.ReissueService;
-import com.ceos.beatbuddy.domain.member.dto.response.AdminResponseDto;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.ResponseTemplate;
 import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.config.jwt.TokenProvider;
 import com.ceos.beatbuddy.global.config.jwt.redis.RefreshToken;
 import com.ceos.beatbuddy.global.config.jwt.redis.RefreshTokenRepository;
+import com.ceos.beatbuddy.global.config.oauth.dto.TokenResponseDto;
 import com.ceos.beatbuddy.global.config.oauth.exception.OauthErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,32 +33,30 @@ public class ReissueController {
     @PostMapping("/reissue")
     @Operation(summary = "토큰 재발급",
             description = "Access 토큰이 만료된 경우, Refresh 토큰으로 재발급합니다.\n"
-                    + "Access 토큰과 Refresh 토큰을 각각 본문과 헤더에 담아 반환합니다.\n"
+                    + "Access 토큰과 Refresh 토큰을 모두 응답 본문에 담아 반환합니다.\n"
                     + "Refresh 토큰이 만료됐거나 유효하지 않은 토큰일 경우 에러를 반환합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "토큰을 재발급하는데 성공했습니다. 본문은 access 토큰의 값입니다."
-                    , headers = {
-                    @Header(name = "Set-Cookie", description = "새로운 Refresh 토큰입니다")
-            }, content = @Content(mediaType = "application/json",
-                    schema = @Schema(name = "access", implementation = String.class))
+            @ApiResponse(responseCode = "200", description = "토큰을 재발급하는데 성공했습니다."
+                    , content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = TokenResponseDto.class))
             ),
             @ApiResponse(responseCode = "400", description = "잘못된 토큰입니다"
                     + "에러 메시지가 출력됩니다.",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "404", description = "유저의 장르 선호도가 존재하지 않습니다",
+            @ApiResponse(responseCode = "404", description = "토큰을 찾을 수 없습니다",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ResponseTemplate.class)))
     })
-    public ResponseEntity<AdminResponseDto> reissue(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<TokenResponseDto> reissue(HttpServletRequest request) {
         Long userId = SecurityUtils.getCurrentMemberId();
+
+        // Authorization 헤더에서 refresh token 추출 (Bearer 토큰 방식)
+        String authHeader = request.getHeader("Authorization");
         String refresh = null;
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if (cookie != null && cookie.getName().equals("refresh")) {
-                refresh = cookie.getValue();
-                break;
-            }
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            refresh = authHeader.substring(7);
         }
 
         if (refresh == null) {
@@ -101,20 +94,9 @@ public class ReissueController {
         reissueService.deleteRefreshToken(refresh);
         reissueService.saveRefreshToken(userId, newRefresh);
 
-        HttpHeaders headers = new HttpHeaders();
-        ResponseCookie cookie = ResponseCookie.from("refresh", newRefresh)
-                .path("/")
-                .sameSite("None")
-                .httpOnly(true)
-                .secure(true)
-                .maxAge(60 * 60 * 24 * 14)
-                .build();
-        headers.add("Set-Cookie", cookie.toString());
+        TokenResponseDto tokenResponseDto = new TokenResponseDto(newAccess, newRefresh);
 
-        AdminResponseDto adminResponseDto = AdminResponseDto.builder()
-                .access(newAccess)
-                .build();
-        return ResponseEntity.ok().headers(headers).body(adminResponseDto);
+        return ResponseEntity.ok(tokenResponseDto);
     }
 
 }

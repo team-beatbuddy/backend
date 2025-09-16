@@ -356,6 +356,45 @@ public class MemberController implements MemberApiDocs{
                 .status(SuccessCode.SUCCESS_BLOCK_MEMBER.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_BLOCK_MEMBER, "성공적으로 차단했습니다."));
     }
+
+    // ============= Authentication Endpoints =============
+
+    @PostMapping("/logout")
+    @Operation(summary = "로그아웃", description = "사용자 로그아웃을 처리합니다. Redis에서 refresh token을 삭제합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "로그아웃 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "요청한 유저가 존재하지 않습니다",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseTemplate.class)))
+    })
+    public ResponseEntity<ResponseDTO<String>> logout() {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        memberService.logout(memberId);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_LOGOUT.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_LOGOUT, "로그아웃 되었습니다."));
+    }
+
+    @DeleteMapping("/withdraw")
+    @Operation(summary = "회원 탈퇴",
+            description = "회원탈퇴를 진행합니다. 사용자의 모든 데이터(장르, 지역, 분위기 선호도, 하트비트, 아카이브)가 삭제됩니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원탈퇴 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "요청한 유저가 존재하지 않습니다",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseTemplate.class)))
+    })
+    public ResponseEntity<ResponseDTO<String>> withdraw() {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        memberService.withdrawMember(memberId);
+        return ResponseEntity
+                .status(SuccessCode.SUCCESS_WITHDRAW.getStatus().value())
+                .body(new ResponseDTO<>(SuccessCode.SUCCESS_WITHDRAW, "회원탈퇴가 완료되었습니다."));
+    }
     
 //    @DeleteMapping("/block/{blockedMemberId}")
 //    public ResponseEntity<ResponseDTO<String>> unblockMember(@PathVariable @NotNull(message = "차단을 해제할 멤버 ID 는 필수입니다.") Long blockedMemberId) {
