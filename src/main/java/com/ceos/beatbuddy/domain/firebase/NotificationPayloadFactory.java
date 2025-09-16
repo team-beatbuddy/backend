@@ -19,7 +19,7 @@ public class NotificationPayloadFactory {
                 .data(Map.of(
                         "type", FOLLOW.getType(),
                         "contentId", String.valueOf(followerId),
-                        "url", "/profile/" + followerId
+                        "url", "https://www.beatbuddy.world/board/profile?writerId=" + followerId
                 ))
                 .build();
     }
@@ -32,7 +32,7 @@ public class NotificationPayloadFactory {
                 .data(new HashMap<String, String>() {{
                         put("type", POST_COMMENT.getType());
                         put("contentId", String.valueOf(commentId));
-                        put("url", "/comment/" + commentId);
+                        put("url", "https://www.beatbuddy.world/board/free/" + postId);
                 }})
                 .build();
     }
@@ -46,7 +46,7 @@ public class NotificationPayloadFactory {
                 .data(new HashMap<String, String>() {{
                         put("type", POST_COMMENT.getType());
                         put("contentId", String.valueOf(commentId));
-                        put("url", "/comment/" + commentId);
+                        put("url", "https://www.beatbuddy.world/board/free/" + postId);
                 }})
                 .build();
     }
@@ -59,7 +59,7 @@ public class NotificationPayloadFactory {
                 .data(new HashMap<String, String>() {{
                         put("type", EVENT_COMMENT.getType());
                         put("contentId", String.valueOf(replyId));
-                        put("url", "/reply/" + replyId);
+                        put("url", "https://www.beatbuddy.world/event/" + eventId);
                 }})
                 .build();
     }
@@ -72,7 +72,7 @@ public class NotificationPayloadFactory {
                 .data(new HashMap<String, String>() {{
                         put("type", EVENT_COMMENT.getType());
                         put("contentId", String.valueOf(commentId));
-                        put("url", "/comment/" + commentId);
+                        put("url", "https://www.beatbuddy.world/event/" + eventId);
                 }})
                 .build();
     }
@@ -86,7 +86,7 @@ public class NotificationPayloadFactory {
                 .data(new HashMap<String, String>() {{
                         put("type", EVENT.getType());
                         put("contentId", String.valueOf(eventId));
-                        put("url", "/event/" + eventId);
+                        put("url", "https://www.beatbuddy.world/event/" + eventId);
                         put("notificationId", String.valueOf(notificationId));
                 }})
                 .build();
@@ -100,7 +100,7 @@ public class NotificationPayloadFactory {
                 .data(new HashMap<String, String>() {{
                         put("type", EVENT.getType());
                         put("contentId", String.valueOf(eventId));
-                        put("url", "/event/" + eventId);
+                        put("url", "https://www.beatbuddy.world/event/" + eventId);
                         put("notificationId", String.valueOf(notificationId));
                 }})
                 .build();
@@ -113,20 +113,20 @@ public class NotificationPayloadFactory {
         }
 
         String finalType;
-        String url;
+        String url = "https://www.beatbuddy.world/";
 
         switch (type) {
             case "magazine" -> {
                 finalType = MAGAZINE.getType();
-                url = "/magazine";
+                url += "/magazine";
             }
             case "event" -> {
                 finalType = EVENT.getType();
-                url = "/event";
+                url += "/event";
             }
             case "venue" -> {
                 finalType = VENUE.getType();
-                url = "/venue";
+                url += "/venue";
             }
             default -> throw new CustomException(ErrorCode.INVALID_NOTIFICATION_TYPE);
         }
