@@ -276,7 +276,8 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
     @Override
     public List<Event> findEventsByVenueOrderByPopularity(Long venueId, Pageable pageable) {
         QEvent event = QEvent.event;
-        QEventLike like = QEventLike.eventLike;
+        QEventLike eventLike = QEventLike.eventLike;
+        QVenue venue = QVenue.venue;
 
         NumberExpression<Integer> statusOrder = new CaseBuilder()
                 .when(event.status.eq(EventStatus.NOW)).then(0)
@@ -284,18 +285,52 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
                 .otherwise(2);
 
         return queryFactory
-                .select(event)
-                .from(event)
-                .leftJoin(event.venue, QVenue.venue).fetchJoin()
-                .leftJoin(like).on(like.event.eq(event))
+                .selectFrom(event)
+                .leftJoin(event.venue, venue).fetchJoin()
+                .leftJoin(eventLike)
+                .on(eventLike.event.eq(event))
                 .where(event.venue.id.eq(venueId))
                 .groupBy(event)
                 .orderBy(
-                        like.count().desc(),
+                        eventLike.count().desc().nullsLast(),
                         statusOrder.asc()
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+    }
+
+    @Override
+    public List<Event> findVenueEventsLatest(Long venueId, Pageable pageable) {
+        QEvent event = QEvent.event;
+        LocalDateTime now = LocalDateTime.now();
+
+        NumberExpression<Integer> statusOrder = new CaseBuilder()
+                .when(event.startDate.loe(now).and(event.endDate.goe(now))).then(1) // NOW
+                .when(event.startDate.gt(now)).then(2) // UPCOMING
+                .otherwise(3); // PAST
+
+        return queryFactory
+                .selectFrom(event)
+                .where(event.venue.id.eq(venueId))
+                .orderBy(
+                        statusOrder.asc(),      // NOW → UPCOMING → PAST
+                        event.startDate.asc(),  // NOW/UPCOMING: 빠른 순
+                        event.endDate.desc()    // PAST: 최신순
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
+    @Override
+    public int countVenueEvents(Long venueId) {
+        QEvent event = QEvent.event;
+        return Math.toIntExact(
+                Objects.requireNonNull(queryFactory
+                        .select(event.count())
+                        .from(event)
+                        .where(event.venue.id.eq(venueId))
+                        .fetchOne())
+        );
     }
 }

@@ -76,10 +76,9 @@ public class VenueInfoController implements VenueInfoApiDocs {
     @GetMapping("/{venueId}/events/latest")
     public ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventsByVenueLatest(@PathVariable Long venueId,
                                                                                     @RequestParam(defaultValue = "1") int page,
-                                                                                    @RequestParam(defaultValue = "10") int size,
-                                                                                    @RequestParam(defaultValue = "false") boolean isPast) {
+                                                                                    @RequestParam(defaultValue = "10") int size) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        EventListResponseDTO eventListResponseDTO = venueInfoService.getVenueEventsLatest(venueId, memberId, page, size, isPast);
+        EventListResponseDTO eventListResponseDTO = venueInfoService.getVenueEventsLatest(venueId, memberId, page, size);
         return ResponseEntity
                 .status(SuccessCode.SUCCESS_GET_VENUE_EVENTS.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_GET_VENUE_EVENTS, eventListResponseDTO));

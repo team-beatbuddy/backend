@@ -4,6 +4,7 @@ import com.ceos.beatbuddy.domain.admin.application.AdminService;
 import com.ceos.beatbuddy.domain.coupon.repository.CouponRepository;
 import com.ceos.beatbuddy.domain.event.dto.EventListResponseDTO;
 import com.ceos.beatbuddy.domain.event.dto.EventResponseDTO;
+import com.ceos.beatbuddy.domain.event.entity.Event;
 import com.ceos.beatbuddy.domain.event.repository.EventAttendanceRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventLikeRepository;
 import com.ceos.beatbuddy.domain.event.repository.EventQueryRepository;
@@ -199,18 +200,18 @@ public class VenueInfoService {
         venueSearchService.save(venue, null, null); // Venue 정보를 Elasticsearch에 저장
     }
 
-    public EventListResponseDTO getVenueEventsLatest(Long venueId, Long memberId, int page, int size, boolean isPast) {
+    public EventListResponseDTO getVenueEventsLatest(Long venueId, Long memberId, int page, int size) {
         // 멤버 유효성 검사
         Member member = memberService.validateAndGetMember(memberId);
 
         // Venue 유효성 검사
         validateAndGetVenue(venueId);
 
-        // 페이지 유효성 검사
         if (page < 1) {
             throw new CustomException(ErrorCode.PAGE_OUT_OF_BOUNDS);
         }
 
+        // 좋아요 / 참석 여부 조회
         Set<Long> likedEventIds = eventLikeRepository.findLikedEventIdsByMember(member);
         Set<Long> attendingEventIds = eventAttendanceRepository.findByMember(member).stream()
                 .map(att -> att.getEvent().getId())
@@ -218,10 +219,10 @@ public class VenueInfoService {
 
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        var pagedEvents = isPast
-                ? eventQueryRepository.findVenuePastEvents(venueId, pageable)
-                : eventQueryRepository.findVenueOngoingOrUpcomingEvents(venueId, pageable);
+        // 단일 정렬 쿼리 실행
+        List<Event> pagedEvents = eventQueryRepository.findVenueEventsLatest(venueId, pageable);
 
+        // DTO 변환
         List<EventResponseDTO> events = pagedEvents.stream()
                 .map(event -> EventResponseDTO.toListDTO(
                         event,
@@ -231,18 +232,16 @@ public class VenueInfoService {
                 ))
                 .collect(Collectors.toList());
 
-        int totalSize = isPast
-                ? eventQueryRepository.countVenuePastEvents(venueId)
-                : eventQueryRepository.countVenueOngoingOrUpcomingEvents(venueId);
+        // venue 전체 이벤트 개수
+        int totalSize = eventQueryRepository.countVenueEvents(venueId);
 
         return EventListResponseDTO.builder()
                 .page(page)
                 .size(size)
                 .totalSize(totalSize)
-                .sort("latest")
+                .sort("latest") // 항상 latest
                 .eventResponseDTOS(events)
                 .build();
-
     }
 
     public EventListResponseDTO getVenueEventsByPopularity(Long venueId, Long memberId, int page, int size) {

@@ -144,8 +144,7 @@ public interface VenueInfoApiDocs {
     )
     ResponseEntity<ResponseDTO<EventListResponseDTO>> getEventsByVenueLatest(@PathVariable Long venueId,
                                                                              @RequestParam(defaultValue = "1") int page,
-                                                                             @RequestParam(defaultValue = "10") int size,
-                                                                             @RequestParam(defaultValue = "false") boolean isPast);
+                                                                             @RequestParam(defaultValue = "10") int size);
 
 
     @Operation(summary = "베뉴의 이벤트 목록 조회(인기순)",
