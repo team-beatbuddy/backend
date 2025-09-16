@@ -37,18 +37,15 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
                 .and(event.isVisible.eq(true));
 
         if ("popular".equals(sort)) {
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime yesterday = now.minusDays(1);
-
             return queryFactory
                     .select(event)
                     .from(event)
                     .leftJoin(event.venue, QVenue.venue).fetchJoin()
-                    .leftJoin(eventLike).on(eventLike.event.eq(event).and(eventLike.createdAt.between(yesterday, now)))
+                    .leftJoin(eventLike).on(eventLike.event.eq(event))
                     .where(builder)
                     .groupBy(event)
                     .orderBy(
-                            eventLike.count().desc(), // 1순위: 좋아요 개수 많은 순
+                            eventLike.count().desc(), // 1순위: 전체 좋아요 개수 많은 순
                             event.startDate.asc()     // 2순위: 시작일 빠른 순
                     )
                     .offset(offset)
