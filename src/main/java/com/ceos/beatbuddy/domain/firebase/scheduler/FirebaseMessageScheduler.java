@@ -71,7 +71,7 @@ public class FirebaseMessageScheduler {
                                 ? Long.parseLong(payload.getData().get("contentId"))
                                 : null);
 
-                // 4. 푸시 전송
+                // 4. 푸시 전송은 Kafka를 통해 처리
                 notificationSender.send(member.getFcmToken(), payload);
             }
         }

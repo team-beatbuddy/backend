@@ -76,13 +76,11 @@ public class PostCommentNotifier {
                 throw e;
             }
             
-            // FCM 전송은 별도 처리 (실패해도 DB에는 저장됨)
+            // FCM 전송은 Kafka를 통해서만 처리
             try {
-                log.info("🚀 FCM 알림 전송 시작 - token: {}", postAuthor.getFcmToken() != null ? "존재함" : "null");
                 notificationSender.send(postAuthor.getFcmToken(), notificationPayload);
-                log.info("✅ FCM 전송 성공");
             } catch (Exception e) {
-                log.warn("⚠️ FCM 전송 실패하지만 알림은 목록에서 확인 가능: {}", e.getMessage());
+                log.warn("⚠️ 알림 전송 실패: {}", e.getMessage());
             }
         } else {
             log.error("❌ NotificationPayload가 null");

@@ -25,6 +25,7 @@ public class NotificationConsumer {
     private final ObjectMapper objectMapper;
     private final DiscordNotificationFailureNotifier discordNotifier;
 
+
     @KafkaListener(topics = "notification-events", groupId = "notification-group")
     public void consumeNotificationEvent(
         @Payload String message,
@@ -32,9 +33,6 @@ public class NotificationConsumer {
         @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
         @Header(KafkaHeaders.OFFSET) long offset,
         Acknowledgment acknowledgment) {
-
-        log.info("📥 Kafka 메시지 수신 (topic: {}, partition: {}, offset: {})",
-            topic, partition, offset);
 
         try {
             NotificationEvent event = objectMapper.readValue(message, NotificationEvent.class);
@@ -53,8 +51,6 @@ public class NotificationConsumer {
             // 수동 커밋
             acknowledgment.acknowledge();
 
-            log.info("✅ 알림 처리 완료 (token: {})", event.getTargetToken());
-
         } catch (JsonProcessingException e) {
             log.error("❌ JSON 역직렬화 실패: {}", e.getMessage());
             // 파싱 실패한 경우에도 커밋하여 무한 재시도 방지
@@ -68,7 +64,6 @@ public class NotificationConsumer {
 
     private void sendToFirebase(String targetToken, NotificationPayload payload) {
         if (targetToken == null || targetToken.trim().isEmpty()) {
-            log.warn("❌ FCM 토큰 없음: 전송 생략");
             return;
         }
 
@@ -83,12 +78,9 @@ public class NotificationConsumer {
                     .putAllData(payload.getData())
                     .build();
 
-            String response = FirebaseMessaging.getInstance().send(message);
-            log.info("✅ FCM 전송 성공 (token: {}): {}", targetToken, response);
+            FirebaseMessaging.getInstance().send(message);
 
         } catch (FirebaseMessagingException e) {
-            log.warn("❌ FCM 전송 실패 (token: {}): {}", targetToken, e.getMessage());
-
             // 디스코드로 실패 알림
             discordNotifier.sendNotificationFailure(
                 targetToken,

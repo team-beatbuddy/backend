@@ -20,9 +20,11 @@ public class EventCommentNotifier {
 
     public void notifyParentAuthorIfStaffReply(Event event, Member replier, EventComment parent, EventComment reply) {
         boolean isReplierHost = replier.getId().equals(event.getHost().getId());
+        boolean isReplierAdmin = "ADMIN".equals(replier.getRole().name());
+        boolean isReplierStaff = isReplierHost || isReplierAdmin;
         boolean isReplyToOther = !parent.getAuthor().getId().equals(replier.getId());
 
-        if (isReplierHost && isReplyToOther) {
+        if (isReplierStaff && isReplyToOther) {
             Member parentAuthor = parent.getAuthor();
             NotificationPayload payload = notificationPayloadFactory.createEventReplyCommentPayload(
                     event.getId(), parent.getId(), reply.getContent(), reply.getId());
@@ -31,7 +33,7 @@ public class EventCommentNotifier {
             Notification saved = notificationService.save(parentAuthor, payload);
             payload.getData().put("notificationId", String.valueOf(saved.getId()));
 
-            // FCM 전송은 별도 처리 (실패해도 DB에는 저장됨)
+            // FCM 전송은 Kafka를 통해 처리
             try {
                 notificationSender.send(parentAuthor.getFcmToken(), payload);
             } catch (Exception e) {
@@ -50,7 +52,7 @@ public class EventCommentNotifier {
             Notification saved = notificationService.save(host, payload);
             payload.getData().put("notificationId", String.valueOf(saved.getId()));
             
-            // FCM 전송은 별도 처리 (실패해도 DB에는 저장됨)
+            // FCM 전송은 Kafka를 통해 처리
             try {
                 notificationSender.send(host.getFcmToken(), payload);
             } catch (Exception e) {
