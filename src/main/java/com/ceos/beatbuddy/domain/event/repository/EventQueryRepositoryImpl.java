@@ -288,7 +288,7 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
                 .selectFrom(event)
                 .leftJoin(event.venue, venue).fetchJoin()
                 .leftJoin(eventLike)
-                .on(eventLike.event.id.eq(event.id))
+                .on(eventLike.event.eq(event))
                 .where(event.venue.id.eq(venueId))
                 .groupBy(event)
                 .orderBy(
