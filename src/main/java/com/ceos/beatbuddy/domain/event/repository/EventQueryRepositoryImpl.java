@@ -276,7 +276,8 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
     @Override
     public List<Event> findEventsByVenueOrderByPopularity(Long venueId, Pageable pageable) {
         QEvent event = QEvent.event;
-        QEventLike like = QEventLike.eventLike;
+        QEventLike eventLike = QEventLike.eventLike;
+        QVenue venue = QVenue.venue;
 
         NumberExpression<Integer> statusOrder = new CaseBuilder()
                 .when(event.status.eq(EventStatus.NOW)).then(0)
@@ -284,14 +285,14 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
                 .otherwise(2);
 
         return queryFactory
-                .select(event)
-                .from(event)
-                .leftJoin(event.venue, QVenue.venue).fetchJoin()
-                .leftJoin(like).on(like.event.eq(event))
+                .selectFrom(event)
+                .leftJoin(event.venue, venue).fetchJoin()
+                .leftJoin(eventLike)
+                .on(eventLike.event.id.eq(event.id))
                 .where(event.venue.id.eq(venueId))
                 .groupBy(event)
                 .orderBy(
-                        like.count().desc(),
+                        eventLike.count().desc().nullsLast(),
                         statusOrder.asc()
                 )
                 .offset(pageable.getOffset())
