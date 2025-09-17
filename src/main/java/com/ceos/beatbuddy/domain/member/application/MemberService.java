@@ -16,6 +16,8 @@ import com.ceos.beatbuddy.domain.member.exception.MemberMoodErrorCode;
 import com.ceos.beatbuddy.domain.member.repository.*;
 import com.ceos.beatbuddy.domain.vector.entity.Vector;
 import com.ceos.beatbuddy.global.CustomException;
+import com.ceos.beatbuddy.global.config.jwt.redis.RefreshToken;
+import com.ceos.beatbuddy.global.config.jwt.redis.RefreshTokenRepository;
 import com.ceos.beatbuddy.global.config.oauth.dto.Oauth2MemberDto;
 import com.ceos.beatbuddy.global.util.UploadUtil;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,7 @@ public class MemberService {
     private final UploadUtil uploadUtil;
     private final MemberQueryRepository memberQueryRepository;
     private final FollowRepository followRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 //
 //    @Value("${iamport.api.key}")
 //    private String imp_key;
@@ -299,5 +302,25 @@ public class MemberService {
             return PostProfileInfo.from(null, null);
         }
         return PostProfileInfo.from(member.getPostProfileInfo().getPostProfileNickname(), member.getPostProfileInfo().getPostProfileImageUrl());
+    }
+
+    /**
+     * 사용자 로그아웃
+     * Redis에서 해당 사용자의 모든 refresh token을 삭제
+     */
+    @Transactional
+    public void logout(Long memberId) {
+        Member member = validateAndGetMember(memberId);
+
+        // Redis에서 해당 사용자의 모든 refresh token을 효율적으로 삭제
+        refreshTokenRepository.deleteAllByUserId(memberId);
+    }
+
+    /**
+     * 회원 탈퇴 (기존 deleteMember를 래핑하여 명확한 의미 부여)
+     */
+    @Transactional
+    public String withdrawMember(Long memberId) {
+        return deleteMember(memberId);
     }
 }

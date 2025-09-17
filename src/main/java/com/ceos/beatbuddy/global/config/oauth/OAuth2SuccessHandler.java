@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -99,8 +98,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             provider = "kakao";
         }
 
-        String redirectUrl = "https://beatbuddy.world/login/oauth2/callback/" + provider + "?access=" + access;
-
         LoginResponseDto loginResponseDto = LoginResponseDto.builder()
                 .memberId(memberId)
                 .loginId(username)
@@ -109,29 +106,17 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .refreshToken(refresh)
                 .build();
 
-        log.info("saved: " + access);
+        log.info("Login successful for memberId: {}", memberId);
 
-        ResponseCookie cookie = ResponseCookie.from("refresh", refresh)
-                .path("/")
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
-                .maxAge(60 * 60 * 24 * 14)
-                .build();
-
-        response.addHeader("Set-Cookie", cookie.toString());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_OK);
 
         String jsonResponse = objectMapper.writeValueAsString(loginResponseDto);
         response.getWriter().write(jsonResponse);
 
         HttpSession session = request.getSession();
         session.setMaxInactiveInterval(600);
-
-        if (!response.isCommitted()) {
-            response.sendRedirect(redirectUrl);
-        }
     }
 
     private void saveRefreshToken(Long userId, String refresh) {
