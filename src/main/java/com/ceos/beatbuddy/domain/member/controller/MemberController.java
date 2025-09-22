@@ -356,7 +356,7 @@ public class MemberController implements MemberApiDocs{
                 .status(SuccessCode.SUCCESS_BLOCK_MEMBER.getStatus().value())
                 .body(new ResponseDTO<>(SuccessCode.SUCCESS_BLOCK_MEMBER, "성공적으로 차단했습니다."));
     }
-    
+
 //    @DeleteMapping("/block/{blockedMemberId}")
 //    public ResponseEntity<ResponseDTO<String>> unblockMember(@PathVariable @NotNull(message = "차단을 해제할 멤버 ID 는 필수입니다.") Long blockedMemberId) {
 //        Long memberId = SecurityUtils.getCurrentMemberId();
