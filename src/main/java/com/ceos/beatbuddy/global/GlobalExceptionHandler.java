@@ -37,7 +37,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleAllExceptions(Exception ex, HttpServletRequest req) {
         String traceId = (String) req.getAttribute("traceId");
-        Long memberId = SecurityUtils.getCurrentMemberId();
+        Long memberId = null;
+        try {
+            memberId = SecurityUtils.getCurrentMemberId();
+        } catch (IllegalStateException ignored) {
+            // no authenticated user in context
+        }
         String query = (String) req.getAttribute("req.query");
         System.out.println("query = " + query);
         String clientIp = (String) req.getAttribute("req.clientIp");

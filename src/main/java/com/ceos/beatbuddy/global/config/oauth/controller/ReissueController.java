@@ -3,7 +3,6 @@ package com.ceos.beatbuddy.global.config.oauth.controller;
 import com.ceos.beatbuddy.domain.member.application.ReissueService;
 import com.ceos.beatbuddy.global.CustomException;
 import com.ceos.beatbuddy.global.ResponseTemplate;
-import com.ceos.beatbuddy.global.config.jwt.SecurityUtils;
 import com.ceos.beatbuddy.global.config.jwt.TokenProvider;
 import com.ceos.beatbuddy.global.config.jwt.redis.RefreshToken;
 import com.ceos.beatbuddy.global.config.jwt.redis.RefreshTokenRepository;
@@ -49,8 +48,6 @@ public class ReissueController {
                             schema = @Schema(implementation = ResponseTemplate.class)))
     })
     public ResponseEntity<TokenResponseDto> reissue(HttpServletRequest request) {
-        Long userId = SecurityUtils.getCurrentMemberId();
-
         // Authorization 헤더에서 refresh token 추출 (Bearer 토큰 방식)
         String authHeader = request.getHeader("Authorization");
         String refresh = null;
@@ -78,12 +75,19 @@ public class ReissueController {
         RefreshToken savedRefresh = refreshTokenRepository.findById(refresh)
                 .orElseThrow(() -> new CustomException(OauthErrorCode.REFRESH_TOKEN_NOT_FOUND));
 
+        Long userId = savedRefresh.getUserId();
+
         /**
          * QA기간 동안만 주석처리 예정
          */
 //        if(!savedRefresh.getUserId().equals(userId)){
 //            return new ResponseEntity<>("Not Token Owner", HttpStatus.BAD_REQUEST);
 //        }
+
+        Long memberIdFromToken = tokenProvider.getMemberId(refresh);
+        if (!userId.equals(memberIdFromToken)) {
+            throw new CustomException(OauthErrorCode.INVALID_REFRESH_TOKEN);
+        }
 
         String username = tokenProvider.getUsername(refresh);
         String role = tokenProvider.getRole(refresh);

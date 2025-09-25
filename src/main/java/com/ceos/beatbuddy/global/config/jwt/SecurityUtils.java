@@ -9,8 +9,10 @@ public class SecurityUtils {
     public static Long getCurrentMemberId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
-            CustomOAuth2User userDetails = (CustomOAuth2User) authentication.getPrincipal();
-            return userDetails.getMemberId();
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof CustomOAuth2User userDetails) {
+                return userDetails.getMemberId();
+            }
         }
         throw new IllegalStateException("User not authenticated");
     }
